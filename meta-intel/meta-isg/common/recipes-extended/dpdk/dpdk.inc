@@ -7,6 +7,7 @@ SRC_URI = "http://dpdk.org/browse/dpdk/snapshot/dpdk-${PV}.tar.gz;name=dpdk \
 	   file://dpdk-16.04-add-RTE_KERNELDIR_OUT-to-split-kernel-bu.patch \
 	   file://dpdk-16.04-add-sysroot-option-within-app-makefile.patch \
 	   file://dpdk-16.04-point-to-the-right-include-and-lib-path.patch \
+	   file://dpdk-16.04-Fix-for-misleading-indentation-error.patch \
 	  "
 
 COMPATIBLE_MACHINE = "crystalforest|intel-corei7-64"
