@@ -8,6 +8,7 @@ SRC_URI = "http://dpdk.org/browse/dpdk/snapshot/dpdk-${PV}.tar.gz;name=dpdk \
 	   file://dpdk-16.04-add-sysroot-option-within-app-makefile.patch \
 	   file://dpdk-16.04-point-to-the-right-include-and-lib-path.patch \
 	   file://dpdk-16.04-Fix-for-misleading-indentation-error.patch \
+	   file://dpdk-16.04-dpdk-fix-installation-warning-and-issue.patch \
 	  "
 
 COMPATIBLE_MACHINE = "crystalforest|intel-corei7-64"
@@ -40,7 +41,8 @@ export ICP_ROOT = "${PKG_CONFIG_SYSROOT_DIR}/usr/include"
 export ICP_LIB_ROOT= "${PKG_CONFIG_SYSROOT_DIR}/usr/lib"
 export RTE_KERNELDIR = "${STAGING_KERNEL_DIR}"
 export RTE_KERNELDIR_OUT = "${STAGING_KERNEL_BUILDDIR}"
-export INSTALL_PATH = "${prefix}/dpdk"
+export INSTALL_PATH = "${prefix}/share"
+export RTE_OUTPUT = "${S}/${RTE_TARGET}"
 export SYSROOTPATH = "--sysroot=${STAGING_DIR_HOST}"
 export DPDK_TARGET_MACH = "${@get_dpdk_target_mach(bb,d)}"
 export ICP_LAC_API_DIR = "${STAGING_DIR_TARGET}${includedir}/lac"
@@ -97,30 +99,9 @@ do_compile () {
 }
 
 do_install () {
-
-	install -m 0755 -d	${D}/${INSTALL_PATH} \
-				${D}/${INSTALL_PATH}/doc \
-				${D}/${INSTALL_PATH}/tools \
-				${D}/${INSTALL_PATH}/${RTE_TARGET} \
-				${D}/${INSTALL_PATH}/${RTE_TARGET}/app \
-				${D}${includedir} \
-				${D}${includedir}/${ARCHDIR} \
-				${D}${includedir}/exec-env \
-				${D}${libdir} \
-				${D}${MODULE_DIR}
-
-	install -m 0755 ${S}/${RTE_TARGET}/kmod/*.ko	${D}${MODULE_DIR}/
-
-	install -m 640 ${S}/${RTE_TARGET}/lib/*.a		${D}${libdir}
-
-	install -m 640 ${S}/${RTE_TARGET}/.config			${D}/${INSTALL_PATH}/${RTE_TARGET}/
-	install -m 640 ${S}/${RTE_TARGET}/include/*.h			${D}${includedir}/
-	install -m 640 ${S}/${RTE_TARGET}/include/${ARCHDIR}/*.h	${D}${includedir}/${ARCHDIR}/
-	install -m 640 ${S}/${RTE_TARGET}/include/exec-env/*.h		${D}${includedir}/exec-env/
-	install -m 0755 ${S}/tools/*.py					${D}/${INSTALL_PATH}/tools/
-
-	# Install applications
-	install -m 0755 ${S}/${RTE_TARGET}/app/*	${D}/${INSTALL_PATH}/${RTE_TARGET}/app/
+	oe_runmake O=${RTE_OUTPUT} T= install-runtime DESTDIR=${D}
+	oe_runmake O=${RTE_OUTPUT} T= install-kmod DESTDIR=${D} kerneldir=${MODULE_DIR}
+	oe_runmake O=${RTE_OUTPUT} T= install-sdk DESTDIR=${D}
 
 	# Install examples
 	for dirname in ${S}/examples/*
@@ -138,9 +119,6 @@ PACKAGES += "${PN}-examples"
 
 FILES_${PN}-dbg += " \
 	${INSTALL_PATH}/.debug \
-	${INSTALL_PATH}/${RTE_TARGET}/app/.debug \
-	${INSTALL_PATH}/${RTE_TARGET}/hostapp/.debug \
-	${INSTALL_PATH}/${RTE_TARGET}/app/*.map \
 	${INSTALL_PATH}/examples/*/.debug \
 	"
 
@@ -153,12 +131,16 @@ FILES_${PN}-dev += " \
 	${includedir} \
 	${includedir}/${ARCHDIR} \
 	${includedir}/exec-env \
+	${INSTALL_PATH}/scripts/ \
+	${INSTALL_PATH}/${RTE_TARGET}/include \
+	${INSTALL_PATH}/${RTE_TARGET}/lib \
 	"
 
-FILES_${PN} += " ${INSTALL_PATH}/tools/ "
-
+FILES_${PN} += " ${INSTALL_PATH}/tools/ \
+		 ${prefix}/sbin/ \
+		 ${prefix}/bin/ \
+		 ${libdir}/ \
+		 "
 FILES_${PN}-examples += " \
-	${INSTALL_PATH}/${RTE_TARGET}/app/* \
-	${INSTALL_PATH}/${RTE_TARGET}/hostapp/* \
 	${INSTALL_PATH}/examples/* \
 	"
