@@ -1,0 +1,30 @@
+From 8ce0e3249942a90f733bb2113e70e5a90ae67b00 Mon Sep 17 00:00:00 2001
+From: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+Date: Thu, 21 Jul 2016 05:53:52 +0800
+Subject: [PATCH 1/2] dpdk: fix compilation with dynamic libs
+
+Upstream-Status: Inappropriate [Configuration]
+
+Ensure that the correct cflags are being used.
+
+Signed-off-by: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+---
+ mk/rte.lib.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mk/rte.lib.mk b/mk/rte.lib.mk
+index 8f7e021..42610c9 100644
+--- a/mk/rte.lib.mk
++++ b/mk/rte.lib.mk
+@@ -70,7 +70,7 @@ exe2cmd = $(strip $(call dotfile,$(patsubst %,%.cmd,$(1))))
+ 
+ ifeq ($(LINK_USING_CC),1)
+ # Override the definition of LD here, since we're linking with CC
+-LD := $(CC) $(CPU_CFLAGS)
++LD := $(CC) $(CPU_CFLAGS) $(EXTRA_CFLAGS)
+ _CPU_LDFLAGS := $(call linkerprefix,$(CPU_LDFLAGS))
+ override EXTRA_LDFLAGS := $(call linkerprefix,$(EXTRA_LDFLAGS))
+ else
+-- 
+1.9.1
+

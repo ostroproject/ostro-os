@@ -9,6 +9,7 @@ SRC_URI = "http://dpdk.org/browse/dpdk/snapshot/dpdk-${PV}.tar.gz;name=dpdk \
 	   file://dpdk-16.04-point-to-the-right-include-and-lib-path.patch \
 	   file://dpdk-16.04-Fix-for-misleading-indentation-error.patch \
 	   file://dpdk-16.04-dpdk-fix-installation-warning-and-issue.patch \
+	   file://dpdk-16.04-dpdk-fix-compilation-with-dynamic-libs.patch \
 	  "
 
 COMPATIBLE_MACHINE = "crystalforest|intel-corei7-64"
