@@ -1,0 +1,198 @@
+This README file contains information on building the meta-crownbay
+BSP layer, and booting the images contained in the /binary directory.
+Please see the corresponding sections below for details.
+
+
+Table of Contents
+=================
+
+  I. Building the meta-crownbay BSP layer
+ II. Special notes for building the meta-crownbay BSP layer
+III. Booting the images in /binary
+
+
+I. Building the meta-crownbay BSP layer
+=======================================
+
+For each BSP in the 'meta-intel' repository, there are multiple
+branches, one corresponding to each major release starting with
+'laverne' (0.90), in addition to the latest code which tracks the
+current master.
+
+In order to build an image with BSP support for a given release, you
+need to check out the 'meta-intel' branch corresponding to the release
+you're building against e.g. to build for laverne (0.90), check out
+the 'laverne' branch of both poky and 'meta-intel'.
+
+Having done that, and assuming you cloned the 'meta-intel' repository
+at the top-level of your yocto build tree, you can build a crownbay
+image by adding the location of the meta-crownbay layer to
+bblayers.conf e.g.:
+
+  yocto/meta-intel/meta-crownbay \
+
+To enable the crownbay layer, add the crownbay MACHINE to local.conf:
+
+  MACHINE ?= "crownbay"
+
+You should then be able to build a crownbay image as such:
+
+  $ source poky-init-build-env
+  $ bitbake poky-image-sato-live
+
+At the end of a successful build, you should have a live image that
+you can boot from a USB flash drive (see instructions on how to do
+that below, in the section 'Booting the images from /binary').
+
+
+II. Special notes for building the meta-crownbay BSP layer
+==========================================================
+
+The meta-crownbay layer makes use of the proprietary Intel EMGD
+userspace drivers, which at this point in time require that the user
+accept the Intel license by manually extracting the binaries and
+copying them to the proper location in the meta-crownbay layer.
+
+There currently isn't an automated way to do this, thus the manual
+step.  When Yocto supports a click-through installation mechanism, the
+binary files will be packaged as part of the recipe, and this step
+will be unnecessary.
+
+These steps require that you run a graphical application in Windows.
+Windows 7 was used for these instructions, but it shouldn't matter
+which version of Windows you use.
+
+The first step of the process is to download the EMGD 1.5 Gold Driver.
+Here is the current link to the URL which it can be downloaded from:
+
+http://edc.intel.com/Software/Downloads/EMGD/
+
+In the Download Now tab, select:
+
+Intel® architecture-based product: Intel Atom Processor E6XX Series
+Operating System: MeeGo 1.0 IVI Linux (kernel 2.6.33.3, X.server 1.8.0)
+
+That will give you a large zip file:
+
+IEMGD_1_5_GOLD_ALL_1742.zip
+
+Extract the files in the zip file, which will in turn give you a large
+.exe file:
+
+IEMGD_1_5_GOLD_ALL_1742.exe
+
+Run IEMGD_1_5_GOLD_ALL_1742.exe to install, accept licenses, etc.
+
+If it says to install watcom, follow the instructions to do that.
+
+When the installation completes, an application named "emgd-ced" will
+be present in the install directory.  Double-click to run it.
+
+Select the menu item: New Configuration
+
+In the tabbed page, make the following selections and/or enter the
+specified data:
+
+Configuration File Name: myconfig
+Platform Chipset: Intel Atom Processor E6xx
+Port Devices: LVDS, sDVO
+
+Hit the 'Next' button.
+
+On the next tabbed page, make the following selections and/or enter
+the specified data:
+
+Readable Port Name: portname0
+Encoder Configuration: Select sDVO Device: Internal LVDS
+
+Hit the 'Finish' button.
+
+Select the menu item: New Package
+
+In the tabbed page, make the following selections and/or enter the
+specified data:
+
+Package File Name: mypackage
+Configurations: selec myconfig.cnfg
+Target OS: Linux operating System
+
+Hit the 'Finish' button.
+
+Select the menu item: Generate Installation
+
+This will create the EMGD installation package:
+
+Generating EMGD installation...
+
+The installation package should now be under the 'workspace'
+subdirectory of the directory you installed to:
+
+workspace/installation/mypackage.pkg_installation/IEMGD_HEAD_Linux/IEMGD_HEAD_Linux.tgz
+
+This is the file you are interested in.  Copy it to your Poky build
+system, and uncompress/untar it:
+
+$ tar cvfz IEMGD_HEAD_Linux.tgz
+
+Finally, copy Xorg-xserver binaries in the Meego1.0 driver directory
+to the xserver-xf86-emgd-bin directory in the meta-crownbay layer:
+
+$ cp IEMGD_HEAD_Linux/MeeGo1.0/driver/Xorg-xserver-1.7.99/* meta-crownbay/recipes/xorg-xserver/xserver-xf86-emgd-bin
+
+You also need to copy the IEMGD License.txt file to the same directory:
+
+$ cp IEMGD_HEAD_Linux/License/License.txt meta-crownbay/recipes/xorg-xserver/xserver-xf86-emgd-bin
+
+At this point, you should be able to build meta-crownbay images as usual.
+
+----
+
+For reference, the EMGD Driver documentation is also available at the
+above link (it's also part of the installation).
+
+The specific text of the document is:
+
+User Guide: Intel® Embedded Media and Graphics Driver, EFI Video
+Driver, EPOG, and Video BIOS v1.5 for Windows* XP and Linux* Provides
+installation requirements/procedures & describes the vbios/firmware,
+configuration options, & functionality of Intel® EMGD under Windows* &
+Linux*. Refer to guide for details.
+
+File Type/Size: PDF 3,340KB
+Version: 008 : October 2010
+
+
+II. Booting the images in /binary
+=================================
+
+This BSP contains bootable live images, which can be used to directly
+boot Yocto off of a USB flash drive.
+
+Under Linux, insert a USB flash drive.  Assuming the USB flash drive
+takes device /dev/sdf, use dd to copy the live image to it.  For
+example:
+
+# dd if=poky-image-sato-live-crownbay-20101207053738.hddimg of=/dev/sdf
+# sync
+# eject /dev/sdf
+
+This should give you a bootable USB flash device.  Insert the device
+into a bootable USB socket on the target, and power on.  This should
+result in a system booted to the Sato graphical desktop.
+
+If you want a terminal, use the arrows at the top of the UI to move to
+different pages of available applications, one of which is named
+'Terminal'.  Clicking that should give you a root terminal.
+
+If you want to ssh into the system, you can use the root terminal to
+ifconfig the IP address and use that to ssh in.  The root password is
+empty, so to log in type 'root' for the user name and hit 'Enter' at
+the Password prompt: and you should be in.
+
+----
+
+If you find you're getting corrupt images on the USB (it doesn't show
+the syslinux boot: prompt, or the boot: prompt contains strange
+characters), try doing this first:
+
+# dd if=/dev/zero of=/dev/sdf bs=1M count=512
