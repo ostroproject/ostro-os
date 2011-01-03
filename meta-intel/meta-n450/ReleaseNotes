@@ -1,0 +1,103 @@
+Poky Laverne Release 4.0
+
+- Features and Updates
+- Known Issues
+
+
+FEATURES AND UPDATES
+====================
+
+- Poky Build System Updates
+	* Saved State / Checksumming
+	* Working prebuilt packages
+	* If a cache of prebuilt packages is present, these should be
+	  used to accelerate the build
+	* Task based prebuilts
+	* Meta Directory Update
+	* Debug symbols into sysroot
+	* Builds outside Poky TMPDIR 
+	* Can install to a readonly directory
+	* Ability to Build GPL v2 only target images
+	* Swapper integrated to detect host contamination
+- Prelink Tool Integration
+	* Integration of cross prelink tools into Poky
+- Toolchain Update
+	* GCC 4.5.0 now default compiler
+	* EGLIBC is default libc provider
+- New and Updated Recipes
+	* Major update of core recipes
+	* Add additional packages to get initial lsb support
+	* Add QT4 Libraries and demo code
+- Packaging
+	* rootfs creating done with RPM
+	* Use pseudo for setting ownership and permissions
+	* Software package Management now use RPM5 and Zypper
+- Standalone Yocto Linux SDK Generator 
+	* Enable other SW development	
+	* Output from Poky 
+	* Cof a sysroot representing a target system 
+	* Includes a standalone cross compiler and cross build tools to isolate the two systems
+- Yocto Linux SDK Generator IDE Plug-ins
+	* Work within IDE using Yocto sysroot environment and cross platform toolchains
+	* Remote user spacke tool suite interaction
+	* Eclipse	
+	* Anjuta
+- Yocto Linux SDK Generator remote agent
+	* Runs on a "device"
+	* Manage tasks e.g. deployment, launching remote tools, setup cross debugging session
+- Yocto Linux SDK Generator remote tasks support
+	* Remote deploy support
+	* Remote debug suppport
+	* Remote tools interaction 
+- Qemu basic system simulation/emulation
+	* Enhanced with GL passthrough
+	* Support user mode NFS
+- User space tool suite for target device tuning, analyzing and optimizing
+	* OProfile
+	* Powertop	
+	* Latencytop
+	* Perf
+	* ftrace/lttng user space
+- Host side clients for tools on target devices and IDE interaction	
+	* ProfileUI
+	* Lttv-viewer
+- Updated Documentation	
+	* Core Reference Manunal Updated
+	* BSP standard document
+	* Quick Start Guide
+	* FAQs
+
+
+KNOWN ISSUES
+============
+
+See bugzilla.yoctoproject.org
+
+382 - oprofile-server on PPC is built big-endian while oprofile-viewer 
+      on host system may built with little-endian, but oprofile-server
+      and oprofile-viewer are not implemented to correctly handle
+      conversion between host byte order and network byte order, so
+      oprofile-server and oprofile-viewer may run into connection issue.
+
+439 - No audio from the Blacksand board Front Channel auido jack.
+      Workaround: run the following cmd: 'amixer sset "Front" 30 on'
+
+467 - Issues building with Fedora 14, this distribution provided a version
+      of make that is not compatible with the Poky build system, the
+      workaround it to build a native version of make via the build system.
+      Users of Fedora 14 will need to do a 'bitbake make-native' before
+      running any other targets.
+
+429 - Building poky from scratch with /opt/poky in your path cause host
+      contamination issues, be sure that /opt/poky is not in your path
+      if building from scratch
+
+160 - The Emenlow Hardware gets stuck in the HW Reboot sequence and needs
+      to be power cycled.
+
+Zypper / RPM Issues
+489/490/491 - Due to some archetectual difference between Zypper and RPM5.0,
+      there are some compatibility issues that prevent zypper from
+      working correctly. 
+      Packages can still be managed with the rpm commands.
+

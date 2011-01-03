@@ -1,0 +1,13 @@
+#!/bin/sh
+
+AMIXER=`which amixer`
+
+if [ ! -e $AMIXER ]; then
+	if [ -e /usr/bin/amixer ]; then
+		AMIXER=/usr/bin/amixer
+	else
+		echo "No amixer, so unable to reset Front channel ON"
+	fi
+fi
+
+
