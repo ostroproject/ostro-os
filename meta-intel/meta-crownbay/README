@@ -137,7 +137,7 @@ $ tar cvfz IEMGD_HEAD_Linux.tgz
 Finally, copy Xorg-xserver binaries in the Meego1.0 driver directory
 to the xserver-xf86-emgd-bin directory in the meta-crownbay layer:
 
-$ cp IEMGD_HEAD_Linux/MeeGo1.0/driver/Xorg-xserver-1.7.99/* meta-crownbay/recipes/xorg-xserver/xserver-xf86-emgd-bin
+$ cp IEMGD_HEAD_Linux/MeeGo1.0/driver/Xorg-xserver-1.7.99/* meta-crownbay/recipes-graphics/xorg-xserver/xserver-xf86-emgd-bin
 
 You also need to copy the IEMGD License.txt file to the same directory:
 
