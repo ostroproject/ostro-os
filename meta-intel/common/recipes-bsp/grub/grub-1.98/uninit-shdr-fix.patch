@@ -1,0 +1,31 @@
+Index: grub-1.98/loader/i386/bsdXX.c
+===================================================================
+--- grub-1.98.orig/loader/i386/bsdXX.c	2011-01-25 00:12:14.967535179 -0600
++++ grub-1.98/loader/i386/bsdXX.c	2011-01-25 00:13:16.387535169 -0600
+@@ -80,7 +80,7 @@
+ {
+   Elf_Ehdr e;
+   Elf_Shdr *s;
+-  char *shdr;
++  char *shdr = NULL;
+   grub_addr_t curload, module;
+   grub_err_t err;
+ 
+@@ -148,7 +148,7 @@
+ {
+   Elf_Ehdr e;
+   Elf_Shdr *s;
+-  char *shdr;
++  char *shdr = NULL;
+   grub_addr_t curload, module;
+   grub_err_t err;
+ 
+@@ -223,7 +223,7 @@
+   grub_err_t err;
+   Elf_Ehdr e;
+   Elf_Shdr *s;
+-  char *shdr;
++  char *shdr = NULL;
+   unsigned symoff, stroff, symsize, strsize;
+   grub_addr_t curload;
+   grub_freebsd_addr_t symstart, symend, symentsize, dynamic;
