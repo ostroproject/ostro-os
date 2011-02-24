@@ -12,12 +12,13 @@ PRIORITY = "optional"
 LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 
-RDEPENDS = "diffutils"
-PR = "r0"
+RDEPENDS = "diffutils freetype"
+PR = "r1"
 
 SRC_URI = "ftp://alpha.gnu.org/gnu/grub/grub-${PV}.tar.gz \
           file://uninit-shdr-fix.patch;apply=yes \
           file://grub-install.in.patch;apply=yes \
+          file://gentrigtables-compile-fix.patch;apply=yes \
           file://40_custom"
 
 inherit autotools
