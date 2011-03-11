@@ -1,0 +1,15 @@
+#!/bin/sh
+
+AMIXER=`which amixer`
+
+if [ ! -e "$AMIXER" ]; then
+	if [ -e /usr/bin/amixer ]; then
+		AMIXER=/usr/bin/amixer
+	else
+		echo "amixer not found, unable to set default audio settings."
+		exit 1
+	fi
+fi
+
+# Enable the "Front" simple controls (black phones jack)
+$AMIXER sset Front 30 on
