@@ -15,8 +15,8 @@ SRC_URI += "file://nodolt.patch \
 # Misc build failure for master HEAD
 SRC_URI += "file://fix_open_max_preprocessor_error.patch"
 
-SRC_URI[md5sum] = "5c8773499a6a8c1ddaedf33577ec9634"
-SRC_URI[sha256sum] = "8b30800004c98fc7a8e6ff31a339f28451be5132e774443be22bf226e1791e34"
+SRC_URI[md5sum] = "cafc4e2d4ef6cf6e47f3e7dffeb3346a"
+SRC_URI[sha256sum] = "a89f13b166b412930fe418ff50032dd2cde8bb181d8b47b5ca6f848d218fdcf2"
 
 RDEPENDS_${PN} += "xserver-xf86-emgd-bin mesa-dri"
 
