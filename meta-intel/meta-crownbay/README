@@ -2,6 +2,11 @@ This README file contains information on building the meta-crownbay
 BSP layer, and booting the images contained in the /binary directory.
 Please see the corresponding sections below for details.
 
+The Crown Bay platform consists of the Intel Atom Z6xx processor,
+plus the Intel EG20T Platform Controller Hub (Tunnel Creek + Topcliff).
+
+It also supports the E6xx embedded on-chip graphics via the Intel
+Embedded Media and Graphics Driver (EMGD) 1.5 Gold Driver.
 
 Table of Contents
 =================
@@ -21,8 +26,8 @@ current master.
 
 In order to build an image with BSP support for a given release, you
 need to check out the 'meta-intel' branch corresponding to the release
-you're building against e.g. to build for laverne (0.90), check out
-the 'laverne' branch of both poky and 'meta-intel'.
+you're building against e.g. to build for bernard (1.0), check out
+the 'bernard' branch of both poky and 'meta-intel'.
 
 Having done that, and assuming you cloned the 'meta-intel' repository
 at the top-level of your yocto build tree, you can build a crownbay
@@ -31,9 +36,21 @@ bblayers.conf e.g.:
 
   yocto/meta-intel/meta-crownbay \
 
-To enable the crownbay layer, add the crownbay MACHINE to local.conf:
+The meta-crownbay layer contains support for two different machine
+configurations. These configurations are identical except for the fact
+that the one prefixed with 'crownbay' makes use of the
+Intel-proprietary EMGD 1.5 graphics driver, while the one prefixed
+with 'crownbay-noemgd' does not.
+
+If you want to enable the layer that supports EMGD graphics add
+following to the local.conf file:
 
   MACHINE ?= "crownbay"
+
+If you want to enable the layer that does not support EMGD graphics
+add the following to the local.conf file:
+
+  MACHINE ?= "crownbay-noemgd"
 
 You should then be able to build a crownbay image as such:
 
@@ -49,14 +66,17 @@ II. Special notes for building the meta-crownbay BSP layer
 ==========================================================
 
 The meta-crownbay layer makes use of the proprietary Intel EMGD
-userspace drivers, which at this point in time require that the user
-accept the Intel license by manually extracting the binaries and
-copying them to the proper location in the meta-crownbay layer.
+userspace drivers when building the "crownbay" machine (but not when
+building the "crownbay-noemgd" machine).  If you got the BSP from the
+'BSP Downloads' section of the Yocto website, the EMGD binaries needed
+to perform the build will already be present in the BSP, located in
+the recipes-graphics/xorg-xserver/xserver-xf86-emgd-bin directory, and
+you can ignore the rest of this section.
 
-There currently isn't an automated way to do this, thus the manual
-step.  When Yocto supports a click-through installation mechanism, the
-binary files will be packaged as part of the recipe, and this step
-will be unnecessary.
+If you didn't get the BSP from the 'BSP Downloads' section of the
+Yocto website, you'll need to download the a Windows executable from
+the official EMGD website, extract the binaries from it, and copy them
+to the proper location in the meta-crownbay layer.
 
 These steps require that you run a graphical application in Windows.
 Windows 7 was used for these instructions, but it shouldn't matter
