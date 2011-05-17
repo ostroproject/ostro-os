@@ -1,0 +1,64 @@
+This file contains a list of BSP maintainers for the BSPs contained in
+the meta-intel repository.
+
+Please submit any patches against meta-intel BSPs to the Yocto mailing
+list (yocto@yoctoproject.org).
+
+If you have problems with or questions about a particular BSP, feel
+free to contact the maintainer directly (cc:ing the Yocto mailing list
+puts it in the archive and helps other people who might have the same
+questions in the future), but please try to do the following first:
+
+  - look in the Yocto Project Bugzilla
+    (http://bugzilla.yoctoproject.org/) to see if a problem has
+    already been reported
+
+  - look through recent entries of the Yocto mailing list archives
+    (https://lists.yoctoproject.org/pipermail/yocto/) to see if other
+    people have run into similar problems or had similar questions
+    answered.
+
+Descriptions of section entries:
+
+	M: Mail patches to: FullName <address@domain>
+	F: Files and directories with wildcard patterns.
+	   A trailing slash includes all files and subdirectory files.
+	   F:	meta-crownbay/	all files in and below meta-crownbay
+	   F:	meta-crownbay/*	all files in meta-crownbay, but not below
+	   One pattern per line.  Multiple F: lines acceptable.
+
+Please keep this list in alphabetical order.
+
+Maintainers List (try to look for most precise areas first)
+
+		-----------------------------------
+
+COMMON
+M:	Tom Zanussi <tom.zanussi@intel.com>
+F:	common/recipes-bsp/grub/
+F:	common/recipes-core/
+
+CROWNBAY
+M:	Tom Zanussi <tom.zanussi@intel.com>
+F:	meta-crownbay/
+
+EMENLOW
+M:	Tom Zanussi <tom.zanussi@intel.com>
+F:	meta-emenlow/
+
+FISHRIVER
+M:	Tom Zanussi <tom.zanussi@intel.com>
+F:	meta-fishriver/
+
+JASPERFOREST
+M:	Tom Zanussi <tom.zanussi@intel.com>
+F:	meta-jasperforest/
+
+N450
+M:	Darren Hart <dvhart@linux.intel.com>
+F:	meta-n450/
+
+SUGARBAY
+M:	Tom Zanussi <tom.zanussi@intel.com>
+F:	meta-sugarbay/
+
