@@ -14,4 +14,4 @@ addition to the code contained in this BSP, can also be found at the
 following locations:
 
 git://git.yoctoproject.org/poky.git
-git://git.pokylinux.org/meta-intel
+git://git.yoctoproject.org/meta-intel
