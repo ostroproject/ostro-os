@@ -1,4 +1,4 @@
-FILESEXTRAPATHS := "${FILESEXTRAPATHS}:${THISDIR}/${PN}"
+FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 KMACHINE_n450 = "yocto/standard/common-pc/atom-pc"
 COMPATIBLE_MACHINE_n450 = "n450"
 

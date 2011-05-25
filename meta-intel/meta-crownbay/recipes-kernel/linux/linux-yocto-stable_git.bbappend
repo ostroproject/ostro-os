@@ -1,4 +1,4 @@
-FILESEXTRAPATHS := "${FILESEXTRAPATHS}:${THISDIR}/${PN}"
+FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 COMPATIBLE_MACHINE_crownbay = "crownbay"
 KMACHINE_crownbay  = "crownbay"
