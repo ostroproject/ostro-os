@@ -23,16 +23,11 @@ II. Booting the images in /binary
 I. Building the meta-emenlow BSP layer
 =======================================
 
-The 'meta-intel' repository contains multiple branches, one
-corresponding to each major release starting with 'laverne' (0.90), in
-addition to the latest code which tracks the current master.
-
 In order to build an image with BSP support for a given release, you
-need to check out the 'meta-intel' branch corresponding to the release
-you're building against e.g. to build for laverne (0.90), check out
-the 'laverne' branch of both poky and 'meta-intel'.
+need to download the corresponding BSP tarball from the 'Board Support
+Package (BSP) Downloads' page of the Yocto Project website.
 
-Having done that, and assuming you cloned the 'meta-intel' repository
+Having done that, and assuming you extracted the BSP tarball contents
 at the top-level of your yocto build tree, you can build an emenlow
 image by adding the location of the meta-emenlow layer to
 bblayers.conf e.g.:
@@ -51,6 +46,15 @@ You should then be able to build an emenlow image as such:
 At the end of a successful build, you should have a live image that
 you can boot from a USB flash drive (see instructions on how to do
 that below, in the section 'Booting the images from /binary').
+
+As an alternative to downloading the BSP tarball, you can also work
+directly from the meta-intel git repository.  For each BSP in the
+'meta-intel' repository, there are multiple branches, one
+corresponding to each major release starting with 'laverne' (0.90), in
+addition to the latest code which tracks the current master.  Instead
+of extracting a BSP tarball at the top level of your yocto build tree,
+you can equivalently check out the appropriate branch from the
+meta-intel repository at the same location.
 
 
 II. Booting the images in /binary
