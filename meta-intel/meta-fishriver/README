@@ -11,19 +11,6 @@ Table of Contents
 III. Booting the images in /binary
 
 
-I. Special notes on the meta-fishriver BSP layer
-================================================
-
-The meta-fishriver layer currently and temporarily uses the crownbay
-kernel branch.  This will change once we have new patches and/or
-config changes for:
-
-- Zigbee
-- wifi
-- upstream gma500
-- EMGD?
-
-
 II. Building the meta-fishriver BSP layer
 =========================================
 
