@@ -1,7 +1,37 @@
 Poky Laverne Release 4.0
 
+- Dependencies
 - Features and Updates
 - Known Issues
+
+DEPENDENCIES
+============
+
+This layer depends on:
+
+  URI: git://git.openembedded.org/bitbake
+  branch: master
+
+  URI: git://git.openembedded.org/openembedded-core
+  layers: meta
+  branch: master
+
+  URI: git://git.yoctoproject.org/poky
+  layers: meta-yocto
+  branch: master
+
+NOTE: n450 currently depends on meta-yocto due to atom-pc
+dependencies.  The plan is to move atom-pc to meta-intel as soon as
+the layer tooling comes online and meta-yocto becomes its own
+repository.  At that point, meta-yocto will no longer be required.
+
+Note also that the layering with respect to the poky repository is in
+transition; it currently contains both meta from openembedded-core and
+bitbake along with some other files and directories which will
+eventually be contained in standalone repositories once the ongoing
+layering work has been completed.  As such, the master branch of the
+poky repository can at the present time be used to satisfy all
+meta-intel dependencies.
 
 
 FEATURES AND UPDATES
