@@ -4,7 +4,7 @@ DESCRIPTION = "X11 drivers for Poulsbo (psb) 3D acceleration"
 # not Intel proprietary, but it has no obvious license attached to it.
 LICENSE = "Intel-binary-only"
 LIC_FILES_CHKSUM = "file://${WORKDIR}/${PN}-${PV}/COPYING;md5=02c597a2f082b4581596065bb5a521a8"
-PR = "r6"
+PR = "r7"
 
 inherit autotools
 
@@ -29,6 +29,7 @@ do_install() {
 		${D}/${libdir}/xorg/modules/dri
 	install -m 0644 ${WORKDIR}/${PN}-${PV}/drivers/* \
 		${D}/${libdir}/xorg/modules/drivers
+	ln -s ${libdir}/xorg/modules/dri ${D}${libdir}/dri
 }
 
 S = "${WORKDIR}/${PN}-${PV}/mesa"

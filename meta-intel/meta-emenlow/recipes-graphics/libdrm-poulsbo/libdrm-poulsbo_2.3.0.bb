@@ -1,7 +1,7 @@
 DESCRIPTION = "Userspace interface to kernel DRM services"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://MIT_License.txt;md5=732825ecdcf420261531d935fcd914a7"
-PR = "r4"
+PR = "r5"
 
 PROVIDES = "libdrm-poulsbo"
 
@@ -16,4 +16,8 @@ SRC_URI[sha256sum] = "335d4ac6694687475efe07b44a2d77a9a9fadcbc16946d01ea8a02339a
 do_configure_prepend() {
 	sed -e 's/-ldrm/-ldrm_poulsbo/' -e 's/libdrm/libdrm_poulsbo/' \
 	    < ${S}/libdrm.pc.in > ${S}/libdrm_poulsbo.pc.in
+}
+
+do_install_append() {
+	ln -s libdrm_poulsbo.so.2.3.0 ${D}${libdir}/libdrm.so.2
 }
