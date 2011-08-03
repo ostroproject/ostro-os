@@ -1,0 +1,6 @@
+meta-autobuilder
+===============
+
+Contains recipe modifications required to produce the official 
+yocto autobuild BSPs.
+
