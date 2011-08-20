@@ -2,5 +2,5 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 COMPATIBLE_MACHINE_fishriver = "fishriver"
 KMACHINE_fishriver  = "yocto/standard/fishriver"
 
-SRCREV_machine_pn-linux-yocto_fishriver ?= "5c13f6d2e5d49d3cddd57619efb0c615074f6aae"
-SRCREV_meta_pn-linux-yocto_fishriver ?= "9da70812ecddee0f7eeb11675f29497cb997275e"
+SRCREV_machine_pn-linux-yocto_fishriver ?= "5746120ee0afefd1e28400bea4b74f285bd5e59a"
+SRCREV_meta_pn-linux-yocto_fishriver ?= "d588bdafc0d9b4d2386144b7d76a1d379e2d16c0"
