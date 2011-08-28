@@ -4,7 +4,7 @@ DESCRIPTION = "X11 drivers for Poulsbo (psb) 3D acceleration"
 # not Intel proprietary, but it has no obvious license attached to it.
 LICENSE = "Intel-binary-only"
 LIC_FILES_CHKSUM = "file://${WORKDIR}/${PN}-${PV}/COPYING;md5=02c597a2f082b4581596065bb5a521a8"
-PR = "r7"
+PR = "r8"
 
 inherit autotools
 
@@ -40,6 +40,11 @@ DEPENDS += "libxfixes libxdamage libdrm-poulsbo libxxf86vm dri2proto libxmu libx
 
 FILES_${PN} = "${libdir}/* ${libdir}/xorg/modules/dri/* \
 	    ${libdir}/xorg/modules/drivers/*"
+
+PACKAGES =+ "libglu libglu-dev"
+
+FILES_libglu = "${libdir}/libGLU.so.*"
+FILES_libglu-dev = "${libdir}/libGLU.* ${includedir}/GL/glu*.h"
 
 # Multiple virtual/gl providers being built breaks staging
 EXCLUDE_FROM_WORLD = "1"
