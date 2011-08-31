@@ -24,7 +24,7 @@ SRC_URI = "ftp://alpha.gnu.org/gnu/grub/grub-${PV}.tar.gz \
 inherit autotools
 inherit gettext
 
-EXTRA_OECONF = "--with-platform=pc --target=i386"
+EXTRA_OECONF = "--with-platform=pc --target=i386 --disable-grub-mkfont"
 
 do_configure() {
     oe_runconf
