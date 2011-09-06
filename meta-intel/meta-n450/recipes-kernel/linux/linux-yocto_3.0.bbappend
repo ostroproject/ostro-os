@@ -5,5 +5,5 @@ KMACHINE_n450  = "yocto/standard/common-pc/atom-pc"
 # The n450 is a single core hypterthreaded CPU
 KERNEL_FEATURES_append_n450 += " cfg/smp.scc"
 
-SRCREV_machine_pn-linux-yocto_n450 = "c54453332efbd86c2ea3caa64e908b39cfac1e76"
+SRCREV_machine_pn-linux-yocto_n450 = "1e18e44adbe79b846e382370eb29bc4b8cd5a1a0"
 #SRCREV_meta_pn-linux-yocto_n450 ?= XXXX
