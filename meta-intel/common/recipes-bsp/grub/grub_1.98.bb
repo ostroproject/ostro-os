@@ -9,7 +9,7 @@ HOMEPAGE = "http://www.gnu.org/software/grub/"
 SECTION = "bootloaders"
 PRIORITY = "optional"
 
-LICENSE = "GPLv2+"
+LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 
 RDEPENDS = "diffutils freetype"
