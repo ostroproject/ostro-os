@@ -35,7 +35,6 @@ Maintainers List (try to look for most precise areas first)
 
 COMMON
 M:	Tom Zanussi <tom.zanussi@intel.com>
-F:	common/recipes-bsp/grub/
 F:	common/recipes-core/
 
 CROWNBAY
