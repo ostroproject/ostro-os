@@ -6,7 +6,7 @@ see the README in meta-crownbay/ for instructions on the (simple) manual \
 steps necessary to make the necessary binaries available to this recipe.  \
 Please do that before building an image."
 LICENSE = "Intel-binary-only"
-PR = "r1"
+PR = "r7"
 
 LIC_FILES_CHKSUM = "file://${WORKDIR}/License.txt;md5=b54f01caaf8483b3cb60c0c40f2bf22d"
 
