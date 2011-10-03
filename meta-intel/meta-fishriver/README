@@ -6,13 +6,12 @@ Please see the corresponding sections below for details.
 Table of Contents
 =================
 
-  I. Special notes on the meta-fishriver BSP layer
- II. Building the meta-fishriver BSP layer
-III. Booting the images in /binary
+  I. Building the meta-fishriver BSP layer
+ II. Booting the images in /binary
 
 
-II. Building the meta-fishriver BSP layer
-=========================================
+I. Building the meta-fishriver BSP layer
+========================================
 
 In order to build an image with BSP support for a given release, you
 need to download the corresponding BSP tarball from the 'Board Support
@@ -31,8 +30,8 @@ To enable the fishriver layer, add the fishriver MACHINE to local.conf:
 
 You should then be able to build a fishriver image as such:
 
-  $ source poky-init-build-env
-  $ bitbake poky-image-sato-live
+  $ source oe-init-build-env
+  $ bitbake core-image-sato
 
 At the end of a successful build, you should have a live image that
 you can boot from a USB flash drive (see instructions on how to do
@@ -42,14 +41,15 @@ As an alternative to downloading the BSP tarball, you can also work
 directly from the meta-intel git repository.  For each BSP in the
 'meta-intel' repository, there are multiple branches, one
 corresponding to each major release starting with 'laverne' (0.90), in
-addition to the latest code which tracks the current master.  Instead
-of extracting a BSP tarball at the top level of your yocto build tree,
-you can equivalently check out the appropriate branch from the
-meta-intel repository at the same location.
+addition to the latest code which tracks the current master (note that
+not all BSPs are present in every release).  Instead of extracting a
+BSP tarball at the top level of your yocto build tree, you can
+equivalently check out the appropriate branch from the meta-intel
+repository at the same location.
 
 
-III. Booting the images in /binary
-==================================
+II. Booting the images in /binary
+=================================
 
 This BSP contains bootable live images, which can be used to directly
 boot Yocto off of a USB flash drive.
@@ -58,7 +58,7 @@ Under Linux, insert a USB flash drive.  Assuming the USB flash drive
 takes device /dev/sdf, use dd to copy the live image to it.  For
 example:
 
-# dd if=poky-image-sato-live-fishriver-20101207053738.hddimg of=/dev/sdf
+# dd if=core-image-sato-fishriver-20101207053738.hddimg of=/dev/sdf
 # sync
 # eject /dev/sdf
 
