@@ -124,6 +124,15 @@ You also need to copy the IEMGD License.txt file to the same directory:
 
 $ cp IEMGD_HEAD_Linux/License/License.txt meta-intel/common/recipes/xorg-xserver/emgd-driver-bin-1.8
 
+Additionally, you should remove the following unused file from the
+emgd binaries in order to avoid a packaging error at build-time:
+
+$ rm meta-intel/common/recipes-graphics/xorg-xserver/emgd-driver-bin-1.8/lib/dri/emgd_drv_video.so
+
+Finally, you need to remove the following file:
+
+$ rm meta-intel/common/recipes-graphics/xorg-xserver/emgd-driver-bin-1.8/lib/dri/emgd_drv_video.so
+
 At this point, you should be able to build meta-fri2 images as usual.
 
 
