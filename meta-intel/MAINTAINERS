@@ -57,6 +57,10 @@ N450
 M:	Darren Hart <dvhart@linux.intel.com>
 F:	meta-n450/
 
+ROMLEY
+M:      Kishore Bodke <kishore.k.bodke@intel.com>
+F:      meta-romley/
+
 SUGARBAY
 M:	Tom Zanussi <tom.zanussi@intel.com>
 F:	meta-sugarbay/
