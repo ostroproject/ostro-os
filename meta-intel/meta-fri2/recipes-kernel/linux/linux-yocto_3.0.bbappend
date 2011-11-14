@@ -8,8 +8,8 @@ COMPATIBLE_MACHINE_fri2-noemgd = "fri2-noemgd"
 KMACHINE_fri2-noemgd  = "yocto/standard/fri2"
 KERNEL_FEATURES_append_fri2-noemgd += " cfg/smp.scc"
 
-SRCREV_machine_pn-linux-yocto_fri2 ?= "382ac4f36ebb34185b7cfa8ad74752ffcbe13993"
-SRCREV_meta_pn-linux-yocto_fri2 ?= "353d43d340e87996b4be4c5f6ddb4447e050b65c"
+SRCREV_machine_pn-linux-yocto_fri2 ?= "bdb0cabe7bd20b74c47d6d4e65d14c633028bfea"
+SRCREV_meta_pn-linux-yocto_fri2 ?= "ae3e64c077972fe87f09946bd215620df68ca327"
 
-SRCREV_machine_pn-linux-yocto_fri2-noemgd ?= "382ac4f36ebb34185b7cfa8ad74752ffcbe13993"
-SRCREV_meta_pn-linux-yocto_fri2-noemgd ?= "353d43d340e87996b4be4c5f6ddb4447e050b65c"
+SRCREV_machine_pn-linux-yocto_fri2-noemgd ?= "bdb0cabe7bd20b74c47d6d4e65d14c633028bfea"
+SRCREV_meta_pn-linux-yocto_fri2-noemgd ?= "ae3e64c077972fe87f09946bd215620df68ca327"
