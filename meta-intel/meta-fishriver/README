@@ -20,8 +20,10 @@ Package (BSP) Downloads' page of the Yocto Project website.
 Having done that, and assuming you extracted the BSP tarball contents
 at the top-level of your yocto build tree, you can build a fishriver
 image by adding the location of the meta-fishriver layer to
-bblayers.conf e.g.:
+bblayers.conf, along with the meta-intel layer itself (to access
+common metadata shared between BSPs) e.g.:
 
+  yocto/meta-intel \
   yocto/meta-intel/meta-fishriver \
 
 To enable the fishriver layer, add the fishriver MACHINE to local.conf:

@@ -26,8 +26,10 @@ Package (BSP) Downloads' page of the Yocto Project website.
 Having done that, and assuming you extracted the BSP tarball contents
 at the top-level of your yocto build tree, you can build a crownbay
 image by adding the location of the meta-crownbay layer to
-bblayers.conf e.g.:
+bblayers.conf, along with the meta-intel layer itself (to access
+common metadata shared between BSPs) e.g.:
 
+  yocto/meta-intel \
   yocto/meta-intel/meta-crownbay \
 
 The meta-crownbay layer contains support for two different machine
