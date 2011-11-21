@@ -6,6 +6,24 @@ The 'Sugar Bay' platform consists of the Intel Sandy Bridge processor,
 plus the Cougar Point PCH (Q67 Express or B65 Express chipsets).  This
 BSP assumes that the Sandy Bridge integrated graphics are being used.
 
+
+Dependencies
+============
+
+This layer depends on:
+
+  URI: git://git.openembedded.org/bitbake
+  branch: master
+
+  URI: git://git.openembedded.org/openembedded-core
+  layers: meta
+  branch: master
+
+  URI: git://git.yoctoproject.org/meta-intel
+  layers: intel
+  branch: master
+
+
 Table of Contents
 =================
 

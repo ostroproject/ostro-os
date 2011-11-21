@@ -16,6 +16,10 @@ This layer depends on:
   layers: meta
   branch: master
 
+  URI: git://git.yoctoproject.org/meta-intel
+  layers: intel
+  branch: master
+
   URI: git://git.yoctoproject.org/poky
   layers: meta-yocto
   branch: master

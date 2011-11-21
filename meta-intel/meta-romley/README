@@ -5,6 +5,24 @@ Please see the corresponding sections below for details.
 The 'romley' platform consists of the Intel Sandy Bridge processor,
 plus the Patsburg chipset.  This BSP assumes Matrox graphics is being used.
 
+
+Dependencies
+============
+
+This layer depends on:
+
+  URI: git://git.openembedded.org/bitbake
+  branch: master
+
+  URI: git://git.openembedded.org/openembedded-core
+  layers: meta
+  branch: master
+
+  URI: git://git.yoctoproject.org/meta-intel
+  layers: intel
+  branch: master
+
+
 Table of Contents
 =================
 
