@@ -17,21 +17,24 @@ SECTION = "x11"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://COPYING;md5=2e48940f94acb0af582e5ef03537800f"
 
-PR = "r1"
+INC_PR = "r0"
 
 DEPENDS = "libxext libxfixes libdrm"
 
-SRC_URI = "http://cgit.freedesktop.org/libva/snapshot/libva-${PV}.tar.bz2"
-
-SRC_URI[md5sum] = "959de03d47654adab855e10bff614df3"
-SRC_URI[sha256sum] = "05f757f0043dce9f753d354d15e0cb772b1240cc9d29d26bbb5526285a203693"
-
 inherit autotools pkgconfig
 
-LEAD_SONAME = "libva.so"
-
 PACKAGES =+ "${PN}-x11 ${PN}-tpi ${PN}-glx ${PN}-egl"
+PACKAGES =+ "${PN}-x11-dev ${PN}-tpi-dev ${PN}-glx-dev ${PN}-egl-dev"
+
 RDEPENDS_${PN} =+ "${PN}-x11 ${PN}-tpi ${PN}-glx ${PN}-egl"
+
+FILES_${PN}-dbg += "${libdir}/dri/.debug"
+FILES_${PN} += "${libdir}/dri"
+
+FILES_${PN}-x11-dev =+ "${libdir}/libva-x11.so"
+FILES_${PN}-tpi-dev =+ "${libdir}/libva-tpi.so"
+FILES_${PN}-glx-dev =+ "${libdir}/libva-glx.so"
+FILES_${PN}-egl-dev =+ "${libdir}/libva-egl.so"
 FILES_${PN}-x11 =+ "${libdir}/libva-x11.*"
 FILES_${PN}-tpi =+ "${libdir}/libva-tpi.*"
 FILES_${PN}-glx =+ "${libdir}/libva-glx.*"
