@@ -8,8 +8,8 @@ COMPATIBLE_MACHINE_crownbay-noemgd = "crownbay-noemgd"
 KMACHINE_crownbay-noemgd  = "yocto/standard/crownbay"
 KERNEL_FEATURES_append_crownbay-noemgd += " cfg/smp.scc"
 
-SRCREV_machine_pn-linux-yocto_crownbay ?= "94e7946b9e121bc32812d33b4a064480a52f5938"
-SRCREV_meta_pn-linux-yocto_crownbay ?= "ae3e64c077972fe87f09946bd215620df68ca327"
+SRCREV_machine_pn-linux-yocto_crownbay ?= "8800e8c8107e70ef84fd8b9b0ac0c7f7402b2d89"
+SRCREV_meta_pn-linux-yocto_crownbay ?= "67ce7623909cef63927fd145026aaf371cf4abf1"
 
-SRCREV_machine_pn-linux-yocto_crownbay-noemgd ?= "94e7946b9e121bc32812d33b4a064480a52f5938"
-SRCREV_meta_pn-linux-yocto_crownbay-noemgd ?= "ae3e64c077972fe87f09946bd215620df68ca327"
+SRCREV_machine_pn-linux-yocto_crownbay-noemgd ?= "8800e8c8107e70ef84fd8b9b0ac0c7f7402b2d89"
+SRCREV_meta_pn-linux-yocto_crownbay-noemgd ?= "67ce7623909cef63927fd145026aaf371cf4abf1"
