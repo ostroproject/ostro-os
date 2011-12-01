@@ -1,4 +1,7 @@
 meta-intel
 ==========
 
-This is the location for Intel maintained BSP's
+This is the location for Intel maintained BSPs.
+
+Please see the README files contained in the individual BSP layers for
+BSP-specific information.
