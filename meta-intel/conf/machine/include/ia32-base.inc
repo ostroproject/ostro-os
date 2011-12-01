@@ -53,6 +53,8 @@ XSERVER_IA32_I915 = "xf86-video-intel \
            mesa-dri-driver-i965 \
            "
 
-XSERVER_IA32_EMGD = "emgd-driver-bin"
+XSERVER_IA32_EMGD = "emgd-driver-bin \
+           libva \
+           "
 
 XSERVER_IA32_VESA = "xf86-video-vesa"
