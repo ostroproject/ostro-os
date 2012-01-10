@@ -1,0 +1,450 @@
+state.Intel {
+	control.1 {
+		iface MIXER
+		name 'Front Playback Volume'
+		value.0 36
+		value.1 36
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 39'
+			dbmin -5850
+			dbmax 0
+			dbvalue.0 -450
+			dbvalue.1 -450
+		}
+	}
+	control.2 {
+		iface MIXER
+		name 'Front Playback Switch'
+		value.0 true
+		value.1 true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 2
+		}
+	}
+	control.3 {
+		iface MIXER
+		name 'Surround Playback Volume'
+		value.0 36
+		value.1 36
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 39'
+			dbmin -5850
+			dbmax 0
+			dbvalue.0 -450
+			dbvalue.1 -450
+		}
+	}
+	control.4 {
+		iface MIXER
+		name 'Surround Playback Switch'
+		value.0 false
+		value.1 false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 2
+		}
+	}
+	control.5 {
+		iface MIXER
+		name 'Center Playback Volume'
+		value 36
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 39'
+			dbmin -5850
+			dbmax 0
+			dbvalue.0 -450
+		}
+	}
+	control.6 {
+		iface MIXER
+		name 'LFE Playback Volume'
+		value 36
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 39'
+			dbmin -5850
+			dbmax 0
+			dbvalue.0 -450
+		}
+	}
+	control.7 {
+		iface MIXER
+		name 'Center Playback Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.8 {
+		iface MIXER
+		name 'LFE Playback Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.9 {
+		iface MIXER
+		name 'Side Playback Volume'
+		value.0 36
+		value.1 36
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 39'
+			dbmin -5850
+			dbmax 0
+			dbvalue.0 -450
+			dbvalue.1 -450
+		}
+	}
+	control.10 {
+		iface MIXER
+		name 'Side Playback Switch'
+		value.0 false
+		value.1 false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 2
+		}
+	}
+	control.11 {
+		iface MIXER
+		name 'Mic Playback Volume'
+		value.0 28
+		value.1 28
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 31'
+			dbmin -3450
+			dbmax 1200
+			dbvalue.0 750
+			dbvalue.1 750
+		}
+	}
+	control.12 {
+		iface MIXER
+		name 'Mic Playback Switch'
+		value.0 false
+		value.1 false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 2
+		}
+	}
+	control.13 {
+		iface MIXER
+		name 'Mic Boost Volume'
+		value.0 2
+		value.1 2
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 3'
+			dbmin 0
+			dbmax 3000
+			dbvalue.0 2000
+			dbvalue.1 2000
+		}
+	}
+	control.14 {
+		iface MIXER
+		name 'Analog Mix Playback Volume'
+		value.0 28
+		value.1 28
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 31'
+			dbmin -4650
+			dbmax 0
+			dbvalue.0 -450
+			dbvalue.1 -450
+		}
+	}
+	control.15 {
+		iface MIXER
+		name 'Analog Mix Playback Switch'
+		value.0 true
+		value.1 true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 2
+		}
+	}
+	control.16 {
+		iface MIXER
+		name 'Capture Volume'
+		value.0 48
+		value.1 48
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 54'
+			dbmin -5850
+			dbmax 2250
+			dbvalue.0 1350
+			dbvalue.1 1350
+		}
+	}
+	control.17 {
+		iface MIXER
+		name 'Capture Switch'
+		value.0 false
+		value.1 false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 2
+		}
+	}
+	control.18 {
+		iface MIXER
+		name 'Capture Volume'
+		index 1
+		value.0 48
+		value.1 48
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 54'
+			dbmin -5850
+			dbmax 2250
+			dbvalue.0 1350
+			dbvalue.1 1350
+		}
+	}
+	control.19 {
+		iface MIXER
+		name 'Capture Switch'
+		index 1
+		value.0 false
+		value.1 false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 2
+		}
+	}
+	control.20 {
+		iface MIXER
+		name 'Capture Volume'
+		index 2
+		value.0 48
+		value.1 48
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 54'
+			dbmin -5850
+			dbmax 2250
+			dbvalue.0 1350
+			dbvalue.1 1350
+		}
+	}
+	control.21 {
+		iface MIXER
+		name 'Capture Switch'
+		index 2
+		value.0 false
+		value.1 false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 2
+		}
+	}
+	control.22 {
+		iface MIXER
+		name 'Input Source'
+		value Mic
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Mic
+			item.1 Mix
+		}
+	}
+	control.23 {
+		iface MIXER
+		name 'Input Source'
+		index 1
+		value Mic
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Mic
+			item.1 Mix
+		}
+	}
+	control.24 {
+		iface MIXER
+		name 'Input Source'
+		index 2
+		value Mic
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Mic
+			item.1 Mix
+		}
+	}
+	control.25 {
+		iface MIXER
+		name 'IEC958 Playback Volume'
+		value.0 36
+		value.1 36
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 39'
+			dbmin -5850
+			dbmax 0
+			dbvalue.0 -450
+			dbvalue.1 -450
+		}
+	}
+	control.26 {
+		iface MIXER
+		name 'HDMI Playback Volume'
+		value.0 36
+		value.1 36
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 39'
+			dbmin -5850
+			dbmax 0
+			dbvalue.0 -450
+			dbvalue.1 -450
+		}
+	}
+	control.27 {
+		iface MIXER
+		name 'IEC958 Playback Con Mask'
+		value '0fff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+		comment {
+			access read
+			type IEC958
+			count 1
+		}
+	}
+	control.28 {
+		iface MIXER
+		name 'IEC958 Playback Pro Mask'
+		value '0f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+		comment {
+			access read
+			type IEC958
+			count 1
+		}
+	}
+	control.29 {
+		iface MIXER
+		name 'IEC958 Playback Default'
+		value '0400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+		comment {
+			access 'read write'
+			type IEC958
+			count 1
+		}
+	}
+	control.30 {
+		iface MIXER
+		name 'IEC958 Playback Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.31 {
+		iface MIXER
+		name 'IEC958 Default PCM Playback Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.32 {
+		iface MIXER
+		name 'IEC958 Capture Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.33 {
+		iface MIXER
+		name 'IEC958 Capture Default'
+		value '0400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+		comment {
+			access read
+			type IEC958
+			count 1
+		}
+	}
+	control.34 {
+		iface MIXER
+		name 'Master Playback Volume'
+		value 36
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 39'
+			dbmin -5850
+			dbmax 0
+			dbvalue.0 -450
+		}
+	}
+	control.35 {
+		iface MIXER
+		name 'Master Playback Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+}
