@@ -6,7 +6,7 @@
 # common settings for Intel-based machines
 #
 MACHINE_FEATURES += "kernel26 screen keyboard pci usbhost ext2 ext3 x86 \
-                     acpi serial usbgadget"
+                     acpi serial usbgadget alsa"
 
 MACHINE_EXTRA_RRECOMMENDS += "kernel-modules eee-acpi-scripts"
 MACHINE_ESSENTIAL_EXTRA_RDEPENDS += "grub"
