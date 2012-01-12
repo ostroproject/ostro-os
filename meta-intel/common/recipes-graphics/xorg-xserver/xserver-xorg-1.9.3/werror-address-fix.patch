@@ -1,0 +1,49 @@
+Upstream-Status: Inappropriate [yocto-specific]
+
+This is fixed upstream by actually making these tests meaningful.
+As they stand, the warning is correct and they're no-ops, so remove
+them.
+
+Signed-off-by: Tom Zanussi <tom.zanussi (a] intel.com>
+
+Index: xorg-server-1.9.3/Xext/xvmc.c
+===================================================================
+--- xorg-server-1.9.3.orig/Xext/xvmc.c	2012-01-12 09:57:36.306947860 -0600
++++ xorg-server-1.9.3/Xext/xvmc.c	2012-01-12 10:24:59.286729946 -0600
+@@ -467,7 +467,6 @@
+     return Success;
+ }
+ 
+-
+ static int
+ ProcXvMCListSubpictureTypes(ClientPtr client)
+ {
+@@ -487,9 +486,6 @@
+ 
+     pScreen = pPort->pAdaptor->pScreen;
+ 
+-    if(XvMCScreenKey == NULL) /* No XvMC adaptors */
+-        return BadMatch;
+-
+     if(!(pScreenPriv = XVMC_GET_PRIVATE(pScreen)))
+         return BadMatch;   /* None this screen */
+ 
+@@ -668,9 +664,6 @@
+ {
+    ExtensionEntry *extEntry;
+ 
+-   if(XvMCScreenKey == NULL) /* nobody supports it */
+-	return; 
+-
+    if(!(XvMCRTContext = CreateNewResourceType(XvMCDestroyContextRes,
+ 					      "XvMCRTContext")))
+ 	return;
+@@ -746,8 +739,6 @@
+     XvMCAdaptorPtr adaptor = NULL;
+     int i;
+ 
+-    if(XvMCScreenKey == NULL) return NULL;
+-
+     if(!(pScreenPriv = XVMC_GET_PRIVATE(pScreen))) 
+         return NULL;
+ 
