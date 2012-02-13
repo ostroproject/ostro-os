@@ -10,7 +10,7 @@ ICEDTEA = "NEEDS TO BE SET"
 S = "${WORKDIR}/${ICEDTEA}"
 B = "${S}/build"
 
-INC_PR = "r13"
+INC_PR = "r15"
 
 SRC_URI = "\
   ${ICEDTEA_URI} \
@@ -48,7 +48,7 @@ DEPENDS_append_libc-uclibc = " libiconv "
 # that generates constants for an assembler source file. There is no other
 # way than to generate this on a pseudo machine. Cross-compiling would not help
 # because structure sizes and/or alignment may differ.
-DEPENDS_append_arm = " qemu-native "
+DEPENDS_append = " qemu-native "
 
 
 # No package should directly depend on this (it should require
@@ -68,7 +68,7 @@ PRIVATE_LIBS = "\
        "
 
 
-inherit java autotools gettext
+inherit java autotools gettext qemu
 
 export ALT_CUPS_HEADERS_PATH = "${STAGING_INCDIR}"
 export ALT_FREETYPE_HEADERS_PATH = "${STAGING_INCDIR}/freetype2"
@@ -117,8 +117,8 @@ def get_jdk_arch(d):
   jdk_arch = bb.data.getVar('TARGET_ARCH', d, 1)
   if jdk_arch == "x86_64":
     jdk_arch = "amd64"
-  elif (jdk_arch == "i586" or jdk_arch == "i686"):
-    jdk_arch = "i586"
+  elif (jdk_arch == "i486" or jdk_arch == "i586" or jdk_arch == "i686"):
+    jdk_arch = "i386"
 
   return jdk_arch
 
@@ -250,7 +250,7 @@ EXTRA_OEMAKE += 'OE_LAUNCHER_LDFLAGS="${OE_LAUNCHER_LDFLAGS}"'
 
 
 # Large stack is required at least on x86_64 host, otherwise random segfaults appear:
-QEMU = "qemu-${TARGET_ARCH} ${QEMU_OPTIONS} -s 1048576 -L ${STAGING_DIR_TARGET}"
+QEMU = "${@qemu_target_binary(d)} ${QEMU_OPTIONS} -s 1048576 -L ${STAGING_DIR_TARGET}"
 
 EXTRA_OEMAKE += 'QEMU="${QEMU}"'
 
