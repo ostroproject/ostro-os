@@ -28,7 +28,6 @@ GLIBC_EXTRA_OECONF += "--with-tls"
 #
 PREFERRED_PROVIDER_virtual/kernel ?= "linux-yocto"
 PREFERRED_VERSION_linux-yocto ?= "3.0%"
-PREFERRED_PROVIDER_linux-libc-headers ?= "linux-libc-headers-yocto"
 
 #
 # XSERVER subcomponents, used to build the XSERVER variable
