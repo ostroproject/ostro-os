@@ -30,6 +30,9 @@ SRC_URI = "https://launchpad.net/~gma500/+archive/ppa/+files/libva_0.31.0-1+sds9
 	file://392_compat.dso.patch \
 	file://libdrm-poulsbo.patch"
 
+SRC_URI[md5sum] = "860f13e5a9d09511d7c6807b880e758b"
+SRC_URI[sha256sum] = "306468f87b9e13fdb3b6f0c6e2159b20198b33eed9eda4c31d7381a88911554f"
+
 export LDFLAGS="-Wl,-z,defs"
 
 EXTRA_OECONF = "--disable-i965-driver"
