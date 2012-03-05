@@ -19,6 +19,9 @@ SRC_URI = "https://launchpad.net/~gma500/+archive/ppa/+files/xserver-xorg-video-
 	file://dri-h.patch \
 	file://libdrm-poulsbo.patch"
 
+SRC_URI[md5sum] = "67bd808960db4fe9b3a7ff2582da1608"
+SRC_URI[sha256sum] = "deeaf6e4d059e709d8a4268bd013a172f7fbd70778236d7d1e2712d1951de72c"
+
 export DRI_CFLAGS="-I${STAGING_INCDIR}/psb -I${STAGING_INCDIR}/psb/drm \
 	-I${STAGING_INCDIR}/X11/dri"
 
