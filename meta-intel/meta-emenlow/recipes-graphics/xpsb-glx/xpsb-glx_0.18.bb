@@ -15,6 +15,9 @@ SRC_URI="https://launchpad.net/~gma500/+archive/ppa/+files/xpsb-glx_0.18-0ubuntu
          file://libdrmname.patch \
          file://native-matypes.patch"
 
+SRC_URI[md5sum] = "50423a9e861ccff5814eb95a32494952"
+SRC_URI[sha256sum] = "03c958defef56ae0ec051c6f67620fa90733649925386824b7bf029f40bd7905"
+
 do_configure () {
 	chmod +x autogen.sh && ./autogen.sh ${CONFIGUREOPTS} && make realclean
 	cd ${S}/src/mesa/x86/
