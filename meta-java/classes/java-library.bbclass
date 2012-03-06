@@ -32,7 +32,7 @@ JPN ?= "${@java_package_name(d)}"
 
 DEPENDS_prepend = "virtual/javac-native fastjar-native "
 
-PACKAGES = "${JPN}"
+PACKAGES += "${JPN}"
 
 PACKAGE_ARCH_${JPN} = "all"
 
@@ -53,6 +53,6 @@ do_removebinaries() {
 
 addtask removebinaries after do_unpack before do_patch
 
-do_install() {
+do_install_append() {
   oe_jarinstall ${JARFILENAME} ${ALTJARFILENAMES}
 }
