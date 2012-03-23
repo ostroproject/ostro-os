@@ -49,6 +49,10 @@ XSERVER_IA32_EXT = "xserver-xorg-extension-dri \
            "
 
 XSERVER_IA32_I915 = "xf86-video-intel \
+           mesa-dri-driver-i915 \
+           "
+
+XSERVER_IA32_I965 = "xf86-video-intel \
            mesa-dri-driver-i965 \
            "
 
