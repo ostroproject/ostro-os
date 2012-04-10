@@ -52,14 +52,37 @@ common metadata shared between BSPs) e.g.:
         yocto/meta-intel \  
 	yocto/meta-intel/meta-cedartrail \
 
-To enable the cedartrail layer, add the cedartrail MACHINE to local.conf:
+To enable the cedartrail layer that supports Power VR graphics,
+add the cedartrail MACHINE to local.conf:
 
   MACHINE ?= "cedartrail"
+
+Power VR Graphics user-space driver binaries are covered by a
+"Intel Free Distribution Binary License". The build of this driver
+can be enabled by adding the following line to the local.conf file:
+
+LICENSE_FLAGS_WHITELIST += "license_cdv-pvr-driver_1.0"
+
+To enable the layer that does not support Power VR graphics
+add the following to the local.conf file:
+
+ MACHINE ?= "cedartrail-nopvr"
+
 
 You should then be able to build a cedartrail image as such:
 
   $ source oe-init-build-env
   $ bitbake core-image-sato
+
+The above image will not give you the webkit feature and will not
+have the Audio and Video media samples in the image.
+
+If you want the webkit feature and Audio , Video media samples built
+into the image by default, You should build the custom image by 
+doing the following:
+
+  $ source oe-init-build-env
+  $ bitbake core-image-cdv-media
 
 At the end of a successful build, you should have a live image that
 you can boot from a USB flash drive (see instructions on how to do
@@ -109,3 +132,27 @@ the syslinux boot: prompt, or the boot: prompt contains strange
 characters), try doing this first:
 
 # dd if=/dev/zero of=/dev/sdf bs=1M count=512
+
+Miscellaneous Notes
+====================
+
+Video and Music Samples
+-----------------------
+This BSP includes recipes to download Ogg format video and
+music files that can be played-back with the Video and music players
+included in the sato images.  The sample files are installed in
+/home/Music and /home/Videos directories.
+
+
+Adding Glxgears to image
+-------------------------
+Glxgears can be added to the generated image by adding "tools-testapps"
+option to the extra image features variable in the default local.conf
+before building the BSP.
+
+e.g. to add Glxgears, locate the following line in local.conf
+EXTRA_IMAGE_FEATURES = "debug-tweaks"
+
+and change above line to..
+
+EXTRA_IMAGE_FEATURES = "debug-tweaks tools-testapps"
