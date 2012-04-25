@@ -1,4 +1,4 @@
-require meta/recipes-graphics/xorg-driver/xorg-driver-input.inc
+require recipes-graphics/xorg-driver/xorg-driver-input.inc
 
 SUMMARY = "X.Org X server -- event devices (evdev) input driver"
 
