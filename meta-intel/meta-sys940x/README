@@ -9,6 +9,9 @@ processor, plus the Intel EG20T Platform Controller Hub (Tunnel Creek
 It also supports the E6xx embedded on-chip graphics via the Intel
 Embedded Media and Graphics Driver (EMGD) 1.10 Driver.
 
+More details available on the product page:
+http://www.inforcecomputing.com/SYS940X_ECX.html
+
 
 Dependencies
 ============
