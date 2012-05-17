@@ -5,5 +5,5 @@ COMPATIBLE_MACHINE_jasperforest = "jasperforest"
 KMACHINE_jasperforest  = "jasperforest"
 KBRANCH_jasperforest  = "standard/default/common-pc-64/jasperforest"
 
-SRCREV_machine_pn-linux-yocto_jasperforest ?= "d0ae8f192e046f5572040617e2ccdbd156ce19c6"
-SRCREV_meta_pn-linux-yocto_jasperforest ?= "514847185c78c07f52e02750fbe0a03ca3a31d8f"
+SRCREV_machine_pn-linux-yocto_jasperforest ?= "57cc0b4d882072273110bfaa0872a66047c807d5"
+SRCREV_meta_pn-linux-yocto_jasperforest ?= "49f931bc294d5b6be60502bbd448cff5aa766235"
