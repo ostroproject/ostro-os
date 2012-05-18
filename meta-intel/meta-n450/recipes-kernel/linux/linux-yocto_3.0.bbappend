@@ -1,6 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 COMPATIBLE_MACHINE_n450 = "n450"
-KMACHINE_n450  = "yocto/standard/common-pc/atom-pc"
+KMACHINE_n450  = "atom-pc"
+KBRANCH_n450  = "yocto/standard/common-pc/atom-pc"
 
 # The n450 is a single core hypterthreaded CPU
 KERNEL_FEATURES_append_n450 += " cfg/smp.scc"

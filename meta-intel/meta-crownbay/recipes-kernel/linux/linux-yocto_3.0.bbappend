@@ -1,11 +1,13 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 COMPATIBLE_MACHINE_crownbay = "crownbay"
-KMACHINE_crownbay  = "yocto/standard/crownbay"
+KMACHINE_crownbay  = "crownbay"
+KBRANCH_crownbay  = "yocto/standard/crownbay"
 KERNEL_FEATURES_append_crownbay += " cfg/smp.scc"
 
 COMPATIBLE_MACHINE_crownbay-noemgd = "crownbay-noemgd"
-KMACHINE_crownbay-noemgd  = "yocto/standard/crownbay"
+KMACHINE_crownbay-noemgd  = "crownbay"
+KBRANCH_crownbay-noemgd  = "yocto/standard/crownbay"
 KERNEL_FEATURES_append_crownbay-noemgd += " cfg/smp.scc"
 
 SRCREV_machine_pn-linux-yocto_crownbay ?= "63c65842a3a74e4bd3128004ac29b5639f16433f"

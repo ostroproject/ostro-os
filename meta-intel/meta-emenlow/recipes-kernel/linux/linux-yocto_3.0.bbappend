@@ -1,7 +1,8 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 COMPATIBLE_MACHINE_emenlow = "emenlow"
-KMACHINE_emenlow  = "yocto/standard/emenlow"
+KMACHINE_emenlow  = "emenlow"
+KBRANCH_emenlow  = "yocto/standard/emenlow"
 KERNEL_FEATURES_append_emenlow += " cfg/smp.scc"
 
 SRCREV_machine_pn-linux-yocto_emenlow ?= "0b13bbbc423fea345fd537792284ccf388809e5b"
