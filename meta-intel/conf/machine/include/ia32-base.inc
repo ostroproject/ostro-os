@@ -57,10 +57,6 @@ XSERVER_IA32_I965 = "xf86-video-intel \
            "
 
 XSERVER_IA32_EMGD = "emgd-driver-bin \
-           libva-x11 \
-           libva-tpi \
-           libva-glx \
-           libva-egl \
            "
 
 XSERVER_IA32_VESA = "xf86-video-vesa"
