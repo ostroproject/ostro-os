@@ -22,6 +22,9 @@ SRC_URI = "https://edc.intel.com/App_Shared/Downloads/LIN_EMGD_1_10_RC_2209.tgz"
 SRC_URI[md5sum] = "e4a38d9efa0b086ae21b68145c4db4e9"
 SRC_URI[sha256sum] = "acea5f0f93a31553553428623c007d7ed0c604cf715fd87dfe075751da4be548"
 
+# These are closed binaries generated elsewhere so don't check ldflags
+INSANE_SKIP_${PN} = "ldflags"
+
 FILES_${PN} += "${libdir}/dri ${libdir}/gstreamer-0.10 ${libdir}/xorg/modules/drivers"
 FILES_${PN}-dev += "${libdir}/dri ${libdir}/xorg/modules/drivers"
 FILES_${PN}-dbg += "${libdir}/xorg/modules/drivers/.debug ${libdir}/dri/.debug"
