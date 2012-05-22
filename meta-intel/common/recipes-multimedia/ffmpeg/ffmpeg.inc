@@ -7,7 +7,7 @@ LICENSE = "GPLv2+ & LGPLv2.1+"
 
 ARM_INSTRUCTION_SET = "arm"
 
-DEPENDS = "zlib libogg libvorbis libtheora liba52"
+DEPENDS = "zlib libogg libvorbis libtheora liba52 libva"
 
 INC_PR = "r0"
 

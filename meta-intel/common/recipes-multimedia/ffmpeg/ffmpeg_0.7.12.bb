@@ -25,6 +25,7 @@ EXTRA_OECONF = " \
         --enable-pthreads \
         --enable-shared \
         --enable-swscale \
+        --enable-vaapi \
         --extra-cflags="${TARGET_CFLAGS} ${HOST_CC_ARCH}${TOOLCHAIN_OPTIONS}" \
         --extra-ldflags="${TARGET_LDFLAGS}" \
         --sysroot="${STAGING_DIR_TARGET}" \
