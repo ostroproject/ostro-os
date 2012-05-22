@@ -1,4 +1,4 @@
-PR = "r5"
+PR = "r6"
 
 PROTO_DEPS += "xf86driproto dri2proto"
 
@@ -8,7 +8,8 @@ SRC_URI += "file://nodolt.patch \
             file://crosscompile.patch \
 	    file://libdrm-poulsbo.patch \
 	    file://werror-address-fix.patch \
-	    file://ptr-to-int-cast-fix.patch"
+	    file://ptr-to-int-cast-fix.patch \
+	    file://fix-bogus-stack-variables.patch"
 
 # Misc build failure for master HEAD
 SRC_URI += "file://fix_open_max_preprocessor_error.patch"
