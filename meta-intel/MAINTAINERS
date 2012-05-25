@@ -36,6 +36,10 @@ CEDARTRAIL
 M:      Kishore Bodke <kishore.k.bodke@intel.com>
 F:      meta-cedartrail/
 
+CHIEFRIVER
+M:	Tom Zanussi <tom.zanussi@intel.com>
+F:	meta-chiefriver/
+
 COMMON
 M:	Tom Zanussi <tom.zanussi@intel.com>
 F:	common/recipes-core/
