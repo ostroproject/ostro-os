@@ -4,5 +4,5 @@ COMPATIBLE_MACHINE_emenlow = "emenlow"
 KMACHINE_emenlow  = "emenlow"
 KBRANCH_emenlow  = "standard/default/emenlow"
 
-SRCREV_machine_pn-linux-yocto_emenlow ?= "5f07f34b8d084e5eb1efc5ba71f8ae0ff9e39842"
-SRCREV_meta_pn-linux-yocto_emenlow ?= "49f931bc294d5b6be60502bbd448cff5aa766235"
+SRCREV_machine_pn-linux-yocto_emenlow ?= "33fea086cb668a39765dfc7a01fd715f3ef8f6b8"
+SRCREV_meta_pn-linux-yocto_emenlow ?= "5b4c9dc78b5ae607173cc3ddab9bce1b5f78129b"
