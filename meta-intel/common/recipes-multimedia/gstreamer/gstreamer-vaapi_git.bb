@@ -13,7 +13,9 @@ SRCREV = "c98c14bd32855467a5a0ff21b6c703e9e3461467"
 PV = "0.2.9+git${SRCPV}"
 PR = "r0"
 
-SRC_URI = "git://gitorious.org/vaapi/gstreamer-vaapi.git"
+SRC_URI = "git://gitorious.org/vaapi/gstreamer-vaapi.git \
+           file://glib-includes.patch"
+
 SRC_URI[md5sum] = "729d75f21df79114a8c81d896489e5ad"
 SRC_URI[sha256sum] = "f1770c4537f1615701dbc845eee5732fbb1036b3acafbc7488e551fab334a31d"
 

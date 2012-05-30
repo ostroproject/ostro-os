@@ -1,0 +1,49 @@
+commit a698766a8b155b9c282ee1d53c39a833c826616d
+Author: Gwenole Beauchesne <gwenole.beauchesne@intel.com>
+Date:   Tue Feb 7 10:01:01 2012 +0100
+
+    glib: fix includes.
+
+Upstream-Status: Backport
+
+Signed-off-by: Tom Zanussi <tom.zanussi (a] intel.com>
+
+Index: git/gst-libs/gst/vaapi/gstvaapiutils.h
+===================================================================
+--- git.orig/gst-libs/gst/vaapi/gstvaapiutils.h	2012-05-29 22:30:37.007259101 -0500
++++ git/gst-libs/gst/vaapi/gstvaapiutils.h	2012-05-29 22:32:03.896466158 -0500
+@@ -23,7 +23,7 @@
+ #define GST_VAAPI_UTILS_H
+ 
+ #include "config.h"
+-#include <glib/gtypes.h>
++#include <glib.h>
+ 
+ #ifdef GST_VAAPI_USE_OLD_VAAPI_0_29
+ # include <va.h>
+Index: git/gst-libs/gst/vaapi/gstvaapiutils_glx.h
+===================================================================
+--- git.orig/gst-libs/gst/vaapi/gstvaapiutils_glx.h	2012-05-29 22:30:47.497252785 -0500
++++ git/gst-libs/gst/vaapi/gstvaapiutils_glx.h	2012-05-29 22:32:03.907085421 -0500
+@@ -27,7 +27,7 @@
+ #include <GL/glext.h>
+ #include <GL/glx.h>
+ #include <GL/glxext.h>
+-#include <glib/gtypes.h>
++#include <glib.h>
+ 
+ #if GLX_GLXEXT_VERSION < 18
+ typedef void (*PFNGLXBINDTEXIMAGEEXTPROC)(Display *, GLXDrawable, int, const int *);
+Index: git/gst-libs/gst/vaapi/gstvaapiutils_x11.h
+===================================================================
+--- git.orig/gst-libs/gst/vaapi/gstvaapiutils_x11.h	2012-05-29 22:30:56.827305274 -0500
++++ git/gst-libs/gst/vaapi/gstvaapiutils_x11.h	2012-05-29 22:32:03.916668015 -0500
+@@ -24,7 +24,7 @@
+ 
+ #include "config.h"
+ #include <X11/Xlib.h>
+-#include <glib/gtypes.h>
++#include <glib.h>
+ 
+ void x11_trap_errors(void)
+     attribute_hidden;
