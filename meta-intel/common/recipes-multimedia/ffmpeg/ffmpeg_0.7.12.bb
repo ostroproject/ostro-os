@@ -1,11 +1,11 @@
 require ffmpeg.inc
 
 LICENSE = "LGPLv2.1+ & GPLv2+"
-PR = "${INC_PR}.1"
+PR = "${INC_PR}.2"
 
 SRC_URI = "http://ffmpeg.org/releases/ffmpeg-${PV}.tar.bz2"
-SRC_URI[md5sum] = "e4d0c32c0a7cc763922ee8c34e688b5a"
-SRC_URI[sha256sum] = "4d383af2614fd55ab9e11ab3d5366b9a1453a4e4edf0ac2a1b1411927d577249"
+SRC_URI[md5sum] = "b4e3653b2dd930cfa2a80722f8b03182"
+SRC_URI[sha256sum] = "786511d75e5a1f95ec16ed9f0b4a3f49f145e134b8f2ccdfa9ecd2d35ff36000"
 
 LIC_FILES_CHKSUM = "file://COPYING.GPLv2;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
                     file://libpostproc/postprocess.c;beginline=8;endline=21;md5=3163771dd725805aeda961a4e05173b5 \
