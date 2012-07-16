@@ -6,7 +6,7 @@ The Crown Bay platform consists of the Intel Atom Z6xx processor,
 plus the Intel EG20T Platform Controller Hub (Tunnel Creek + Topcliff).
 
 It also supports the E6xx embedded on-chip graphics via the Intel
-Embedded Media and Graphics Driver (EMGD) 1.10 Driver.
+Embedded Media and Graphics Driver (EMGD) 1.14 Driver.
 
 
 Dependencies
@@ -63,7 +63,7 @@ common metadata shared between BSPs) e.g.:
 The meta-crownbay layer contains support for two different machine
 configurations. These configurations are identical except for the fact
 that the one prefixed with 'crownbay' makes use of the
-Intel-proprietary EMGD 1.10 graphics driver, while the one prefixed
+Intel-proprietary EMGD 1.14 graphics driver, while the one prefixed
 with 'crownbay-noemgd' does not.
 
 If you want to enable the layer that supports EMGD graphics add the
@@ -73,10 +73,10 @@ following to the local.conf file:
 
 The 'crownbay' machine includes the emgd-driver-bin package, which has
 a proprietary license that must be whitelisted by adding the string
-"license_emgd-driver-bin_1.10" to the LICENSE_FLAGS_WHITELIST variable
+"license_emgd-driver-bin_1.14" to the LICENSE_FLAGS_WHITELIST variable
 in your local.conf.  For example:
 
-  LICENSE_FLAGS_WHITELIST = "license_emgd-driver-bin_1.10"
+  LICENSE_FLAGS_WHITELIST = "license_emgd-driver-bin_1.14"
 
 If you want to enable the layer that does not support EMGD graphics
 add the following to the local.conf file:

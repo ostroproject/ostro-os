@@ -1,9 +1,9 @@
-SUMMARY = "EMGD 1.10 xserver binaries"
-DESCRIPTION = "EMGD 1.10 includes some userspace binaries that use non-free \
+SUMMARY = "EMGD 1.14 xserver binaries"
+DESCRIPTION = "EMGD 1.14 includes some userspace binaries that use non-free \
 licensing, which are now available via a non-click-through downloadable \
 tarball, and is what this recipe now uses.  Since it is a non-free license, \
-this recipe is marked as 'License_emgd-driver-bin_1.10' and you need to add \
-to LICENSE_FLAGS_WHITELIST += \"License_emgd-driver-bin_1.10\" to your \
+this recipe is marked as 'License_emgd-driver-bin_1.14' and you need to add \
+to LICENSE_FLAGS_WHITELIST += \"License_emgd-driver-bin_1.14\" to your \
 local.conf in order to enable it in a build."
 LICENSE = "Intel-binary-only"
 LICENSE_FLAGS = "license_${PN}_${PV}"
@@ -16,17 +16,18 @@ EMGD_VIDEO_PLUGIN_DIR = "../common/video_plugin"
 LIC_FILES_CHKSUM = "file://${WORKDIR}/${EMGD_LIC_DIR}/License.txt;md5=b54f01caaf8483b3cb60c0c40f2bf22d"
 
 DEPENDS = "rpm-native xz-native"
+RDEPENDS = "libxcb-dri2"
 
-SRC_URI = "https://edc.intel.com/App_Shared/Downloads/LIN_EMGD_1_10_RC_2209.tgz"
+SRC_URI = "https://edc.intel.com/Download.aspx?id=6190;downloadfilename=LIN_IEMGD_1_14_GOLD_2443.tgz"
 
-SRC_URI[md5sum] = "e4a38d9efa0b086ae21b68145c4db4e9"
-SRC_URI[sha256sum] = "acea5f0f93a31553553428623c007d7ed0c604cf715fd87dfe075751da4be548"
+SRC_URI[md5sum] = "733a7f237ffce21238ce2c9956df4fd6"
+SRC_URI[sha256sum] = "bcdc333b5edbda7c746a83ef821ded4a0ca55ead30980e4e3680cdb6469f45a2"
 
 # These are closed binaries generated elsewhere so don't check ldflags
 INSANE_SKIP_${PN} = "ldflags"
 
 FILES_${PN} += "${libdir}/dri ${libdir}/gstreamer-0.10 ${libdir}/xorg/modules/drivers"
-FILES_${PN}-dbg += "${libdir}/xorg/modules/drivers/.debug ${libdir}/dri/.debug"
+FILES_${PN}-dbg += "${libdir}/xorg/modules/drivers/.debug ${libdir}/dri/.debug ${libdir}/gstreamer-0.10/.debug"
 
 S = "${WORKDIR}/${EMGD_RPM_DIR}"
 
