@@ -17,11 +17,11 @@ SRC_URI[md5sum] = "d0a21125aee56c0c7291ad260e916cb3"
 S = "${WORKDIR}/gnu-efi-3.0"
 
 def gnu_efi_arch(d):
-	import re
-	tarch = d.getVar("TARGET_ARCH", True)
-	if re.match("i[3456789]86", tarch):
-		return "ia32"
-	return tarch
+    import re
+    tarch = d.getVar("TARGET_ARCH", True)
+    if re.match("i[3456789]86", tarch):
+        return "ia32"
+    return tarch
 
 EXTRA_OEMAKE = "'ARCH=${@gnu_efi_arch(d)}' 'CC=${CC}' 'AS=${AS}' 'LD=${LD}' 'AR=${AR}' \
                 'RANLIB=${RANLIB}' 'OBJCOPY=${OBJCOPY}' \
