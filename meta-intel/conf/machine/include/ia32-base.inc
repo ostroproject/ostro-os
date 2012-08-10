@@ -60,3 +60,7 @@ XSERVER_IA32_EMGD = "emgd-driver-bin \
            "
 
 XSERVER_IA32_VESA = "xf86-video-vesa"
+
+XSERVER_IA32_MATROX_MGA = "xserver-xorg-module-xaa \
+           xf86-video-mga \
+           "
