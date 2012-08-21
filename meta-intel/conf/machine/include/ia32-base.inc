@@ -21,7 +21,6 @@ SERIAL_CONSOLE ?= "115200 ttyS0"
 # glibc-related variables
 #
 GLIBC_ADDONS ?= "nptl"
-GLIBC_EXTRA_OECONF += "--with-tls"
 
 #
 # kernel-related variables
