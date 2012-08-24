@@ -61,7 +61,7 @@ Power VR Graphics user-space driver binaries are covered by a
 "Intel Free Distribution Binary License". The build of this driver
 can be enabled by adding the following line to the local.conf file:
 
-LICENSE_FLAGS_WHITELIST += "license_cdv-pvr-driver_1.0"
+LICENSE_FLAGS_WHITELIST += "license_cdv-pvr-driver_1.0.2"
 
 To enable the layer that does not support Power VR graphics
 add the following to the local.conf file:
