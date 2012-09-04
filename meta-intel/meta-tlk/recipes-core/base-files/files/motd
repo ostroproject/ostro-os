@@ -1,0 +1,7 @@
+This image contains a time limited kernel and will reboot the machine
+automatically in 10 days. Do not include this image in a product.
+
+Use the image for evaluation purposes only.
+
+Please see http://www.yoctoproject.org/tlk for instructions on how to
+eliminate the timeout.
