@@ -1,6 +1,9 @@
-meta-autobuilder
-===============
+meta-tlk
+========
 
-Contains recipe modifications required to produce the official 
-yocto autobuild BSPs.
+This layer makes the appropriate kernel modifications to enable a 10 day
+time limit in the official BSP images produced using the Yocto Project
+autobuilder, in order to encourage people to produce their own images
+for production whilst still allowing the images to be useful for testing
+and debugging.
 
