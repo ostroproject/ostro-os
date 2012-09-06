@@ -7,7 +7,7 @@ to LICENSE_FLAGS_WHITELIST += \"License_emgd-driver-bin_1.14\" to your \
 local.conf in order to enable it in a build."
 LICENSE = "Intel-binary-only"
 LICENSE_FLAGS = "license_${PN}_${PV}"
-PR = "r1"
+PR = "r2"
 
 EMGD_LIC_DIR = "IEMGD_HEAD_Linux/License"
 EMGD_RPM_DIR = "IEMGD_HEAD_Linux/MeeGo1.2"
@@ -22,6 +22,12 @@ SRC_URI = "https://edc.intel.com/Download.aspx?id=6190;downloadfilename=LIN_IEMG
 
 SRC_URI[md5sum] = "733a7f237ffce21238ce2c9956df4fd6"
 SRC_URI[sha256sum] = "bcdc333b5edbda7c746a83ef821ded4a0ca55ead30980e4e3680cdb6469f45a2"
+
+# make sure generated rpm packages get non conflicting names
+PKG_${PN} = "emgd-driver"
+PKG_${PN}-dev = "emgd-driver-dev"
+PKG_${PN}-dbg = "emgd-driver-dbg"
+PKG_${PN}-doc = "emgd-driver-doc"
 
 # These are closed binaries generated elsewhere so don't check ldflags
 INSANE_SKIP_${PN} = "ldflags"
