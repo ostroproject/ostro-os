@@ -48,6 +48,10 @@ CROWNBAY
 M:	Tom Zanussi <tom.zanussi@intel.com>
 F:	meta-crownbay/
 
+CRYSTALFOREST
+M:      Kishore Bodke <kishore.k.bodke@intel.com>
+F:      meta-crystalforest/
+
 EMENLOW
 M:	Tom Zanussi <tom.zanussi@intel.com>
 F:	meta-emenlow/
