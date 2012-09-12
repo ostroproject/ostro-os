@@ -1,4 +1,4 @@
-SUMMARY = "Cedartrail PowerVR Graphics Driver version 1.0.2 binaries"
+SUMMARY = "Cedartrail PowerVR Graphics Driver version 1.0.3 binaries"
 DESCRIPTION = "2D, 3D and Media user space driver for Cedartrail platform \
 The binaries are covered by the Intel Free Distribution Binary License. \
 The user must make himself/herself aware of the Licensing terms \
@@ -10,23 +10,24 @@ LICENSE_FLAGS = "license_${PN}_${PV}"
 LICENSE = "Intel Free Distribution Binary License"
 LIC_FILES_CHKSUM = " \
     file://${S}/usr/share/doc/psb-video-cdv-${PSB-VIDEO-REV}/license.txt;md5=b14d99f8d4ed664e9ce95057f0bb5b65  \
-    file://${S}/usr/share/doc/pvr-bin-cdv-${PVR-BIN-REV_N}/license.txt;md5=b14d99f8d4ed664e9ce95057f0bb5b65"
+    file://${S}/usr/share/doc/pvr-bin-cdv-${PVR-BIN-REV_LIC}/license.txt;md5=b14d99f8d4ed664e9ce95057f0bb5b65"
 
 DEPENDS = "rpm-native libva"
 
 PR = "r1"
 
-PSB-VIDEO = "psb-video-cdv-0.17-2.1.i586.rpm"
-PSB-VIDEO-REV = "0.17"
+PSB-VIDEO = "psb-video-cdv-1.0.3-1.1.i586.rpm"
+PSB-VIDEO-REV = "1.0.3"
 
-PVR-BIN = "pvr-bin-cdv-1.7.862890_05-1.1.i586.rpm"
+PVR-BIN = "pvr-bin-cdv-1.0.3-1.1.i586.rpm"
 PVR-BIN-REV = "1.7.862890"
 PVR-BIN-REV_N = "1.7.862890_05"
+PVR-BIN-REV_LIC = "1.0.3"
 
 LIBWSBM = "libwsbm-cdv-1.1.0-3.1.i586.rpm"
 
 
-NON-OSS-PATH = "http://repo.meego.com/MeeGo/builds/1.2.0/1.2.0.10.1.20120723.1/repos/non-oss/ia32/packages/"
+NON-OSS-PATH = "http://repo.meego.com/MeeGo/updates/1.2.0/repos/non-oss/ia32/packages/"
 OSS-PATH =     "http://repo.meego.com/MeeGo/updates/1.2.0/repos/oss/ia32/packages/"
 
 
@@ -34,11 +35,11 @@ SRC_URI = "${NON-OSS-PATH}${PSB-VIDEO};name=psbrpm \
 	   ${NON-OSS-PATH}${PVR-BIN};name=pvrrpm \
 	   ${OSS-PATH}${LIBWSBM};name=wsbmrpm \
 		"
-SRC_URI[pvrrpm.md5sum] = "92dbb85a259dff73c6e4de68d158ef10"
-SRC_URI[pvrrpm.sha256sum] = "46356021efa990cde367b2cdec8626db8c1457234771c6459a106b8342c549c1"
+SRC_URI[pvrrpm.md5sum] = "3ae7db98825af642445f75f4b5ddb303"
+SRC_URI[pvrrpm.sha256sum] = "42b97e5d663444f35b1ee51cdf9573e3b1d5a4f49ae854218c5c4c9a66ba95cf"
 
-SRC_URI[psbrpm.md5sum] =  "0300f7485306bb039ee33e6238a00ae3"
-SRC_URI[psbrpm.sha256sum] = "8e71f2ff7464b20823d7f552729d39cb9e3d75badc9b206d43bcc2429849f6c0"
+SRC_URI[psbrpm.md5sum] =  "ec486193dc4b3f91bc7c5e18d9ca9d8a"
+SRC_URI[psbrpm.sha256sum] = "0861d69b44d5ce29a3f778ac82976a22f7726af84d9b2e5438c18da5263ffdac"
 
 SRC_URI[wsbmrpm.md5sum] = "b8b21ca8325abd7850d197f9bf3071c7"
 SRC_URI[wsbmrpm.sha256sum] = "f436386967c1adec5211e662251bd542bbe0b8cd55e1d9f9c203da5ee934d4f0"
@@ -52,6 +53,7 @@ INSANE_SKIP_${PN} = "ldflags"
 # so that they go to ${PN} instead of $PN}-dev
 PACKAGES = "${PN}-dbg ${PN}-staticdev ${PN} ${PN}-dev ${PN}-doc ${PN}-locale"
 
+
 FILES_${PN} += "${libdir}/dri ${libdir}/pvr/cdv/dri ${libdir}/pvr/cdv ${libdir}/xorg/modules/drivers"
 
 FILES_${PN} += "${base_libdir}/firmware"
@@ -62,18 +64,23 @@ FILES_${PN} += "${libdir}/lib*.so"
 FILES_${PN} += "${libdir}/pvr/cdv/xorg/modules/drivers"
 
 FILES_${PN} += "${datadir}/doc/psb-video-cdv-${PSB-VIDEO-REV}/license.txt"
-FILES_${PN} += "${datadir}/doc/pvr-bin-cdv-${PVR-BIN-REV_N}/license.txt"
+FILES_${PN} += "${datadir}/doc/pvr-bin-cdv-${PVR-BIN-REV_LIC}/license.txt"
 
+
+TARGET_CC_ARCH += "${CFLAGS}{LDFLAGS}"
+INSANE_SKIP_${PN} += "ldflags"
+INSANE_SKIP_${PN}-dbg += "ldflags"
 
 do_configure () {
 
 # Extract  license files from rpms
 rpm2cpio.sh ${WORKDIR}/${PSB-VIDEO} |cpio -ivd ./usr/share/doc/psb-video-cdv-${PSB-VIDEO-REV}/license.txt
-rpm2cpio.sh ${WORKDIR}/${PVR-BIN} |cpio -ivd ./usr/share/doc/pvr-bin-cdv-${PVR-BIN-REV_N}/license.txt
+rpm2cpio.sh ${WORKDIR}/${PVR-BIN} |cpio -ivd ./usr/share/doc/pvr-bin-cdv-${PVR-BIN-REV_LIC}/license.txt
 
 }
 
 do_install() {
+
 	mv ${WORKDIR}/*.rpm  ${S}
 
 	rpm2cpio.sh ${S}/${LIBWSBM} | cpio -id
@@ -101,6 +108,7 @@ do_install() {
 	install -m 0755 ${S}/etc/X11/xorg.conf.d/*            ${D}${sysconfdir}/X11/xorg.conf.d/
 	install -m 0755 ${S}/usr/lib/dri/pvr_dri.so    	      ${D}${libdir}/dri/
 	install -m 0755 ${S}/usr/lib/*.so.*                   ${D}${libdir}/
+
 
 	install -m 0755 ${S}/usr/lib/libegl4ogl.so.${PVR-BIN-REV}   	${D}${libdir}/libegl4ogl.so
 	install -m 0755 ${S}/usr/lib/libEGL.so.${PVR-BIN-REV}  		${D}${libdir}/libEGL.so
@@ -135,6 +143,5 @@ do_install() {
 	install -d -m 0755 ${D}${datadir}/doc/pvr-bin-cdv-${PVR-BIN-REV_N}
 
 	install -m 0755 ${S}/usr/share/doc/psb-video-cdv-${PSB-VIDEO-REV}/license.txt ${D}${datadir}/doc/psb-video-cdv-${PSB-VIDEO-REV}/license.txt
-	install -m 0755 ${S}/usr/share/doc/pvr-bin-cdv-${PVR-BIN-REV_N}/license.txt	${D}${datadir}/doc/pvr-bin-cdv-${PVR-BIN-REV_N}/license.txt
 
 }
