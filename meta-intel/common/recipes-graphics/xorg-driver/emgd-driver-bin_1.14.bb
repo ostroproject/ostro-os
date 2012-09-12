@@ -7,7 +7,7 @@ to LICENSE_FLAGS_WHITELIST += \"license_emgd-driver-bin_1.14\" to your \
 local.conf in order to enable it in a build."
 LICENSE = "Intel-software-license-emgd-1.14 & Intel-user-space-graphics-driver-binary-license-emgd-1.14"
 LICENSE_FLAGS = "license_${PN}_${PV}"
-PR = "r4"
+PR = "r5"
 
 EMGD_LIC_DIR = "IEMGD_HEAD_Linux/License"
 EMGD_RPM_DIR = "IEMGD_HEAD_Linux/MeeGo1.2"
@@ -50,6 +50,9 @@ FILES_${PN}-dbg += "${libdir}/xorg/modules/drivers/.debug ${libdir}/dri/.debug $
 S = "${WORKDIR}/${EMGD_RPM_DIR}"
 
 do_install () {
+    # cleanup previous files if any
+    rm -rf usr 
+
     # A gstreamer VA buffer library
     rpm2cpio ${S}/${EMGD_VIDEO_PLUGIN_DIR}/gst-vabuffer*.rpm | cpio -id
 
