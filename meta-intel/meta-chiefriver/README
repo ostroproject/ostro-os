@@ -60,6 +60,21 @@ At the end of a successful build, you should have a live image that
 you can boot from a USB flash drive (see instructions on how to do
 that below, in the section 'Booting the images from /binary').
 
+NOTE: The 'chiefriver' machine will include support for hardware video
+acceleration via gstreamer if and only if the "commercial" string is
+added to the the LICENSE_FLAGS_WHITELIST variable in your local.conf.
+
+For example:
+
+  LICENSE_FLAGS_WHITELIST = "commercial"
+
+The reason this is needed is to prevent the image from including
+anything that might violate the license terms of the packages used to
+implement the the video acceleration feature, such as gst-ffmpeg and
+ffmpeg.  As always, please consult the licenses included in the
+specific packages for details if you use packages that require
+particular LICENSE_FLAGS.
+
 As an alternative to downloading the BSP tarball, you can also work
 directly from the meta-intel git repository.  For each BSP in the
 'meta-intel' repository, there are multiple branches, one
