@@ -31,9 +31,9 @@ NON-OSS-PATH = "http://repo.meego.com/MeeGo/updates/1.2.0/repos/non-oss/ia32/pac
 OSS-PATH =     "http://repo.meego.com/MeeGo/updates/1.2.0/repos/oss/ia32/packages/"
 
 
-SRC_URI = "${NON-OSS-PATH}${PSB-VIDEO};name=psbrpm \
-	   ${NON-OSS-PATH}${PVR-BIN};name=pvrrpm \
-	   ${OSS-PATH}${LIBWSBM};name=wsbmrpm \
+SRC_URI = "${NON-OSS-PATH}${PSB-VIDEO};name=psbrpm;unpack=0 \
+	   ${NON-OSS-PATH}${PVR-BIN};name=pvrrpm;unpack=0 \
+	   ${OSS-PATH}${LIBWSBM};name=wsbmrpm;unpack=0 \
 		"
 SRC_URI[pvrrpm.md5sum] = "3ae7db98825af642445f75f4b5ddb303"
 SRC_URI[pvrrpm.sha256sum] = "42b97e5d663444f35b1ee51cdf9573e3b1d5a4f49ae854218c5c4c9a66ba95cf"
