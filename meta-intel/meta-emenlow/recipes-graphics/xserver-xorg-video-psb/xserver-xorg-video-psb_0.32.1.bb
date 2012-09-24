@@ -1,7 +1,7 @@
 DESCRIPTION = "2D graphics driver for Poulsbo"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://MIT_License.txt;md5=732825ecdcf420261531d935fcd914a7"
-PR = "r2"
+PR = "r3"
 
 inherit autotools
 
@@ -33,5 +33,7 @@ FILES_${PN} += "${libdir}/xorg/modules/drivers/libmm.so \
 	     ${libdir}/xorg/modules/drivers/psb_drv.so"
 
 DEPENDS += "virtual/libgl virtual/xserver"
+
+RDEPENDS_${PN} = "xserver-psb-module-exa"
 
 COMPATIBLE_MACHINE = "emenlow"
