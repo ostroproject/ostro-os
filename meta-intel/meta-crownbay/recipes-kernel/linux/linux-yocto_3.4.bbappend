@@ -8,12 +8,12 @@ COMPATIBLE_MACHINE_crownbay-noemgd = "crownbay-noemgd"
 KMACHINE_crownbay-noemgd  = "crownbay"
 KBRANCH_crownbay-noemgd  = "standard/crownbay"
 
-SRCREV_machine_pn-linux-yocto_crownbay ?= "19f7e43b54aef08d58135ed2a897d77b624b320a"
-SRCREV_meta_pn-linux-yocto_crownbay ?= "d7a96809a585e06933d8c08adb9b9f66b21efb4c"
+SRCREV_machine_pn-linux-yocto_crownbay ?= "3fa06aa29078fdb2af431de2d3fdae7d281ba85f"
+SRCREV_meta_pn-linux-yocto_crownbay ?= "5bdc655034a58a7147176a8a882d81e2fd51e4b9"
 SRCREV_emgd_pn-linux-yocto_crownbay ?= "86643bdd8cbad616a161ab91f51108cf0da827bc"
 
-SRCREV_machine_pn-linux-yocto_crownbay-noemgd ?= "19f7e43b54aef08d58135ed2a897d77b624b320a"
-SRCREV_meta_pn-linux-yocto_crownbay-noemgd ?= "d7a96809a585e06933d8c08adb9b9f66b21efb4c"
+SRCREV_machine_pn-linux-yocto_crownbay-noemgd ?= "3fa06aa29078fdb2af431de2d3fdae7d281ba85f"
+SRCREV_meta_pn-linux-yocto_crownbay-noemgd ?= "5bdc655034a58a7147176a8a882d81e2fd51e4b9"
 
 KSRC_linux_yocto_3_4 ?= "git.yoctoproject.org/linux-yocto-3.4.git"
 SRC_URI_crownbay = "git://git.yoctoproject.org/linux-yocto-3.4.git;protocol=git;nocheckout=1;branch=${KBRANCH},meta,emgd-1.14;name=machine,meta,emgd"
