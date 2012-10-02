@@ -14,7 +14,7 @@ LIC_FILES_CHKSUM = " \
 
 DEPENDS = "rpm-native libva"
 
-PR = "r1"
+PR = "r2"
 
 PSB-VIDEO = "psb-video-cdv-1.0.3-1.1.i586.rpm"
 PSB-VIDEO-REV = "1.0.3"
@@ -66,6 +66,7 @@ FILES_${PN} += "${libdir}/pvr/cdv/xorg/modules/drivers"
 FILES_${PN} += "${datadir}/doc/psb-video-cdv-${PSB-VIDEO-REV}/license.txt"
 FILES_${PN} += "${datadir}/doc/pvr-bin-cdv-${PVR-BIN-REV_LIC}/license.txt"
 
+RDEPENDS_${PN} = "xserver-xorg-module-exa"
 
 TARGET_CC_ARCH += "${CFLAGS}{LDFLAGS}"
 INSANE_SKIP_${PN} += "ldflags"
