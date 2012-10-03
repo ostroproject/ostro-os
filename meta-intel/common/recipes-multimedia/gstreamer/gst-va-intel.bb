@@ -4,7 +4,7 @@ DEPENDS = "gst-meta-base"
 LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58 \
                     file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
-PR = "r1"
+PR = "r2"
 
 def map_gst_vaapi(d):
     if base_contains('MACHINE_FEATURES', 'va-impl-mixvideo', "1", "0", d) == "1":
@@ -31,7 +31,8 @@ RDEPENDS_gst-va-intel = "\
     "
 
 RDEPENDS_gst-va-intel-general = "\
-    gst-ffmpeg \
+    ${@bb.utils.contains("LICENSE_FLAGS_WHITELIST", \
+    "commercial", "gst-ffmpeg", "", d)} \
     "
 
 RDEPENDS_gst-va-intel-video = "\
