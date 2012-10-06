@@ -1,1 +1,1 @@
-require ${PN}-tlk.inc
+require ${PN}_tlk.inc
