@@ -36,7 +36,7 @@ Patches
 Please submit any patches against this BSP to the Yocto mailing list
 (yocto@yoctoproject.org) and cc: the maintainer:
 
-Maintainer: Tom Zanussi <tom.zanussi@intel.com>
+Maintainer: Nitin A Kamble <nitin.a.kamble@intel.com>
 
 Please see the meta-intel/MAINTAINERS file for more details.
 

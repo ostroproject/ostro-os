@@ -37,15 +37,15 @@ M:      Kishore Bodke <kishore.k.bodke@intel.com>
 F:      meta-cedartrail/
 
 CHIEFRIVER
-M:	Tom Zanussi <tom.zanussi@intel.com>
+M:	Nitin A Kamble<nitin.a.kamble@intel.com>
 F:	meta-chiefriver/
 
 COMMON
-M:	Tom Zanussi <tom.zanussi@intel.com>
+M:	Nitin A Kamble<nitin.a.kamble@intel.com>
 F:	common/recipes-core/
 
 CROWNBAY
-M:	Tom Zanussi <tom.zanussi@intel.com>
+M:	Nitin A Kamble<nitin.a.kamble@intel.com>
 F:	meta-crownbay/
 
 CRYSTALFOREST
@@ -53,7 +53,7 @@ M:      Kishore Bodke <kishore.k.bodke@intel.com>
 F:      meta-crystalforest/
 
 EMENLOW
-M:	Tom Zanussi <tom.zanussi@intel.com>
+M:	Nitin A Kamble<nitin.a.kamble@intel.com>
 F:	meta-emenlow/
 
 FRI2
@@ -61,7 +61,7 @@ M:	Darren Hart <dvhart@linux.intel.com>
 F:	meta-fri2/
 
 JASPERFOREST
-M:	Tom Zanussi <tom.zanussi@intel.com>
+M:	Nitin A Kamble<nitin.a.kamble@intel.com>
 F:	meta-jasperforest/
 
 N450
@@ -73,6 +73,6 @@ M:      Kishore Bodke <kishore.k.bodke@intel.com>
 F:      meta-romley/
 
 SUGARBAY
-M:	Tom Zanussi <tom.zanussi@intel.com>
+M:	Nitin A Kamble<nitin.a.kamble@intel.com>
 F:	meta-sugarbay/
 
