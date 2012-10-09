@@ -56,10 +56,6 @@ EMENLOW
 M:	Tom Zanussi <tom.zanussi@intel.com>
 F:	meta-emenlow/
 
-FISHRIVER
-M:	Tom Zanussi <tom.zanussi@intel.com>
-F:	meta-fishriver/
-
 FRI2
 M:	Darren Hart <dvhart@linux.intel.com>
 F:	meta-fri2/
