@@ -5,7 +5,7 @@ tarball, and is what this recipe now uses.  Since it is a non-free license, \
 this recipe is marked as 'License_emgd-driver-bin_1.14' and you need to add \
 to LICENSE_FLAGS_WHITELIST += \"License_emgd-driver-bin_1.14\" to your \
 local.conf in order to enable it in a build."
-LICENSE = "Intel-binary-only"
+LICENSE = "Intel-software-license-emgd-1.14 & Intel-user-space-graphics-driver-binary-license-emgd-1.14"
 LICENSE_FLAGS = "license_${PN}_${PV}"
 PR = "r2"
 
@@ -13,7 +13,8 @@ EMGD_LIC_DIR = "IEMGD_HEAD_Linux/License"
 EMGD_RPM_DIR = "IEMGD_HEAD_Linux/MeeGo1.2"
 EMGD_VIDEO_PLUGIN_DIR = "../common/video_plugin"
 
-LIC_FILES_CHKSUM = "file://${WORKDIR}/${EMGD_LIC_DIR}/License.txt;md5=b54f01caaf8483b3cb60c0c40f2bf22d"
+LIC_FILES_CHKSUM = "file://${WORKDIR}/${EMGD_LIC_DIR}/License.txt;md5=b54f01caaf8483b3cb60c0c40f2bf22d \
+                    file://${WORKDIR}/${EMGD_LIC_DIR}/readme.txt;md5=73cbec7a0d2bc22faf567238e055bfc8"
 
 DEPENDS = "rpm-native xz-native"
 RDEPENDS = "libxcb-dri2"
