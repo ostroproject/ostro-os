@@ -5,6 +5,8 @@ SECTION = "libs"
 PRIORITY = "optional"
 LICENSE = "GPLv2+ & LGPLv2.1+"
 
+LICENSE_FLAGS = "commercial"
+
 ARM_INSTRUCTION_SET = "arm"
 
 DEPENDS = "zlib libogg libvorbis libtheora liba52 libva yasm-native"
