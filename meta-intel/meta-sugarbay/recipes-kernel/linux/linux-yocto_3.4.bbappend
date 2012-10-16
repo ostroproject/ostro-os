@@ -5,5 +5,5 @@ COMPATIBLE_MACHINE_sugarbay = "sugarbay"
 KMACHINE_sugarbay  = "sugarbay"
 KBRANCH_sugarbay  = "standard/common-pc-64/sugarbay"
 
-SRCREV_machine_pn-linux-yocto_sugarbay ?= "3fa06aa29078fdb2af431de2d3fdae7d281ba85f"
-SRCREV_meta_pn-linux-yocto_sugarbay ?= "5bdc655034a58a7147176a8a882d81e2fd51e4b9"
+SRCREV_machine_pn-linux-yocto_sugarbay ?= "449f7f520350700858f21a5554b81cc8ad23267d"
+SRCREV_meta_pn-linux-yocto_sugarbay ?= "9e3bdb7344054264b750e53fbbb6394cc1c942ac"
