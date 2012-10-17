@@ -19,6 +19,15 @@ LIC_FILES_CHKSUM = "file://${WORKDIR}/${EMGD_LIC_DIR}/License.txt;md5=b54f01caaf
 DEPENDS = "rpm-native xz-native"
 RDEPENDS = "libxcb-dri2"
 
+# Add the ABI dependency at package generation time, as otherwise bitbake will
+# attempt to find a provider for it (and fail) when it does the parse.
+#
+# This version *must* be kept correct.
+python populate_packages_prepend() {
+    pn = d.getVar("PN", True)
+    d.appendVar("RDEPENDS_" + pn, " xorg-abi-video-8")
+}
+
 SRC_URI = "https://edc.intel.com/Download.aspx?id=6190;downloadfilename=LIN_IEMGD_1_14_GOLD_2443.tgz"
 
 SRC_URI[md5sum] = "733a7f237ffce21238ce2c9956df4fd6"
