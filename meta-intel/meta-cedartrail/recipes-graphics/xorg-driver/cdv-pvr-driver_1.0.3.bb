@@ -14,7 +14,7 @@ LIC_FILES_CHKSUM = " \
 
 DEPENDS = "rpm-native libva"
 
-PR = "r2"
+PR = "r3"
 
 PSB-VIDEO = "psb-video-cdv-1.0.3-1.1.i586.rpm"
 PSB-VIDEO-REV = "1.0.3"
@@ -43,6 +43,12 @@ SRC_URI[psbrpm.sha256sum] = "0861d69b44d5ce29a3f778ac82976a22f7726af84d9b2e5438c
 
 SRC_URI[wsbmrpm.md5sum] = "b8b21ca8325abd7850d197f9bf3071c7"
 SRC_URI[wsbmrpm.sha256sum] = "f436386967c1adec5211e662251bd542bbe0b8cd55e1d9f9c203da5ee934d4f0"
+
+# make sure generated rpm packages get non conflicting names
+PKG_${PN} = "cdv-pvr-driver"
+PKG_${PN}-dev = "cdv-pvr-driver-dev"
+PKG_${PN}-dbg = "cdv-pvr-driver-dbg"
+PKG_${PN}-doc = "cdv-pvr-driver-doc"
 
 S  = "${WORKDIR}/cdv-graphics-drivers_${PV}"
 
