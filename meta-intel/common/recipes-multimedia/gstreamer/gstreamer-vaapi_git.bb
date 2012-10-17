@@ -6,15 +6,14 @@ based plugins for GStreamer and helper libraries: `vaapidecode', \
 LICENSE = "LGPLv2.1+"
 LIC_FILES_CHKSUM = "file://COPYING.LIB;md5=4fbd65380cdd255951079008b364516c"
 
-DEPENDS = "gstreamer libva ffmpeg"
+DEPENDS = "gstreamer libva"
 
-# 0.2.9 tag
-SRCREV = "c98c14bd32855467a5a0ff21b6c703e9e3461467"
-PV = "0.2.9+git${SRCPV}"
+# 0.3.8 tag
+SRCREV = "6ec4c2252a4aa706cd8631cb1083828485b9df9a"
+PV = "0.3.8+git${SRCPV}"
 PR = "r0"
 
-SRC_URI = "git://gitorious.org/vaapi/gstreamer-vaapi.git \
-           file://glib-includes.patch"
+SRC_URI = "git://gitorious.org/vaapi/gstreamer-vaapi.git"
 
 SRC_URI[md5sum] = "729d75f21df79114a8c81d896489e5ad"
 SRC_URI[sha256sum] = "f1770c4537f1615701dbc845eee5732fbb1036b3acafbc7488e551fab334a31d"
@@ -22,6 +21,16 @@ SRC_URI[sha256sum] = "f1770c4537f1615701dbc845eee5732fbb1036b3acafbc7488e551fab3
 S = "${WORKDIR}/git"
 
 inherit autotools pkgconfig gtk-doc
+
+EXTRA_OECONF = "--disable-ffmpeg"
+
+do_configure_prepend() {
+  # DEBUG: Executing shell function do_configure
+  # ln: target `m4/' is not a directory: No such file or directory
+  # cp: cannot create regular file `m4/': Not a directory
+  # (should be fixed in autotools.bbclass)
+  mkdir --parents ${B}/m4
+}
 
 FILES_${PN} += "${libdir}/gstreamer-0.10/*.so"
 FILES_${PN}-dbg += "${libdir}/gstreamer-0.10/.debug"
