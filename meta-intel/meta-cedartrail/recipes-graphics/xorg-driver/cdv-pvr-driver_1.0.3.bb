@@ -88,6 +88,15 @@ FILES_${PN} += "${datadir}/doc/pvr-bin-cdv-${PVR-BIN-REV_LIC}/license.txt"
 
 RDEPENDS_${PN} = "xserver-xorg-module-exa"
 
+# Add the ABI dependency at package generation time, as otherwise bitbake will
+# attempt to find a provider for it (and fail) when it does the parse.
+#
+# This version *must* be kept correct.
+python populate_packages_prepend() {
+    pn = d.getVar("PN", True)
+    d.appendVar("RDEPENDS_" + pn, " xorg-abi-video-8")
+}
+
 TARGET_CC_ARCH += "${CFLAGS}{LDFLAGS}"
 INSANE_SKIP_${PN} += "ldflags"
 INSANE_SKIP_${PN}-dbg += "ldflags"
