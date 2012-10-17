@@ -2,6 +2,13 @@ This README file contains information on building the meta-cedartrail
 BSP layer, and booting the images contained in the /binary directory.
 Please see the corresponding sections below for details.
 
+The 'Cedar Trail' platform consists of the Cedarview (Intel® Atom™
+N2600, N2800 and D2550) processor, plus the Tiger Point
+(Intel® NM10 Express) Chipset.
+
+It also supports on-chip SGX545 graphics and media accelerator
+via the Cedar Trail Power VR (PVR) graphics driver.
+
 Dependencies
 ============
 
