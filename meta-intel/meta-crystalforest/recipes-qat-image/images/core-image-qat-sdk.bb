@@ -9,6 +9,8 @@ IMAGE_INSTALL += " \
 		calgary-corpus \
 		canterbury-corpus \
 		silesia-corpus \
+		zlib-qat-module \
+		openssl-qat-module \
 		"
 
 LICENSE = "MIT"
