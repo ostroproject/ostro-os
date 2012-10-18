@@ -1,0 +1,43 @@
+Index: zlib-qat-module-1.2.7-r0/zlib-1.2.7/contrib/qat/qat_mem/Makefile
+===================================================================
+--- zlib-qat-module-1.2.7-r0.orig/zlib-1.2.7/contrib/qat/qat_mem/Makefile	2012-10-16 13:53:10.258938722 -0700
++++ zlib-qat-module-1.2.7-r0/zlib-1.2.7/contrib/qat/qat_mem/Makefile	2012-10-16 13:59:18.174944864 -0700
+@@ -59,13 +59,10 @@
+ #
+ #
+ #########################################################################
+-
+ MODULENAME 	:= qat_mem
+-KDIR		:= /lib/modules/$(shell uname -r)/build
++KDIR		:= $(KERNEL_SOURCE_ROOT)
+ PWD		:= $(shell pwd)
+-
+-CC		:= gcc -Wall -imacros /usr/src/kernels/$(shell uname -r)/include/linux/autoconf.h
+-
++CC		:= $(KERNEL_CC) -Wall -imacros $(KERNEL_SOURCE_ROOT)/include/generated/autoconf.h
+ ifeq ($(KERNELRELEASE),)
+ all:	$(MODULENAME)_test
+ all:
+@@ -73,20 +70,15 @@
+ else
+   obj-m	:= $(MODULENAME).o
+ endif
+-
++modules_install:
++	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules_install
+ $(MODULENAME)_test: $(MODULENAME)_test.c
+ 	$(CC) -g -o $(MODULENAME)_test $(MODULENAME)_test.c
+-
+-
+ load:
+ 	insmod ./$(MODULENAME).ko
+-
+ unload:
+ 	rmmod $(MODULENAME)
+-
+ test: all
+ 	./$(MODULENAME)_test
+-
+ clean:
+ 	rm -f *.o *.ko Module.symvers modules.order *.mod.c .*.cmd $(MODULENAME)_test
+-
