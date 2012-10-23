@@ -6,7 +6,7 @@ based plugins for GStreamer and helper libraries: `vaapidecode', \
 LICENSE = "LGPLv2.1+"
 LIC_FILES_CHKSUM = "file://COPYING.LIB;md5=4fbd65380cdd255951079008b364516c"
 
-DEPENDS = "gstreamer libva"
+DEPENDS = "gstreamer gst-plugins-base gst-plugins-bad libva"
 
 # 0.3.8 tag
 SRCREV = "6ec4c2252a4aa706cd8631cb1083828485b9df9a"
