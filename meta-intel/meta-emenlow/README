@@ -13,6 +13,15 @@ depending on which BSP tarball you downloaded.
 Please see the corresponding sections below for details.
 
 
+Compliance
+==========
+
+This BSP is compliant with the Yocto Project as per the requirements
+listed here:
+
+  http://www.yoctoproject.org/yocto-project-compatible-registration
+
+
 Dependencies
 ============
 
