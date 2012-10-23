@@ -154,8 +154,8 @@ example:
 # eject /dev/sdf
 
 This should give you a bootable USB flash device.  Insert the device
-into a bootable USB socket on the target, and power on.  This should
-result in a system booted to the Sato graphical desktop.
+into one of the USB host ports on the target, and power on.  This
+should result in a system booted to the Sato graphical desktop.
 
 If you want a terminal, use the arrows at the top of the UI to move to
 different pages of available applications, one of which is named
@@ -242,7 +242,7 @@ e. GPIO
 -------
 The FRI2 has two I2C PCA555x GPIO devices used for internal control
 signals. These have not been exposed in the current release of the
-BSP, but may be in the future. Regardless, these do would not provide
+BSP, but may be in the future. Regardless, these would not provide
 general purpose IO with which to read or drive additional signals.
 
 f. MMC
