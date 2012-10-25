@@ -13,6 +13,7 @@ SRC_URI = "http://downloads.sourceforge.net/gnu-efi/gnu-efi_3.0m.orig.tar.gz \
 	   file://parallel-make.patch \
           "
 SRC_URI[md5sum] = "d0a21125aee56c0c7291ad260e916cb3"
+SRC_URI[sha256sum] = "b7fb638f5ec8faa6edebe54beb90957f01ccccf70a2a948d1b58b834c8d7f86d"
 
 S = "${WORKDIR}/gnu-efi-3.0"
 
