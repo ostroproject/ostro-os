@@ -3,7 +3,7 @@ DESCRIPTION = "EMGD 1.14 includes some userspace binaries that use non-free \
 licensing, which are now available via a non-click-through downloadable \
 tarball, and is what this recipe now uses.  Since it is a non-free license, \
 this recipe is marked as 'License_emgd-driver-bin_1.14' and you need to add \
-to LICENSE_FLAGS_WHITELIST += \"License_emgd-driver-bin_1.14\" to your \
+to LICENSE_FLAGS_WHITELIST += \"license_emgd-driver-bin_1.14\" to your \
 local.conf in order to enable it in a build."
 LICENSE = "Intel-software-license-emgd-1.14 & Intel-user-space-graphics-driver-binary-license-emgd-1.14"
 LICENSE_FLAGS = "license_${PN}_${PV}"
