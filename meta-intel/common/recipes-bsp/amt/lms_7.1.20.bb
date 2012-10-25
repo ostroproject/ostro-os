@@ -25,14 +25,16 @@ INITSCRIPT_PARAMS = "defaults"
 PV_SUB = "25"
 
 do_unpack2() {
-	     # The downloaded 37962 filename is actually lms+7.1.20.25.zip.
-	     # It contains lms-7.1.20-25.tar.gz.
-	     # It contains lms-7.1.20-25.tar.gz untars to lms-7.1.20
-	     mv ${WORKDIR}/37962 ${WORKDIR}/${PN}+${PV}.${PV_SUB}.zip
-	     unzip -o ${WORKDIR}/${PN}+${PV}.${PV_SUB}.zip
-	     mv ${WORKDIR}/${PN}-${PV}/outputdir/${PN}-${PV}-${PV_SUB}.tar.gz ${WORKDIR}/
-	     cd ${WORKDIR}
-	     tar -xvzf ${PN}-${PV}-${PV_SUB}.tar.gz
+	# The downloaded 37962 filename is actually lms+7.1.20.25.zip.
+	# It contains lms-7.1.20-25.tar.gz.
+	# It contains lms-7.1.20-25.tar.gz untars to lms-7.1.20
+	if [ -e "${WORKDIR}/37962" ]; then
+		mv ${WORKDIR}/37962 ${WORKDIR}/${PN}+${PV}.${PV_SUB}.zip
+		unzip -o ${WORKDIR}/${PN}+${PV}.${PV_SUB}.zip
+		mv ${WORKDIR}/${PN}-${PV}/outputdir/${PN}-${PV}-${PV_SUB}.tar.gz ${WORKDIR}/
+		cd ${WORKDIR}
+		tar -xvzf ${PN}-${PV}-${PV_SUB}.tar.gz
+	fi
 }
 
 addtask unpack2 after do_unpack before do_patch
