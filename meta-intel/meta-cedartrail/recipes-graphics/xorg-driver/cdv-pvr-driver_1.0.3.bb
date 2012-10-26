@@ -14,7 +14,7 @@ LIC_FILES_CHKSUM = " \
 
 DEPENDS = "rpm-native libva"
 
-PR = "r4"
+PR = "r5"
 
 PSB-VIDEO = "psb-video-cdv-1.0.3-1.1.i586.rpm"
 PSB-VIDEO-REV = "1.0.3"
@@ -65,6 +65,9 @@ S  = "${WORKDIR}/cdv-graphics-drivers_${PV}"
 
 # These are closed binaries generated elsewhere so don't check ldflags
 INSANE_SKIP_${PN} = "ldflags"
+
+# Don't try stripping, as the binaries are already stripped
+INHIBIT_PACKAGE_STRIP = "1"
 
 # .so files in these binaries are not symlinks. Rearange package order
 # so that they go to ${PN} instead of $PN}-dev
