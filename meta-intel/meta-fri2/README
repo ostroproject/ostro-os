@@ -7,13 +7,22 @@ Developer Kit, as described here:
 
 http://us.kontron.com/products/systems+and+platforms/m2m/m2m+smart+services+developer+kit.html
 
-The platform consists of the Intel Atom E640T processor plus the Intel
-EG20T Platform Controller Hub (Tunnel Creek + Topcliff), along with a
-variety of communications options and other machine-to-machine (m2m)
-capabilities.
+The 'Queens Bay' platform consists of the Intel Atom E640T processor plus the
+Intel EG20T Platform Controller Hub (Tunnel Creek + Topcliff). The Fish River
+Island II includes a variety of communications options and other
+machine-to-machine (m2m) capabilities.
 
 It also supports the E6xx embedded on-chip graphics via the Intel
-Embedded Media and Graphics Driver (EMGD) 1.10 Driver.
+Embedded Media and Graphics Driver (EMGD).
+
+
+Compliance
+==========
+
+This BSP is compliant with the Yocto Project as per the requirements
+listed here:
+
+  http://www.yoctoproject.org/yocto-project-compatible-registration
 
 
 Dependencies
