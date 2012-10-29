@@ -6,12 +6,22 @@ The 'Crystal Forest' platform consists of two versions.
 1. GLADDEN
 2. SERVER
 
-Gladden Platform is based on Intel Sandy Bridge Gladden Processor,plus the Cave Creek chipset.
-Server Platform is based on two Intel Sandy Bridge (SNB-EP ES2 Grade and SNB-EN ES2 Grade)
-Processors plus two Cave Creek Chipsets.
+The Gladden Platform consists of Intel Xeon E3-1125C/E3-1105C Processor,
+plus the Intel Communication Chipset 89xx for Smaller Form Factor
+Communication Infrastructure.
+
+The Server Platform consists of Intel Xeon E5-2600 and E5-2400 Processors,
+plus the Intel Communication Chipset 89xx for Large-Scale Communications
+Infrastructure.
 
 Both Platforms uses Matrox graphics Card.
 
+Compliance
+==========
+This BSP is compliant with the Yocto Project as per the requirements
+listed here:
+
+  http://www.yoctoproject.org/yocto-project-compatible-registration
 
 Dependencies
 ============
