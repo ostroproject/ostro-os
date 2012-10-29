@@ -88,6 +88,15 @@ You should then be able to build a crystalforest image as such:
   $ source oe-init-build-env
   $ bitbake core-image-sato
 
+The above image will not give you the quickassist technology features
+such as openssl-qat-module, zlib-qat-module and corpus data files.
+
+If you want those feature built into the image by default, You should
+build the custom image by doing the following:
+
+  $ source oe-init-build-env
+  $ bitbake core-image-qat
+
 At the end of a successful build, you should have a live image that
 you can boot from a USB flash drive (see instructions on how to do
 that below, in the section 'Booting the images from /binary').
