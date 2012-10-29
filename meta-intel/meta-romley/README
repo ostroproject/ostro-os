@@ -2,9 +2,16 @@ This README file contains information on building the meta-romley
 BSP layer, and booting the images contained in the /binary directory.
 Please see the corresponding sections below for details.
 
-The 'romley' platform consists of the Intel Sandy Bridge processor,
-plus the Patsburg chipset.  This BSP assumes Matrox graphics is being used.
+The 'romley' platform consists of the Intel Xeon E5-2600 and E5-2400
+Series Processors, plus the Intel C604/C602-J Chipset.
+This BSP assumes Matrox graphics is being used.
 
+Compliance
+==========
+This BSP is compliant with the Yocto Project as per the requirements
+listed here:
+
+  http://www.yoctoproject.org/yocto-project-compatible-registration
 
 Dependencies
 ============
