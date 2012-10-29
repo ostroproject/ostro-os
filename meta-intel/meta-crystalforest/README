@@ -3,11 +3,11 @@ BSP layer, and booting the images contained in the /binary directory.
 Please see the corresponding sections below for details.
 
 The 'Crystal Forest' platform consists of two versions.
-1. STARGO
-2. SHUMWAY
+1. GLADDEN
+2. SERVER
 
-Stargo Platform is based on Intel Sandy Bridge Gladden Processor,plus the Cave Creek chipset.  
-Shumway Platform is based on two Intel Sandy Bridge (SNB-EP ES2 Grade and SNB-EN ES2 Grade)
+Gladden Platform is based on Intel Sandy Bridge Gladden Processor,plus the Cave Creek chipset.
+Server Platform is based on two Intel Sandy Bridge (SNB-EP ES2 Grade and SNB-EN ES2 Grade)
 Processors plus two Cave Creek Chipsets.
 
 Both Platforms uses Matrox graphics Card.
@@ -64,13 +64,13 @@ common metadata shared between BSPs) e.g.:
   yocto/meta-intel \
   yocto/meta-intel/meta-crystalforest \
 
-To enable the Crystal Forest Stargo layer, add the crystalforest-stargo MACHINE to local.conf:
+To enable the Crystal Forest Gladden layer, add the crystalforest-gladden MACHINE to local.conf:
 
-  MACHINE ?= "crystalforest-stargo"
+  MACHINE ?= "crystalforest-gladden"
 
-To enable the Crystal Forest Shumway layer, add the crystalforest-shumway MACHINE to local.conf:
+To enable the Crystal Forest Server layer, add the crystalforest-server MACHINE to local.conf:
 
-  MACHINE ?= "crystalforest-shumway"
+  MACHINE ?= "crystalforest-server"
 
 
 You should then be able to build a crystalforest image as such:
@@ -103,15 +103,15 @@ Under Linux, insert a USB flash drive.  Assuming the USB flash drive
 takes device /dev/sdf, use dd to copy the live image to it.  For
 example:
 
-To boot the Stargo Platform:
+To boot the Gladden Platform:
 
-# dd if=core-image-sato-crystalforest-stargo-20120829033154.hddimg of=/dev/sdf
+# dd if=core-image-sato-crystalforest-gladden-20120829033154.hddimg of=/dev/sdf
 # sync
 # eject /dev/sdf
 
-To boot the Shumway Platform:
+To boot the Server Platform:
 
-# dd if=core-image-sato-crystalforest-shumway-20120829044852.hddimg of=/dev/sdf
+# dd if=core-image-sato-crystalforest-server-20120829044852.hddimg of=/dev/sdf
 # sync
 # eject /dev/sdf
 
@@ -135,5 +135,3 @@ the syslinux boot: prompt, or the boot: prompt contains strange
 characters), try doing this first:
 
 # dd if=/dev/zero of=/dev/sdf bs=1M count=512
-
-
