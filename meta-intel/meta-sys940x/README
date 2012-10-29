@@ -2,15 +2,24 @@ This README file contains information on building the meta-sys940x BSP
 layer, and booting the images contained in the /binary directory.
 Please see the corresponding sections below for details.
 
-The Inforce SYS940x platform consists of the Intel Atom E6xx
+The 'Queens Bay' platform consists of the Intel Atom E6xx
 processor, plus the Intel EG20T Platform Controller Hub (Tunnel Creek
 + Topcliff).
 
 It also supports the E6xx embedded on-chip graphics via the Intel
-Embedded Media and Graphics Driver (EMGD) 1.10 Driver.
+Embedded Media and Graphics Driver (EMGD).
 
 More details available on the product page:
 http://www.inforcecomputing.com/SYS940X_ECX.html
+
+
+Compliance
+==========
+
+This BSP is compliant with the Yocto Project as per the requirements
+listed here:
+
+  http://www.yoctoproject.org/yocto-project-compatible-registration
 
 
 Dependencies
