@@ -7,8 +7,10 @@ implemented on Intel Communications Chipset 89xx Series based platforms."
 HOMEPAGE = "http://www.openssl.org/"
 SECTION = "libs/network"
 
-LICENSE = "openssl"
-LIC_FILES_CHKSUM = "file://${WORKDIR}/openssl-${PV}/LICENSE;md5=f9a8f968107345e0b75aa8c2ecaa7ec8"
+LICENSE = "openssl & GPLv2 & BSD"
+LIC_FILES_CHKSUM = "file://${WORKDIR}/openssl-${PV}/LICENSE;md5=f9a8f968107345e0b75aa8c2ecaa7ec8 \
+			file://${COMMON_LICENSE_DIR}/GPL-2.0;md5=801f80980d171dd6425610833a22dbe6 \
+			file://${COMMON_LICENSE_DIR}/BSD;md5=3775480a712fc46a69647678acb234cb"
 
 PV = "1.0.1"
 PR = "r0"
