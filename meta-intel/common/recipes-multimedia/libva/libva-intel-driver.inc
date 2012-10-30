@@ -15,7 +15,7 @@ INC_PR = "r0"
 
 DEPENDS = "libva"
 
-S = "${WORKDIR}/intel-driver-${PV}"
+S = "${WORKDIR}/${PN}-${PV}"
 
 inherit autotools pkgconfig
 
