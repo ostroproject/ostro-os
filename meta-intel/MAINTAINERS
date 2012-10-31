@@ -2,7 +2,14 @@ This file contains a list of BSP maintainers for the BSPs contained in
 the meta-intel repository.
 
 Please submit any patches against meta-intel BSPs to the Yocto mailing
-list (yocto@yoctoproject.org).
+list (yocto@yoctoproject.org) and preface them with [meta-intel] in
+the Subject: line of your e-mail(s).  The latter makes it obvious that
+your patches are intended for inclusion into meta-intel and also makes
+it easier for maintainers to notice patches intended for meta-intel
+amongst all the other traffic on the Yocto mailing list.  Also, if
+your patches are available via a public git repository, please also
+include a URL to the repo and branch containing your patches as that
+makes it easier for maintainers to grab and test your patches.
 
 If you have problems with or questions about a particular BSP, feel
 free to contact the maintainer directly (cc:ing the Yocto mailing list
