@@ -7,7 +7,7 @@ to LICENSE_FLAGS_WHITELIST += \"license_emgd-driver-bin_1.14\" to your \
 local.conf in order to enable it in a build."
 LICENSE = "Intel-software-license-emgd-1.14 & Intel-user-space-graphics-driver-binary-license-emgd-1.14"
 LICENSE_FLAGS = "license_${PN}_${PV}"
-PR = "r2"
+PR = "r3"
 
 EMGD_LIC_DIR = "IEMGD_HEAD_Linux/License"
 EMGD_RPM_DIR = "IEMGD_HEAD_Linux/MeeGo1.2"
@@ -100,11 +100,32 @@ do_install () {
     install -d -m 0755                                    ${D}${includedir}/VG
     install -m 0755 ${S}/usr/include/VG/*.h               ${D}${includedir}/VG/
 
+    ln -sf libEGL.so.1.5.15.3226                          ${D}${libdir}/libEGL.so.1
     ln -sf libEGL.so.1                                    ${D}${libdir}/libEGL.so
+    ln -sf libGLES_CM.so.1.5.15.3226                      ${D}${libdir}/libGLES_CM.so.1
     ln -sf libGLES_CM.so.1                                ${D}${libdir}/libGLES_CM.so
+    ln -sf libGLESv2.so.1.5.15.3226                       ${D}${libdir}/libGLESv2.so.2
     ln -sf libGLESv2.so.2                                 ${D}${libdir}/libGLESv2.so
+    ln -sf libOpenVG.so.1.5.15.3226                       ${D}${libdir}/libOpenVG.so.1
     ln -sf libOpenVG.so.1                                 ${D}${libdir}/libOpenVG.so
+    ln -sf libOpenVGU.so.1.5.15.3226                      ${D}${libdir}/libOpenVGU.so.1
     ln -sf libOpenVGU.so.1                                ${D}${libdir}/libOpenVGU.so
+
+    #Replace duplicate files with symlinks
+    rm -f ${D}${libdir}/libmixvideo.so.0
+    ln -sf libmixvideo.so.0.10.9                          ${D}${libdir}/libmixvideo.so.0
+    rm -f ${D}${libdir}/libmixvbp_h264.so.0
+    ln -sf libmixvbp_h264.so.0.10.8                       ${D}${libdir}/libmixvbp_h264.so.0
+    rm -f ${D}${libdir}/libmixvbp.so.0
+    ln -sf libmixvbp.so.0.10.8                            ${D}${libdir}/libmixvbp.so.0
+    rm -f ${D}${libdir}/libmixvbp_vc1.so.0
+    ln -sf libmixvbp_vc1.so.0.10.8                        ${D}${libdir}/libmixvbp_vc1.so.0
+    rm -f ${D}${libdir}/libmixvbp_mpeg4.so.0
+    ln -sf libmixvbp_mpeg4.so.0.10.8                      ${D}${libdir}/libmixvbp_mpeg4.so.0
+    rm -f ${D}${libdir}/libmixcommon.so.0
+    ln -sf libmixcommon.so.0.10.8                         ${D}${libdir}/libmixcommon.so.0
+    rm -f ${D}${libdir}/libgstvabuffer.so.0
+    ln -sf libgstvabuffer.so.0.10.8                       ${D}${libdir}/libgstvabuffer.so.0
 }
 
 LEAD_SONAME = "libEGL.so"
