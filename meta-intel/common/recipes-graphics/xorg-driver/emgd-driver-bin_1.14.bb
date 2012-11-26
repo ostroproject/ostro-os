@@ -110,6 +110,8 @@ do_install () {
     ln -sf libOpenVG.so.1                                 ${D}${libdir}/libOpenVG.so
     ln -sf libOpenVGU.so.1.5.15.3226                      ${D}${libdir}/libOpenVGU.so.1
     ln -sf libOpenVGU.so.1                                ${D}${libdir}/libOpenVGU.so
+    ln -sf libEMGDegl.so.1.5.15.3226                      ${D}${libdir}/libEMGDegl.so
+    ln -sf libemgdsrv_um.so.1.5.15.3226                   ${D}${libdir}/libemgdsrv_um.so
 
     #Replace duplicate files with symlinks
     rm -f ${D}${libdir}/libmixvideo.so.0
