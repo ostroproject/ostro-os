@@ -6,6 +6,15 @@ The 'Chief River' platform consists of the Intel Ivy Bridge processor,
 plus the Panther Point PCH.  This BSP assumes that the Ivy Bridge
 integrated graphics are being used.
 
+Further information on the platforms supported by this BSP can be
+found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware/core-hm76/overview
+
+Information on all Intel® embedded platforms can be found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware
+
 
 Compliance
 ==========
