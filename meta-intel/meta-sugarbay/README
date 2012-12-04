@@ -6,6 +6,15 @@ The 'Sugar Bay' platform consists of the Intel Sandy Bridge processor,
 plus the Cougar Point PCH (Q67 Express or B65 Express chipsets).  This
 BSP assumes that the Sandy Bridge integrated graphics are being used.
 
+Further information on the platforms supported by this BSP can be
+found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware/core-q67-b65/overview
+
+And information on all Intel® embedded platforms can be found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware
+
 
 Compliance
 ==========
