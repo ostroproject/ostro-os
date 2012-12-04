@@ -5,6 +5,15 @@ Please see the corresponding sections below for details.
 The Luna Pier platform consists of the Intel Atom E4xx processor (Pineview),
 plus the Intel 82801Hm I/O Controller.
 
+Further information on the platforms supported by this BSP can be
+found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware/atom-400-500/overview
+
+Information on all Intel® embedded platforms can be found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware
+
 
 Compliance
 ==========
