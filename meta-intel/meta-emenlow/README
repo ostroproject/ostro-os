@@ -5,6 +5,15 @@ booting the images contained in the /binary directory.
 The 'eMenlow' platform consists of the Intel Atom Z5xx processor,
 plus the Intel US15W System Controller Hub.
 
+Further information on the platform supported by this BSP can be
+found here:
+
+  http://www.portwell.com/products/detail.asp?CUSTCHAR1=WEBS-2120
+
+Information on all Intel® embedded platforms can be found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware
+
 If you're only interested in booting the images in the /binary
 directory of a BSP tarball you've downloaded, there's nothing special
 to do - the appropriate images are already in the /binary directory
@@ -12,10 +21,6 @@ depending on which BSP tarball you downloaded.
 
 Please see the corresponding sections below for details.
 
-Further information of the platform supported by this BSP can be 
-found here:
-
-  http://www.portwell.com/products/detail.asp?CUSTCHAR1=WEBS-2120
 
 Compliance
 ==========
