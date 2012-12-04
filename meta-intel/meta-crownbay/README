@@ -8,6 +8,15 @@ plus the Intel EG20T Platform Controller Hub (Tunnel Creek + Topcliff).
 It also supports the E6xx embedded on-chip graphics via the Intel
 Embedded Media and Graphics Driver (EMGD) 1.14 Driver.
 
+Further information on the platforms supported by this BSP can be
+found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware/atom-e6xx/overview
+
+And information on all Intel® embedded platforms can be found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware
+
 
 Compliance
 ==========
