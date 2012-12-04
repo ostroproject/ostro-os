@@ -7,6 +7,15 @@ details.
 combined with the Intel 3420 PCH chipset (Ibex Peak) make up the
 'Picket Post' CRB this BSP was developed on.
 
+Further information on the platforms supported by this BSP can be
+found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware/xeon-c5500-c3500-3420/overview
+
+Information on all Intel®  embedded platforms can be found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware
+
 
 Compliance
 ==========
