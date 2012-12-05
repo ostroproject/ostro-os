@@ -9,12 +9,29 @@ The 'Crystal Forest' platform consists of two versions.
 The Gladden Platform consists of Intel Xeon E3-1125C/E3-1105C Processor,
 plus the Intel Communication Chipset 89xx for Smaller Form Factor
 Communication Infrastructure.
+(Gladden + Cave Creek)
 
 The Server Platform consists of Intel Xeon E5-2600 and E5-2400 Processors,
 plus the Intel Communication Chipset 89xx for Large-Scale Communications
 Infrastructure.
+(Sandy Bridge-EP/EN + Cave Creek)
 
-Both Platforms uses Matrox graphics Card.
+Both Platforms use Matrox graphics Card.
+
+Further information about the Crystal Forest Gladden platform supported
+by this BSP can be found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware/xeon-core-pentium-celeron-89xx/overview
+
+Further information about the Crystal Forest server platform supported
+by this BSP can be found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware/xeon-e5-89xx/overview
+
+Information on all Intel® embedded platforms can be found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware
+
 
 Compliance
 ==========
