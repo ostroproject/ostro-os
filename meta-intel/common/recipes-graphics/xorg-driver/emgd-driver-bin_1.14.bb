@@ -39,8 +39,8 @@ PKG_${PN}-dev = "emgd-driver-dev"
 PKG_${PN}-dbg = "emgd-driver-dbg"
 PKG_${PN}-doc = "emgd-driver-doc"
 
-# These are closed binaries generated elsewhere so don't check ldflags
-INSANE_SKIP_${PN} = "ldflags"
+# These are closed binaries generated elsewhere so don't check ldflags & text relocations
+INSANE_SKIP_${PN} = "ldflags textrel"
 # Inhibit warnings about files being stripped, we can't do anything about it.
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
