@@ -3,8 +3,20 @@ BSP layer, and booting the images contained in the /binary directory.
 Please see the corresponding sections below for details.
 
 The 'romley' platform consists of the Intel Xeon E5-2600 and E5-2400
-Series Processors, plus the Intel C604/C602-J Chipset.
+Series Processors, plus the Intel C604/C602-J Chipset
+(Sandy Bridge-EP/EN + Patsburg).
+
 This BSP assumes Matrox graphics is being used.
+
+Further information about the platforms supported by this BSP can be
+found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware/xeon-e5-c604/overview
+
+Information on all Intel® embedded platforms can be found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware
+
 
 Compliance
 ==========
