@@ -9,6 +9,15 @@ N2600/N2800/D2550 processor, plus the Intel® NM10 Express Chispset
 It also supports on-chip SGX545 graphics and media accelerator
 via the Cedar Trail Power VR (PVR) graphics driver.
 
+Further information about the platforms supported by this BSP can be
+found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware/atom-n2000-d2000/overview
+
+Information on all Intel® embedded platforms can be found here:
+
+  http://www.intel.com/p/en_US/embedded/hwsw/hardware
+
 
 Compliance
 ==========
