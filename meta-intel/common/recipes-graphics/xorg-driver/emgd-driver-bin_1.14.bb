@@ -7,7 +7,7 @@ to LICENSE_FLAGS_WHITELIST += \"license_emgd-driver-bin_1.14\" to your \
 local.conf in order to enable it in a build."
 LICENSE = "Intel-software-license-emgd-1.14 & Intel-user-space-graphics-driver-binary-license-emgd-1.14"
 LICENSE_FLAGS = "license_${PN}_${PV}"
-PR = "r5"
+PR = "r6"
 
 EMGD_LIC_DIR = "IEMGD_HEAD_Linux/License"
 EMGD_RPM_DIR = "IEMGD_HEAD_Linux/MeeGo1.2"
@@ -39,12 +39,32 @@ PKG_${PN}-dev = "emgd-driver-dev"
 PKG_${PN}-dbg = "emgd-driver-dbg"
 PKG_${PN}-doc = "emgd-driver-doc"
 
+PACKAGES =+ "emgd-libmixcommon-0.10.8 emgd-libmixvideo-0.10.9 emgd-libmixvbp-0.10.8 \
+             emgd-gst-vabuffer-0.10.8 emgd-gst-plugins-mixvideo-0.10.34 \
+             emgd-gst-plugins-va-0.10.10 emgd-driver-video"
+
 # These are closed binaries generated elsewhere so don't check ldflags & text relocations
-INSANE_SKIP_${PN} = "ldflags textrel"
+INSANE_SKIP_emgd-driver-video = "ldflags textrel"
 # Inhibit warnings about files being stripped, we can't do anything about it.
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
-FILES_${PN} += "${libdir}/dri ${libdir}/gstreamer-0.10 ${libdir}/xorg/modules/drivers"
+# Avoid auto renaming of there packages
+DEBIAN_NOAUTONAME_emgd-libmixcommon-0.10.8 = "1"
+DEBIAN_NOAUTONAME_emgd-libmixvideo-0.10.9 = "1"
+DEBIAN_NOAUTONAME_emgd-libmixvbp-0.10.8 = "1"
+DEBIAN_NOAUTONAME_emgd-gst-vabuffer-0.10.8 = "1"
+
+FILES_emgd-libmixcommon-0.10.8 = "${libdir}/libmixcommon.so.0.10.8 ${libdir}/libmixcommon.so.0"
+FILES_emgd-libmixvideo-0.10.9 = "${libdir}/libmixvideo.so.0.10.9 ${libdir}/libmixvideo.so.0"
+FILES_emgd-libmixvbp-0.10.8 = "${libdir}/libmixvbp.so.0.10.8 ${libdir}/libmixvbp.so.0 \
+                            ${libdir}/libmixvbp_h264.so.0.10.8 ${libdir}/libmixvbp_h264.so.0 \
+                            ${libdir}/libmixvbp_mpeg4.so.0.10.8 ${libdir}/libmixvbp_mpeg4.so.0 \
+                            ${libdir}/libmixvbp_vc1.so.0.10.8 ${libdir}/libmixvbp_vc1.so.0 "
+FILES_emgd-gst-vabuffer-0.10.8 = "${libdir}/libgstvabuffer.so.0.10.8 ${libdir}/libgstvabuffer.so.0"
+FILES_emgd-gst-plugins-mixvideo-0.10.34 = "${libdir}/gstreamer-0.10/libgstmixvideoplugin.so"
+FILES_emgd-gst-plugins-va-0.10.10 = "${libdir}/gstreamer-0.10/libgstvaplugin.so"
+FILES_emgd-driver-video = "${libdir}/dri/emgd_drv_video.so"
+FILES_${PN} += "${libdir}/dri ${libdir}/xorg/modules/drivers"
 FILES_${PN}-dbg += "${libdir}/xorg/modules/drivers/.debug ${libdir}/dri/.debug ${libdir}/gstreamer-0.10/.debug"
 
 S = "${WORKDIR}/${EMGD_RPM_DIR}"
