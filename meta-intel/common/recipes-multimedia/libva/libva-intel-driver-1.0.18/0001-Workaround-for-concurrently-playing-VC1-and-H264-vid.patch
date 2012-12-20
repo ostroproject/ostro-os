@@ -1,0 +1,440 @@
+Upstream-Status: Pending
+
+From 43c3fd3ea485a0b9ad12c248a0a94a959ab4d5ee Mon Sep 17 00:00:00 2001
+From: "Xiang, Haihao" <haihao.xiang@intel.com>
+Date: Mon, 29 Oct 2012 10:01:16 +0800
+Subject: [PATCH] Workaround for concurrently playing VC1 and H264 video on SNB
+
+Signed-off-by: Xiang, Haihao <haihao.xiang@intel.com>
+---
+ src/gen6_mfd.c |  379 +++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ src/gen6_mfd.h |    3 +
+ 2 files changed, 380 insertions(+), 2 deletions(-)
+
+diff --git a/src/gen6_mfd.c b/src/gen6_mfd.c
+index fa2f128..b8c671b 100755
+--- a/src/gen6_mfd.c
++++ b/src/gen6_mfd.c
+@@ -50,6 +50,377 @@ static const uint32_t zigzag_direct[64] = {
+     53, 60, 61, 54, 47, 55, 62, 63
+ };
+ 
++/* Workaround for VC1 decoding */
++
++VAStatus 
++i965_DestroySurfaces(VADriverContextP ctx,
++                     VASurfaceID *surface_list,
++                     int num_surfaces);
++VAStatus 
++i965_CreateSurfaces(VADriverContextP ctx,
++                    int width,
++                    int height,
++                    int format,
++                    int num_surfaces,
++                    VASurfaceID *surfaces);
++
++static struct {
++    int width;
++    int height;
++    int mb_count;
++    unsigned char data[32];
++    int data_size;
++    int data_bit_offset;
++
++    unsigned int f_code:16;
++    unsigned int intra_dc_precision:2;
++    unsigned int picture_structure:2;
++    unsigned int top_field_first:1;
++    unsigned int frame_pred_frame_dct:1;
++    unsigned int concealment_motion_vectors:1;
++    unsigned int q_scale_type:1;
++    unsigned int intra_vlc_format:1;
++    unsigned int alternate_scan:1;
++    unsigned int picture_coding_type:1;
++    unsigned int pad0: 5;
++
++    unsigned int quantiser_scale_code;
++
++    unsigned char qm[2][64];
++} gen6_dwa_clip = {
++ width:      32,
++ height:     16,
++ mb_count:   2,
++ data:       {
++        0x00,   0x00,   0x01,   0x01,   0x1b,   0xfb,   0xfd,   0xf8,
++        0x02,   0x97,   0xef,   0xf8,   0x8b,   0x97,   0xe0,   0x0a,
++        0x5f,   0xbf,   0xe2,   0x20,   0x00,   0x00,   0x01,   0x00
++    },
++ data_size:  20,
++ data_bit_offset:            38,
++
++ f_code:             0xffff,
++ intra_dc_precision: 0,
++ picture_structure:  3,
++ top_field_first:    0,
++ frame_pred_frame_dct:       1,
++ concealment_motion_vectors: 0,
++ q_scale_type:       0,
++ intra_vlc_format:   0,
++ alternate_scan:     0,
++ picture_coding_type:        1, /* I frame */
++
++ quantiser_scale_code:       3,
++
++ qm:         {
++        {  
++            8,      16,     19,     22,     26,     27,     29,     34,
++            16,     16,     22,     24,     27,     29,     34,     37,
++            19,     22,     26,     27,     29,     34,     34,     38,
++            22,     22,     26,     27,     29,     34,     37,     40,
++            22,     26,     27,     29,     32,     35,     40,     48,
++            26,     27,     29,     32,     35,     40,     48,     58,
++            26,     27,     29,     34,     38,     46,     56,     69,
++            27,     29,     35,     38,     46,     56,     69,     83
++        },
++
++        {
++            16,     16,     16,     16,     16,     16,     16,     16,
++            16,     16,     16,     16,     16,     16,     16,     16,
++            16,     16,     16,     16,     16,     16,     16,     16,
++            16,     16,     16,     16,     16,     16,     16,     16,
++            16,     16,     16,     16,     16,     16,     16,     16,
++            16,     16,     16,     16,     16,     16,     16,     16,
++            16,     16,     16,     16,     16,     16,     16,     16,
++            16,     16,     16,     16,     16,     16,     16,     16,
++        }
++    },
++};
++
++static void
++gen6_dwa_init(VADriverContextP ctx,
++              struct gen6_mfd_context *gen6_mfd_context)
++{
++    struct i965_driver_data *i965 = i965_driver_data(ctx);
++    VAStatus status;
++    struct object_surface *obj_surface;
++
++    if (gen6_mfd_context->dwa_surface_id != VA_INVALID_SURFACE)
++        i965_DestroySurfaces(ctx,
++                             &gen6_mfd_context->dwa_surface_id,
++                             1);
++
++    status = i965_CreateSurfaces(ctx,
++                                 gen6_dwa_clip.width,
++                                 gen6_dwa_clip.height,
++                                 VA_RT_FORMAT_YUV420,
++                                 1,
++                                 &gen6_mfd_context->dwa_surface_id);
++    assert(status == VA_STATUS_SUCCESS);
++
++    obj_surface = SURFACE(gen6_mfd_context->dwa_surface_id);
++    assert(obj_surface);
++    i965_check_alloc_surface_bo(ctx, obj_surface, 1, VA_FOURCC('N', 'V', '1', '2'), SUBSAMPLE_YUV420);
++
++    if (!gen6_mfd_context->dwa_slice_data_bo)
++        dri_bo_unreference(gen6_mfd_context->dwa_slice_data_bo);
++
++    gen6_mfd_context->dwa_slice_data_bo = dri_bo_alloc(i965->intel.bufmgr,
++                                                       "WA data",
++                                                       0x1000,
++                                                       0x1000);
++    dri_bo_subdata(gen6_mfd_context->dwa_slice_data_bo,
++                   0,
++                   gen6_dwa_clip.data_size,
++                   gen6_dwa_clip.data);
++}
++
++static void
++gen6_dwa_pipe_mode_select(VADriverContextP ctx,
++                          struct gen6_mfd_context *gen6_mfd_context)
++{
++    struct intel_batchbuffer *batch = gen6_mfd_context->base.batch;
++
++    BEGIN_BCS_BATCH(batch, 4);
++    OUT_BCS_BATCH(batch, MFX_PIPE_MODE_SELECT | (4 - 2));
++    OUT_BCS_BATCH(batch,
++                  (MFD_MODE_VLD << 16) | /* VLD mode */
++                  (0 << 10) | /* disable Stream-Out */
++                  (0 << 9)  | /* Post Deblocking Output */
++                  (1 << 8)  | /* Pre Deblocking Output */
++                  (0 << 7)  | /* disable TLB prefectch */
++                  (0 << 5)  | /* not in stitch mode */
++                  (MFX_CODEC_DECODE << 4)  | /* decoding mode */
++                  (MFX_FORMAT_MPEG2 << 0));
++    OUT_BCS_BATCH(batch,
++                  (0 << 20) | /* round flag in PB slice */
++                  (0 << 19) | /* round flag in Intra8x8 */
++                  (0 << 7)  | /* expand NOA bus flag */
++                  (1 << 6)  | /* must be 1 */
++                  (0 << 5)  | /* disable clock gating for NOA */
++                  (0 << 4)  | /* terminate if AVC motion and POC table error occurs */
++                  (0 << 3)  | /* terminate if AVC mbdata error occurs */
++                  (0 << 2)  | /* terminate if AVC CABAC/CAVLC decode error occurs */
++                  (0 << 1)  | /* AVC long field motion vector */
++                  (0 << 0));  /* always calculate AVC ILDB boundary strength */
++    OUT_BCS_BATCH(batch, 0);
++    ADVANCE_BCS_BATCH(batch);
++}
++
++static void
++gen6_dwa_surface_state(VADriverContextP ctx,
++                       struct gen6_mfd_context *gen6_mfd_context)
++{
++    struct intel_batchbuffer *batch = gen6_mfd_context->base.batch;
++    struct i965_driver_data *i965 = i965_driver_data(ctx);
++    struct object_surface *obj_surface = SURFACE(gen6_mfd_context->dwa_surface_id);
++
++    BEGIN_BCS_BATCH(batch, 6);
++    OUT_BCS_BATCH(batch, MFX_SURFACE_STATE | (6 - 2));
++    OUT_BCS_BATCH(batch, 0);
++    OUT_BCS_BATCH(batch,
++                  ((obj_surface->orig_width - 1) << 19) |
++                  ((obj_surface->orig_height - 1) << 6));
++    OUT_BCS_BATCH(batch,
++                  (MFX_SURFACE_PLANAR_420_8 << 28) | /* 420 planar YUV surface */
++                  (1 << 27) | /* interleave chroma */
++                  (0 << 22) | /* surface object control state, ignored */
++                  ((obj_surface->width - 1) << 3) | /* pitch */
++                  (0 << 2)  | /* must be 0 */
++                  (1 << 1)  | /* must be tiled */
++                  (I965_TILEWALK_YMAJOR << 0));  /* tile walk, must be 1 */
++    OUT_BCS_BATCH(batch,
++                  (0 << 16) | /* X offset for U(Cb), must be 0 */
++                  (obj_surface->y_cb_offset << 0)); /* Y offset for U(Cb) */
++    OUT_BCS_BATCH(batch,
++                  (0 << 16) | /* X offset for V(Cr), must be 0 */
++                  (0 << 0)); /* Y offset for V(Cr), must be 0 for video codec */
++    ADVANCE_BCS_BATCH(batch);
++}
++
++static void
++gen6_dwa_pipe_buf_addr_state(VADriverContextP ctx,
++                             struct gen6_mfd_context *gen6_mfd_context)
++{
++    struct intel_batchbuffer *batch = gen6_mfd_context->base.batch;
++    struct i965_driver_data *i965 = i965_driver_data(ctx);
++    struct object_surface *obj_surface = SURFACE(gen6_mfd_context->dwa_surface_id);
++    dri_bo *intra_bo;
++    int i;
++
++    intra_bo = dri_bo_alloc(i965->intel.bufmgr,
++                            "intra row store",
++                            128 * 64,
++                            0x1000);
++
++    BEGIN_BCS_BATCH(batch, 24);
++    OUT_BCS_BATCH(batch, MFX_PIPE_BUF_ADDR_STATE | (24 - 2));
++    OUT_BCS_RELOC(batch,
++                  obj_surface->bo,
++                  I915_GEM_DOMAIN_INSTRUCTION, I915_GEM_DOMAIN_INSTRUCTION,
++                  0);
++    
++    OUT_BCS_BATCH(batch, 0); /* post deblocking */
++
++    OUT_BCS_BATCH(batch, 0); /* ignore for decoding */
++    OUT_BCS_BATCH(batch, 0); /* ignore for decoding */
++
++    OUT_BCS_RELOC(batch,
++                  intra_bo,
++                  I915_GEM_DOMAIN_INSTRUCTION, I915_GEM_DOMAIN_INSTRUCTION,
++                  0);
++
++    OUT_BCS_BATCH(batch, 0);
++
++    /* DW 7..22 */
++    for (i = 0; i < MAX_GEN_REFERENCE_FRAMES; i++) {
++        OUT_BCS_BATCH(batch, 0);
++    }
++
++    OUT_BCS_BATCH(batch, 0);   /* ignore DW23 for decoding */
++    ADVANCE_BCS_BATCH(batch);
++
++    dri_bo_unreference(intra_bo);
++}
++
++static void
++gen6_dwa_bsp_buf_base_addr_state(VADriverContextP ctx,
++                                 struct gen6_mfd_context *gen6_mfd_context)
++{
++    struct i965_driver_data *i965 = i965_driver_data(ctx);
++    struct intel_batchbuffer *batch = gen6_mfd_context->base.batch;
++    dri_bo *bsd_mpc_bo;
++
++    bsd_mpc_bo = dri_bo_alloc(i965->intel.bufmgr,
++                              "bsd mpc row store",
++                              11520, /* 1.5 * 120 * 64 */
++                              0x1000);
++
++    BEGIN_BCS_BATCH(batch, 4);
++    OUT_BCS_BATCH(batch, MFX_BSP_BUF_BASE_ADDR_STATE | (4 - 2));
++
++    OUT_BCS_RELOC(batch,
++                  bsd_mpc_bo,
++                  I915_GEM_DOMAIN_INSTRUCTION, I915_GEM_DOMAIN_INSTRUCTION,
++                  0);
++    OUT_BCS_BATCH(batch, 0);
++    OUT_BCS_BATCH(batch, 0);
++    ADVANCE_BCS_BATCH(batch);
++
++    dri_bo_unreference(bsd_mpc_bo);
++}
++
++static void
++gen6_dwa_mpeg2_pic_state(VADriverContextP ctx,
++                         struct gen6_mfd_context *gen6_mfd_context)
++
++{
++    struct intel_batchbuffer *batch = gen6_mfd_context->base.batch;
++    unsigned int width_in_mbs = ALIGN(gen6_dwa_clip.width, 16) / 16;
++    unsigned int height_in_mbs = ALIGN(gen6_dwa_clip.height, 16) / 16;
++
++    BEGIN_BCS_BATCH(batch, 4);
++    OUT_BCS_BATCH(batch, MFX_MPEG2_PIC_STATE | (4 - 2));
++    OUT_BCS_BATCH(batch,
++                  gen6_dwa_clip.f_code << 16 |
++                  gen6_dwa_clip.intra_dc_precision << 14 |
++                  gen6_dwa_clip.picture_structure << 12 |
++                  gen6_dwa_clip.top_field_first << 11 |
++                  gen6_dwa_clip.frame_pred_frame_dct << 10 |
++                  gen6_dwa_clip.concealment_motion_vectors << 9 |
++                  gen6_dwa_clip.q_scale_type << 8 |
++                  gen6_dwa_clip.intra_vlc_format << 7 | 
++                  gen6_dwa_clip.alternate_scan << 6);
++    OUT_BCS_BATCH(batch,
++                  gen6_dwa_clip.picture_coding_type << 9);
++    OUT_BCS_BATCH(batch,
++                  height_in_mbs << 16 |
++                  width_in_mbs);
++    ADVANCE_BCS_BATCH(batch);
++}
++
++static void
++gen6_dwa_mpeg2_qm_state(VADriverContextP ctx,
++                        struct gen6_mfd_context *gen6_mfd_context)
++{
++    struct intel_batchbuffer *batch = gen6_mfd_context->base.batch;
++    int i;
++
++    for (i = 0; i < 2; i++) {
++        BEGIN_BCS_BATCH(batch, 18);
++        OUT_BCS_BATCH(batch, MFX_MPEG2_QM_STATE | (18 - 2));
++        OUT_BCS_BATCH(batch, i);
++        intel_batchbuffer_data(batch, gen6_dwa_clip.qm[i], 64);
++        ADVANCE_BCS_BATCH(batch);
++    }
++}
++
++static void
++gen6_dwa_ind_obj_base_addr_state(VADriverContextP ctx,
++                                 struct gen6_mfd_context *gen6_mfd_context)
++{
++    struct intel_batchbuffer *batch = gen6_mfd_context->base.batch;
++
++    BEGIN_BCS_BATCH(batch, 11);
++    OUT_BCS_BATCH(batch, MFX_IND_OBJ_BASE_ADDR_STATE | (11 - 2));
++    OUT_BCS_RELOC(batch,
++                  gen6_mfd_context->dwa_slice_data_bo,
++                  I915_GEM_DOMAIN_INSTRUCTION, 0,
++                  0);
++    OUT_BCS_BATCH(batch, 0);
++    OUT_BCS_BATCH(batch, 0); /* ignore for VLD mode */
++    OUT_BCS_BATCH(batch, 0);
++    OUT_BCS_BATCH(batch, 0); /* ignore for VLD mode */
++    OUT_BCS_BATCH(batch, 0);
++    OUT_BCS_BATCH(batch, 0); /* ignore for VLD mode */
++    OUT_BCS_BATCH(batch, 0);
++    OUT_BCS_BATCH(batch, 0); /* ignore for VLD mode */
++    OUT_BCS_BATCH(batch, 0);
++    ADVANCE_BCS_BATCH(batch);
++}
++
++static void
++gen6_dwa_mpeg2_bsd_object(VADriverContextP ctx,
++                          struct gen6_mfd_context *gen6_mfd_context)
++{
++    struct intel_batchbuffer *batch = gen6_mfd_context->base.batch;
++
++    BEGIN_BCS_BATCH(batch, 5);
++    OUT_BCS_BATCH(batch, MFD_MPEG2_BSD_OBJECT | (5 - 2));
++    OUT_BCS_BATCH(batch, 
++                  gen6_dwa_clip.data_size - (gen6_dwa_clip.data_bit_offset >> 3));
++    OUT_BCS_BATCH(batch, gen6_dwa_clip.data_bit_offset >> 3);
++    OUT_BCS_BATCH(batch,
++                  (0 << 24) |
++                  (0 << 16) |
++                  (gen6_dwa_clip.mb_count << 8) |
++                  (1 << 5) |
++                  (1 << 3) |
++                  (gen6_dwa_clip.data_bit_offset & 0x7));
++    OUT_BCS_BATCH(batch,
++                  gen6_dwa_clip.quantiser_scale_code << 24);
++    ADVANCE_BCS_BATCH(batch);
++}
++
++static void
++gen6_mfd_dwa(VADriverContextP ctx,
++             struct gen6_mfd_context *gen6_mfd_context)
++{
++    struct intel_batchbuffer *batch = gen6_mfd_context->base.batch;
++    gen6_dwa_init(ctx, gen6_mfd_context);
++    intel_batchbuffer_emit_mi_flush(batch);
++    gen6_dwa_pipe_mode_select(ctx, gen6_mfd_context);
++    gen6_dwa_surface_state(ctx, gen6_mfd_context);
++    gen6_dwa_pipe_buf_addr_state(ctx, gen6_mfd_context);
++    gen6_dwa_bsp_buf_base_addr_state(ctx, gen6_mfd_context);
++    gen6_dwa_mpeg2_qm_state(ctx, gen6_mfd_context);
++    gen6_dwa_mpeg2_pic_state(ctx, gen6_mfd_context);
++    gen6_dwa_ind_obj_base_addr_state(ctx, gen6_mfd_context);
++    gen6_dwa_mpeg2_bsd_object(ctx, gen6_mfd_context);
++}
++
++/* end of workaround */
++
+ static void
+ gen6_mfd_avc_frame_store_index(VADriverContextP ctx,
+                                VAPictureParameterBufferH264 *pic_param,
+@@ -1055,7 +1426,8 @@ gen6_mfd_avc_decode_picture(VADriverContextP ctx,
+         }
+     }
+     
+-    gen6_mfd_avc_phantom_slice(ctx, pic_param, gen6_mfd_context);
++    gen6_mfd_dwa(ctx, gen6_mfd_context);
++
+     intel_batchbuffer_end_atomic(batch);
+     intel_batchbuffer_flush(batch);
+ }
+@@ -1944,6 +2316,8 @@ gen6_mfd_vc1_decode_picture(VADriverContextP ctx,
+         }
+     }
+ 
++    gen6_mfd_dwa(ctx, gen6_mfd_context);
++
+     intel_batchbuffer_end_atomic(batch);
+     intel_batchbuffer_flush(batch);
+ }
+@@ -2031,6 +2405,7 @@ gen6_dec_hw_context_init(VADriverContextP ctx, VAProfile profile)
+     }
+ 
+     gen6_mfd_context->wa_mpeg2_slice_vertical_position = -1;
+-    
++    gen6_mfd_context->dwa_surface_id = VA_INVALID_ID;
++
+     return (struct hw_context *)gen6_mfd_context;
+ }
+diff --git a/src/gen6_mfd.h b/src/gen6_mfd.h
+index de131d6..7c4a619 100644
+--- a/src/gen6_mfd.h
++++ b/src/gen6_mfd.h
+@@ -72,6 +72,9 @@ struct gen6_mfd_context
+     GenBuffer           bitplane_read_buffer;
+ 
+     int                 wa_mpeg2_slice_vertical_position;
++
++    VASurfaceID dwa_surface_id;
++    dri_bo *dwa_slice_data_bo;
+ };
+ 
+ #endif /* _GEN6_MFD_H_ */
+-- 
+1.7.9.5
+
