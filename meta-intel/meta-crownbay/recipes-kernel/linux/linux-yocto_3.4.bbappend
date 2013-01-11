@@ -3,10 +3,12 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 COMPATIBLE_MACHINE_crownbay = "crownbay"
 KMACHINE_crownbay  = "crownbay"
 KBRANCH_crownbay  = "standard/crownbay"
+KERNEL_FEATURES_crownbay_append = " features/drm-emgd cfg/vesafb"
 
 COMPATIBLE_MACHINE_crownbay-noemgd = "crownbay-noemgd"
 KMACHINE_crownbay-noemgd  = "crownbay"
 KBRANCH_crownbay-noemgd  = "standard/crownbay"
+KERNEL_FEATURES_crownbay-noemgd_append = " cfg/vesafb"
 
 SRCREV_machine_pn-linux-yocto_crownbay ?= "${AUTOREV}"
 SRCREV_meta_pn-linux-yocto_crownbay ?= "${AUTOREV}"
