@@ -8,9 +8,9 @@ LIC_FILES_CHKSUM = "file://COPYING.LIB;md5=4fbd65380cdd255951079008b364516c"
 
 DEPENDS = "gstreamer gst-plugins-base gst-plugins-bad libva"
 
-# 0.3.8 tag
-SRCREV = "6ec4c2252a4aa706cd8631cb1083828485b9df9a"
-PV = "0.3.8+git${SRCPV}"
+# 0.4.0 tag
+SRCREV = "329065546463512c8cc9c92c7f34510793ceb6dd"
+PV = "0.4.0+git${SRCPV}"
 PR = "r0"
 
 SRC_URI = "git://gitorious.org/vaapi/gstreamer-vaapi.git"
