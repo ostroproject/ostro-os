@@ -19,4 +19,4 @@ SRCREV_emgd_pn-linux-yocto_sys940x ?= "${AUTOREV}"
 SRCREV_machine_pn-linux-yocto_sys940x-noemgd ?= "${AUTOREV}"
 SRCREV_meta_pn-linux-yocto_sys940x-noemgd ?= "${AUTOREV}"
 
-SRC_URI_sys940x = "git://${KSRC_linux_yocto_3_4_repo};nocheckout=1;branch=${KBRANCH},${KMETA},emgd-1.14;name=machine,meta,emgd"
+SRC_URI_sys940x = "git://git.yoctoproject.org/linux-yocto-3.4.git;protocol=git;nocheckout=1;branch=${KBRANCH},${KMETA},emgd-1.14;name=machine,meta,emgd"
