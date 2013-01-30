@@ -86,7 +86,9 @@ The meta-emenlow layer contains support for two different machine
 configurations. These configurations are identical except for the fact
 that the one prefixed with 'emenlow' makes use of the
 Intel-proprietary EMGD 1.16 graphics driver, while the one prefixed
-with 'emenlow-noemgd' does not.
+with 'emenlow-noemgd' does not. The 'emenlow-noemgd' machine
+configuration instead uses the open source 'gma500' kernel DRM driver
+along with the 'modesetting' X driver.
 
 If you want to enable the layer that supports EMGD graphics add the
 following to the local.conf file:
