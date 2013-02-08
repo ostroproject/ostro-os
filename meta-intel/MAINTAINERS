@@ -36,10 +36,6 @@ Please keep this list in alphabetical order.
 Maintainers List (try to look for most precise areas first)
 
 		-----------------------------------
-CEDARTRAIL
-M:      Kishore Bodke <kishore.k.bodke@intel.com>
-F:      meta-cedartrail/
-
 CHIEFRIVER
 M:	Nitin A Kamble<nitin.a.kamble@intel.com>
 F:	meta-chiefriver/
