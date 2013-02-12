@@ -17,7 +17,7 @@ LIC_FILES_CHKSUM = "file://${WORKDIR}/${EMGD_LIC_DIR}/License.txt;md5=b54f01caaf
                     file://${WORKDIR}/${EMGD_LIC_DIR}/readme.txt;md5=73cbec7a0d2bc22faf567238e055bfc8"
 
 DEPENDS = "rpm-native xz-native"
-RDEPENDS = "libxcb-dri2"
+RDEPENDS_${PN} = "libxcb-dri2"
 
 # Add the ABI dependency at package generation time, as otherwise bitbake will
 # attempt to find a provider for it (and fail) when it does the parse.
