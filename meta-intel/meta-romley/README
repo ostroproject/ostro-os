@@ -2,9 +2,17 @@ This README file contains information on building the meta-romley
 BSP layer, and booting the images contained in the /binary directory.
 Please see the corresponding sections below for details.
 
-The 'romley' platform consists of the Intel Xeon E5-2600 and E5-2400
-Series Processors, plus the Intel C604/C602-J Chipset
+The romley platform consists of two versions:
+1. romley - Sandy Bridge
+2. romley - Ivy Bridge
+
+The romley - Sandy Bridge platform consists of the Intel Xeon E5-2600
+and E5-2400 Series processors, plus the Intel C604/C602-J chipset
 (Sandy Bridge-EP/EN + Patsburg).
+
+The romley - Ivy Bridge platform consists of the Intel Xeon E5-2600
+and E5-2400 v2 Series processors with the Intel C604/C602-J chipset
+(Ivy Bridge-EP/EN + Patsburg).
 
 This BSP assumes Matrox graphics is being used.
 
@@ -24,6 +32,7 @@ This BSP is compliant with the Yocto Project as per the requirements
 listed here:
 
   https://www.yoctoproject.org/webform/yocto-project-compatible-registration
+
 
 Dependencies
 ============
@@ -76,9 +85,13 @@ common metadata shared between BSPs) e.g.:
   yocto/meta-intel \
   yocto/meta-intel/meta-romley \
 
-To enable the romley layer, add the romley MACHINE to local.conf:
+To enable the romley Sandy Bridge layer, add the romley MACHINE to local.conf:
 
   MACHINE ?= "romley"
+
+To enable the romley Ivy Bridge layer, add the romley-ivb MACHINE to local.conf:
+
+  MACHINE ?= "romley-ivb"
 
 You should then be able to build a romley image as such:
 
@@ -127,6 +140,7 @@ ifconfig the IP address and use that to ssh in.  The root password is
 empty, so to log in type 'root' for the user name and hit 'Enter' at
 the Password prompt: and you should be in.
 
+
 III. Enabling Intel DPDK Technology
 ===================================
 
@@ -142,5 +156,3 @@ the syslinux boot: prompt, or the boot: prompt contains strange
 characters), try doing this first:
 
 # dd if=/dev/zero of=/dev/sdf bs=1M count=512
-
-
