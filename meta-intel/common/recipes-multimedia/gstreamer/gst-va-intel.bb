@@ -22,7 +22,11 @@ PACKAGES = "\
     ${VAAPI_IMPL} \
     "
 
-ALLOW_EMPTY = "1"
+ALLOW_EMPTY_gst-va-intel = "1"
+ALLOW_EMPTY_gst-va-intel-general = "1"
+ALLOW_EMPTY_gst-va-intel-video = "1"
+ALLOW_EMPTY_gst-va-intel-vaapi = "1"
+ALLOW_EMPTY_gst-va-mixvideo-vaapi = "1"
 
 RDEPENDS_gst-va-intel = "\
     gst-va-intel-general \
