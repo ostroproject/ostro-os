@@ -19,7 +19,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=2e48940f94acb0af582e5ef03537800f"
 
 INC_PR = "r1"
 
-DEPENDS = "libxext libxfixes libdrm mesa-dri"
+DEPENDS = "libxext libxfixes libdrm mesa"
 
 inherit autotools pkgconfig
 
