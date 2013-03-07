@@ -21,7 +21,7 @@ PACKAGES = "\
     va-intel \
     "
 
-ALLOW_EMPTY = "1"
+ALLOW_EMPTY_va-intel = "1"
 
 RDEPENDS_va-intel = " \
     ${VA_IMPL} \
