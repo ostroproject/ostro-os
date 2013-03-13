@@ -1,0 +1,12 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=/usr/lib
+includedir=/usr/include
+
+Name: gles_cm
+Description: EMGD OpenGL ES 1.1 CM library
+Requires.private:
+Version: 1.16
+Libs: -L${libdir} -lGLES_CM
+Libs.private: -lm -lpthread -ldl
+Cflags: -I${includedir}

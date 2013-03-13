@@ -28,7 +28,12 @@ python populate_packages_prepend() {
     d.appendVar("RDEPENDS_" + pn, " xorg-abi-video-8")
 }
 
-SRC_URI = "https://edc.intel.com/App_Shared/Downloads/LIN_IEMGD_1_16_GOLD_3228.tgz"
+SRC_URI = "https://edc.intel.com/App_Shared/Downloads/LIN_IEMGD_1_16_GOLD_3228.tgz \
+           file://egl.pc \
+           file://gl.pc \
+           file://gles_cm.pc \
+           file://glesv2.pc \
+          "
 
 SRC_URI[md5sum] = "339c902baeac0a5816108bea827b3685"
 SRC_URI[sha256sum] = "33ef38b83914ef7d1e12a430ec009352b415b9d5840c9d0db25744b7dc6a2473"
@@ -161,6 +166,10 @@ do_install () {
     ln -sf libmixcommon.so.0.10.8                         ${D}${libdir}/libmixcommon.so.0
     rm -f ${D}${libdir}/libgstvabuffer.so.0
     ln -sf libgstvabuffer.so.0.10.8                       ${D}${libdir}/libgstvabuffer.so.0
+
+    # Copy the .pc files
+    install -d -m 0755                                    ${D}${libdir}/pkgconfig
+    install -m 0644  ${WORKDIR}/*.pc                      ${D}${libdir}/pkgconfig/
 }
 
 LEAD_SONAME = "libEGL.so"
