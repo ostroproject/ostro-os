@@ -1,19 +1,21 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
+LINUX_VERSION = "3.8.4"
+
 COMPATIBLE_MACHINE_fri2 = "fri2"
 KMACHINE_fri2 = "fri2"
 KBRANCH_fri2 = "standard/fri2"
 KERNEL_FEATURES_fri2_append = " features/drm-emgd/drm-emgd-1.16 cfg/vesafb"
-SRCREV_meta_fri2 = "c2ed0f16fdec628242a682897d5d86df4547cf24"
-SRCREV_machine_fri2 = "b170394a475b96ecc92cbc9e4b002bed0a9f69c5"
-SRCREV_emgd_fri2 = "caea08c988e0f41103bbe18eafca20348f95da02"
+SRCREV_meta_fri2 = "2a6d36e75ca0a121570a389d7bab76ec240cbfda"
+SRCREV_machine_fri2 = "47aed0c17c1c55988198ad39f86ae88894c8e0a4"
+SRCREV_emgd_fri2 = "c780732f175ff0ec866fac2130175876b519b576"
 
 COMPATIBLE_MACHINE_fri2-noemgd = "fri2-noemgd"
 KMACHINE_fri2-noemgd = "fri2"
 KBRANCH_fri2-noemgd = "standard/fri2"
 KERNEL_FEATURES_fri2_append = " cfg/vesafb"
-SRCREV_meta_fri2-noemgd = "c2ed0f16fdec628242a682897d5d86df4547cf24"
-SRCREV_machine_fri2-noemgd = "b170394a475b96ecc92cbc9e4b002bed0a9f69c5"
+SRCREV_meta_fri2-noemgd = "2a6d36e75ca0a121570a389d7bab76ec240cbfda"
+SRCREV_machine_fri2-noemgd = "47aed0c17c1c55988198ad39f86ae88894c8e0a4"
 
 module_autoload_iwlwifi = "iwlwifi"
 
