@@ -45,6 +45,14 @@ do_compile() 	{
 	oe_runmake  KERNEL_CC="${KERNEL_CC}"
 }
 
+KERNEL_VERSION = "${@base_read_file('${STAGING_KERNEL_DIR}/kernel-abiversion')}"
+MODULE_DIR="${D}${base_libdir}/modules/${KERNEL_VERSION}/kernel/drivers"
+
+do_install()    {
+        install -m 0755 -d ${MODULE_DIR}
+        install -m 0755 ${S}/qat_mem.ko ${MODULE_DIR}
+}
+
 do_install_append() 	{
 	install -m 0755 -d ${D}${bindir} \
 			   ${D}${includedir}/engines/qat_engine/qat_mem
@@ -53,4 +61,5 @@ do_install_append() 	{
 	install -m 0750 ${S}/*.h	   ${D}${includedir}/engines/qat_engine/qat_mem/
 }
 
-FILES_${PN} += "${bindir}/qat_mem_test"
+FILES_${PN} += "${bindir}/qat_mem_test \
+		${base_libdir}/modules/${KERNEL_VERSION}/kernel/drivers"
