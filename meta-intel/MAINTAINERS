@@ -73,6 +73,13 @@ M:      Kishore Bodke <kishore.k.bodke@intel.com>
 F:      meta-romley/
 
 SUGARBAY
-M:	Nitin A Kamble<nitin.a.kamble@intel.com>
+M:	Nitin A Kamble <nitin.a.kamble@intel.com>
 F:	meta-sugarbay/
 
+SYS940X
+M:	Darren Hart <dvhart@linux.intel.com>
+F:	meta-sys940x/
+
+TLK
+M:	Saul Wold <saul.wold@intel.com>
+F:	meta-tlk/
