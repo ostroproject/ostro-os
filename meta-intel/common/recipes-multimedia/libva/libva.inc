@@ -23,6 +23,9 @@ DEPENDS = "libxext libxfixes libdrm mesa"
 
 inherit autotools pkgconfig
 
+# Unconditionally turn wayland off for now
+EXTRA_OECONF = "${@base_contains('DISTRO_FEATURES', 'wayland', '--disable-wayland', '--disable-wayland', d)}"
+
 PACKAGES =+ "${PN}-x11 ${PN}-tpi ${PN}-glx ${PN}-egl"
 PROVIDES =+ "${PN}-x11 ${PN}-tpi ${PN}-glx ${PN}-egl"
 PACKAGES =+ "${PN}-x11-dev ${PN}-tpi-dev ${PN}-glx-dev ${PN}-egl-dev"
