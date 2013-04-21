@@ -30,7 +30,6 @@ python populate_packages_prepend() {
 
 SRC_URI = "https://edc.intel.com/App_Shared/Downloads/LIN_IEMGD_1_16_GOLD_3228.tgz \
            file://egl.pc \
-           file://gl.pc \
            file://gles_cm.pc \
            file://glesv2.pc \
           "
