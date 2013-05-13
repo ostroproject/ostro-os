@@ -57,7 +57,7 @@ Patches
 Please submit any patches against this BSP to the Yocto mailing list
 (yocto@yoctoproject.org) and cc: the maintainer:
 
-Maintainer: Kishore Bodke <kishore.k.bodke@intel.com>
+Maintainer: Haw Foo Chien <foo.chien.haw@intel.com>
 
 Please see the meta-intel/MAINTAINERS file for more details.
 
