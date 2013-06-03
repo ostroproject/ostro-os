@@ -4,7 +4,7 @@ COMPATIBLE_MACHINE_chiefriver = "chiefriver"
 KMACHINE_chiefriver = "chiefriver"
 KBRANCH_chiefriver = "standard/common-pc-64/chiefriver"
 
-KERNEL_FEATURES_append_chiefriver = " features/amt/mei"
+KERNEL_FEATURES_append_chiefriver = " features/amt/mei/mei.scc"
 
 LINUX_VERSION = "3.8.4"
 
