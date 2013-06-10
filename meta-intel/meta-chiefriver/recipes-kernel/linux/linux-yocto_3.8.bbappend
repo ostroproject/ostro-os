@@ -6,7 +6,7 @@ KBRANCH_chiefriver = "standard/common-pc-64/chiefriver"
 
 KERNEL_FEATURES_append_chiefriver = " features/amt/mei/mei.scc"
 
-LINUX_VERSION = "3.8.11"
+LINUX_VERSION = "3.8.13"
 
-SRCREV_machine_chiefriver = "6ed6ca790b7afef5881de4566850bbc30ae26df6"
-SRCREV_meta_chiefriver = "edd6461602f6c2fc27bc72997e4437f422a9dccd"
+SRCREV_machine_chiefriver = "1f973c0fc8eea9a8f9758f47cf689ba89dbe9a25"
+SRCREV_meta_chiefriver = "acee86ed84e252f1c3af782cc3aa044aaa13e51a"
