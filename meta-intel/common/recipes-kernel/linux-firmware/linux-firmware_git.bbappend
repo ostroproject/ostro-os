@@ -1,5 +1,4 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
-PRINC := "${@int(PRINC) + 1}"
 
 # This exists in Yocto 1.1, but include it here for completeness
 LIC_FILES_CHKSUM += "file://LICENCE.iwlwifi_firmware;md5=11545778abf78c43d7644d4f171ea1c7"
