@@ -26,7 +26,13 @@ INITSCRIPT_PARAMS = "defaults"
 do_install_append () {
 	mv ${D}/${sbindir}/lms ${D}/${sbindir}/lms8
 	install -d ${D}${sysconfdir}/init.d
-	mv ${D}${sysconfdir}/rc.d/init.d/lms ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
+	# The configure script looks at the host to decide where to put init
+	# scripts, so move it at the same time as renaming it.
+	if test -f ${D}${sysconfdir}/rc.d/init.d/lms ; then
+		mv ${D}${sysconfdir}/rc.d/init.d/lms ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
+	else
+		mv ${D}${sysconfdir}/init.d/lms ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
+	fi
 	sed -i 's/^NAME=lms/NAME=lms8/' ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
 	rmdir ${D}${datadir} || :
 }
