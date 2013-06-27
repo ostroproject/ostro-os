@@ -27,6 +27,8 @@ SRC_URI[openssl.sha256sum]="4d9f0a594a9a89b28e1a04a9504c04104f6508ee27ad1e0efdd1
 SRC_URI[libcrypto.md5sum] = "e4e131fa56d3aa1a52b5bdb9f8fe5a69"
 SRC_URI[libcrypto.sha256sum] = "19a80ae6e78548934295d312148e4254c18dabd25e2fd72de5796d8ac15b1cfb"
 
+COMPATIBLE_HOST = "(x86_64.*|i.86.*)-linux"
+
 S = "${WORKDIR}/openssl-${PV}/engines/qat_engine/qat_mem"
 
 export KERNEL_SOURCE_ROOT = "${STAGING_KERNEL_DIR}"

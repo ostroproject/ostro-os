@@ -13,3 +13,4 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=0918806acfedc3e8c0488f2dd61616dd"
 DEPENDS += "libdrm libpciaccess cairo udev glib-2.0"
 
 EXTRA_OECONF = "--disable-nouveau --disable-shader-debugger"
+COMPATIBLE_HOST = "(x86_64.*|i.86.*)-linux"
