@@ -4,5 +4,5 @@ SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/libva-intel-driver
 
 SRC_URI += "file://0001-Workaround-for-concurrently-playing-VC1-and-H264-vid.patch"
 
-SRC_URI[md5sum] = "55b8e5d1126cc0f7e9df968017d21468"
-SRC_URI[sha256sum] = "12fefb661372c053ff26530fae8342f9df63dbe8ab2c548d8d430d994042d4c9"
+SRC_URI[md5sum] = "afdd4c91ac552a14b4d0ce93b75c88bb"
+SRC_URI[sha256sum] = "a6fceaa118fe5d1a6e7382ed30e6684b4059b3fedd79eb53121a80e8016c748c"
