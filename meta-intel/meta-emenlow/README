@@ -85,7 +85,7 @@ common metadata shared between BSPs) e.g.:
 The meta-emenlow layer contains support for two different machine
 configurations. These configurations are identical except for the fact
 that the one prefixed with 'emenlow' makes use of the
-Intel-proprietary EMGD 1.16 graphics driver, while the one prefixed
+Intel-proprietary EMGD 1.18 graphics driver, while the one prefixed
 with 'emenlow-noemgd' does not. The 'emenlow-noemgd' machine
 configuration instead uses the open source 'gma500' kernel DRM driver
 along with the 'modesetting' X driver.
@@ -97,10 +97,10 @@ following to the local.conf file:
 
 The 'emenlow' machine includes the emgd-driver-bin package, which has
 a proprietary license that must be whitelisted by adding the string
-"license_emgd-driver-bin_1.16" to the LICENSE_FLAGS_WHITELIST variable
+"license_emgd-driver-bin_1.18" to the LICENSE_FLAGS_WHITELIST variable
 in your local.conf.  For example:
 
-  LICENSE_FLAGS_WHITELIST = "license_emgd-driver-bin_1.16"
+  LICENSE_FLAGS_WHITELIST = "license_emgd-driver-bin"
 
 If you want to enable the layer that does not support EMGD graphics
 add the following to the local.conf file:
@@ -122,7 +122,7 @@ added to the the LICENSE_FLAGS_WHITELIST variable in your local.conf.
 
 For example:
 
-  LICENSE_FLAGS_WHITELIST = "license_emgd-driver-bin_1.16 commercial"
+  LICENSE_FLAGS_WHITELIST = "license_emgd-driver-bin commercial"
 
 The reason this is needed is to prevent the image from including
 anything that might violate the license terms of the packages used to
