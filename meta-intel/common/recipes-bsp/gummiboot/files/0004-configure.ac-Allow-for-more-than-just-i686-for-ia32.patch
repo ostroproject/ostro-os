@@ -1,0 +1,40 @@
+From 981895439eb0713fa787b4aaf80df98530eb7ea6 Mon Sep 17 00:00:00 2001
+Message-Id: <981895439eb0713fa787b4aaf80df98530eb7ea6.1367382591.git.dvhart@linux.intel.com>
+In-Reply-To: <c72599a7bd46c22d296c59dbd13f138503350d2f.1367382591.git.dvhart@linux.intel.com>
+References: <c72599a7bd46c22d296c59dbd13f138503350d2f.1367382591.git.dvhart@linux.intel.com>
+From: Darren Hart <dvhart@linux.intel.com>
+Date: Tue, 30 Apr 2013 21:20:59 -0700
+Subject: [PATCH 4/4] configure.ac: Allow for more than just i686 for ia32
+
+Expand the ARCH_I686 to include i*86* (specifically to catch i586).
+Rename ARCH_I686 to ARCH_IA32 as that is more accurately what we are
+testing for.
+
+Signed-off-by: Darren Hart <dvhart@linux.intel.com>
+---
+ configure.ac |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index f7c62ea..5d3d6ae 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -49,13 +49,13 @@ AC_PATH_PROG([XSLTPROC], [xsltproc])
+ AC_PATH_PROG([QEMU_KVM], [qemu-kvm])
+ 
+ dnl Define ARCH_<NAME> conditionals
+-SET_ARCH(I686, i686*)
++SET_ARCH(IA32, i*86*)
+ SET_ARCH(X86_64, x86_64*)
+ SET_ARCH(IA64, ia64*)
+ 
+ ARCH=`echo $host | sed "s/\(-\).*$//"`
+ 
+-AM_COND_IF(ARCH_I686, [
++AM_COND_IF(ARCH_IA32, [
+         ARCH=ia32
+         MACHINE_TYPE_NAME=ia32])
+ 
+-- 
+1.7.5.4
+

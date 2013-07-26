@@ -1,0 +1,39 @@
+From 8d1e561ef06889c7dd5943c5be2045c6cf98b14c Mon Sep 17 00:00:00 2001
+Message-Id: <8d1e561ef06889c7dd5943c5be2045c6cf98b14c.1367382591.git.dvhart@linux.intel.com>
+In-Reply-To: <c72599a7bd46c22d296c59dbd13f138503350d2f.1367382591.git.dvhart@linux.intel.com>
+References: <c72599a7bd46c22d296c59dbd13f138503350d2f.1367382591.git.dvhart@linux.intel.com>
+From: Darren Hart <dvhart@linux.intel.com>
+Date: Tue, 30 Apr 2013 21:18:51 -0700
+Subject: [PATCH 3/4] Makefile.am: Allow for user override of EFI include dir
+
+Enable cross-compiling by allowing the user to specify an alternative to
+the /usr/include directory for the EFI includes. Add a variable INCDIR
+defaulting to /usr/include, but still allowing the user to provide their
+own value.
+
+Signed-off-by: Darren Hart <dvhart@linux.intel.com>
+---
+ Makefile.am |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 22e314d..2611971 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -72,10 +72,11 @@ CLEANFILES += man/gummiboot.8
+ efi_loadername = gummiboot$(MACHINE_TYPE_NAME).efi
+ efi_sources = src/efi/gummiboot.c
+ 
++INCDIR := /usr/include
+ efi_cppflags = \
+ 	-I$(top_builddir) -include config.h \
+-	-I/usr/include/efi \
+-	-I/usr/include/efi/$(ARCH)
++	-I$(INCDIR)/efi \
++	-I$(INCDIR)/efi/$(ARCH)
+ 
+ efi_cflags = \
+ 	-Wall \
+-- 
+1.7.5.4
+

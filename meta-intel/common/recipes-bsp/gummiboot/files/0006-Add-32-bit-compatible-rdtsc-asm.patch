@@ -1,0 +1,52 @@
+From e4711180646eb1fd701c4e5b124e5dc5372d446d Mon Sep 17 00:00:00 2001
+Message-Id: <e4711180646eb1fd701c4e5b124e5dc5372d446d.1367620002.git.dvhart@linux.intel.com>
+From: Darren Hart <dvhart@linux.intel.com>
+Date: Fri, 3 May 2013 15:10:43 -0700
+Subject: [PATCH] Add 32 bit compatible rdtsc asm
+
+Gcc's inline asm constraints have different meanings on x86_64 and ia32.
+Include a 32 bit version for the rdtsc function. Drop the empty 32 bit
+version of time_usec as it and the cpuid function both function properly
+when compiled for 32 bit systems.
+
+Tested on the following CPU:
+Intel(R) Atom(TM) CPU E640   @ 1.00GHz
+
+A value of 1000000000 was detected.
+
+Signed-off-by: Darren Hart <dvhart@linux.intel.com>
+---
+ src/efi/gummiboot.c |   10 +++++++---
+ 1 files changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/src/efi/gummiboot.c b/src/efi/gummiboot.c
+index 9be8f8e..971e05c 100644
+--- a/src/efi/gummiboot.c
++++ b/src/efi/gummiboot.c
+@@ -89,6 +89,13 @@ static UINT64 ticks_read(void) {
+         __asm__ volatile ("rdtsc" : "=a" (a), "=d" (d));
+         return (d << 32) | a;
+ }
++#else
++static UINT64 ticks_read(void) {
++        UINT64 val;
++        __asm__ volatile ("rdtsc" : "=A" (val));
++        return val;
++}
++#endif
+ 
+ static void cpuid_read(UINT32 info, UINT32 *eax, UINT32 *ebx, UINT32 *ecx, UINT32 *edx) {
+         *eax = info;
+@@ -186,9 +193,6 @@ static UINT64 time_usec(void) {
+ 
+         return 1000 * 1000 * ticks / cpufreq;
+ }
+-#else
+-static UINT64 time_usec(void) { return 0; }
+-#endif
+ 
+ static EFI_STATUS efivar_set_raw(const EFI_GUID *vendor, CHAR16 *name, CHAR8 *buf, UINTN size, BOOLEAN persistent) {
+         UINT32 flags;
+-- 
+1.7.5.4
+

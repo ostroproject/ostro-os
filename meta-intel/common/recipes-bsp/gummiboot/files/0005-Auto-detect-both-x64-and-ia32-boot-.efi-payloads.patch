@@ -1,0 +1,33 @@
+From 58204c946ec8f626d1b5997188b17978fcba5c9b Mon Sep 17 00:00:00 2001
+Message-Id: <58204c946ec8f626d1b5997188b17978fcba5c9b.1367616193.git.dvhart@linux.intel.com>
+From: Darren Hart <dvhart@linux.intel.com>
+Date: Fri, 3 May 2013 14:21:25 -0700
+Subject: [PATCH] Auto detect both x64 and ia32 boot*.efi payloads
+
+The EFI specification documents /EFI/BOOT/bootx64.efi for x86_64
+machines and /EFI/BOOT/bootia32.efi for ia32 machines. Update the auto
+detection to allow for both.
+
+Signed-off-by: Darren Hart <dvhart@linux.intel.com>
+---
+ src/efi/gummiboot.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/src/efi/gummiboot.c b/src/efi/gummiboot.c
+index 3013873..ed68934 100644
+--- a/src/efi/gummiboot.c
++++ b/src/efi/gummiboot.c
+@@ -1941,7 +1941,9 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE image, EFI_SYSTEM_TABLE *sys_table) {
+         config_entry_add_loader_auto(&config, loaded_image->DeviceHandle, root_dir, loaded_image_path,
+                                      L"auto-efi-shell", L"EFI Shell", L"\\shellx64.efi");
+         config_entry_add_loader_auto(&config, loaded_image->DeviceHandle, root_dir, loaded_image_path,
+-                                     L"auto-efi-default", L"EFI Default Loader", L"\\EFI\\BOOT\\BOOTX64.EFI");
++                                     L"auto-efi-default-64", L"EFI Default Loader (x64)", L"\\EFI\\BOOT\\BOOTX64.EFI");
++        config_entry_add_loader_auto(&config, loaded_image->DeviceHandle, root_dir, loaded_image_path,
++                                     L"auto-efi-default-32", L"EFI Default Loader (ia32)", L"\\EFI\\BOOT\\BOOTIA32.EFI");
+         config_entry_add_osx(&config);
+         efivar_set(L"LoaderEntriesAuto", config.entries_auto, FALSE);
+ 
+-- 
+1.7.5.4
+
