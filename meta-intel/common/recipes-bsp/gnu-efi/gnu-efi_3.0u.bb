@@ -4,17 +4,14 @@ SECTION = "devel"
 LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://debian/copyright;md5=5fb358a180f484b285b0d99acdc29666"
 
-PR = "r3"
+PR = "r0"
 
-SRCREV = "74"
-
-SRC_URI = "http://downloads.sourceforge.net/gnu-efi/gnu-efi_3.0m.orig.tar.gz \
-           file://cross-compile-support.patch \
+SRC_URI = "http://downloads.sourceforge.net/gnu-efi/gnu-efi_3.0u.orig.tar.gz \
            file://parallel-make.patch \
            file://parallel-make-archives.patch \
           "
-SRC_URI[md5sum] = "d0a21125aee56c0c7291ad260e916cb3"
-SRC_URI[sha256sum] = "b7fb638f5ec8faa6edebe54beb90957f01ccccf70a2a948d1b58b834c8d7f86d"
+SRC_URI[md5sum] = "d15d3c700e79a1e2938544d73edc572d"
+SRC_URI[sha256sum] = "3c0d450d5829204ca05dcb3b2aae772e52c379b7c7e09146759c6315606f934e"
 
 COMPATIBLE_HOST = "(x86_64.*|i.86.*)-linux"
 
@@ -28,11 +25,11 @@ def gnu_efi_arch(d):
     return tarch
 
 EXTRA_OEMAKE = "'ARCH=${@gnu_efi_arch(d)}' 'CC=${CC}' 'AS=${AS}' 'LD=${LD}' 'AR=${AR}' \
-                'RANLIB=${RANLIB}' 'OBJCOPY=${OBJCOPY}' \
+                'RANLIB=${RANLIB}' 'OBJCOPY=${OBJCOPY}' 'PREFIX=${prefix}'\
                 "
 
 do_install() {
-    oe_runmake install INSTALLROOT="${D}${prefix}"
+	oe_runmake install INSTALLROOT="${D}"
 }
 
 FILES_${PN} += "${libdir}/*.lds"
