@@ -10,7 +10,7 @@ SRCREV_meta_pn-linux-yocto_fri2 ?= "f697e099bc76d5df3a307a5bc0cc25021dd6dfe0"
 COMPATIBLE_MACHINE_fri2-noemgd = "fri2-noemgd"
 KMACHINE_fri2-noemgd  = "fri2"
 KBRANCH_fri2-noemgd = "standard/fri2"
-KERNEL_FEATURES_append_fri2 = " cfg/vesafb"
+KERNEL_FEATURES_append_fri2-noemgd = " cfg/vesafb"
 SRCREV_machine_pn-linux-yocto_fri2-noemgd ?= "13809f2cfd9be0ce86bd486e1643f9b90bed6f4f"
 SRCREV_meta_pn-linux-yocto_fri2-noemgd ?= "f697e099bc76d5df3a307a5bc0cc25021dd6dfe0"
 

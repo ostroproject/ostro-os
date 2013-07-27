@@ -11,7 +11,7 @@ SRCREV_emgd_fri2 = "17aacd908ed6035213a6d206cfdb2c0c9fa9e0c1"
 COMPATIBLE_MACHINE_fri2-noemgd = "fri2-noemgd"
 KMACHINE_fri2-noemgd = "fri2"
 KBRANCH_fri2-noemgd = "standard/fri2"
-KERNEL_FEATURES_append_fri2 = " cfg/vesafb"
+KERNEL_FEATURES_append_fri2-noemgd = " cfg/vesafb"
 SRCREV_machine_fri2-noemgd = "60536206ad300ccf5b2be2c2d449f4ab27170238"
 SRCREV_meta_fri2-noemgd = "fe20c99783387dab779472ff50a88666da1c6391"
 

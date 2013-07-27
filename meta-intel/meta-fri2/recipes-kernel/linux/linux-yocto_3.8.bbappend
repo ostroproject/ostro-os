@@ -14,7 +14,7 @@ SRC_URI_fri2 = "git://git.yoctoproject.org/linux-yocto-3.8.git;protocol=git;noch
 COMPATIBLE_MACHINE_fri2-noemgd = "fri2-noemgd"
 KMACHINE_fri2-noemgd = "fri2"
 KBRANCH_fri2-noemgd = "standard/fri2"
-KERNEL_FEATURES_append_fri2 = " cfg/vesafb"
+KERNEL_FEATURES_append_fri2-noemgd = " cfg/vesafb"
 SRCREV_meta_fri2-noemgd = "8ef9136539464c145963ac2b8ee0196fea1c2337"
 SRCREV_machine_fri2-noemgd = "f20047520a57322f05d95a18a5fbd082fb15cb87"
 
