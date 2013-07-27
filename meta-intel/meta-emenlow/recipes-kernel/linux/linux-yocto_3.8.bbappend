@@ -3,12 +3,12 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 COMPATIBLE_MACHINE_emenlow = "emenlow"
 KMACHINE_emenlow = "emenlow"
 KBRANCH_emenlow = "standard/emenlow"
-KERNEL_FEATURES_emenlow_append = " features/drm-emgd/drm-emgd-1.18 cfg/vesafb"
+KERNEL_FEATURES_append_emenlow = " features/drm-emgd/drm-emgd-1.18 cfg/vesafb"
 
 COMPATIBLE_MACHINE_emenlow-noemgd = "emenlow-noemgd"
 KMACHINE_emenlow-noemgd = "emenlow"
 KBRANCH_emenlow-noemgd = "standard/emenlow"
-KERNEL_FEATURES_emenlow-noemgd_append = " features/drm-gma500/drm-gma600"
+KERNEL_FEATURES_append_emenlow-noemgd = " features/drm-gma500/drm-gma600"
 
 LINUX_VERSION = "3.8.13"
 
