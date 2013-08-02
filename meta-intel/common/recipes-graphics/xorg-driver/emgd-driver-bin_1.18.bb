@@ -7,7 +7,7 @@ to LICENSE_FLAGS_WHITELIST += \"license_emgd-driver-bin_1.18\" to your \
 local.conf in order to enable it in a build."
 LICENSE = "Intel-software-license-emgd-1.18 & Intel-user-space-graphics-driver-binary-license-emgd-1.18"
 LICENSE_FLAGS = "license_${PN}_${PV}"
-PR = "r0"
+PR = "r1"
 
 EMGD_LIC_DIR = "IEMGD_HEAD_Linux/License"
 EMGD_RPM_DIR = "IEMGD_HEAD_Linux/MeeGo1.2"
@@ -17,7 +17,7 @@ LIC_FILES_CHKSUM = "file://${WORKDIR}/${EMGD_LIC_DIR}/License.txt;md5=7ce256e6a3
                     file://${WORKDIR}/${EMGD_LIC_DIR}/readme.txt;md5=73cbec7a0d2bc22faf567238e055bfc8"
 
 DEPENDS = "rpm-native xz-native"
-RDEPENDS_${PN} = "libxcb-dri2 cairo"
+RDEPENDS_${PN} = "libxcb-dri2 cairo xserver-xorg"
 
 # Add the ABI dependency at package generation time, as otherwise bitbake will
 # attempt to find a provider for it (and fail) when it does the parse.
