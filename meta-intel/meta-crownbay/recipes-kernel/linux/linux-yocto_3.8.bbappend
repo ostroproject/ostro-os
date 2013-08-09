@@ -12,11 +12,11 @@ KERNEL_FEATURES_append_crownbay-noemgd = " cfg/vesafb"
 
 LINUX_VERSION = "3.8.13"
 
-SRCREV_meta_crownbay = "8ef9136539464c145963ac2b8ee0196fea1c2337"
+SRCREV_meta_crownbay = "f706bd410c80a20ff437a53bb3f9f076ba31a17e"
 SRCREV_machine_crownbay = "f20047520a57322f05d95a18a5fbd082fb15cb87"
 SRCREV_emgd_crownbay = "a18cbb7a2886206815dbf6c85caed3cb020801e0"
 
-SRCREV_meta_crownbay-noemgd = "8ef9136539464c145963ac2b8ee0196fea1c2337"
+SRCREV_meta_crownbay-noemgd = "f706bd410c80a20ff437a53bb3f9f076ba31a17e"
 SRCREV_machine_crownbay-noemgd = "f20047520a57322f05d95a18a5fbd082fb15cb87"
 
 SRC_URI_crownbay = "git://git.yoctoproject.org/linux-yocto-3.8.git;protocol=git;nocheckout=1;branch=${KBRANCH},${KMETA},emgd-1.18;name=machine,meta,emgd"
