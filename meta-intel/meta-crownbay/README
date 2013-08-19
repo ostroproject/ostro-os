@@ -96,6 +96,13 @@ in your local.conf.  For example:
 
   LICENSE_FLAGS_WHITELIST = "license_emgd-driver-bin"
 
+The emgd recipe depends on Xorg's dri and glx modules, which are built
+only when 'opengl' is listed in DISTRO_FEATURES. So if the distro
+doesn't list 'opengl' in the DISTRO_FEATURES you would need this
+additional line to your local.conf:
+
+  DISTRO_FEATURES_append = " opengl"
+
 If you want to enable the layer that does not support EMGD graphics
 add the following to the local.conf file:
 
