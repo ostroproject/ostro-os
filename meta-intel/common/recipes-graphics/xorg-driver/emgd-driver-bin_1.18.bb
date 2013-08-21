@@ -28,6 +28,9 @@ python populate_packages_prepend() {
     d.appendVar("RDEPENDS_" + pn, " xorg-abi-video-8")
 }
 
+inherit distro_features_check
+REQUIRED_DISTRO_FEATURES = "opengl"
+
 SRC_URI = "http://downloadmirror.intel.com/22865/eng/LIN_IEMGD_1_18_GOLD_3398.tgz \
            file://egl.pc \
            file://gles_cm.pc \
