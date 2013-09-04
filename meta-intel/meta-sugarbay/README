@@ -104,6 +104,13 @@ ffmpeg.  As always, please consult the licenses included in the
 specific packages for details if you use packages that require
 particular LICENSE_FLAGS.
 
+The xf86-video-intel recipe depends on Xorg's dri and glx modules,
+which are built only when 'opengl' is listed in DISTRO_FEATURES. So
+if the distro doesn't list 'opengl' in the DISTRO_FEATURES, then you
+would need this additional line in your local.conf:
+
+  DISTRO_FEATURES_append = " opengl"
+
 As an alternative to downloading the BSP tarball, you can also work
 directly from the meta-intel git repository.  For each BSP in the
 'meta-intel' repository, there are multiple branches, one
