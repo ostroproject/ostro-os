@@ -19,7 +19,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=2e48940f94acb0af582e5ef03537800f"
 
 INC_PR = "r1"
 
-DEPENDS = "libxext libxfixes libdrm mesa"
+DEPENDS = "libxext libxfixes libdrm virtual/mesa virtual/libgles1 virtual/libgles2 virtual/egl"
 
 inherit autotools pkgconfig
 
