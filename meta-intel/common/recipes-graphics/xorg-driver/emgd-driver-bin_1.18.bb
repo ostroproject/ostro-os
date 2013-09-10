@@ -23,6 +23,7 @@ RDEPENDS_emgd-gst-plugins-mixvideo = "libva-tpi"
 # These libraries shouldn't get installed in world builds unless something
 # explicitly depends upon them.
 EXCLUDE_FROM_WORLD = "1"
+PROVIDES = "virtual/libgles1 virtual/libgles2 virtual/egl"
 
 # Add the ABI dependency at package generation time, as otherwise bitbake will
 # attempt to find a provider for it (and fail) when it does the parse.
