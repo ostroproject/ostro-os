@@ -18,6 +18,11 @@ LIC_FILES_CHKSUM = "file://${WORKDIR}/${EMGD_LIC_DIR}/License.txt;md5=b54f01caaf
 
 DEPENDS = "rpm-native xz-native"
 RDEPENDS_${PN} = "libxcb-dri2 cairo xserver-xorg"
+RDEPENDS_emgd-gst-plugins-mixvideo = "libva-tpi"
+
+# These libraries shouldn't get installed in world builds unless something
+# explicitly depends upon them.
+EXCLUDE_FROM_WORLD = "1"
 
 # Add the ABI dependency at package generation time, as otherwise bitbake will
 # attempt to find a provider for it (and fail) when it does the parse.
