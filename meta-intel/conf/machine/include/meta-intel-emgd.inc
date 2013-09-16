@@ -1,0 +1,3 @@
+INHERIT += "emgd-gl"
+GLSUFFIX = "-emgd"
+PACKAGE_EXTRA_ARCHS_append = " ${TUNE_PKGARCH}${GLSUFFIX}"
