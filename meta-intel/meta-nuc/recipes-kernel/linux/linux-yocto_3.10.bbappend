@@ -6,9 +6,9 @@ KBRANCH_nuc = "standard/common-pc-64/chiefriver"
 
 KERNEL_FEATURES_append_nuc = " features/amt/mei/mei.scc wifi"
 
-LINUX_VERSION = "3.10.10"
+LINUX_VERSION = "3.10.11"
 
-SRCREV_meta_nuc = "ea900d1db60ba48962227f0976ac55f9e25bfa24"
-SRCREV_machine_nuc = "ebc8428fdd938cfdfcdcadd77c3308ece6a57de1"
+SRCREV_meta_nuc = "285f93bf942e8f6fa678ffc6cc53696ed5400718"
+SRCREV_machine_nuc = "702040ac7c7ec66a29b4d147665ccdd0ff015577"
 
 module_autoload_iwlwifi_nuc = "iwlwifi"
