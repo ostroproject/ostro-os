@@ -165,25 +165,6 @@ contact your Intel Field Sales Representative or visit Intel Embedded Design
 Center (www.intel.com/p/en_US/embedded/designcenter) for instructions on how
 to locate and use these recipes.
 
-IV. Enabling libcrypto kernel module for QuickAssist Technology
-===============================================================
-
-Since the Kernel Module names of Libcrypto and Zlib for QuickAssist
-Technology recipes are same, enabling both causes the build to fail.
-
-Please see Bug #4126 for more description.
-
-By default Crystal Forest builds zlib-qat-module.
-For enabling the libcrypto kernel module recipe, do the following:
-
-Crystal Forest Gladden:
-Edit meta-intel/meta-crystalforest/conf/machine/crystalforest-gladden.conf
-and replace zlib-qat-module with openssl-qat-module in MACHINE_EXTRA_RRECOMMENDS
-
-Crystal Forest Server:
-Edit meta-intel/meta-crystalforest/conf/machine/crystalforest-server.conf
-and replace zlib-qat-module with openssl-qat-module in MACHINE_EXTRA_RRECOMMENDS
-
 ----
 
 If you find you're getting corrupt images on the USB (it doesn't show
