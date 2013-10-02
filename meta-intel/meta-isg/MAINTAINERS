@@ -1,0 +1,43 @@
+This file contains a list of BSP maintainers for the BSPs contained in
+the meta-intel/meta-isg repository.
+
+Please submit any patches against meta-intel/meta-isg BSPs to the
+maintainer of the BSP in question and to the meta-intel mailing list
+(meta-intel@yoctoproject.org).  Also, if your patches are available
+via a public git repository, please also include a URL to the repo and
+branch containing your patches as that makes it easier for maintainers
+to grab and test your patches.
+
+If you have problems with or questions about a particular BSP, feel
+free to contact the maintainer directly (cc:ing the meta-intel mailing
+list puts it in the archive and helps other people who might have the
+same questions in the future), but please try to do the following
+first:
+
+  - look in the Yocto Project Bugzilla
+    (http://bugzilla.yoctoproject.org/) to see if a problem has
+    already been reported
+
+  - look through recent entries of the meta-intel
+    (https://lists.yoctoproject.org/pipermail/meta-intel/) and Yocto
+    (https://lists.yoctoproject.org/pipermail/yocto/) mailing list
+    archives to see if other people have run into similar problems or
+    had similar questions answered.
+
+Descriptions of section entries:
+
+	M: Mail patches to: FullName <address@domain>
+	F: Files and directories with wildcard patterns.
+	   A trailing slash includes all files and subdirectory files.
+	   F:	meta-haswell-wc/    all files in and below meta-haswell-wc
+	   F:	meta-haswell-wc/*   all files in meta-haswell-wc, but not below
+	   One pattern per line.  Multiple F: lines acceptable.
+
+Please keep this list in alphabetical order.
+
+Maintainers List (try to look for most precise areas first)
+
+		-----------------------------------
+HASWELL-WC
+M:      Ong Boon Leong <boon.leong.ong@intel.com>
+F:      meta-haswwell-wc/
