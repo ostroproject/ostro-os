@@ -8,7 +8,7 @@ KERNEL_FEATURES_append_nuc = " features/amt/mei/mei.scc wifi"
 
 LINUX_VERSION = "3.10.11"
 
-SRCREV_meta_nuc = "285f93bf942e8f6fa678ffc6cc53696ed5400718"
-SRCREV_machine_nuc = "702040ac7c7ec66a29b4d147665ccdd0ff015577"
+SRCREV_meta_nuc = "363bd856c8101d4227d492cc911bc4ca0c4987c6"
+SRCREV_machine_nuc = "e1aa804148370cda6f85640281af156ffa007d52"
 
 module_autoload_iwlwifi_nuc = "iwlwifi"
