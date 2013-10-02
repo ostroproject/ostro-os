@@ -8,5 +8,5 @@ KERNEL_FEATURES_append_sugarbay = " features/usb/usb-uvcvideo features/media/v4l
 
 LINUX_VERSION = "3.8.13"
 
-SRCREV_meta_sugarbay = "f706bd410c80a20ff437a53bb3f9f076ba31a17e"
+SRCREV_meta_sugarbay = "467a74c47bd70c52d0b81597007d8cc39cadaefd"
 SRCREV_machine_sugarbay = "f20047520a57322f05d95a18a5fbd082fb15cb87"
