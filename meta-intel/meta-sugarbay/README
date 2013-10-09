@@ -16,10 +16,10 @@ And information on all Intel® embedded platforms can be found here:
   http://www.intel.com/p/en_US/embedded/hwsw/hardware
 
 
-Compliance
-==========
+Yocto Project Compatible
+========================
 
-This BSP is compliant with the Yocto Project as per the requirements
+This BSP is compatible with the Yocto Project as per the requirements
 listed here:
 
   https://www.yoctoproject.org/webform/yocto-project-compatible-registration
