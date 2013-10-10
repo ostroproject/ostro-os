@@ -5,7 +5,7 @@ tarball, and is what this recipe now uses.  Since it is a non-free license, \
 this recipe is marked as 'License_emgd-driver-bin_1.18' and you need to add \
 to LICENSE_FLAGS_WHITELIST += \"license_emgd-driver-bin_1.18\" to your \
 local.conf in order to enable it in a build."
-LICENSE = "Intel-software-license-emgd-1.18 & Intel-user-space-graphics-driver-binary-license-emgd-1.18"
+LICENSE = "Intel-software-license-emgd-1.18 & Intel-user-space-graphics-driver-binary-license-emgd-1.18 & MIT"
 LICENSE_FLAGS = "license_${PN}_${PV}"
 PR = "r1"
 
