@@ -19,15 +19,18 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=2e48940f94acb0af582e5ef03537800f"
 
 INC_PR = "r1"
 
-DEPENDS = "libxext libxfixes libdrm virtual/mesa virtual/libgles1 virtual/libgles2 virtual/egl"
+DEPENDS = "libdrm virtual/mesa virtual/libgles1 virtual/libgles2 virtual/egl"
 
 inherit autotools pkgconfig
 
-# Unconditionally turn wayland off for now
-EXTRA_OECONF = "${@base_contains('DISTRO_FEATURES', 'wayland', '--disable-wayland', '--disable-wayland', d)} \
-                --disable-dummy-driver"
+EXTRA_OECONF = "--disable-dummy-driver"
 
-PACKAGES =+ "${PN}-x11 ${PN}-tpi ${PN}-glx ${PN}-egl"
+PACKAGECONFIG ??= "${@base_contains("DISTRO_FEATURES", "x11", "x11", "", d)} \
+                   ${@base_contains("DISTRO_FEATURES", "wayland", "wayland", "", d)}"
+PACKAGECONFIG[x11] = "--enable-x11,--disable-x11,virtual/libx11 libxext libxfixes"
+PACKAGECONFIG[wayland] = "--enable-wayland,--disable-wayland,wayland"
+
+PACKAGES =+ "${PN}-x11 ${PN}-tpi ${PN}-glx ${PN}-egl ${PN}-wayland"
 
 RDEPENDS_${PN}-tpi =+ "${PN}"
 RDEPENDS_${PN}-x11 =+ "${PN}"
@@ -40,3 +43,4 @@ FILES_${PN}-x11 =+ "${libdir}/libva-x11*${SOLIBS}"
 FILES_${PN}-tpi =+ "${libdir}/libva-tpi*${SOLIBS}"
 FILES_${PN}-glx =+ "${libdir}/libva-glx*${SOLIBS}"
 FILES_${PN}-egl =+ "${libdir}/libva-egl*${SOLIBS}"
+FILES_${PN}-wayland =+ "${libdir}/libva-wayland*${SOLIBS}"
