@@ -1,0 +1,31 @@
+Install tests.
+
+Upstream-Status: Inappropriate
+Signed-off-by: Ross Burton <ross.burton@intel.com>
+
+---
+ tests/Makefile.am |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tests/Makefile.am b/tests/Makefile.am
+index 2e7f191..8f65446 100644
+--- a/tests/Makefile.am
++++ b/tests/Makefile.am
+@@ -1,4 +1,4 @@
+-noinst_PROGRAMS = \
++bin_PROGRAMS = \
+ 	simple-decoder			\
+ 	test-decode			\
+ 	test-display			\
+@@ -9,7 +9,7 @@ noinst_PROGRAMS = \
+ 	$(NULL)
+ 
+ if USE_GLX
+-noinst_PROGRAMS += \
++bin_PROGRAMS += \
+ 	test-textures			\
+ 	$(NULL)
+ endif
+-- 
+1.7.10.4
+
