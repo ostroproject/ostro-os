@@ -24,7 +24,8 @@ DEPENDS = "libxext libxfixes libdrm virtual/mesa virtual/libgles1 virtual/libgle
 inherit autotools pkgconfig
 
 # Unconditionally turn wayland off for now
-EXTRA_OECONF = "${@base_contains('DISTRO_FEATURES', 'wayland', '--disable-wayland', '--disable-wayland', d)}"
+EXTRA_OECONF = "${@base_contains('DISTRO_FEATURES', 'wayland', '--disable-wayland', '--disable-wayland', d)} \
+                --disable-dummy-driver"
 
 PACKAGES =+ "${PN}-x11 ${PN}-tpi ${PN}-glx ${PN}-egl"
 PROVIDES =+ "${PN}-x11 ${PN}-tpi ${PN}-glx ${PN}-egl"
@@ -35,7 +36,6 @@ RDEPENDS_${PN}-glx =+ "${PN}-x11"
 RDEPENDS_${PN}-egl =+ "${PN}-x11"
 
 FILES_${PN}-dbg += "${libdir}/dri/.debug"
-FILES_${PN} += "${libdir}/dri"
 
 FILES_${PN}-x11 =+ "${libdir}/libva-x11*${SOLIBS}"
 FILES_${PN}-tpi =+ "${libdir}/libva-tpi*${SOLIBS}"
