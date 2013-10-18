@@ -28,7 +28,6 @@ EXTRA_OECONF = "${@base_contains('DISTRO_FEATURES', 'wayland', '--disable-waylan
                 --disable-dummy-driver"
 
 PACKAGES =+ "${PN}-x11 ${PN}-tpi ${PN}-glx ${PN}-egl"
-PROVIDES =+ "${PN}-x11 ${PN}-tpi ${PN}-glx ${PN}-egl"
 
 RDEPENDS_${PN}-tpi =+ "${PN}"
 RDEPENDS_${PN}-x11 =+ "${PN}"
