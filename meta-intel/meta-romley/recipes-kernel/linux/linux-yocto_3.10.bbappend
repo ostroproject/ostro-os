@@ -5,16 +5,16 @@ COMPATIBLE_MACHINE_romley = "romley"
 KMACHINE_romley  = "romley"
 KBRANCH_romley  = "standard/common-pc-64/romley"
 
-SRCREV_machine_pn-linux-yocto_romley ?= "85cdabba08d484bdcc4b25f0bbc23ac60c75aa5b"
-SRCREV_meta_pn-linux-yocto_romley ?= "452f0679ea93a6cb4433bebd7177629228a5cf68"
+SRCREV_machine_pn-linux-yocto_romley ?= "c03195ed6e3066494e3fb4be69154a57066e845b"
+SRCREV_meta_pn-linux-yocto_romley ?= "f1c9080cd27f99700fa59b5375d1ddd0afe625ad"
 
 COMPATIBLE_MACHINE_romley-ivb = "romley-ivb"
 KMACHINE_romley-ivb  = "romley"
 KBRANCH_romley-ivb  = "standard/common-pc-64/romley"
 
-SRCREV_machine_pn-linux-yocto_romley-ivb ?= "85cdabba08d484bdcc4b25f0bbc23ac60c75aa5b"
-SRCREV_meta_pn-linux-yocto_romley-ivb ?= "452f0679ea93a6cb4433bebd7177629228a5cf68"
+SRCREV_machine_pn-linux-yocto_romley-ivb ?= "c03195ed6e3066494e3fb4be69154a57066e845b"
+SRCREV_meta_pn-linux-yocto_romley-ivb ?= "f1c9080cd27f99700fa59b5375d1ddd0afe625ad"
 
-LINUX_VERSION = "3.10.11"
+LINUX_VERSION = "3.10.17"
 
 module_autoload_uio = "uio"
