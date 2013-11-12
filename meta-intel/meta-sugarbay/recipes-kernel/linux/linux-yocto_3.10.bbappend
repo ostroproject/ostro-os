@@ -6,7 +6,7 @@ KMACHINE_sugarbay = "sugarbay"
 KBRANCH_sugarbay = "standard/common-pc-64/sugarbay"
 KERNEL_FEATURES_append_sugarbay = " features/usb/usb-uvcvideo features/media/v4l2"
 
-LINUX_VERSION = "3.10.11"
+LINUX_VERSION = "3.10.17"
 
-SRCREV_meta_sugarbay = "452f0679ea93a6cb4433bebd7177629228a5cf68"
-SRCREV_machine_sugarbay = "2927821e14523fa0ee18140aa7ff6e0509b48ab7"
+SRCREV_meta_sugarbay = "f1c9080cd27f99700fa59b5375d1ddd0afe625ad"
+SRCREV_machine_sugarbay = "c03195ed6e3066494e3fb4be69154a57066e845b"
