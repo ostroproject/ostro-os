@@ -1,0 +1,30 @@
+Fix a compile error when building without X11.
+
+Upstream-Status: Submitted
+Signed-off-by: Ross Burton <ross.burton@intel.com>
+
+From a5c44e48dc73b2892f161bd21591c7ee0a3b7842 Mon Sep 17 00:00:00 2001
+From: Ross Burton <ross.burton@intel.com>
+Date: Mon, 21 Oct 2013 16:25:18 +0100
+Subject: [PATCH] i965_output_wayland: add missing include
+
+Signed-off-by: Ross Burton <ross.burton@intel.com>
+---
+ src/i965_output_wayland.h |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/i965_output_wayland.h b/src/i965_output_wayland.h
+index 61ca39f..acea8d9 100644
+--- a/src/i965_output_wayland.h
++++ b/src/i965_output_wayland.h
+@@ -26,6 +26,7 @@
+ #define I965_OUTPUT_WAYLAND_H
+ 
+ #include <stdbool.h>
++#include <va/va_backend.h>
+ 
+ bool
+ i965_output_wayland_init(VADriverContextP ctx);
+-- 
+1.7.10.4
+
