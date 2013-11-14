@@ -41,6 +41,7 @@ SRC_URI = "http://downloadmirror.intel.com/22865/eng/LIN_IEMGD_1_18_GOLD_3398.tg
            file://egl.pc \
            file://gles_cm.pc \
            file://glesv2.pc \
+           file://glchar.patch;apply=0 \
           "
 
 SRC_URI[md5sum] = "a165c397866d3fb70ddab318c834e49a"
@@ -126,6 +127,8 @@ do_install () {
 
     # Khronos development headers needed for EGL, OpenGL-ES, and OpenVG development
     ${RPM2CPIO} ${S}/emgd-devel*.rpm | cpio -id
+
+    patch -d ${S} -p1 < ${WORKDIR}/glchar.patch
 
     install -d -m 0755                                    ${D}${includedir}/EGL
     install -m 0755 ${S}/usr/include/EGL/*.h              ${D}${includedir}/EGL/
