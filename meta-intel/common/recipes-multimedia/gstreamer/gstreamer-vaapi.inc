@@ -14,8 +14,8 @@ DEPENDS = "libva"
 SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/${REALPN}/${REALPN}-${PV}.tar.bz2 \
            file://install-tests.patch"
 
-SRC_URI[md5sum] = "7b1ede7193bc5a0aca921c490684f7b5"
-SRC_URI[sha256sum] = "68e0598456fe17085f6b8b1ce3da066322cc02c363955fb319776a5404d2b0da"
+SRC_URI[md5sum] = "0a3e645d12c8f275e8ea221ecb89f981"
+SRC_URI[sha256sum] = "3bef196f8e05d775f4e2b5b7111c4ba7393093bd1bc3297e781224f3bf51dea1"
 
 S = "${WORKDIR}/${REALPN}-${PV}"
 
