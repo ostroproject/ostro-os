@@ -4,7 +4,6 @@ COMPATIBLE_MACHINE_sugarbay = "sugarbay"
 
 KMACHINE_sugarbay = "sugarbay"
 KBRANCH_sugarbay = "standard/common-pc-64/sugarbay"
-KERNEL_FEATURES_append_sugarbay = " features/usb/usb-uvcvideo features/media/v4l2"
 
 LINUX_VERSION = "3.10.19"
 
