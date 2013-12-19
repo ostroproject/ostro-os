@@ -8,9 +8,9 @@ KBRANCH_haswell-wc = "standard/common-pc-64/base"
 
 KERNEL_FEATURES_haswell-wc += "features/amt/mei"
 
-LINUX_VERSION = "3.10.17"
+LINUX_VERSION = "3.10.19"
 
-SRCREV_machine_haswell-wc = "c03195ed6e3066494e3fb4be69154a57066e845b"
-SRCREV_meta_haswell-wc = "f1c9080cd27f99700fa59b5375d1ddd0afe625ad"
+SRCREV_machine_haswell-wc = "a9ec82e355130160f9094e670bd5be0022a84194"
+SRCREV_meta_haswell-wc = "d9cd83c0292bd4e2a6754a96761027252e726a42"
 
 SRC_URI_haswell-wc = "git://git.yoctoproject.org/linux-yocto-3.10.git;protocol=git;nocheckout=1;branch=${KBRANCH},${KMETA};name=machine,meta"
