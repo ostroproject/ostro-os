@@ -10,13 +10,13 @@ KMACHINE_emenlow-noemgd = "emenlow"
 KBRANCH_emenlow-noemgd = "standard/emenlow"
 KERNEL_FEATURES_append_emenlow-noemgd = " features/drm-gma500/drm-gma500"
 
-LINUX_VERSION = "3.10.17"
+LINUX_VERSION = "3.10.19"
 
-SRCREV_meta_emenlow = "f1c9080cd27f99700fa59b5375d1ddd0afe625ad"
-SRCREV_machine_emenlow = "c03195ed6e3066494e3fb4be69154a57066e845b"
+SRCREV_meta_emenlow = "d9cd83c0292bd4e2a6754a96761027252e726a42"
+SRCREV_machine_emenlow = "a9ec82e355130160f9094e670bd5be0022a84194"
 SRCREV_emgd_emenlow = "39c44dd7838bfd228938219cdb21ca30c4d0cbbf"
 
-SRCREV_meta_emenlow-noemgd = "f1c9080cd27f99700fa59b5375d1ddd0afe625ad"
-SRCREV_machine_emenlow-noemgd = "c03195ed6e3066494e3fb4be69154a57066e845b"
+SRCREV_meta_emenlow-noemgd = "d9cd83c0292bd4e2a6754a96761027252e726a42"
+SRCREV_machine_emenlow-noemgd = "a9ec82e355130160f9094e670bd5be0022a84194"
 
 SRC_URI_emenlow = "git://git.yoctoproject.org/linux-yocto-3.10.git;protocol=git;nocheckout=1;branch=${KBRANCH},${KMETA},emgd-1.18;name=machine,meta,emgd"
