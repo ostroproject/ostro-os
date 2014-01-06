@@ -153,7 +153,7 @@ Under Linux, insert a USB flash drive.  Assuming the USB flash drive
 takes device /dev/sdf, use dd to copy the live image to it.  For
 example:
 
-# dd if=core-image-sato-crownbay-20101207053738.hddimg of=/dev/sdf
+# dd if=core-image-sato-crownbay.hddimg of=/dev/sdf
 # sync
 # eject /dev/sdf
 
