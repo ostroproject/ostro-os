@@ -134,13 +134,13 @@ example:
 
 To boot the Gladden Platform:
 
-# dd if=core-image-sato-crystalforest-gladden-20120829033154.hddimg of=/dev/sdf
+# dd if=core-image-sato-crystalforest-gladden.hddimg of=/dev/sdf
 # sync
 # eject /dev/sdf
 
 To boot the Server Platform:
 
-# dd if=core-image-sato-crystalforest-server-20120829044852.hddimg of=/dev/sdf
+# dd if=core-image-sato-crystalforest-server.hddimg of=/dev/sdf
 # sync
 # eject /dev/sdf
 
