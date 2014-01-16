@@ -8,7 +8,7 @@ KERNEL_FEATURES_append_emenlow = " features/drm-emgd/drm-emgd-1.16 cfg/vesafb"
 COMPATIBLE_MACHINE_emenlow-noemgd = "emenlow-noemgd"
 KMACHINE_emenlow-noemgd = "emenlow"
 KBRANCH_emenlow-noemgd = "standard/emenlow"
-KERNEL_FEATURES_append_emenlow-noemgd = " features/drm-gma500/drm-gma600"
+KERNEL_FEATURES_append_emenlow-noemgd = " features/drm-gma500/drm-gma500"
 
 SRCREV_machine_emenlow = "60536206ad300ccf5b2be2c2d449f4ab27170238"
 SRCREV_meta_emenlow = "fe20c99783387dab779472ff50a88666da1c6391"

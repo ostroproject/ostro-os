@@ -8,7 +8,7 @@ KERNEL_FEATURES_append_emenlow = " features/drm-emgd/drm-emgd-1.18 cfg/vesafb"
 COMPATIBLE_MACHINE_emenlow-noemgd = "emenlow-noemgd"
 KMACHINE_emenlow-noemgd = "emenlow"
 KBRANCH_emenlow-noemgd = "standard/emenlow"
-KERNEL_FEATURES_append_emenlow-noemgd = " features/drm-gma500/drm-gma600"
+KERNEL_FEATURES_append_emenlow-noemgd = " features/drm-gma500/drm-gma500"
 
 LINUX_VERSION = "3.8.13"
 
