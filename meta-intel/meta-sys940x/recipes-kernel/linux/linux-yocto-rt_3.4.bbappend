@@ -1,5 +1,8 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
+PACKAGE_ARCH_sys940x = "${MACHINE_ARCH}"
+PACKAGE_ARCH_sys940x-noemgd = "${MACHINE_ARCH}"
+
 COMPATIBLE_MACHINE_sys940x = "sys940x"
 KMACHINE_sys940x = "sys940x"
 
