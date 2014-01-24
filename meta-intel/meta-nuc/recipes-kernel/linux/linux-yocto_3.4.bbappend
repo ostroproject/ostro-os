@@ -1,5 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
+PACKAGE_ARCH_nuc = "${MACHINE_ARCH}"
+
 COMPATIBLE_MACHINE_nuc = "nuc"
 KMACHINE_nuc  = "chiefriver"
 KBRANCH_nuc  = "standard/common-pc-64/chiefriver"
