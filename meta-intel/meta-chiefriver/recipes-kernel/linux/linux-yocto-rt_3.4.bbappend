@@ -1,4 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+PACKAGE_ARCH_chiefriver = "${MACHINE_ARCH}"
 COMPATIBLE_MACHINE_chiefriver = "chiefriver"
 KMACHINE_chiefriver  = "chiefriver"
 
