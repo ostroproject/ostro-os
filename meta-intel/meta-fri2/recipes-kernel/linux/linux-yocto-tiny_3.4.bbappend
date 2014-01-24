@@ -1,5 +1,8 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
+PACKAGE_ARCH_fri2 = "${MACHINE_ARCH}"
+PACKAGE_ARCH_fri2-noemgd = "${MACHINE_ARCH}"
+
 COMPATIBLE_MACHINE_fri2 = "fri2"
 KMACHINE_fri2 = "fri2"
 KBRANCH_fri2 = "standard/tiny/base"
