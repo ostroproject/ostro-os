@@ -60,6 +60,7 @@ PACKAGES =+ "emgd-libmixcommon emgd-libmixvideo emgd-libmixvbp \
 # These are closed binaries generated elsewhere so don't check ldflags & text relocations
 INSANE_SKIP_emgd-driver-video = "ldflags textrel"
 # Inhibit warnings about files being stripped, we can't do anything about it.
+INHIBIT_PACKAGE_STRIP = "1"
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
 # Avoid auto renaming of these packages
