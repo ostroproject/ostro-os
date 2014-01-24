@@ -1,5 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
+PACKAGE_ARCH_sugarbay = "${MACHINE_ARCH}"
+
 COMPATIBLE_MACHINE_sugarbay = "sugarbay"
 
 KMACHINE_sugarbay = "sugarbay"
