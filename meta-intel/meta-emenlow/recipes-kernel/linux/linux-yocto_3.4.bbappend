@@ -1,5 +1,8 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
+PACKAGE_ARCH_emenlow = "${MACHINE_ARCH}"
+PACKAGE_ARCH_emenlow-noemgd = "${MACHINE_ARCH}"
+
 COMPATIBLE_MACHINE_emenlow = "emenlow"
 KMACHINE_emenlow  = "emenlow"
 KBRANCH_emenlow  = "standard/emenlow"
