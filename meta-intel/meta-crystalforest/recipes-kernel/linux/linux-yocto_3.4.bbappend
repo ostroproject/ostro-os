@@ -1,5 +1,8 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
+PACKAGE_ARCH_crystalforest-gladden = "${MACHINE_ARCH}"
+PACKAGE_ARCH_crystalforest-server = "${MACHINE_ARCH}"
+
 COMPATIBLE_MACHINE_crystalforest-gladden = "crystalforest-gladden"
 KMACHINE_crystalforest-gladden  = "crystalforest"
 KBRANCH_crystalforest-gladden  = "standard/common-pc-64/crystalforest"
