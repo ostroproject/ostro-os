@@ -1,5 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
+PACKAGE_ARCH_n450 = "${MACHINE_ARCH}"
+
 COMPATIBLE_MACHINE_n450 = "n450"
 KMACHINE_n450  = "atom-pc"
 KBRANCH_n450 = "standard/common-pc/atom-pc"
