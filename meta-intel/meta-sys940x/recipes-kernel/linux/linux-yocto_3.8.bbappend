@@ -1,7 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-PACKAGE_ARCH_sys940x = "${MACHINE_ARCH}"
-PACKAGE_ARCH_sys940x-noemgd = "${MACHINE_ARCH}"
 
 KMETA = "meta"
 LINUX_VERSION = "3.8.13"

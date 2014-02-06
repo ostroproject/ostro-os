@@ -1,6 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-PACKAGE_ARCH_jasperforest = "${MACHINE_ARCH}"
 
 COMPATIBLE_MACHINE_jasperforest = "jasperforest"
 KMACHINE_jasperforest  = "jasperforest"

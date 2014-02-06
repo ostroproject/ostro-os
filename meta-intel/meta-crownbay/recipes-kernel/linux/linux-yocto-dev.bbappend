@@ -1,7 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-PACKAGE_ARCH_crownbay = "${MACHINE_ARCH}"
-PACKAGE_ARCH_crownbay-noemgd = "${MACHINE_ARCH}"
 
 COMPATIBLE_MACHINE_crownbay = "crownbay"
 KMACHINE_crownbay = "crownbay"

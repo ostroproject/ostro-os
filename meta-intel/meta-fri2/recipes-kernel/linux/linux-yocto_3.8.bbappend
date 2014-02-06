@@ -1,7 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-PACKAGE_ARCH_fri2 = "${MACHINE_ARCH}"
-PACKAGE_ARCH_fri2-noemgd = "${MACHINE_ARCH}"
 
 LINUX_VERSION = "3.8.13"
 

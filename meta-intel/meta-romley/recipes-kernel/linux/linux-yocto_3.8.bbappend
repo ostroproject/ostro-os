@@ -1,7 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-PACKAGE_ARCH_romley = "${MACHINE_ARCH}"
-PACKAGE_ARCH_romley-ivb = "${MACHINE_ARCH}"
 
 COMPATIBLE_MACHINE_romley = "romley"
 
