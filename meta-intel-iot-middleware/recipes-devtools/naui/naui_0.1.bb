@@ -25,10 +25,11 @@ do_install() {
           install -m 0755 ${WORKDIR}/naui ${D}${sysconfdir}/init.d/
 }
 
+inherit update-rc.d
+
 INITSCRIPT_NAME = "naui"
-INITSCRIPT_PARAMS = "start 99 5 ."
+INITSCRIPT_PARAMS = "defaults 99"
 
 FILES_${PN} = "${bindir}/ \
                ${datadir}/ \
                ${sysconfdir}/init.d/"
-
