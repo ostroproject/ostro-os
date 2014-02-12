@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# update local time to UTC
+TM=$(curl -s http://www.timeapi.org/utc/now?format=%25Y.%25m.%25d-%25H:%25M)
+echo $TM
+date "${TM}"
+
+# start agent
+NODEJS="/usr/lib/node_modules"
+cd ${NODEJS}/iotkit-agent/
+${NODEJS}/forever/bin/forever start -m 1 \
+              -a -l "/tmp/forever.log" \
+              --sourceDir ${NODEJS}/iotkit-agent \
+              --minUptime 1s \
+              --spinSleepTime 3s agent.js
