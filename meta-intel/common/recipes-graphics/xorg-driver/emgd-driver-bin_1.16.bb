@@ -9,6 +9,8 @@ LICENSE = "Intel-software-license-emgd-1.16 & Intel-user-space-graphics-driver-b
 LICENSE_FLAGS = "license_${PN}_${PV}"
 PR = "r0"
 
+COMPATIBLE_HOST = "(i.86).*-linux"
+
 EMGD_LIC_DIR = "IEMGD_HEAD_Linux/License"
 EMGD_RPM_DIR = "IEMGD_HEAD_Linux/MeeGo1.2"
 EMGD_VIDEO_PLUGIN_DIR = "../common/video_plugin"
