@@ -8,7 +8,7 @@ LICENSE = "BSD_LMS"
 PR = "r0"
 BPN="lms"
 PV_SUB = "25"
-SRC_URI = "http://software.intel.com/file/37962;downloadfilename=${BPN}+${PV}.${PV_SUB}.zip \
+SRC_URI = "http://software.intel.com/sites/default/files/m/4/e/a/9/b/37962-${BPN}_${PV}.${PV_SUB}.zip \
            file://atnetworktool-printf-fix.patch \
            file://readlink-declaration.patch"
 
@@ -26,7 +26,7 @@ INITSCRIPT_PARAMS = "defaults"
 
 do_unpack2() {
 	cd ${WORKDIR}
-	tar -xvzf ${WORKDIR}/outputdir/lms-${PV}-${PV_SUB}.tar.gz
+	tar -xvzf ${WORKDIR}/outputdir/${BPN}-${PV}-${PV_SUB}.tar.gz
 }
 
 addtask unpack2 after do_unpack before do_patch
