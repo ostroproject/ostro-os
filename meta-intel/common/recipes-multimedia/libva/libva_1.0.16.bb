@@ -1,5 +1,8 @@
 require libva.inc
 
+PACKAGECONFIG[x11] = ",,virtual/libx11 libxext libxfixes"
+PACKAGECONFIG[wayland] = ",,"
+
 PR = "${INC_PR}.0"
 
 SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/libva/libva-${PV}.tar.bz2"
