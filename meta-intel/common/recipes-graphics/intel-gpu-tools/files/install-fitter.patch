@@ -3,16 +3,16 @@ The panel_fitter is genuinely useful but not installed, so install it.
 Upstream-Status: Inappropriate
 Signed-off-by: Ross Burton <ross.burton@intel.com>
 
-Index: tools/Makefile.am
+Index: intel-gpu-tools-1.5/tools/Makefile.am
 ===================================================================
---- a/tools.orig/Makefile.am	2012-08-21 08:30:29.000000000 +0100
-+++ b/tools/Makefile.am	2013-06-25 16:52:34.220504579 +0100
-@@ -17,13 +17,13 @@
- 	intel_forcewaked		\
- 	intel_dpio_read			\
- 	intel_dpio_write		\
--	intel_l3_parity
-+	intel_l3_parity			\
+--- intel-gpu-tools-1.5.orig/tools/Makefile.am	2013-11-06 16:31:21.000000000 +0200
++++ intel-gpu-tools-1.5/tools/Makefile.am	2014-03-06 17:34:14.938170240 +0200
+@@ -30,13 +30,13 @@
+ 	intel_nc_write			\
+ 	intel_nc_read			\
+ 	intel_vga_read			\
+-	intel_vga_write
++	intel_vga_write 		\
 +	intel_panel_fitter
  
  noinst_PROGRAMS = 			\

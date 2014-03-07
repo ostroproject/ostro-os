@@ -5,12 +5,12 @@ DESCRIPTION = "Variety of small tools for testing intel graphics."
 
 SRC_URI += "file://install-fitter.patch"
 
-SRC_URI[md5sum] = "67facd6241e26e2c68614728e3a932e9"
-SRC_URI[sha256sum] = "51d22fdb3d415a1b3b7d0a172c1bb24dec6f16116e80a9ce49873f44527f20a0"
+SRC_URI[md5sum] = "6165a9054de2609f5b1bf0ca0d913f31"
+SRC_URI[sha256sum] = "115475b528c78d67741ae6cbedfbfced1d471b356140e48245cbad8fdfaad1d1"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=0918806acfedc3e8c0488f2dd61616dd"
 
 DEPENDS += "libdrm libpciaccess cairo udev glib-2.0"
 
-EXTRA_OECONF = "--disable-nouveau --disable-shader-debugger"
+EXTRA_OECONF = "--disable-nouveau --disable-shader-debugger --disable-dumper"
 COMPATIBLE_HOST = "(x86_64.*|i.86.*)-linux"
