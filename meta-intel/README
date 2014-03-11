@@ -4,7 +4,8 @@ meta-intel
 This is the location for Intel maintained BSPs.
 
 Please see the README files contained in the individual BSP layers for
-BSP-specific information.
+BSP-specific information. For details on the intel-common BSPs, see the
+conf/machine/README file.
 
 If you have problems with or questions about a particular BSP, please
 contact the maintainer listed in the MAINTAINERS file directly (cc:ing
