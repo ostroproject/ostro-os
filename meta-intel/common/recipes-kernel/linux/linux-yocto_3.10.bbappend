@@ -1,6 +1,6 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-KERNEL_FEATURES_INTEL_COMMON = ""
+KERNEL_FEATURES_INTEL_COMMON += "features/amt/mei/mei.scc"
 
 #LINUX_VERSION_core2-32-intel-common = "3.10"
 COMPATIBLE_MACHINE_core2-32-intel-common = "${MACHINE}"
@@ -17,3 +17,9 @@ COMPATIBLE_MACHINE_corei7-64-intel-common = "${MACHINE}"
 KMACHINE_intel-corei7-64-intel-common = "intel-corei7-64"
 KBRANCH_intel-corei7-64-intel-common = "standard/base"
 KERNEL_FEATURES_append_corei7-64-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}"
+
+# For Crystalforest and Romley
+module_autoload_uio = "uio"
+
+# For FRI2
+module_autoload_iwlwifi = "iwlwifi"
