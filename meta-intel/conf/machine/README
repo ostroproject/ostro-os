@@ -28,6 +28,7 @@ For intel-corei7-64:
     crystalforest-server
     crystalforest-gladden
     haswell-wc
+    nuc (Ivy Bridge and Haswell, manual audio config required)
     romley
     sugarbay
 
