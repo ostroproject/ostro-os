@@ -17,7 +17,10 @@ SRC_URI = "http://corpus.canterbury.ac.nz/resources/cantrbry.tar.gz"
 SRC_URI[md5sum] = "442e56cfffdf460d25b0b91650a55908"
 SRC_URI[sha256sum] = "f140e8a5b73d3f53198555a63bfb827889394a42f20825df33c810c3d5e3f8fb"
 
-WARN_QA += "arch"
+# Disable architecture QA check for this package since it contains
+# pre-compiled executable "sum" for SPARC. The package is used
+# for compression benchmarking only.
+WARN_QA += ""
 ERROR_QA = ""
 
 do_package_qa[noexec] = "1"
