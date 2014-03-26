@@ -22,3 +22,5 @@ XSERVER_X86_EMGD = "emgd-driver-bin \
 XSERVER_X86_MATROX_MGA = "xf86-video-mga \
            "
 
+XSERVER_X86_ASPEED_AST = "xf86-video-ast \
+           "
