@@ -11,12 +11,12 @@ KMACHINE_emenlow-noemgd = "emenlow"
 KBRANCH_emenlow-noemgd = "standard/emenlow"
 KERNEL_FEATURES_append_emenlow-noemgd = " features/drm-gma500/drm-gma500"
 
-LINUX_VERSION = "3.10.25"
-
+LINUX_VERSION_emenlow = "3.10.25"
 SRCREV_meta_emenlow = "df3aa753c8826127fb5ad811d56d57168551d6e4"
 SRCREV_machine_emenlow = "79af968f2f26378798aec7a6d729ff5a371aae5f"
 SRCREV_emgd_emenlow = "42d5e4548e8e79e094fa8697949eed4cf6af00a3"
 
+LINUX_VERSION_emenlow-noemgd = "3.10.25"
 SRCREV_meta_emenlow-noemgd = "df3aa753c8826127fb5ad811d56d57168551d6e4"
 SRCREV_machine_emenlow-noemgd = "79af968f2f26378798aec7a6d729ff5a371aae5f"
 
