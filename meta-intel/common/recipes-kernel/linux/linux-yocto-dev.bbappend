@@ -14,8 +14,8 @@ LINUX_VERSION_corei7-64-intel-common = "3.14-rc8"
 COMPATIBLE_MACHINE_corei7-64-intel-common = "${MACHINE}"
 SRCREV_meta_corei7-64-intel-common = "3689f99f4d2a051e8d3ff72345a67d4d04a88020"
 SRCREV_machine_corei7-64-intel-common = "fecc3fd7d31bd93766ff4f0431fecdbbfa4c3a7c"
-KMACHINE_intel-corei7-64-intel-common = "intel-corei7-64"
-KBRANCH_intel-corei7-64-intel-common = "standard/base"
+KMACHINE_corei7-64-intel-common = "intel-corei7-64"
+KBRANCH_corei7-64-intel-common = "standard/base"
 KERNEL_FEATURES_append_corei7-64-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}"
 
 # For Crystalforest and Romley
