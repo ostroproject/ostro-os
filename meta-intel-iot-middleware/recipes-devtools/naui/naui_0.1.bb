@@ -19,7 +19,7 @@ do_install() {
           install -d ${D}${datadir}/naui/
 	  
           install -m 0755 naui ${D}${bindir}/
-          install -m 0644 index.html ${D}${datadir}/naui/
+          install -m 0644 ${S}/index.html ${D}${datadir}/naui/
 
           install -d ${D}${sysconfdir}/init.d/
           install -m 0755 ${WORKDIR}/naui ${D}${sysconfdir}/init.d/
