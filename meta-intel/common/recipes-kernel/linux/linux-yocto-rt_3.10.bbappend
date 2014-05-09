@@ -1,6 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-KERNEL_FEATURES_INTEL_COMMON = ""
+# For Valley Island
+KERNEL_FEATURES_INTEL_COMMON = "features/valleyisland-io/valleyisland-io.scc"
 
 #LINUX_VERSION_core2-32-intel-common = "3.10"
 COMPATIBLE_MACHINE_core2-32-intel-common = "${MACHINE}"
