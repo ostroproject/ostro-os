@@ -1,0 +1,36 @@
+Fix library linking
+
+Fixes missing pthread_* function errors during linking the
+hd44780hello example.
+
+Signed-off-by: Paul Eggleton <paul.eggleton@linux.intel.com>
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 7c1d01c..5df9f92 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -61,6 +61,8 @@ set(libhd44780_LIB_HEADERS
+ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
+ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
+ 
++find_package (Threads REQUIRED)
++
+ add_library(hd44780 SHARED ${libhd44780_LIB_SRCS})
+ set(hd44780_VERSION_MAJOR 0)
+ set(hd44780_VERSION_MINOR 1)
+@@ -72,6 +74,7 @@ set_target_properties(
+    SOVERSION ${hd44780_VERSION_MAJOR}
+    VERSION ${hd44780_VERSION_STRING}
+ )
++target_link_libraries(hd44780 ${CMAKE_THREAD_LIBS_INIT})
+ install (FILES ${libhd44780_LIB_HEADERS} DESTINATION include/libhd44780)
+ 
+ macro(libhd44780_CREATE_INSTALL_PKGCONFIG generated_file install_location)
+@@ -87,7 +90,6 @@ set(CPACK_SOURCE_IGNORE_FILES
+   "${CMAKE_CURRENT_BINARY_DIR}/;/.git/;~$;${CPACK_SOURCE_IGNORE_FILES}")
+ INCLUDE(CPack)
+ 
+-find_package (Threads REQUIRED)
+ add_executable(hd44780hello example/hd44780hello.cpp)
+ target_link_libraries(hd44780hello hd44780 ${CMAKE_THREAD_LIBS_INIT})
+ 
