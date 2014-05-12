@@ -17,6 +17,11 @@ do_unpack () {
 	tar -xf ${DL_DIR}/calgary.tar.gz -C ${WORKDIR}/corpus
 }
 
+
+do_unpack_append () {
+	rm -rf ${WORKDIR}/corpus/patches
+}
+
 FILES_${PN} = "/lib/firmware/*"
 
 do_install () {
