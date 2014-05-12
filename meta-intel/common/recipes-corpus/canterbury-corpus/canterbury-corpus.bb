@@ -30,6 +30,10 @@ do_unpack () {
 	tar -xf ${DL_DIR}/cantrbry.tar.gz -C ${S}
 }
 
+do_unpack_append () {
+	rm -rf ${S}/patches
+}
+
 FILES_${PN} = "/lib/firmware/*"
 
 do_install () {
