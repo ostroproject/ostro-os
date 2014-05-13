@@ -2,7 +2,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 COMPATIBLE_MACHINE_crownbay-noemgd = "crownbay-noemgd"
 KMACHINE_crownbay-noemgd = "crownbay"
-KBRANCH_crownbay-noemgd = "standard/crownbay"
+KBRANCH_crownbay-noemgd = "standard/base"
 KERNEL_FEATURES_append_crownbay-noemgd = " cfg/vesafb"
 
 LINUX_VERSION_crownbay-noemgd = "3.14.2"
