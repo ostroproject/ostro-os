@@ -2,7 +2,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 COMPATIBLE_MACHINE_emenlow-noemgd = "emenlow-noemgd"
 KMACHINE_emenlow-noemgd = "emenlow"
-KBRANCH_emenlow-noemgd = "standard/emenlow"
+KBRANCH_emenlow-noemgd = "standard/base"
 KERNEL_FEATURES_append_emenlow-noemgd = " features/drm-gma500/drm-gma500"
 
 LINUX_VERSION_emenlow-noemgd = "3.14.2"
