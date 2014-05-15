@@ -8,8 +8,8 @@ DEPENDS = "openssl"
 
 SRC_URI = "http://nodejs.org/dist/v${PV}/node-v${PV}.tar.gz"
 
-SRC_URI[md5sum] = "1f1948de2ef50a1d8e2303a6ed6c0e45"
-SRC_URI[sha256sum] = "157fc58b3f1d109baefac4eb1d32ae747de5e6d55d87d0e9bec8f8dd10679e7e"
+SRC_URI[md5sum] = "87768be7065d2120e71619948ab4bb2d"
+SRC_URI[sha256sum] = "abddc6441e0f208f6ed8a045e0293f713ea7f6dfb2d6a9a2024bf8b1b4617710"
 
 S = "${WORKDIR}/node-v${PV}"
 
