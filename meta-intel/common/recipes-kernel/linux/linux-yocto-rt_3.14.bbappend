@@ -1,0 +1,17 @@
+FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+
+LINUX_VERSION_core2-32-intel-common = "3.14.2"
+COMPATIBLE_MACHINE_core2-32-intel-common = "${MACHINE}"
+SRCREV_meta_core2-32-intel-common = "11e091dc40c53af6ea08ce491ae50fbb1b0b6377"
+SRCREV_machine_core2-32-intel-common = "d31cfd2232d5f8287cad3fdeac4f8cc6b372a729"
+KMACHINE_core2-32-intel-common = "intel-core2-32"
+KBRANCH_core2-32-intel-common = "standard/preempt-rt/base"
+KERNEL_FEATURES_append_core2-32-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}"
+
+LINUX_VERSION_corei7-64-intel-common = "3.14.2"
+COMPATIBLE_MACHINE_corei7-64-intel-common = "${MACHINE}"
+SRCREV_meta_corei7-64-intel-common = "11e091dc40c53af6ea08ce491ae50fbb1b0b6377"
+SRCREV_machine_corei7-64-intel-common = "d31cfd2232d5f8287cad3fdeac4f8cc6b372a729"
+KMACHINE_corei7-64-intel-common = "intel-corei7-64"
+KBRANCH_corei7-64-intel-common = "standard/preempt-rt/base"
+KERNEL_FEATURES_append_corei7-64-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}"
