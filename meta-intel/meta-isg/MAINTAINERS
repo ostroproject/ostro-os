@@ -41,3 +41,11 @@ Maintainers List (try to look for most precise areas first)
 HASWELL-WC
 M:      Ong Boon Leong <boon.leong.ong@intel.com>
 F:      meta-haswell-wc/
+
+MOHONPEAK
+M:	Ong Boon Leong <boon.leong.ong@intel.com>
+F:	meta-mohonpeak/
+
+VALLEYISLAND
+M:	Chang Rebecca Swee Fun <rebecca.swee.fun.chang@intel.com>
+F:	meta-valleyisland/
