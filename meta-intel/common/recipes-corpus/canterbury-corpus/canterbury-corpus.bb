@@ -8,7 +8,7 @@ LICENSE = "GPLv2"
 
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-2.0;md5=801f80980d171dd6425610833a22dbe6"
 
-PR = "r0"
+inherit allarch
 
 # The tarball doesn't extract a directory, so ask bitbake to make one
 SRC_URI = "http://corpus.canterbury.ac.nz/resources/cantrbry.tar.gz;subdir=${BP}"
