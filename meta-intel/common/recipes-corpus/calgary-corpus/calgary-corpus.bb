@@ -10,6 +10,8 @@ SRC_URI = "http://corpus.canterbury.ac.nz/resources/calgary.tar.gz;subdir=${BP}"
 SRC_URI[md5sum] = "651d06b35d3d39522157cf8dc4a3d01c"
 SRC_URI[sha256sum] = "e109eebdc19c5cee533c58bd6a49a4be3a77cc52f84ba234a089148a4f2093b7"
 
+inherit allarch
+
 do_install () {
 	# do_unpack creates this directory but we don't want to install it, so
 	# delete it now.
