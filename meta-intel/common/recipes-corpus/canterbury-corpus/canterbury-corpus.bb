@@ -10,25 +10,18 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-2.0;md5=801f80980d171dd6425
 
 PR = "r0"
 
-S = "${WORKDIR}/canterbury-corpus"
-
-SRC_URI = "http://corpus.canterbury.ac.nz/resources/cantrbry.tar.gz"
-
+# The tarball doesn't extract a directory, so ask bitbake to make one
+SRC_URI = "http://corpus.canterbury.ac.nz/resources/cantrbry.tar.gz;subdir=${BP}"
 SRC_URI[md5sum] = "442e56cfffdf460d25b0b91650a55908"
 SRC_URI[sha256sum] = "f140e8a5b73d3f53198555a63bfb827889394a42f20825df33c810c3d5e3f8fb"
-
-do_unpack () {
-	mkdir -p ${S}
-	tar -xf ${DL_DIR}/cantrbry.tar.gz -C ${S}
-}
-
-do_unpack_append () {
-	rm -rf ${S}/patches
-}
 
 FILES_${PN} = "/lib/firmware/*"
 
 do_install () {
+	# do_unpack creates this directory but we don't want to install it, so
+	# delete it now.
+	rm -rf ${S}/patches
+
 	install -d ${D}${base_libdir}/firmware
 	install -m 644 ${S}/* ${D}${base_libdir}/firmware
 }
