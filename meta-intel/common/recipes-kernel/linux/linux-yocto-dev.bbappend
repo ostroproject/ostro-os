@@ -4,19 +4,19 @@ KERNEL_FEATURES_INTEL_COMMON += "features/amt/mei/mei.scc"
 
 LINUX_VERSION_core2-32-intel-common = "3.14-rc8"
 COMPATIBLE_MACHINE_core2-32-intel-common = "${MACHINE}"
-SRCREV_meta_core2-32-intel-common = "3689f99f4d2a051e8d3ff72345a67d4d04a88020"
-SRCREV_machine_core2-32-intel-common = "fecc3fd7d31bd93766ff4f0431fecdbbfa4c3a7c"
 KMACHINE_core2-32-intel-common = "intel-core2-32"
 KBRANCH_core2-32-intel-common = "standard/base"
 KERNEL_FEATURES_append_core2-32-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}"
 
 LINUX_VERSION_corei7-64-intel-common = "3.14-rc8"
 COMPATIBLE_MACHINE_corei7-64-intel-common = "${MACHINE}"
-SRCREV_meta_corei7-64-intel-common = "3689f99f4d2a051e8d3ff72345a67d4d04a88020"
-SRCREV_machine_corei7-64-intel-common = "fecc3fd7d31bd93766ff4f0431fecdbbfa4c3a7c"
 KMACHINE_corei7-64-intel-common = "intel-corei7-64"
 KBRANCH_corei7-64-intel-common = "standard/base"
 KERNEL_FEATURES_append_corei7-64-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}"
+
+# NOTE: We do not set SRCREVs here as -dev is intended to be built with AUTOREV
+# and setting them here breaks the default mechanism to use AUTOREV if the
+# default SRCREV is set and linux-yocto-dev is the preferred provider.
 
 # For Crystalforest and Romley
 module_autoload_uio = "uio"
