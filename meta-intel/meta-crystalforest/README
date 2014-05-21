@@ -9,12 +9,13 @@ The 'Crystal Forest' platform consists of two versions.
 The Gladden Platform consists of Intel Xeon E3-1125C/E3-1105C Processor,
 plus the Intel Communication Chipset 89xx for Smaller Form Factor
 Communication Infrastructure.
-(Gladden + Cave Creek)
+(Gladden + Cave Creek) also known as CrystalForest-Gladden
 
 The Server Platform consists of Intel Xeon E5-2600 and E5-2400 Processors,
 plus the Intel Communication Chipset 89xx for Large-Scale Communications
 Infrastructure.
-(Sandy Bridge-EP/EN + Cave Creek)
+(Ivy Bridge-EP/EN + Coleto Creek) also known as HighlandForest
+(Sandy Bridge-EP/EN + Cave Creek) also known as CrystalForest-Server
 
 Both Platforms use Matrox graphics Card.
 
@@ -64,7 +65,7 @@ Patches
 Please submit any patches against this BSP to the Yocto mailing list
 (yocto@yoctoproject.org) and cc: the maintainer:
 
-Maintainer: Ong Boon Leong <boon.leong.ong@intel.com>
+Maintainer: Chan Wei Sern <wei.sern.chan@intel.com>
 
 Please see the meta-intel/MAINTAINERS file for more details.
 
@@ -74,8 +75,10 @@ Table of Contents
 
   I. Building the meta-crystalforest BSP layer
  II. Booting the images in /binary
-III. Enabling Intel DPDK and QuickAssist Technology
-IV.  Enabling libcrypto kernel module for QuickAssist Technology
+III. Device Notes
+    a. Boot Loader
+    b. I/O drivers
+IV. Enabling Intel DPDK and QuickAssist Technology
 
 I. Building the meta-crystalforest BSP layer
 =======================================
@@ -157,7 +160,26 @@ ifconfig the IP address and use that to ssh in.  The root password is
 empty, so to log in type 'root' for the user name and hit 'Enter' at
 the Password prompt: and you should be in.
 
-III. Enabling Intel DPDK and QuickAssist Technology
+III. Device Notes
+=================
+
+a. Boot Loader
+--------------
+- Support BIOS version at Shumway board (HighlandForest/CrystalForest-server):
+   CCFRCLC0.019
+
+- Support BIOS version at Stargo board ( CrystalForest-Gladden ):
+  CIVGCCK1.86C.0003.P00
+
+b. I/O drivers
+--------------
+-Support Matrox graphic card.
+-Support SATA, USB Host v2.0
+-Supported I/O devices (APIC, RTC, SPI, UART, I2C, LPS, SMBus i801,
+ WDT, and HPET)
+
+
+IV. Enabling Intel DPDK and QuickAssist Technology
 ===================================================
 
 There are recipes available for the 'Intel Data Plane Development Kit and
