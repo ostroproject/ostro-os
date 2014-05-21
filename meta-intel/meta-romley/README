@@ -58,7 +58,7 @@ Patches
 Please submit any patches against this BSP to the Yocto mailing list
 (yocto@yoctoproject.org) and cc: the maintainer:
 
-Maintainer: Haw Foo Chien <foo.chien.haw@intel.com>
+Maintainer: Chan Wei Sern <wei.sern.chan@intel.com>
 
 Please see the meta-intel/MAINTAINERS file for more details.
 
@@ -68,7 +68,10 @@ Table of Contents
 
   I. Building the meta-romley BSP layer
  II. Booting the images in /binary
-III. Enabling Intel DPDK Technology
+III. Device Notes
+    a. Boot Loader
+    b. I/O drivers
+IV. Enabling Intel DPDK Technology
 
 I. Building the meta-romley BSP layer
 =======================================
@@ -141,8 +144,45 @@ ifconfig the IP address and use that to ssh in.  The root password is
 empty, so to log in type 'root' for the user name and hit 'Enter' at
 the Password prompt: and you should be in.
 
+If you're using Rose City and does not have ME firmware and struggling with
+rebooting the machine. This is because broken ME firmware can contribute to long wait of
+reboot. We have to changing the kernel command line to blacklist MEI driver to be loaded:
 
-III. Enabling Intel DPDK Technology
+1. Open your syslinux in VI editor eg:
+    # vi /media/sda/syslinux.cfg
+
+2. Look for the line that has kernel command line which has certain similiarity
+   as below:
+
+   "APPEND initrd=/initrd LABEL=boot root=/dev/ram0 ....."
+
+   or
+
+   "APPEND initrd=/initrd LABEL=install root=/dev/ram0 ...."
+
+3. Add "mei_me.blacklist=yes"at the end of that line and it will be like below:
+   "APPEND inird=/initRD LABEL=boot root=/dev/ram0 .... mei_me.blacklist=yes"
+
+4. Save this syslinux.cfg
+
+5. Boot up the Romley with this new changed.
+
+
+III. Device Notes
+=================
+
+a. Boot Loader
+--------------
+- Support BIOS version at RoseCity board :RMLCRB.86J.R0.45.D018
+
+b. I/O drivers
+--------------
+-Support Matrox graphic card.
+-Support SATA, USB Host v2.0
+-Supported I/O devices (APIC, RTC, SPI, UART, I2C, LPS, SMBus i801,
+ WDT, and HPET)
+
+IV. Enabling Intel DPDK Technology
 ===================================
 
 There are recipes available for the 'Intel Data Plane Development Kit
