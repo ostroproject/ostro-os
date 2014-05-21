@@ -59,6 +59,9 @@ Table of Contents
 
   I. Building the meta-haswell-wc BSP layer
  II. Booting the images in /binary
+III. Device Notes
+     a. Boot Loader
+     b. I/O drivers
 
 
 I. Building the meta-haswell-wc BSP layer
@@ -150,3 +153,20 @@ the syslinux boot: prompt, or the boot: prompt contains strange
 characters), try doing this first:
 
 # dd if=/dev/zero of=/dev/sdf bs=1M count=512
+
+
+III. Device Notes
+=================
+
+a. Boot Loader
+--------------
+BIOS:	HSWLPTU1.86C.0131.R05.1308140140
+
+b. I/O drivers
+--------------
+Support integrated graphics driver (i965)
+
+Support SATA, USB Host v2.0
+
+Supported I/O devices (APIC, RTC, SPI, UART, I2C, LPS, SMBus i801,
+WDT, and HPET)
