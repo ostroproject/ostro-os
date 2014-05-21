@@ -6,12 +6,14 @@ The Valley Island BSP consists of two versions:
 1. 32-bit Valley Island
 2. 64-bit Valley Island
 
-The BSP is made specifically for Intel Atom E38XX Processor E38XX
+The BSP is made specifically for Intel® Atom E3800 Processor
 Development Kit (formerly known as Valley Island). This BSP integrates
-Intel Graphics for Linux driver as the integrated graphics.
+Intel Graphics for Linux driver (i965) as the integrated graphics.
 
-Valley Island BSP is meant to support Valley Island Development
-Kit, "Bayley Bay" CRB and "Bakersport" CRB.
+Valley Island BSP is meant to support the following platforms:
+1. Valley Island Development Kit
+2. Bayley Bay CRB
+3. Bakersport CRB
 
 Further information on the platforms supported by this BSP can be
 found here:
@@ -158,10 +160,15 @@ III. Device Notes
 =================
 a. Boot Loader
 --------------
-BIOS : Bayley Bay 072_011
-EC   : KSC v3.10 for Bayley Bay/Bakersport CRB Fab3
+Valley Island Development Kit
+BIOS : EBC MF01X003
+Note : It is recommended to use the default settings of this BIOS version.
 
-Required settings in BIOS
+Bayley Bay/ Bakersport CRB
+BIOS : ISG BIOS 080_021
+EC   : KSC v3.12
+
+Required settings in ISG BIOS
 
   Turn off Secure-boot:
     Device Manager -> System Setup -> Boot -> Security Boot -> Disable
@@ -169,6 +176,10 @@ Required settings in BIOS
   Turn off LPE Audio Support:
     Device Manager -> System Setup -> South Cluster Configuration ->
     Audio Configuration -> LPE Audio Support -> Disable
+
+  Turn on HD Audio Support:
+    Device Manager -> System Setup -> South Cluster Configuration ->
+    Audio Configuration -> Audio Controller -> Enable
 
 Please use EFI mode for all boot medium types, i.e. USB disk and Hard Disk.
 Setting in BIOS:
@@ -192,7 +203,7 @@ To enable standard mode, appends the arguments to kernel command line.
 
 c. LPIO ACPI enumeration support
 --------------------------------
-Required settings in BIOS
+Required settings in ISG BIOS
 
   Turn on ACPI mode
     Device Manager -> System Setup -> South Cluster Configuration ->
