@@ -64,6 +64,10 @@ Table of Contents
 
   I. Building the meta-mohonpeak BSP layer
  II. Booting the images in /binary
+III. Device Notes
+     a. Boot Loader
+     b. I/O drivers
+
 
 I. Building the meta-mohonpeak BSP layer
 =======================================
@@ -144,3 +148,18 @@ the syslinux boot: prompt, or the boot: prompt contains strange
 characters), try doing this first:
 
 # dd if=/dev/zero of=/dev/sdf bs=1M count=512
+
+
+III. Device Notes
+=================
+
+a. Boot Loader
+--------------
+BIOS	: EDVLCRB1.86B.0024.R00.1308061601
+
+b. I/O drivers
+--------------
+Support Intel Legacy Block Drivers (APIC, RTC HPET, UART, LPC, WDT,
+SMBus i801, SMBus iSMT, USB Host v2.0, SATA)
+
+Support Aspeed Technology Graphic Card
