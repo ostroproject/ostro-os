@@ -63,7 +63,7 @@ Patches
 =======
 
 Please submit any patches against this BSP to the Yocto mailing list
-(yocto@yoctoproject.org) and cc: the maintainer:
+(meta-intel@yoctoproject.org) and cc: the maintainer:
 
 Maintainer: Chan Wei Sern <wei.sern.chan@intel.com>
 
