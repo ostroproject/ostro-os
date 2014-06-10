@@ -45,8 +45,8 @@ This layer depends on:
 Patches
 =======
 
-Please submit any patches against this BSP to the Yocto mailing list
-(yocto@yoctoproject.org) and cc: the maintainer:
+Please submit any patches against this BSP to the meta-intel mailing list
+(meta-intel@yoctoproject.org) and cc: the maintainer:
 
 Maintainer: Nitin A Kamble <nitin.a.kamble@intel.com>
 
