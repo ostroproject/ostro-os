@@ -1,0 +1,5 @@
+#!/bin/sh
+
+ETH_ADDR=`ls /sys/class/net | head -1`
+
+/usr/sbin/avahi-autoipd -D $ETH_ADDR

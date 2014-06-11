@@ -1,0 +1,10 @@
+[Unit]
+Description=Provides static IP address
+After=avahi-daemon.service
+
+[Service]
+Type=forking
+ExecStart=/bin/sh /usr/sbin/avahi-autoipd-auto
+
+[Install]
+WantedBy=multi-user.target
