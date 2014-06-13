@@ -1,0 +1,43 @@
+From 11689cf8eafcfcbd59fe75afe62823089785fb6c Mon Sep 17 00:00:00 2001
+From: Brendan Le Foll <brendan.le.foll@intel.com>
+Date: Wed, 11 Jun 2014 15:08:00 +0100
+Subject: [PATCH] common.c: remove duplicate declarations of int i
+
+Signed-off-by: Brendan Le Foll <brendan.le.foll@intel.com>
+---
+ libtempered/type_hid/common.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/libtempered/type_hid/common.c b/libtempered/type_hid/common.c
+index 4b89c30..3c0fc27 100644
+--- a/libtempered/type_hid/common.c
++++ b/libtempered/type_hid/common.c
+@@ -221,6 +221,7 @@ bool tempered_type_hid_get_subtype_id_from_string(
+ 	struct tempered_type_hid_subtype_from_string_data *subtype_data =
+ 		(struct tempered_type_hid_subtype_from_string_data*)
+ 			device->type->get_subtype_data;
++        int i;
+ 	
+ 	if ( subtype_data == NULL )
+ 	{
+@@ -245,7 +246,7 @@ bool tempered_type_hid_get_subtype_id_from_string(
+ 	}
+ 	
+ 	struct tempered_type_hid_query next_response_query = { .length = -1 };
+-	for ( int i = 1 ; i < subtype_data->response_count ; i++ )
++	for ( i = 1 ; i < subtype_data->response_count ; i++ )
+ 	{
+ 		if ( !tempered_type_hid_query( device, &next_response_query, &result ) )
+ 		{
+@@ -267,7 +268,7 @@ bool tempered_type_hid_get_subtype_id_from_string(
+ 	
+ 	subtype_string[string_length] = '\0';
+ 	
+-	for ( int i = 0 ; subtype_data->subtype_strings[i] != NULL ; i++ )
++	for ( i = 0 ; subtype_data->subtype_strings[i] != NULL ; i++ )
+ 	{
+ 		if ( strcmp(subtype_string, subtype_data->subtype_strings[i]) == 0 )
+ 		{
+-- 
+1.7.10.4
+
