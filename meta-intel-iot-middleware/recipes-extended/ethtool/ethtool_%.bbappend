@@ -1,2 +1,2 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
-SRC_URI += "file://clanton.patch"
+SRC_URI += "file://quark.patch"
