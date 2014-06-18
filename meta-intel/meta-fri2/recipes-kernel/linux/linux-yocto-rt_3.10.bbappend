@@ -12,4 +12,4 @@ KBRANCH_fri2-noemgd = "standard/preempt-rt/fri2"
 SRCREV_machine_pn-linux-yocto-rt_fri2-noemgd ?= "b669af08737562ef86e7cba328966d05222d3e64"
 #SRCREV_meta_pn-linux-yocto-rt_fri2-noemgd ?= "XXX"
 
-module_autoload_iwlwifi = "iwlwifi"
+KERNEL_MODULE_AUTOLOAD += "iwlwifi"
