@@ -24,3 +24,10 @@ XSERVER_X86_MATROX_MGA = "xf86-video-mga \
 
 XSERVER_X86_ASPEED_AST = "xf86-video-ast \
            "
+
+# include the user space intel microcode loading support in the generated images.
+MACHINE_ESSENTIAL_EXTRA_RDEPENDS_append = " intel-microcode iucode-tool"
+
+# For the early boot time kernel microcode loading support,
+# merge the microcode data in the final initrd image.
+INITRD_prepend = "${DEPLOY_DIR_IMAGE}/microcode.cpio "
