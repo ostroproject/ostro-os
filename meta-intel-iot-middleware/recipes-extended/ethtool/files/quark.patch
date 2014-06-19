@@ -17,7 +17,7 @@ index fb69bfe..3d79054 100644
  	unsigned int *stmmac_reg = (unsigned int *)regs->data;
  
 -	fprintf(stdout, "ST GMAC Registers\n");
-+	fprintf(stdout, "ST GMAC Registers - Clanton SOC extended\n");
++	fprintf(stdout, "ST GMAC Registers - Quark SOC extended\n");
  	fprintf(stdout, "GMAC Registers\n");
  	for (i = 0; i < 55; i++)
  		fprintf(stdout, "Reg%d  0x%08X\n", i, *stmmac_reg++);
