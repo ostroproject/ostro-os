@@ -1,0 +1,32 @@
+From 193d499c59871ab4ce1785fecf3642699bb593bf Mon Sep 17 00:00:00 2001
+From: Brendan Le Foll <brendan.le.foll@intel.com>
+Date: Wed, 18 Jun 2014 16:26:53 +0100
+Subject: [PATCH] Makefile: remove hardcoding of CC
+
+Signed-off-by: Brendan Le Foll <brendan.le.foll@intel.com>
+---
+ Makefile |    8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 16b8767..0a991a3 100644
+--- a/Makefile
++++ b/Makefile
+@@ -10,14 +10,6 @@ LIBNAME=libhiredis
+ HIREDIS_MAJOR=0
+ HIREDIS_MINOR=10
+ 
+-# Fallback to gcc when $CC is not in $PATH.
+-CC:=$(shell sh -c 'type $(CC) >/dev/null 2>/dev/null && echo $(CC) || echo gcc')
+-OPTIMIZATION?=-O3
+-WARNINGS=-Wall -W -Wstrict-prototypes -Wwrite-strings
+-DEBUG?= -g -ggdb
+-REAL_CFLAGS=$(OPTIMIZATION) -fPIC $(CFLAGS) $(WARNINGS) $(DEBUG) $(ARCH)
+-REAL_LDFLAGS=$(LDFLAGS) $(ARCH)
+-
+ DYLIBSUFFIX=so
+ STLIBSUFFIX=a
+ DYLIB_MINOR_NAME=$(LIBNAME).$(DYLIBSUFFIX).$(HIREDIS_MAJOR).$(HIREDIS_MINOR)
+-- 
+1.7.10.4
+
