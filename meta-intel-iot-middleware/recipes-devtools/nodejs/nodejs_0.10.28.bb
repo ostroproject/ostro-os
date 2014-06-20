@@ -33,6 +33,12 @@ do_compile () {
 
 do_install () {
     oe_runmake install DESTDIR=${D}
+
+    # install node-gyp node hedaers in /usr/include/node-gyp/
+    cd ${D}/${libdir}/node_modules/npm/node_modules/node-gyp/
+    export HOME=${D}/usr/include/node-gyp
+    sed -i 's/\.node-gyp//' lib/node-gyp.js
+    node bin/node-gyp.js install
 }
 
 RDEPENDS_${PN} = "curl python-shell python-datetime python-subprocess python-crypt python-textutils python-netclient "
