@@ -1,0 +1,43 @@
+#! /usr/bin/env bash
+
+# as clock might not be battery buffered:
+# set initial time to either date within /etc/version or
+# timestamp of /etc/version (whatever is more recent)
+
+# date put in /etc/version
+if [[ ! -f /etc/version ]]; then
+  echo "error: set-initial-date - didn't find /etc/version"
+  exit 1
+fi 
+d0=$(cat /etc/version) 
+# timestamp date
+d1=$(date -r /etc/version +'%Y%m%d%H%M')
+# current date
+d2=$(date +'%Y%m%d%H%M')
+
+# take the latest date - will also work if $d0 is empty 
+if [[ $d0 -gt $d1 ]]; then
+  d=$d0
+else
+  d=$d1
+fi
+
+# don't do anything if current time is latest
+if [[ $d2 -gt $d ]]; then
+  exit 0
+fi
+
+# timedatectl requires d-bus - 
+# we attempt to set date & time as early as possible hence we use 'date' 
+# rather than 
+# timedatectl set-time "${d:0:4}-${d:4:2}-${d:6:2} ${d:8:2}:${d:10:2}:00"
+
+# set date                                  
+date -s ${d::8} > /dev/null
+# set time                                  
+date -s ${d:8} > /dev/null
+# set hwclock in UTZ
+export TZ=UTC
+hwclock -w
+
+

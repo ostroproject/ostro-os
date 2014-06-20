@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# keep date of shutdown by touching /etc/version 
+# this time will be set on the next run as initial time
+
+# touch /etc/version with later date (either /etc/version or current date)
+d0=$(cat /etc/version)
+d1=$(date +'%Y%m%d%H%M')
+
+if [[ $d1 -gt $d0 ]]; then 
+  touch /etc/version
+else
+  touch -t $d0 /etc/version
+fi
+
+

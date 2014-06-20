@@ -1,0 +1,10 @@
+[Unit]
+Description=set initial time to last shutdown time
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/set-initial-date
+
+[Install]
+WantedBy=local-fs.target

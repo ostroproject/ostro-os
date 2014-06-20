@@ -1,0 +1,11 @@
+[Unit]
+Description=keep current date&time at shutdown by touching /etc/version
+DefaultDependencies=no
+Before=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/keep-shutdown-time
+
+[Install]
+WantedBy=shutdown.target
