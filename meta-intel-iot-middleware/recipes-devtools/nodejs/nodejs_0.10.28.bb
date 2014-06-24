@@ -5,6 +5,7 @@ LICENSE = "MIT & BSD-2-Clause & BSD-3-Clause & BSD-4-Clause & ISC & GPLv2 & GPLv
 LIC_FILES_CHKSUM = "file://LICENSE;md5=4a31e6c424761191227143b86f58a1ef"
 
 DEPENDS = "openssl"
+DEPENDS_${PN} = "nodejs-native"
 
 SRC_URI = "http://nodejs.org/dist/v${PV}/node-v${PV}.tar.gz"
 
@@ -33,12 +34,14 @@ do_compile () {
 
 do_install () {
     oe_runmake install DESTDIR=${D}
+}
 
+do_install_append_${PN} () {
     # install node-gyp node hedaers in /usr/include/node-gyp/
     cd ${D}/${libdir}/node_modules/npm/node_modules/node-gyp/
     export HOME=${D}/usr/include/node-gyp
     sed -i 's/\.node-gyp//' lib/node-gyp.js
-    node bin/node-gyp.js install
+    ${STAGING_BINDIR_NATIVE}/node bin/node-gyp.js install
 }
 
 RDEPENDS_${PN} = "curl python-shell python-datetime python-subprocess python-crypt python-textutils python-netclient "
