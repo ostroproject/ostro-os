@@ -8,15 +8,15 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=e8db6501ed294e65418a933925d12058"
 # git is required to get a good version from git describe
 DEPENDS = "nodejs swig-native"
 
-SRC_URI = "git://github.com/intel-iot-devkit/maa.git;protocol=git;rev=ba102b252654c0d3164a833a5c8bbaa126b86f36"
+SRC_URI = "git://github.com/intel-iot-devkit/mraa.git;protocol=git;rev=d47364189d26558ee4fc1f514520b58ea0f558d1"
 
 S = "${WORKDIR}/git"
 
 inherit distutils-base pkgconfig python-dir cmake
 
-FILES_${PN}-doc += "${datadir}/maa/examples/"
+FILES_${PN}-doc += "${datadir}/mraa/examples/"
 
-FILES_${PN}-dbg += "${libdir}/node_modules/maajs/.debug/ \
+FILES_${PN}-dbg += "${libdir}/node_modules/mraajs/.debug/ \
                     ${PYTHON_SITEPACKAGES_DIR}/.debug/"
 
 do_compile_prepend () {
