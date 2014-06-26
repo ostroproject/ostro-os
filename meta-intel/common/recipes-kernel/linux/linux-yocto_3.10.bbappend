@@ -21,7 +21,9 @@ KBRANCH_corei7-64-intel-common = "standard/base"
 KERNEL_FEATURES_append_corei7-64-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}"
 
 # For Crystalforest and Romley
-KERNEL_MODULE_AUTOLOAD += "uio"
+KERNEL_MODULE_AUTOLOAD_core2-32-intel-common += "uio"
+KERNEL_MODULE_AUTOLOAD_corei7-64-intel-common += "uio"
 
 # For FRI2, NUC
-KERNEL_MODULE_AUTOLOAD += "iwlwifi"
+KERNEL_MODULE_AUTOLOAD_core2-32-intel-common += "iwlwifi"
+KERNEL_MODULE_AUTOLOAD_corei7-64-intel-common += "iwlwifi"

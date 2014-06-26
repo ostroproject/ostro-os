@@ -19,7 +19,9 @@ KERNEL_FEATURES_append_corei7-64-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}
 # default SRCREV is set and linux-yocto-dev is the preferred provider.
 
 # For Crystalforest and Romley
-KERNEL_MODULE_AUTOLOAD += "uio"
+KERNEL_MODULE_AUTOLOAD_core2-32-intel-common += "uio"
+KERNEL_MODULE_AUTOLOAD_corei7-64-intel-common += "uio"
 
-# For FRI2
-KERNEL_MODULE_AUTOLOAD += "iwlwifi"
+# For FRI2, NUC
+KERNEL_MODULE_AUTOLOAD_core2-32-intel-common += "iwlwifi"
+KERNEL_MODULE_AUTOLOAD_corei7-64-intel-common += "iwlwifi"
