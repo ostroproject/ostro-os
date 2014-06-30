@@ -9,9 +9,9 @@ SRCREV = "e6bbbb27e1da82aa180877f04f2efe1be425fc0a"
 
 S = "${WORKDIR}/git"
 
-EXTRA_OEMAKE = "'CC=${CC}' 'CFLAGS=${CFLAGS}' 'KBUILD_OUTPUT=${STAGING_DIR_TARGET}'"
+EXTRA_OEMAKE = "'CC=${CC}' 'CFLAGS=${CFLAGS} -DHAVE_CLOCK_ADJTIME' 'KBUILD_OUTPUT=${STAGING_DIR_TARGET}'"
 
-INSTALL_BINS = "ptp4l" 
+INSTALL_BINS = "ptp4l"
 #This could also include: hwstamp_ctl phc2sys pmc
 
 do_install() {
