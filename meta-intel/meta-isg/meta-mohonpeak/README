@@ -83,7 +83,6 @@ bblayers.conf, along with the meta-intel layer itself (to access
 common metadata shared between BSPs) e.g.:
 
   yocto/meta-intel \
-  yocto/meta-intel/meta-isg \
   yocto/meta-intel/meta-isg/meta-mohonpeak \
 
 To enable the 32-bit Mohon Peak layer, add the mohonpeak-32 MACHINE to local.conf:
