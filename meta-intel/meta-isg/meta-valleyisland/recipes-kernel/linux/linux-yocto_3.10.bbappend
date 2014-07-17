@@ -32,5 +32,5 @@ SRCREV_valleyisland-io_valleyisland-64 = "8ea4fb625f2654bbdd5dfcb9db67328d21ebe5
 
 SRC_URI_valleyisland-64 = "git://git.yoctoproject.org/linux-yocto-3.10.git;protocol=git;nocheckout=1;branch=${KBRANCH},${KMETA},valleyisland-io-1.0;name=machine,meta,valleyisland-io"
 
-KERNEL_MODULE_AUTOLOAD_valleyisland-32 += "i2c-dev"
-KERNEL_MODULE_AUTOLOAD_valleyisland-64 += "i2c-dev"
+KERNEL_MODULE_AUTOLOAD_append_valleyisland-32 = " i2c-dev"
+KERNEL_MODULE_AUTOLOAD_append_valleyisland-64 = " i2c-dev"
