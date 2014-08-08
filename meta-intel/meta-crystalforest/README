@@ -96,14 +96,14 @@ common metadata shared between BSPs) e.g.:
   yocto/meta-intel \
   yocto/meta-intel/meta-crystalforest \
 
-To enable the Crystal Forest Gladden layer, add the crystalforest-gladden MACHINE to local.conf:
+Crystal Forest layer is meant for building both Crystal Forest Gladden
+and Crystal Forest Server platforms. By enabling Crystal Forest layer,
+the image you build is able to boot on both supported platforms.
 
-  MACHINE ?= "crystalforest-gladden"
+To enable the Crystal Forest layer, add the Crystal Forest MACHINE to
+build/local.conf:
 
-To enable the Crystal Forest Server layer, add the crystalforest-server MACHINE to local.conf:
-
-  MACHINE ?= "crystalforest-server"
-
+  MACHINE ?= "crystalforest"
 
 You should then be able to build a crystalforest image as such:
 
@@ -135,15 +135,9 @@ Under Linux, insert a USB flash drive.  Assuming the USB flash drive
 takes device /dev/sdf, use dd to copy the live image to it.  For
 example:
 
-To boot the Gladden Platform:
+To boot on both Gladden and Server Platforms:
 
-# dd if=core-image-sato-crystalforest-gladden.hddimg of=/dev/sdf
-# sync
-# eject /dev/sdf
-
-To boot the Server Platform:
-
-# dd if=core-image-sato-crystalforest-server.hddimg of=/dev/sdf
+# dd if=core-image-sato-crystalforest.hddimg of=/dev/sdf
 # sync
 # eject /dev/sdf
 
