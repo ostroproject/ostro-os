@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=ee16d9b084e359d55ef7cd1ac439f6ba"
 DEPENDS = "nodejs-native fuse icu"
 RDEPENDS_${PN} = "libwyliodrin"
 
-SRC_URI = "git://github.com/Wyliodrin/wyliodrin-server-nodejs.git;branch=development;protocol=git;rev=14ccfd779997dddec3e381515e0f5b22a9862e96 \
+SRC_URI = "git://github.com/Wyliodrin/wyliodrin-server-nodejs.git;branch=development;protocol=git;rev=b8a181103831670d4ee59f49811c3573ba4b0274 \
            file://wyliodrin-server.service \
            file://redis.service"
 
