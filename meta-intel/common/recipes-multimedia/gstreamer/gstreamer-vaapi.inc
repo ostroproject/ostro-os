@@ -12,7 +12,9 @@ LIC_FILES_CHKSUM = "file://COPYING.LIB;md5=4fbd65380cdd255951079008b364516c"
 DEPENDS = "libva"
 
 SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/${REALPN}/${REALPN}-${PV}.tar.bz2 \
-           file://install-tests.patch"
+           file://install-tests.patch \
+           file://gstreamer14.patch \
+           "
 
 SRC_URI[md5sum] = "375ddbab556e53ccc311b792f2c649a7"
 SRC_URI[sha256sum] = "24fee8a1ca4cb99ed7739d876b17a4085e81b28550350867dee5105300d343c6"
