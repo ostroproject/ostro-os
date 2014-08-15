@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=30c8ae0368f724cf5f753d08bf033034"
 
 DEPENDS = "nodejs-native"
 
-SRCREV = "70858644aea11a82855dde816f9cc4f07f5f97a5"
+SRCREV = "884d29a3ee34dfba8086fd0c6a6373bedc6ff069"
 SRC_URI = "git://github.com/enableiot/iotkit-agent.git;protocol=https;branch=master"
 
 S = "${WORKDIR}/git"
