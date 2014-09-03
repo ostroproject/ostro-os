@@ -2,15 +2,15 @@ DESCRIPTION = "Provides communication to the Intel XDK"
 HOMEPAGE = "http://somexdkhomepage"
 LICENSE = "Propietary"
 
-LIC_FILES_CHKSUM = "file://LICENSE;md5=37df31ee5c72616fa8d911395a1449c5"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=8a05f85865f8c4b9ba29798e539f93b7"
 
 DEPENDS = "nodejs-native avahi"
 RDEPENDS_${PN} = "libarchive-bin"
 
 # URI should point to some external http:// server
 SRC_URI = "file://xdk-daemon-${PV}.tar.bz2"
-SRC_URI[md5] = "1345a5ae88fd3b0bf11dd623063283b7"
-SRC_URI[sha256] = "ea9277188dab049e3eb11470f8c0c2fefebedb941ec3a204a8ff41f8e64b76b6"
+SRC_URI[md5] = "f0ed4083482f1fd54b8b6688c20f8f84"
+SRC_URI[sha256] = "c73aa65221da35675d4bdde7e190bfe4d6e376a7468bd87a766bf9c1f5f69ffb"
 
 # we don't care about debug for the few binary node modules
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
