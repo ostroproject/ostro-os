@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=e8db6501ed294e65418a933925d12058"
 
 DEPENDS = "nodejs swig-native mraa"
 
-SRC_URI = "git://github.com/intel-iot-devkit/upm.git;protocol=git;rev=ffdd6d2f005e614a37359a21a2e5e5d24a1b14c6"
+SRC_URI = "git://github.com/intel-iot-devkit/upm.git;protocol=git;rev=88eaced5a23c23d1cfe3badfe8deeedda582ae50"
 
 S = "${WORKDIR}/git"
 
