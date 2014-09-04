@@ -12,9 +12,6 @@ Intel EG20T Platform Controller Hub (Tunnel Creek + Topcliff). The Fish River
 Island II includes a variety of communications options and other
 machine-to-machine (m2m) capabilities.
 
-It also supports the E6xx embedded on-chip graphics via the Intel
-Embedded Media and Graphics Driver (EMGD).
-
 Information on all Intel embedded platforms can be found here:
 
   http://www.intel.com/p/en_US/embedded/hwsw/hardware
@@ -96,33 +93,12 @@ bblayers.conf, e.g.:
   yocto/meta-intel \
   yocto/meta-intel/meta-fri2 \
 
-The meta-fri2 layer contains support for two different machine
-configurations. These configurations are identical except for the fact
-that the one prefixed with 'fri2' makes use of the Intel-proprietary
-EMGD graphics driver, while the one prefixed with 'fri2-noemgd'
-does not.
+The meta-fri2 layer contains support for fri2-noemgd machine configuration.
+The previously supported fri2 machine with the proprietary EMGD graphics
+driver has been retired. The 'fri2-noemgd' machine configuration uses
+the open source 'vesa' kernel driver.
 
-If you want to enable the layer that supports EMGD graphics add the
-following to the local.conf file:
-
-  MACHINE ?= "fri2"
-
-The 'fri2' machine includes the emgd-driver-bin package, which has a
-proprietary license that must be whitelisted by adding the string
-"license_emgd-driver-bin" to the LICENSE_FLAGS_WHITELIST variable in
-your local.conf.  For example:
-
-  LICENSE_FLAGS_WHITELIST = "license_emgd-driver-bin"
-
-The emgd recipe depends on Xorg's dri and glx modules, which are built
-only when 'opengl' is listed in DISTRO_FEATURES. So if the distro
-doesn't list 'opengl' in the DISTRO_FEATURES you would need this
-additional line to your local.conf:
-
-  DISTRO_FEATURES_append = " opengl"
-
-If you want to enable the layer that does not support EMGD graphics,
-add the following to the local.conf file:
+To enable the layer add the following to the local.conf file:
 
   MACHINE ?= "fri2-noemgd"
 
@@ -134,21 +110,6 @@ You should then be able to build an fri2 image as such:
 At the end of a successful build, you should have a live image that
 you can boot from a USB flash drive (see instructions on how to do
 that below, in the section 'Booting the images from /binary').
-
-NOTE: The 'fri2' machine will include support for hardware video
-acceleration via gstreamer if and only if the "commercial" string is
-added to the the LICENSE_FLAGS_WHITELIST variable in your local.conf.
-
-For example:
-
-  LICENSE_FLAGS_WHITELIST = "license_emgd-driver-bin commercial"
-
-The reason this is needed is to prevent the image from including
-anything that might violate the license terms of the packages used to
-implement the the video acceleration feature, such as gst-ffmpeg and
-ffmpeg.  As always, please consult the licenses included in the
-specific packages for details if you use packages that require
-particular LICENSE_FLAGS.
 
 As an alternative to downloading the BSP tarball, you can also work
 directly from the meta-intel git repository.  For each BSP in the
@@ -171,7 +132,7 @@ Under Linux, insert a USB flash drive.  Assuming the USB flash drive
 takes device /dev/sdf, use dd to copy the live image to it.  For
 example:
 
-# dd if=core-image-sato-fri2.hddimg of=/dev/sdf
+# dd if=core-image-sato-fri2-noemgd.hddimg of=/dev/sdf
 # sync
 # eject /dev/sdf
 
