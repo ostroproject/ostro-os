@@ -82,35 +82,13 @@ common metadata shared between BSPs) e.g.:
   yocto/meta-intel \
   yocto/meta-intel/meta-emenlow \
 
-The meta-emenlow layer contains support for two different machine
-configurations. These configurations are identical except for the fact
-that the one prefixed with 'emenlow' makes use of the
-Intel-proprietary EMGD 1.18 graphics driver, while the one prefixed
-with 'emenlow-noemgd' does not. The 'emenlow-noemgd' machine
-configuration instead uses the open source 'gma500' kernel DRM driver
+The meta-emenlow layer contains support for emenlow-noemgd machine
+configuration. The previously supported emenlow machine with the
+proprietary EMGD graphics driver has been retired. The 'emenlow-noemgd'
+machine configuration uses the open source 'gma500' kernel DRM driver
 along with the 'modesetting' X driver.
 
-If you want to enable the layer that supports EMGD graphics add the
-following to the local.conf file:
-
-  MACHINE ?= "emenlow"
-
-The 'emenlow' machine includes the emgd-driver-bin package, which has
-a proprietary license that must be whitelisted by adding the string
-"license_emgd-driver-bin_1.18" to the LICENSE_FLAGS_WHITELIST variable
-in your local.conf.  For example:
-
-  LICENSE_FLAGS_WHITELIST = "license_emgd-driver-bin"
-
-The emgd recipe depends on Xorg's dri and glx modules, which are built
-only when 'opengl' is listed in DISTRO_FEATURES. So if the distro
-doesn't list 'opengl' in the DISTRO_FEATURES you would need this
-additional line to your local.conf:
-
-  DISTRO_FEATURES_append = " opengl"
-
-If you want to enable the layer that does not support EMGD graphics
-add the following to the local.conf file:
+To enable the layer add the following to the local.conf file:
 
   MACHINE ?= "emenlow-noemgd"
 
@@ -122,21 +100,6 @@ You should then be able to build an emenlow image as such:
 At the end of a successful build, you should have a live image that
 you can boot from a USB flash drive (see instructions on how to do
 that below, in the section 'Booting the images from /binary').
-
-NOTE: The 'emenlow' machine will include support for hardware video
-acceleration via gstreamer if and only if the "commercial" string is
-added to the the LICENSE_FLAGS_WHITELIST variable in your local.conf.
-
-For example:
-
-  LICENSE_FLAGS_WHITELIST = "license_emgd-driver-bin commercial"
-
-The reason this is needed is to prevent the image from including
-anything that might violate the license terms of the packages used to
-implement the the video acceleration feature, such as gst-ffmpeg and
-ffmpeg.  As always, please consult the licenses included in the
-specific packages for details if you use packages that require
-particular LICENSE_FLAGS.
 
 As an alternative to downloading the BSP tarball, you can also work
 directly from the meta-intel git repository.  For each BSP in the
@@ -159,7 +122,7 @@ Under Linux, insert a USB flash drive.  Assuming the USB flash drive
 takes device /dev/sdf, use dd to copy the live image to it.  For
 example:
 
-# dd if=core-image-sato-emenlow.hddimg of=/dev/sdf
+# dd if=core-image-sato-emenlow-noemgd.hddimg of=/dev/sdf
 # sync
 # eject /dev/sdf
 
