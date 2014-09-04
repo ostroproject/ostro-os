@@ -15,10 +15,6 @@ OLD_XSERVER_X86_EXT = "xserver-xorg-extension-dri \
            xserver-xorg-extension-dbe \
            "
 
-XSERVER_X86_EMGD = "emgd-driver-bin \
-           ${OLD_XSERVER_X86_EXT} \
-           "
-
 XSERVER_X86_MATROX_MGA = "xf86-video-mga \
            "
 

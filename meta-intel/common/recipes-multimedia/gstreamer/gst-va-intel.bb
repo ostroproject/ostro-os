@@ -7,8 +7,6 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=4d92cd373abda3937c2bc47fbc49d
 PR = "r2"
 
 def map_gst_vaapi(d):
-    if base_contains('MACHINE_FEATURES', 'va-impl-mixvideo', "1", "0", d) == "1":
-       return "gst-va-mixvideo-vaapi"
     if base_contains('MACHINE_FEATURES', 'va-impl-intel', "1", "0", d) == "1":
        return "gst-va-intel-vaapi"
     return ""
@@ -26,7 +24,6 @@ ALLOW_EMPTY_gst-va-intel = "1"
 ALLOW_EMPTY_gst-va-intel-general = "1"
 ALLOW_EMPTY_gst-va-intel-video = "1"
 ALLOW_EMPTY_gst-va-intel-vaapi = "1"
-ALLOW_EMPTY_gst-va-mixvideo-vaapi = "1"
 
 RDEPENDS_gst-va-intel = "\
     gst-va-intel-general \
@@ -47,10 +44,4 @@ RDEPENDS_gst-va-intel-video = "\
 #
 RDEPENDS_gst-va-intel-vaapi = "\
     gstreamer-vaapi \
-    "
-
-# The emgd driver contains the vaapi implementation
-#
-RDEPENDS_gst-va-mixvideo-vaapi = "\
-    emgd-driver-bin \
     "
