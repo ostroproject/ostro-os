@@ -1,6 +1,6 @@
 SUMMARY = "Update Intel CPU microcode"
 
-DESCRIPTION = "iucode_tool is a program to manipulate Intel® i686 and X86-64\
+DESCRIPTION = "iucode_tool is a program to manipulate Intel i686 and X86-64\
  processor microcode update collections, and to use the kernel facilities to\
  update the microcode on Intel system processors.  It can load microcode data\
  files in text and binary format, sort, list and filter the microcode updates\
