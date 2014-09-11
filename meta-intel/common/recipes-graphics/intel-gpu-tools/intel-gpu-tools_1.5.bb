@@ -14,3 +14,8 @@ DEPENDS += "libdrm libpciaccess cairo udev glib-2.0"
 
 EXTRA_OECONF = "--disable-nouveau --disable-shader-debugger --disable-dumper"
 COMPATIBLE_HOST = "(x86_64.*|i.86.*)-linux"
+
+gputools_sysroot_preprocess() {
+	rm -f ${SYSROOT_DESTDIR}${libdir}/pkgconfig/intel-gen4asm.pc
+}
+SYSROOT_PREPROCESS_FUNCS += "gputools_sysroot_preprocess"
