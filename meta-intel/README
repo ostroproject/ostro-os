@@ -83,3 +83,114 @@ The meta-intel maintainers will do their best to review and/or pull in
 a patch or patchset within 24 hours of the time it was posted.  For
 larger and/or more involved patches and patchsets, the review process
 may take longer.
+
+
+Intel-specific machine features
+===============================
+
+The meta-intel layer makes some additional machine features available
+to BSPs.  These machine features can be used in a BSP layer in the
+same way that machine features are used in other layers based on
+oe-core, via the MACHINE_FEATURES variable.
+
+Requirements
+------------
+
+The meta-intel-specific machine features are only available to a BSP
+when the meta-intel layer is included in the build configuration, and
+the meta-intel.inc file is included in the machine configuration of
+that BSP.
+
+To make these features available for your machine, you will need to:
+
+  1. include a configuration line such as the below in bblayers.conf
+	BBLAYERS += "<local path>/meta-intel"
+  2. include the following line in the machine configuration file
+	require conf/machine/include/meta-intel.inc
+
+Once the above requirements are met, the machine features provided by
+the meta-intel layer will be available for the BSP to use.
+
+Available machine features
+--------------------------
+
+Currently, the meta-intel layer makes the following set of
+Intel-specific machine features available:
+
+  * intel-ucode
+
+These machine features can be included by listing them in the
+MACHINE_FEATURES variable in the machine configuration file.  For
+example:
+
+	MACHINE_FEATURES += "intel-ucode"
+
+Machine feature details
+-----------------------
+
+ * intel-ucode
+
+    This feature provides support for microcode updates to Intel
+    processors.  The intel-ucode feature runs at early boot and uses
+    the microcode data file added by the feature into the BSP's
+    initrd.  It also puts the userland microcode-updating tool,
+    iucode_tool, into the target images along with the microcode data
+    file.
+
+    Q. Why might a user want to enable the intel-ucode feature?
+
+    A. Intel releases microcode updates to correct processor behavior
+       as documented in the respective processor specification
+       updates.  While the normal approach to getting such microcode
+       updates is via a BIOS upgrade, this can be an administrative
+       hassle and not always possible in the field.  The intel-ucode
+       feature enables the microcode update capability present in the
+       Linux kernel.  It provides an easy path for upgrading processor
+       microcode without the need to change the BIOS.  If the feature
+       is enabled, it is also possible to update the existing target
+       images with a newer microcode update in the future.
+
+    Q. How would a user bundle only target-specific microcode in the
+       target image?
+
+    A. The Intel microcode data file released by Intel contains
+       microcode updates for multiple processors.  If the BSP image is
+       meant to run on only a certain subset of processor types, a
+       processor-specific subset of microcode can be bundled into the
+       target image via the UCODE_FILTER_PARAMETERS variable.  This
+       works by listing a sequence of iucode-tool parameters in the
+       UCODE_FILTER_PARAMETERS variable, which in this case will
+       select only the specific microcode relevant to the BSP.  For
+       more information on the underlying parameters refer to the
+       iucode-tool manual page at http://manned.org/iucode-tool
+
+       To define a set of parameters for microcode-filtering via the
+       UCODE_FILTER_PARAMETERS variable, one needs to identify the
+       cpuid signatures of all the processors the BSP is meant to run
+       on.  One way to determine the cpuid signature for a specific
+       processor is to build and run an intel-ucode-feature-enabled
+       image on the target hardware, without first assigning any value
+       to the UCODE_FILTER_PARAMETERS variable, and then once the
+       image is booted, run the "ucode_tool -S" command to have the
+       ucode tool scan the system for processor signatures.  These
+       signatures can then be used in the UCODE_FILTER_PARAMETERS
+       variable in conjunction with -s parameter.  For example, for
+       the fri2 BSP, the cpuid can be determined as such:
+
+         [root@fri2 ~]# iucode_tool -S
+	 iucode_tool: system has processor(s) with signature 0x00020661
+
+       Given that output, a suitable UCODE_FILTER_PARAMETERS variable
+       definition could be specified in the machine configuration as
+       such:
+
+         UCODE_FILTER_PARAMETERS = "-s 0x00020661"
+
+    Q. Are there any reasons a user might want to disable the
+       intel-ucode feature?
+
+    A. The microcode data file and associated tools occupy a small
+       amount of space (a few KB) on the target image.  BSPs which are
+       highly sensitive to target image size and which are not
+       experiencing microcode-related issues might consider not
+       enabling this feature.
