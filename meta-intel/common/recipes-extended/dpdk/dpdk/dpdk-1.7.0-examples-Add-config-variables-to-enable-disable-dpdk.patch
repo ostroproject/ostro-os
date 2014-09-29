@@ -1,0 +1,42 @@
+From 63f8ccc5a305b193e219d288ef9e43b9a9fa6aa8 Mon Sep 17 00:00:00 2001
+From: Sreeju Selvaraj <sreeju.armughanx.selvaraj@intel.com>
+Date: Wed, 17 Sep 2014 19:10:01 +0800
+Subject: [PATCH] examples: Add config variables to enable/disable dpdk_qat and
+ vhost
+
+Upstream-Status: Inappropriate [configuration]
+
+This can be used to export CONFIG_EXAMPLE_DPDK_QAT=n if dpdk_qat is not
+in PACKAGECONFIG and also allow to export CONFIG_EXAMPLE_DPDK_VHOST=n
+if vhost is not in PACKAGECONFIG.
+
+Signed-off-by: Sreeju Selvaraj <sreeju.armughanx.selvaraj@intel.com>
+---
+ examples/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/examples/Makefile b/examples/Makefile
+index d0624f6..885c938 100644
+--- a/examples/Makefile
++++ b/examples/Makefile
+@@ -39,7 +39,7 @@ include $(RTE_SDK)/mk/rte.vars.mk
+ 
+ DIRS-y += cmdline
+ ifneq ($(ICP_ROOT),)
+-DIRS-y += dpdk_qat
++DIRS-$(CONFIG_EXAMPLE_DPDK_QAT) += dpdk_qat
+ endif
+ DIRS-y += exception_path
+ DIRS-y += helloworld
+@@ -61,7 +61,7 @@ DIRS-$(CONFIG_RTE_LIBRTE_METER) += qos_meter
+ DIRS-$(CONFIG_RTE_LIBRTE_SCHED) += qos_sched
+ DIRS-y += quota_watermark
+ DIRS-y += timer
+-DIRS-y += vhost
++DIRS-$(CONFIG_EXAMPLE_DPDK_VHOST) += vhost
+ DIRS-$(CONFIG_RTE_LIBRTE_XEN_DOM0) += vhost_xen
+ DIRS-y += vmdq
+ DIRS-y += vmdq_dcb
+-- 
+1.9.1
+
