@@ -17,6 +17,7 @@ SRC_URI = "http://downloadmirror.intel.com/23984/eng/microcode-20140624.tgz"
 SRC_URI[md5sum] = "eec20032e6bef99dc4282c0ca317e100"
 SRC_URI[sha256sum] = "b4662ac780438a7b2d87e6d26a7066feb807f37c6e5b6fa147089f4edb02ea37"
 
+RDEPENDS_${PN} = "iucode-tool"
 DEPENDS = "iucode-tool-native"
 S = "${WORKDIR}"
 
