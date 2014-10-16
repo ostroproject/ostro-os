@@ -27,3 +27,6 @@ MACHINE_ESSENTIAL_EXTRA_RDEPENDS_append = " intel-microcode iucode-tool"
 # For the early boot time kernel microcode loading support,
 # merge the microcode data in the final initrd image.
 INITRD_prepend = "${DEPLOY_DIR_IMAGE}/microcode.cpio "
+
+# Use the LTSI kernel for LSB images
+PREFERRED_VERSION_linux-yocto_linuxstdbase ?= "3.10%"
