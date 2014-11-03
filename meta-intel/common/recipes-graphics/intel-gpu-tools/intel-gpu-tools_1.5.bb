@@ -10,7 +10,7 @@ SRC_URI[sha256sum] = "115475b528c78d67741ae6cbedfbfced1d471b356140e48245cbad8fdf
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=0918806acfedc3e8c0488f2dd61616dd"
 
-DEPENDS += "libdrm libpciaccess cairo udev glib-2.0"
+DEPENDS += "libdrm libpciaccess cairo udev glib-2.0 libxv libx11 libxext libxrandr"
 
 EXTRA_OECONF = "--disable-nouveau --disable-shader-debugger --disable-dumper"
 COMPATIBLE_HOST = "(x86_64.*|i.86.*)-linux"
