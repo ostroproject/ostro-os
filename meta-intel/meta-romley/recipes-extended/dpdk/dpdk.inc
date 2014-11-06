@@ -3,6 +3,7 @@ HOMEPAGE = "http://dpdk.org"
 LICENSE = "BSD & LGPLv2 & GPLv2"
 LIC_FILES_CHKSUM = "file://LICENSE.GPL;md5=751419260aa954499f7abaabaa882bbe"
 
+COMPATIBLE_MACHINE = "romley|romley-ivb"
 
 RDEPENDS_${PN} += "python-subprocess"
 
