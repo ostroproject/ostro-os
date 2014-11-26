@@ -14,6 +14,7 @@ Valley Island BSP is meant to support the following platforms:
 1. Valley Island Development Kit
 2. Bayley Bay CRB
 3. Bakersport CRB
+4. MinnowBoard MAX
 
 Further information on the platforms supported by this BSP can be
 found here:
@@ -164,14 +165,18 @@ Valley Island Development Kit
 BIOS : EBC MF01X003
 Note : It is recommended to use the default settings of this BIOS version.
 
-Bayley Bay/ Bakersport CRB
-BIOS : ISG BIOS 080_021
-EC   : KSC v3.12
+Bayley Bay/ Bakersport CRB/ MinnowBoard MAX
+BIOS : ISG BIOS 092_032
+EC   : KSC v3.14
 
 Required settings in ISG BIOS
 
+  OS Selection:
+    Device Manager -> Boot -> OS Selection -> Yocto Linux
+
   Turn off Secure-boot:
-    Device Manager -> System Setup -> Boot -> Security Boot -> Disable
+    Device Manager -> Secure Boot Configuration -> Attempt Secure Boot ->
+    Uncheck
 
   Turn off LPE Audio Support:
     Device Manager -> System Setup -> South Cluster Configuration ->
@@ -179,7 +184,7 @@ Required settings in ISG BIOS
 
   Turn on HD Audio Support:
     Device Manager -> System Setup -> South Cluster Configuration ->
-    Audio Configuration -> Audio Controller -> Enable
+    Audio Configuration -> Azalia Controller -> Enable
 
 Please use EFI mode for all boot medium types, i.e. USB disk and Hard Disk.
 Setting in BIOS:
