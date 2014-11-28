@@ -3,10 +3,8 @@ require ${COREBASE}/meta/recipes-graphics/xorg-app/xorg-app-common.inc
 SUMMARY = "Intel GPU tools"
 DESCRIPTION = "Variety of small tools for testing intel graphics."
 
-SRC_URI += "file://install-fitter.patch"
-
-SRC_URI[md5sum] = "6165a9054de2609f5b1bf0ca0d913f31"
-SRC_URI[sha256sum] = "115475b528c78d67741ae6cbedfbfced1d471b356140e48245cbad8fdfaad1d1"
+SRC_URI[md5sum] = "49d2c3c65204d889189c4d8c14c598b3"
+SRC_URI[sha256sum] = "ffe2a11bca57f7fe36e93d55e4b3685127640e3e6cdae19973b193fe25ff3759"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=0918806acfedc3e8c0488f2dd61616dd"
 
