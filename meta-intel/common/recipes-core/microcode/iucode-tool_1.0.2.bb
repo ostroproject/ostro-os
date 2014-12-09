@@ -23,3 +23,5 @@ S = "${WORKDIR}/git"
 inherit autotools
 
 BBCLASSEXTEND = "native"
+
+COMPATIBLE_HOST = "(i.86|x86_64).*-linux"
