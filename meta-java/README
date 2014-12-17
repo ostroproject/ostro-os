@@ -1,11 +1,11 @@
 This layer depends on:
 
 URI: git://git.openembedded.org/openembedded-core
-branch: master
+branch: dora
 revision: HEAD
 
 URI: git://git.openembedded.org/meta-openembedded
-branch: master
+branch: dora
 revision: HEAD
 
 You should define at lease the following variables in a distro include file or local.conf
@@ -18,7 +18,7 @@ PREFERRED_PROVIDER_virtual/javac-native = "ecj-bootstrap-native"
 For openjdk6:
 PREFERRED_VERSION_openjdk-6-jre = "6b24-1.11.9"
 or
-PREFERRED_VERSION_openjdk-6-jre = "6b27-1.12.5"
+PREFERRED_VERSION_openjdk-6-jre = "6b27-1.13.4"
 PREFERRED_VERSION_icedtea6-native = "1.8.11"
 
 For openjdk7:
@@ -39,6 +39,8 @@ BBLAYERS ?= " \
 
 Please note that libstdc++ static is needed on your host to compile icedtea6/7-native
 (install libstdc++-static on a Fedora).
+
+For debian-based distributions you need the libstdc++6-$compilerversion-dev package.
 
 Send pull requests to openembedded-devel@lists.openembedded.org
 
