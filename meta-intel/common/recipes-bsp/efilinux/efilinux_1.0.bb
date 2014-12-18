@@ -1,5 +1,5 @@
 DESCRIPTION = "A UEFI OS loader"
-LICENSE = "efilinux"
+LICENSE = "BSD-2-Clause"
 LIC_FILES_CHKSUM = "file://efilinux.h;beginline=5;endline=31;md5=2316abda893ef24e6cd55cef33aa0edd"
 
 DEPENDS = "gnu-efi"
