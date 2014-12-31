@@ -1,0 +1,198 @@
+meta-oic
+========
+IoTivity may be built for any Yocto-based x86 target. It has been
+successfully tested on the Intel Edison and MinnowBoard MAX platforms.
+As of the IoTivity 0.9.0 release, there is support for the resource
+layer of the IoTivity stack.
+Future releases will support the service layer of the IoTivity stack. 
+
+Contents
+========
+- Recipes
+- Building IoTivity for a Yocto target
+- IoTivity packages built by the meta-oic layer
+- Building Yocto cross-toolchain with IoTivity for your target
+- Preset locations of IoTivity headers, runtimes and samples 
+- Building IoTivity applications for a Yocto target
+- Build IoTivity from source for Yocto
+
+Recipes
+=======
+This layer contains two sets of recipes:
+- recipes-core: Iotivity framework and SDK, and samples.
+- recipes-apps: Iotivity simple client example. The recipe
+                is meant to serve as a guide for Iotivity 
+                application developers who want to quickly
+                put together a recipe for their application.
+
+Building IoTivity for a Yocto target
+====================================
+
+1. Obtain the BSP for your desired target:
+
+For Intel Edison, follow the links below:
+-General documentation 
+(https://communities.intel.com/community/makers/edison/documentation)
+-BSP User Guide 
+(https://communities.intel.com/docs/DOC-23159)
+-BSP Download 
+(https://communities.intel.com/docs/DOC-23242)
+The Edison BSP comes with a script which obtains the compliant version of poky.
+The BSP User Guide provides a detailed walk-through of the entire BSP build
+process. 
+
+The Yocto Project website lists a few other popular BSPs:
+https://www.yoctoproject.org/downloads/bsps
+
+2. Append meta-oic to the list of layers in the
+<poky-build-directory>/conf/bblayers.conf for your target's BSP.  
+...
+BBLAYERS ?= "\
+             ...
+             <your-path-to>/meta-oic \
+             \"
+...
+
+3. Modify <poky-build-directory>/conf/local.conf to install the iotivity
+meta-package using IMAGE_INSTALL_append. This ensures that the necessary
+IoTivity runtimes and its sample applications will be present on the target’s OS
+image. 
+...
+IMAGE_INSTALL_append = " iotivity iotivity-resource-samples”
+
+4. After initializing poky, run “bitbake <target>” to build the OS image as
+usual, and further deploy image to your target.
+
+IoTivity packages built by the meta-oic layer
+=============================================
+The following is the list of all packages that the meta-oic layer is configured
+to build: 
+—- iotivity-resource : Contains IoTivity resource libraries as release mode
+shared libs.  
+-- iotivity-resource-dev : Contains IoTivity header files for application
+development.  
+-- iotivity-resource-dbg : Contains IoTivity resource libraries with debug
+symbols.  
+-- iotivity-resource-samples : Contains sample IoTivity resource clients and
+servers built in release mode.  
+-- iotivity-resource-samples-dbg : Contains debug builds of sample IoTivity
+resource clients and servers.  
+-- iotivity-simple-client : Contains only the simpleclient example.  
+-- iotivity : Meta-package which installs all IoTivity runtimes from packages
+listed above.  
+—- iotivity-dev : Meta-package which installs all runtimes and development files
+from packages listed above.
+
+Building Yocto cross-toolchain with IoTivity for your target
+============================================================
+Yocto has the capability to build toolchains to run on 32-bit and 64-bit
+machines, which target specific OS images.  Follow these steps to construct the
+toolchain for your target:
+
+1. You should’ve already completed the steps above to build IoTivity for your
+target.
+
+2. Modify <poky-build-directory>/conf/local.conf to install the IoTivity
+development packages to the toolchain’s sysroot. 
+...
+IMAGE_INSTALL_append = " iotivity-dev”
+
+3. After initializing poky, run “bitbake -c populate_sdk <target>” to build the
+target platform SDK and toolchain. You may further install the toolchain as
+usual on your build machine.
+
+Once installed, the toolchain may be used only after initialization. This is
+performed by an “environment setup script” located at the root of the toolchain
+installation. To initialize, you must “source” in this script to your shell
+environment. 
+
+Preset locations of IoTivity headers, runtimes and samples 
+==========================================================
+The packages containing the following pieces are configured to install them in
+the specified locations. Hence, when installed on a target, you would find them
+at these very locations.
+
+IoTivity resource runtimes (libcoap.so, liboctbstack.so, liboc.so,
+liboc_logger.so) are placed in /usr/lib.
+
+IoTivity resource headers are placed in /usr/include/iotivity.
+
+IoTivity resource sample applications are placed in
+/opt/iotivity/examples/resource.
+
+Building IoTivity applications for a Yocto target
+=================================================
+1. Develop and test your application to work on a Linux development machine.
+
+2. You can now use the Yocto toolchain for your target to compile the
+application. As such, there is no standard procedure for this.  
+  -- You may examine your toolchain’s environment setup script, and accordingly
+modify your application’s build script to point to said tools.  
+  -- If you use scons to build your application, you may use the following as a
+guide. Place the following code in SConstruct:  
+
+'''
+This code injects Yocto cross-compilation flags into scons' default environment
+in order to invoke the relevant tools while performing a build.
+'''
+import os.path, re
+env = DefaultEnvironment()
+sdk_root = ''
+try:
+    CC = os.environ['CC']
+    sdk_root = re.search(r'--sysroot=\S+', CC).group().split('=')[1]
+    target_prefix = CC.split()[0]
+    target_prefix = target_prefix[:len(target_prefix)-3]
+    tools = {"CC" : target_prefix+"gcc",
+             "CXX" : target_prefix+"g++",
+             "AS" : target_prefix+"as",
+             "LD" : target_prefix+"ld",
+             "GDB" : target_prefix+"gdb",
+             "STRIP" : target_prefix+"strip",
+             "RANLIB" : target_prefix+"ranlib",
+             "OBJCOPY" : target_prefix+"objcopy",
+             "OBJDUMP" : target_prefix+"objdump",
+             "AR" : target_prefix+"ar",
+             "NM" : target_prefix+"nm",
+             "M4" : "m4",
+             "STRINGS": target_prefix+"strings"}
+    PATH = os.environ['PATH'].split(os.pathsep)
+    for tool in tools:
+        if tool in os.environ:
+            for path in PATH:
+	            if os.path.isfile(os.path.join(path, tools[tool])):
+	                env[tool] = os.path.join(path, os.environ[tool])
+    env.AppendUnique(CPPPATH = [
+                sdk_root + '/usr/include/iotivity/',
+                sdk_root + '/usr/include/iotivity/stack/',
+                sdk_root + '/usr/include/iotivity/ocsocket/',
+                sdk_root + '/usr/include/iotivity/oc_logger/',
+                ])	                
+except:
+    print "ERROR configuring Yocto cross-toolchain environment."
+    Exit(1)
+
+Export('env')
+
+'''
+Project specific SConscript files go below.
+'''
+SConscript('SConscript', variant_dir='output', duplicate=0)
+
+Return('env')
+
+     - Define your application specific build in SConscript. Remember, you will
+have to first Import ‘env’ in SConscript.
+
+3. If you further want to package up your application in a Yocto software layer,
+you will need to write a BitBake recipe for it. Look inside
+meta-oic/recipes-apps/iotivity-simple-client for a precise example of doing
+this.
+
+Build IoTivity from source for Yocto
+====================================
+IoTivity uses scons as its build framework. The IoTivity build scripts have
+already been engineered to support “yocto” as a build target. In order to build
+IoTivity from source using the Yocto toolchain, you must: 
+  -- Initialize your target toolchain by sourcing in its environment setup script.
+  -- Run scons as you usually would specifying TARGET_OS=yocto.
