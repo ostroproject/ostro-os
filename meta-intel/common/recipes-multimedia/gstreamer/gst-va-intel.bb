@@ -43,5 +43,5 @@ RDEPENDS_gst-va-intel-video = "\
 # The gstreamer-vaapi package contains the vaapi implementation
 #
 RDEPENDS_gst-va-intel-vaapi = "\
-    gstreamer-vaapi \
+    gstreamer-vaapi-0.10 \
     "
