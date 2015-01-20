@@ -13,11 +13,10 @@ DEPENDS = "libva"
 
 SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/${REALPN}/${REALPN}-${PV}.tar.bz2 \
            file://install-tests.patch \
-           file://gstreamer14.patch \
            "
 
-SRC_URI[md5sum] = "375ddbab556e53ccc311b792f2c649a7"
-SRC_URI[sha256sum] = "24fee8a1ca4cb99ed7739d876b17a4085e81b28550350867dee5105300d343c6"
+SRC_URI[md5sum] = "d213d22affbb2d65ebf6107fec69999b"
+SRC_URI[sha256sum] = "b5efbb5ccd3e9fd1ce16193dd14cfac327a8ec2662794c0067ff2603c3355003"
 
 S = "${WORKDIR}/${REALPN}-${PV}"
 
@@ -25,7 +24,7 @@ inherit autotools pkgconfig gtk-doc
 
 PACKAGES =+ "${PN}-tests"
 
-EXTRA_OECONF += "--with-gstreamer-api=${GST_API_VERSION}"
+EXTRA_OECONF += "--with-gstreamer-api=${GST_API_VERSION} --disable-builtin-libvpx"
 
 PACKAGECONFIG ??= "drm \
                    ${@base_contains("DISTRO_FEATURES", "opengl x11", "glx", "", d)} \
