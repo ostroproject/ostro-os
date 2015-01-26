@@ -7,7 +7,7 @@ PR = "r0"
 
 LIC_FILES_CHKSUM = "file://LICENSE;md5=e8c1458438ead3c34974bc0be3a03ed6"
 
-SRC_URI = "git://github.com/Wyliodrin/libwyliodrin.git;protocol=git;rev=086350609cc8e37540cd63f1a6fb302cdca330ca"
+SRC_URI = "git://github.com/Wyliodrin/libwyliodrin.git;protocol=git;rev=c5eeecadf75d632fb5d1b0a87e6a51b21d533c4b"
 
 S = "${WORKDIR}/git"
 
