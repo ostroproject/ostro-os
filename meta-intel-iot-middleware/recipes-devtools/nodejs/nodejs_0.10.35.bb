@@ -41,7 +41,15 @@ do_install_append_class-target () {
     cd ${D}/${libdir}/node_modules/npm/node_modules/node-gyp/
     export HOME=${D}/usr/include/node-gyp
     sed -i 's/\.node-gyp//' lib/node-gyp.js
-    ${STAGING_BINDIR_NATIVE}/node bin/node-gyp.js install
+
+    # configure http proxy if neccessary
+    if [ -n "${http_proxy}" ]; then
+        ${STAGING_BINDIR_NATIVE}/node bin/node-gyp.js --verbose --proxy=${http_proxy} install
+    elif [ -n "${HTTP_PROXY}" ]; then
+        ${STAGING_BINDIR_NATIVE}/node bin/node-gyp.js --verbose --proxy=${HTTP_PROXY} install
+    else
+        ${STAGING_BINDIR_NATIVE}/node bin/node-gyp.js --verbose install
+    fi
 }
 
 RDEPENDS_${PN} = "curl python-shell python-datetime python-subprocess python-crypt python-textutils python-netclient "
