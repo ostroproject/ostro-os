@@ -7,17 +7,15 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=e7807a6282784a7dde4c846626b08fc6 \
 
 SECTION = "devel"
 
-DEPENDS = "libpcre python"
+DEPENDS = "libpcre python nodejs"
 
 inherit autotools pythonnative
 
 BBCLASSEXTEND = "native"
 
-DEPENDS_append = " nodejs"
-
-S = "${WORKDIR}/git"
-#this is a working revision to use -javascript -node, move to release as soon as possible
-SRC_URI = "git://github.com/swig/swig.git;protocol=git;rev=d9cac664620d282aa423d3f0ef55ab9a677156a4"
+SRC_URI = "http://prdownloads.sourceforge.net/swig/swig-${PV}.tar.gz"
+SRC_URI[md5sum] = "9cb8c0efda39dc6db5f85389e671fb59"
+SRC_URI[sha256sum] = "410ffa80ef5535244b500933d70c1b65206333b546ca5a6c89373afb65413795"
 
 EXTRA_OECONF = " \
     --with-python=${PYTHON} \
