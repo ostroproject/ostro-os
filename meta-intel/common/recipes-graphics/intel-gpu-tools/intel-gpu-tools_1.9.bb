@@ -3,8 +3,8 @@ require ${COREBASE}/meta/recipes-graphics/xorg-app/xorg-app-common.inc
 SUMMARY = "Intel GPU tools"
 DESCRIPTION = "Variety of small tools for testing intel graphics."
 
-SRC_URI[md5sum] = "49d2c3c65204d889189c4d8c14c598b3"
-SRC_URI[sha256sum] = "ffe2a11bca57f7fe36e93d55e4b3685127640e3e6cdae19973b193fe25ff3759"
+SRC_URI[md5sum] = "1e768f2b1edc8613911b1d33bb361a7f"
+SRC_URI[sha256sum] = "1de4c28ae0fe1e6c198ab559dbffcec6762798dc4adbdfdac54b2c7a9b0a1ed3"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=0918806acfedc3e8c0488f2dd61616dd"
 
