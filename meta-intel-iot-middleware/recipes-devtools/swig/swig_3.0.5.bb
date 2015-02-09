@@ -14,8 +14,8 @@ inherit autotools pythonnative
 BBCLASSEXTEND = "native"
 
 SRC_URI = "http://prdownloads.sourceforge.net/swig/swig-${PV}.tar.gz"
-SRC_URI[md5sum] = "9cb8c0efda39dc6db5f85389e671fb59"
-SRC_URI[sha256sum] = "410ffa80ef5535244b500933d70c1b65206333b546ca5a6c89373afb65413795"
+SRC_URI[md5sum] = "dcb9638324461b9baba8e044fe59031d"
+SRC_URI[sha256sum] = "9f4cb9e8f213f041853646f58fe5e8428d63250d05f5c943b6fa759c77322a3c"
 
 EXTRA_OECONF = " \
     --with-python=${PYTHON} \
