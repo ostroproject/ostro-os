@@ -1,5 +1,3 @@
-inherit scons
-
 SUMMARY = "Iotivity framework and SDK by the Open Interconnect Consortium."
 DESCRIPTION = "IoTivity is an open source software framework enabling seamless device-to-device connectivity to address the emerging needs of the Internet of Things."
 HOMEPAGE = "https://www.iotivity.org/"
@@ -15,6 +13,8 @@ SRC_URI[iotivity.sha256sum] = "e2da664bf464f4f2a11d0b0ad2923408f6c3fb0e92d97cd5c
 SRC_URI[cereal.md5sum] = "2d9adeb49a2cb54f259c601d34d2d959"
 SRC_URI[cereal.sha256sum] = "33dfeed8f6345a4dff42e1057a79b1d5303624a4a3bdb362f9c17a0048c811ee"
 SRCREV_cereal = "7121e91e6ab8c3e6a6516d9d9c3e6804e6f65245"
+
+inherit scons
 
 python () {
     EXTRA_OESCONS = ""
