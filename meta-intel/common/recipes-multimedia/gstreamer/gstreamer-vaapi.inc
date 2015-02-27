@@ -15,8 +15,8 @@ SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/${REALPN}/${REALPN
            file://install-tests.patch \
            "
 
-SRC_URI[md5sum] = "d213d22affbb2d65ebf6107fec69999b"
-SRC_URI[sha256sum] = "b5efbb5ccd3e9fd1ce16193dd14cfac327a8ec2662794c0067ff2603c3355003"
+SRC_URI[md5sum] = "3bd90b696b644be943450ba0c1497193"
+SRC_URI[sha256sum] = "0dd236c7bf225322b8934fdba99a7a9e4542566a2acbe7564cdc3ec2c8b73c9d"
 
 S = "${WORKDIR}/${REALPN}-${PV}"
 
