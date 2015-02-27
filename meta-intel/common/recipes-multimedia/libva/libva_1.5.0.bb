@@ -18,12 +18,12 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://COPYING;md5=2e48940f94acb0af582e5ef03537800f"
 
 SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/libva/${BP}.tar.bz2"
-SRC_URI[md5sum] = "8e3e7096750c14d1f98da807df7c1ba5"
-SRC_URI[sha256sum] = "0662af0ecdf1cfd2bb47e86f5bf66009554fe12ce7bf5b9cec6a2cc43f3f4c11"
+SRC_URI[md5sum] = "ad0b55794308ec397d249a0a2a6df27a"
+SRC_URI[sha256sum] = "e946d4b3110e4e23ec6a588e0c828937e502c67196d1266214441fefc4b83486"
 
 DEPENDS = "libdrm virtual/mesa virtual/libgles1 virtual/libgles2 virtual/egl"
 
-inherit autotools-brokensep pkgconfig
+inherit autotools pkgconfig
 
 EXTRA_OECONF = "--disable-dummy-driver"
 
