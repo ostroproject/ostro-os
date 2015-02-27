@@ -16,8 +16,8 @@ DEPENDS = "libva libdrm"
 SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/${BPN}/${BPN}-${PV}.tar.bz2"
 SRC_URI += "file://wayland-include.patch"
 
-SRC_URI[md5sum] = "688d5f4d7884b15e70205d528c1d61da"
-SRC_URI[sha256sum] = "fe6784c7ba6092204e3e7d4142e6023386b43f08127dae1243385078c5c21fec"
+SRC_URI[md5sum] = "16752f1584398265072129553b7907ce"
+SRC_URI[sha256sum] = "d0b448193ab34b622cd14e4db8ca29991a4038b4eb459a8fbbcbd7db843da3dc"
 
 inherit autotools pkgconfig
 
