@@ -48,7 +48,7 @@ Patches
 Please submit any patches against this BSP to the meta-intel mailing list
 (meta-intel@yoctoproject.org) and cc: the maintainer:
 
-Maintainer: Nitin A Kamble <nitin.a.kamble@intel.com>
+Maintainer: Saul Wold <sgw@linux.intel.com>
 
 Please see the meta-intel/MAINTAINERS file for more details.
 

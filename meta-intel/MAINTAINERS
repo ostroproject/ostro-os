@@ -28,19 +28,19 @@ Maintainers List (try to look for most precise areas first)
 
 		-----------------------------------
 COMMON
-M:	Nitin A Kamble<nitin.a.kamble@intel.com>
+M:	Saul Wold <sgw@linux.intel.com>
 F:	common/
 
 CROWNBAY
-M:	Nitin A Kamble<nitin.a.kamble@intel.com>
+M:	Saul Wold <sgw@linux.intel.com>
 F:	meta-crownbay/
 
 CRYSTALFOREST
-M:      Ong Boon Leong <boon.leong.ong@intel.com>
+M:      Saul Wold <sgw@linux.intel.com>
 F:      meta-crystalforest/
 
 EMENLOW
-M:	Nitin A Kamble<nitin.a.kamble@intel.com>
+M:	Saul Wold <sgw@linux.intel.com>
 F:	meta-emenlow/
 
 FRI2
@@ -48,7 +48,7 @@ M:	Darren Hart <dvhart@linux.intel.com>
 F:	meta-fri2/
 
 JASPERFOREST
-M:	Nitin A Kamble<nitin.a.kamble@intel.com>
+M:	Saul Wold <sgw@linux.intel.com>
 F:	meta-jasperforest/
 
 ROMLEY
@@ -56,9 +56,9 @@ M:      Haw Foo Chien <foo.chien.haw@intel.com>
 F:      meta-romley/
 
 SUGARBAY
-M:	Nitin A Kamble <nitin.a.kamble@intel.com>
+M:	Saul Wold <sgw@linux.intel.com>
 F:	meta-sugarbay/
 
 TLK
-M:	Saul Wold <saul.wold@intel.com>
+M:	Saul Wold <sgw@linux.intel.com>
 F:	meta-tlk/
