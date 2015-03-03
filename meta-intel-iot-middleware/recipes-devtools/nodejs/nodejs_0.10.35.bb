@@ -52,8 +52,12 @@ do_install_append_class-target () {
     fi
 }
 
-RDEPENDS_${PN} = "curl python-shell python-datetime python-subprocess python-crypt python-textutils python-netclient "
+RDEPENDS_${PN} = "curl"
 RDEPENDS_${PN}_class-native = ""
 
-FILES_${PN} += "${libdir}/node/wafadmin ${libdir}/node_modules ${libdir}/dtrace"
+PACKAGES += "${PN}-npm"
+FILES_${PN}-npm = "${libdir}/node_modules ${bindir}/npm"
+RDEPENDS_${PN}-npm = "python-shell python-datetime python-subprocess python-crypt python-textutils \
+                      python-netclient python-ctypes python-misc python-compiler python-multiprocessing"
+
 BBCLASSEXTEND = "native"
