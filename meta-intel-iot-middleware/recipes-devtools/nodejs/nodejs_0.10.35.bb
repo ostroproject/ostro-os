@@ -52,6 +52,17 @@ do_install_append_class-target () {
     fi
 }
 
+do_install_append_class-native() {
+    # /usr/bin/npm is symlink to /usr/lib/node_modules/npm/bin/npm-cli.js
+    # use sed on npm-cli.js because otherwise symlink is replaced with normal file and
+    # npm-cli.js continues to use old shebang
+    sed "1s^.*^#\!/usr/bin/env node^g" -i ${D}${libdir}/node_modules/npm/bin/npm-cli.js
+}
+
+do_install_append_class-target() {
+    sed "1s^.*^#\!${bindir}/env node^g" -i ${D}${libdir}/node_modules/npm/bin/npm-cli.js
+}
+
 RDEPENDS_${PN} = "curl"
 RDEPENDS_${PN}_class-native = ""
 
