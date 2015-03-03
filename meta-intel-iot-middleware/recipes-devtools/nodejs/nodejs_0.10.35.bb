@@ -63,6 +63,18 @@ do_install_append_class-target() {
     sed "1s^.*^#\!${bindir}/env node^g" -i ${D}${libdir}/node_modules/npm/bin/npm-cli.js
 }
 
+pkg_postinst_${PN} () {
+    sed -e '/^PATH=/aNODE_PATH=\/usr\/lib\/node_modules\/' \
+        -e 's/\(^export\)\(.*\)/\1 NODE_PATH\2/' \
+        -i $D/etc/profile
+}
+
+pkg_prerm_${PN} () {
+    sed -e '/^NODE_PATH.*$/d' \
+        -e 's/\(^export\)\(.*\)\(\<NODE_PATH\>\s\)\(.*\)/\1\2\4/' \
+        -i $D/etc/profile
+}
+
 RDEPENDS_${PN} = "curl"
 RDEPENDS_${PN}_class-native = ""
 
