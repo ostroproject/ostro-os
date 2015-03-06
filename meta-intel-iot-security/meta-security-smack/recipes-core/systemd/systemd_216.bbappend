@@ -38,3 +38,14 @@ file://0022-smack-Don-t-follow-symbolic-links-for-setting-smack-.patch \
 
 # From Tizen .spec file.
 EXTRA_OECONF += "--with-smack-run-label=System"
+
+# We need to emulate parts of the filesystem permissions from Tizen here.
+# The part for regular files is in base-files.bbappend, but /var/log and
+# /var/tmp point into /var/volatile (tmpfs) and get created anew during
+# startup. We set these permissions directly after creating them via
+# /etc/tmpfiles.d/00-create-volatile.conf
+RDEPENDS_${PN}_append = " smack-userspace"
+do_install_append() {
+    # sed did weird things for this replacement (duplicated ExecStart), works with perl.
+    perl -pi -e "s@^ExecStart=(.*)@ExecStart=\\1\\nExecStartPost=/bin/sh -c '([ ! -d /var/tmp ] || chsmack -L -a \"*\" /var/tmp) && ([ ! -d /var/log ] || chsmack -L -a System::Log /var/log && chsmack -L -t /var/log)'@" ${D}${systemd_unitdir}/system/systemd-tmpfiles-setup.service
+}
