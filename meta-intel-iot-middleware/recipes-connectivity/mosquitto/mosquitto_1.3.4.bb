@@ -17,9 +17,9 @@ SRC_URI = "http://mosquitto.org/files/source/mosquitto-${PV}.tar.gz \
 SRC_URI[md5sum] = "9d729849efd74c6e3eee17a4a002e1e9"
 SRC_URI[sha256sum] = "0a3982d6b875a458909c8828731da04772035468700fa7eb2f0885f4bd6d0dbc"
 
-inherit autotools
 
-do_install_append () {
+do_install() {
+    oe_runmake install DESTDIR=${D}
     install -d ${D}${libbir}
     install -m 0644 lib/libmosquitto.a ${D}${libdir}/
 
