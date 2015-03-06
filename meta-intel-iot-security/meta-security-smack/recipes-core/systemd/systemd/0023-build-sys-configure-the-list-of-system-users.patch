@@ -1,0 +1,63 @@
+From 58c190960d5724a379dc4f58c428129f7e9e82ff Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=C5=81ukasz=20Stelmach?= <l.stelmach@samsung.com>
+Date: Fri, 28 Nov 2014 15:00:21 +0100
+Subject: [PATCH 23/24] build-sys: configure the list of system users
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Choose which system users defined in sysusers.d/systemd.conf should be
+provided depending on compile-time configuration.
+
+Change-Id: I388abe3f64f3e51d8f5ab72c1ffb3c157705b4c5
+Signed-off-by: Łukasz Stelmach <l.stelmach@samsung.com>
+Origin: http://cgit.freedesktop.org/systemd/systemd/commit/?id=5a16bc264c
+Bug-Tizen: TC-2305
+---
+ configure.ac               | 2 ++
+ sysusers.d/systemd.conf.m4 | 6 ++++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/configure.ac b/configure.ac
+index a2f30be..bf7076c 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -954,6 +954,7 @@ have_timesyncd=no
+ AC_ARG_ENABLE(timesyncd, AS_HELP_STRING([--disable-timesyncd], [disable timesync daemon]))
+ if test "x$enable_timesyncd" != "xno"; then
+         have_timesyncd=yes
++        M4_DEFINES="$M4_DEFINES -DENABLE_TIMESYNCD"
+ fi
+ AM_CONDITIONAL(ENABLE_TIMESYNCD, [test "$have_timesyncd" = "yes"])
+ 
+@@ -1024,6 +1025,7 @@ have_resolved=no
+ AC_ARG_ENABLE(resolved, AS_HELP_STRING([--disable-resolved], [disable resolve daemon]))
+ if test "x$enable_resolved" != "xno"; then
+         have_resolved=yes
++        M4_DEFINES="$M4_DEFINES -DENABLE_RESOLVED"
+ fi
+ AM_CONDITIONAL(ENABLE_RESOLVED, [test "$have_resolved" = "yes"])
+ 
+diff --git a/sysusers.d/systemd.conf.m4 b/sysusers.d/systemd.conf.m4
+index eeb13fb..23175de 100644
+--- a/sysusers.d/systemd.conf.m4
++++ b/sysusers.d/systemd.conf.m4
+@@ -6,9 +6,15 @@
+ #  (at your option) any later version.
+ 
+ g systemd-journal   - -
++m4_ifdef(`ENABLE_KDBUS',
+ u systemd-bus-proxy - "systemd Bus Proxy"
++)m4_dnl
+ m4_ifdef(`ENABLE_NETWORKD',
+ u systemd-network   - "systemd Network Management"
+ )m4_dnl
++m4_ifdef(`ENABLE_RESOLVED',
+ u systemd-resolve   - "systemd Resolver"
++)m4_dnl
++m4_ifdef(`ENABLE_TIMESYNCD',
+ u systemd-timesync  - "systemd Time Synchronization"
++)m4_dnl
+-- 
+1.8.4.5
+

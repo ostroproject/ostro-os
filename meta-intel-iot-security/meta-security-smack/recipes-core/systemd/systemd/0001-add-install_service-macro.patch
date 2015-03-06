@@ -1,0 +1,26 @@
+From 152b81628e6152e955f856d979e868b2f68d40c4 Mon Sep 17 00:00:00 2001
+From: Anas Nashif <anas.nashif@intel.com>
+Date: Sun, 9 Dec 2012 09:51:23 -0800
+Subject: [PATCH 01/24] add %install_service macro
+
+---
+ src/core/macros.systemd.in | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/core/macros.systemd.in b/src/core/macros.systemd.in
+index 333f222..3ee5de7 100644
+--- a/src/core/macros.systemd.in
++++ b/src/core/macros.systemd.in
+@@ -94,3 +94,9 @@ echo %{?*} | systemd-sysusers - >/dev/null 2>&1 || : \
+ %binfmt_apply() \
+ @rootlibexecdir@/systemd-binfmt %{?*} >/dev/null 2>&1 || : \
+ %{nil}
++
++
++%install_service() \
++mkdir -p %{buildroot}/%{_unitdir}/%{1} \
++ln -s ../%{2}  %{buildroot}/%{_unitdir}/%{1}/%{2}  \
++%{nil}
+-- 
+1.8.4.5
+

@@ -1,0 +1,42 @@
+From 6c11771480ec42ade8e2dc55f812f8b5d54caf99 Mon Sep 17 00:00:00 2001
+From: Casey Schaufler <casey@schaufler-ca.com>
+Date: Fri, 8 Nov 2013 09:42:26 -0800
+Subject: [PATCH 07/24] Set Smack ambient to match run label.
+
+Set the Smack networking ambient label to match the
+run label of systemd. System services may expect to
+communicate with external services over IP. Setting
+the ambient label assigns that label to IP packets
+that do not include CIPSO headers. This allows systemd
+and the services it spawns access to unlabeled IP
+packets, and hence external services.
+
+A system may choose to restrict network access to
+particular services later in the startup process.
+This is easily done by resetting the ambient label
+elsewhere.
+
+Change-Id: Ia9c8d8744b732b2ee1126d2e446585d16fa56908
+Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
+---
+ src/core/smack-setup.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/core/smack-setup.c b/src/core/smack-setup.c
+index 5f6dabf..01dc1c0 100644
+--- a/src/core/smack-setup.c
++++ b/src/core/smack-setup.c
+@@ -146,6 +146,10 @@ int smack_setup(bool *loaded_policy) {
+         if (r)
+                 log_warning("Failed to set SMACK label \"%s\" on self: %s",
+                             SMACK_RUN_LABEL, strerror(-r));
++        r = write_string_file("/sys/fs/smackfs/ambient", SMACK_RUN_LABEL);
++        if (r)
++                log_warning("Failed to set SMACK ambient label \"%s\": %s",
++                            SMACK_RUN_LABEL, strerror(-r));
+ #endif
+ 
+         r = write_rules("/sys/fs/smackfs/cipso2", CIPSO_CONFIG);
+-- 
+1.8.4.5
+

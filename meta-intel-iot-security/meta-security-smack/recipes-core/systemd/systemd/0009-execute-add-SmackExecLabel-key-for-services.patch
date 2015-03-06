@@ -1,0 +1,142 @@
+From e7d79f0c15e7d56c4be57d755ad118166a5982a7 Mon Sep 17 00:00:00 2001
+From: Patrick McCarty <patrick.mccarty@linux.intel.com>
+Date: Mon, 9 Dec 2013 14:56:15 -0800
+Subject: [PATCH 09/24] execute: add SmackExecLabel key for services
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+At the filesystem level, setting the runtime Smack label for an
+executable is possible by setting the SMACK64EXEC security extended
+attribute on the file, but if the runtime Smack label should depend on
+the execution environment, the process needs to change its own Smack
+label.
+
+This commit introduces a new SmackExecLabel key for this purpose. For
+example, 'systemd --user' may need to run with a different label as
+compared to 'systemd --system', so SmackExecLabel could be set in
+user@.service.
+
+Setting the label will fail if the service lacks capabilities to set its
+own Smack label.
+
+This code has been rebased from systemd v208 and adapted to a new
+bus code.
+
+Change-Id: I8eb8eb222342c9d0ae7e28530fe7e4d51493b83e
+Signed-off-by: Patrick McCarty <patrick.mccarty@linux.intel.com>
+Signed-off-by: Łukasz Stelmach <l.stelmach@samsung.com>
+---
+ src/core/dbus-execute.c               |  1 +
+ src/core/execute.c                    | 19 +++++++++++++++++++
+ src/core/execute.h                    |  1 +
+ src/core/load-fragment-gperf.gperf.m4 |  4 +++-
+ src/shared/exit-status.c              |  3 +++
+ src/shared/exit-status.h              |  1 +
+ 6 files changed, 28 insertions(+), 1 deletion(-)
+
+diff --git a/src/core/dbus-execute.c b/src/core/dbus-execute.c
+index 9276da4..f60021a 100644
+--- a/src/core/dbus-execute.c
++++ b/src/core/dbus-execute.c
+@@ -645,6 +645,7 @@ const sd_bus_vtable bus_exec_vtable[] = {
+         SD_BUS_PROPERTY("RestrictAddressFamilies", "(bas)", property_get_address_families, 0, SD_BUS_VTABLE_PROPERTY_CONST),
+         SD_BUS_PROPERTY("RuntimeDirectoryMode", "u", bus_property_get_mode, offsetof(ExecContext, runtime_directory_mode), SD_BUS_VTABLE_PROPERTY_CONST),
+         SD_BUS_PROPERTY("RuntimeDirectory", "as", NULL, offsetof(ExecContext, runtime_directory), SD_BUS_VTABLE_PROPERTY_CONST),
++        SD_BUS_PROPERTY("SmackExecLabel", "s", NULL, offsetof(ExecContext, smack_exec), SD_BUS_VTABLE_PROPERTY_CONST),
+         SD_BUS_VTABLE_END
+ };
+ 
+diff --git a/src/core/execute.c b/src/core/execute.c
+index d8452a6..02cab2a 100644
+--- a/src/core/execute.c
++++ b/src/core/execute.c
+@@ -1646,6 +1646,18 @@ int exec_spawn(ExecCommand *command,
+                         goto fail_child;
+                 }
+ 
++#ifdef HAVE_SMACK
++                if (context->smack_exec) {
++                        err = write_string_file("/proc/self/attr/current", context->smack_exec);
++                        if (err < 0) {
++                                /* Other errors indicate that Smack is not enabled */
++                                if (errno == EPERM) {
++                                        r = EXIT_SMACK;
++                                        goto fail_child;
++                                }
++                        }
++                }
++#endif
+                 if (apply_permissions) {
+ 
+                         for (i = 0; i < _RLIMIT_MAX; i++) {
+@@ -2224,6 +2236,13 @@ void exec_context_dump(ExecContext *c, FILE* f, const char *prefix) {
+                         prefix, strna(lvl_str));
+         }
+ 
++#ifdef HAVE_SMACK
++        if (c->smack_exec)
++                fprintf(f,
++                        "%sSmackExecLabel: %s\n",
++                        prefix, c->smack_exec);
++#endif
++
+         if (c->capabilities) {
+                 _cleanup_cap_free_charp_ char *t;
+ 
+diff --git a/src/core/execute.h b/src/core/execute.h
+index 9d05d3a..c95aeb5 100644
+--- a/src/core/execute.h
++++ b/src/core/execute.h
+@@ -141,6 +141,7 @@ struct ExecContext {
+         char *apparmor_profile;
+ 
+         char **read_write_dirs, **read_only_dirs, **inaccessible_dirs;
++        char *smack_exec;
+         unsigned long mount_flags;
+ 
+         uint64_t capability_bounding_set_drop;
+diff --git a/src/core/load-fragment-gperf.gperf.m4 b/src/core/load-fragment-gperf.gperf.m4
+index 24aa80d..17b60a8 100644
+--- a/src/core/load-fragment-gperf.gperf.m4
++++ b/src/core/load-fragment-gperf.gperf.m4
+@@ -96,7 +96,9 @@ m4_ifdef(`HAVE_SELINUX',
+ `$1.SELinuxContext,              config_parse_warn_compat,           0,                             0')
+ m4_ifdef(`HAVE_APPARMOR',
+ `$1.AppArmorProfile,              config_parse_exec_apparmor_profile,0,                             offsetof($1, exec_context)',
+-`$1.AppArmorProfile,              config_parse_warn_compat,          0,                             0')'
++`$1.AppArmorProfile,              config_parse_warn_compat,          0,                             0')
++m4_ifdef(`HAVE_SMACK',
++`$1.SmackExecLabel,              config_parse_string,                0,                             offsetof($1, exec_context.smack_exec)')'
+ )m4_dnl
+ m4_define(`KILL_CONTEXT_CONFIG_ITEMS',
+ `$1.SendSIGKILL,                 config_parse_bool,                  0,                             offsetof($1, kill_context.send_sigkill)
+diff --git a/src/shared/exit-status.c b/src/shared/exit-status.c
+index f3434f7..3e0b335 100644
+--- a/src/shared/exit-status.c
++++ b/src/shared/exit-status.c
+@@ -148,6 +148,9 @@ const char* exit_status_to_string(ExitStatus status, ExitStatusLevel level) {
+ 
+                 case EXIT_MAKE_STARTER:
+                         return "MAKE_STARTER";
++
++                case EXIT_SMACK:
++                        return "SMACK";
+                 }
+         }
+ 
+diff --git a/src/shared/exit-status.h b/src/shared/exit-status.h
+index 7438508..846de33 100644
+--- a/src/shared/exit-status.h
++++ b/src/shared/exit-status.h
+@@ -77,6 +77,7 @@ typedef enum ExitStatus {
+         EXIT_RUNTIME_DIRECTORY,
+         EXIT_MAKE_STARTER,
+         EXIT_CHOWN,
++        EXIT_SMACK
+ } ExitStatus;
+ 
+ typedef enum ExitStatusLevel {
+-- 
+1.8.4.5
+

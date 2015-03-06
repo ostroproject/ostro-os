@@ -1,0 +1,38 @@
+From 47ba9079d7595a96a1550051c4b48f6592ece1d1 Mon Sep 17 00:00:00 2001
+From: Rafal Krypa <r.krypa@samsung.com>
+Date: Wed, 22 Oct 2014 17:19:43 +0200
+Subject: [PATCH 20/24] Start the user session with capabilities for setting
+ applications security
+
+Include CAP_MAC_ADMIN and CAP_SETGID in inheritable capability set for the
+whole user session. All programs started in the session will have this
+enabled, unless they drop it explicitly or someone does that in proper
+systemd services.
+This change alone doesn't give any special capabilities to the processes.
+It merely enables them to inherit capability while executing programs that
+have those caps in inheritable and permitted sets (+ei).
+The above change is meant as a part of solution for setting Smack label and
+process groups for applications. Respective application launchers (for now
+only Crosswalk) will get file capabilities mentioned above. In run-time
+they will call a designated function for setting Smack label and groups and
+drop the capabilities.
+
+Change-Id: Ie220e7e0a48f46ca32eacd56c57d9df90cc1249a
+Signed-off-by: Rafal Krypa <r.krypa@samsung.com>
+---
+ units/user@.service.in | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/units/user@.service.in b/units/user@.service.in
+index d21f761..2e25feb 100644
+--- a/units/user@.service.in
++++ b/units/user@.service.in
+@@ -18,3 +18,5 @@ SmackExecLabel=User
+ Slice=user-%i.slice
+ KillMode=mixed
+ Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%U/dbus/user_bus_socket
++Capabilities=cap_mac_admin,cap_setgid=i
++SecureBits=keep-caps
+-- 
+1.8.4.5
+

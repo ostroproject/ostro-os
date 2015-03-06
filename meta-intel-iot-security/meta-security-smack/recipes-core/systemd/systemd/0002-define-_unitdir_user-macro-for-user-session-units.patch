@@ -1,0 +1,24 @@
+From b56d3c40c41b3db97067637b3a92ab32052c5017 Mon Sep 17 00:00:00 2001
+From: Anas Nashif <anas.nashif@intel.com>
+Date: Sun, 9 Dec 2012 09:52:16 -0800
+Subject: [PATCH 02/24] define %_unitdir_user macro for user session units
+
+---
+ src/core/macros.systemd.in | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/core/macros.systemd.in b/src/core/macros.systemd.in
+index 3ee5de7..00ea199 100644
+--- a/src/core/macros.systemd.in
++++ b/src/core/macros.systemd.in
+@@ -21,6 +21,7 @@
+ 
+ %_unitdir @systemunitdir@
+ %_userunitdir @userunitdir@
++%_unitdir_user /usr/lib/systemd/user
+ %_presetdir @systempresetdir@
+ %_udevhwdbdir @udevhwdbdir@
+ %_udevrulesdir @udevrulesdir@
+-- 
+1.8.4.5
+

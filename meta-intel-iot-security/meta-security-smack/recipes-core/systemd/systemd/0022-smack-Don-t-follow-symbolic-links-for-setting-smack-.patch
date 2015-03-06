@@ -1,0 +1,37 @@
+From 0f1a811815e3457809526e844bd60336a290881b Mon Sep 17 00:00:00 2001
+From: Tomohito Esaki <etom@igel.co.jp>
+Date: Mon, 1 Dec 2014 18:29:44 +0900
+Subject: [PATCH 22/24] smack: Don't follow symbolic links for setting smack
+ labels in /dev
+
+When setting the smack label on a symbolic link, the link target,
+instead of the link itself was updated. This change correctly sets
+the symbolic link label as looks like is intended.
+
+Also this fix is included in the latest systemd implementation in
+upstream, coming from 5dfc54615a1eacea18106383c964425cebd67c30 in
+git://anongit.freedesktop.org/systemd/systemd, athough it is included
+with a number of other changes that are not easily backported.
+
+Change-Id: I1aeef3caad73ccc20efd1f16019740f8a415fde3
+Signed-off-by: Kazunori Kobayashi <kkobayas@igel.co.jp>
+---
+ src/shared/label.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/shared/label.c b/src/shared/label.c
+index 25a8b36..e9f89e0 100644
+--- a/src/shared/label.c
++++ b/src/shared/label.c
+@@ -75,7 +75,7 @@ static int smack_relabel_in_dev(const char *path) {
+         else
+                 return 0;
+ 
+-        r = setxattr(path, "security.SMACK64", label, strlen(label), 0);
++        r = lsetxattr(path, "security.SMACK64", label, strlen(label), 0);
+         if (r < 0) {
+                 log_error("Smack relabeling \"%s\" %m", path);
+                 return -errno;
+-- 
+1.8.4.5
+

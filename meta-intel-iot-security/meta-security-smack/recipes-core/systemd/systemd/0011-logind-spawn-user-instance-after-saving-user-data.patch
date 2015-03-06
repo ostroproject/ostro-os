@@ -1,0 +1,52 @@
+From e413f37c4f4b095cffe165042f8eb526a715ad40 Mon Sep 17 00:00:00 2001
+From: Patrick McCarty <patrick.mccarty@linux.intel.com>
+Date: Tue, 17 Dec 2013 23:50:53 -0800
+Subject: [PATCH 11/24] logind: spawn user instance after saving user data
+
+The RUNTIME variable from /run/systemd/users/UID may not be set by the
+time pam_systemd parses the variable to set XDG_RUNTIME_DIR.
+
+This race condition is affecting user@.service in that XDG_RUNTIME_DIR
+may be unset in the 'systemd --user' process, resulting in user services
+not inheriting the variable.
+
+Fix the issue by spawning user@.service *after* saving user data in
+user_start().
+
+Change-Id: Ib3108231655750dd2ea61024bd0ab700e0d1c93a
+Signed-off-by: Patrick McCarty <patrick.mccarty@linux.intel.com>
+---
+ src/login/logind-user.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/login/logind-user.c b/src/login/logind-user.c
+index d48eca4..7c774fd 100644
+--- a/src/login/logind-user.c
++++ b/src/login/logind-user.c
+@@ -432,11 +432,6 @@ int user_start(User *u) {
+         if (r < 0)
+                 return r;
+ 
+-        /* Spawn user systemd */
+-        r = user_start_service(u);
+-        if (r < 0)
+-                return r;
+-
+         if (!dual_timestamp_is_set(&u->timestamp))
+                 dual_timestamp_get(&u->timestamp);
+ 
+@@ -445,6 +440,11 @@ int user_start(User *u) {
+         /* Save new user data */
+         user_save(u);
+ 
++        /* Spawn user systemd */
++        r = user_start_service(u);
++        if (r < 0)
++                return r;
++
+         user_send_signal(u, true);
+ 
+         return 0;
+-- 
+1.8.4.5
+
