@@ -74,3 +74,16 @@ inherit systemd
 SYSTEMD_SERVICE_${PN} = "mdns.service"
 
 FILES_${PN} += "${systemd_unitdir}/system/mdns.service"
+FILES_${PN} += "${libdir}/libdns_sd.so.1 \
+                ${bindir}/dns-sd \
+                ${libdir}/libnss_mdns-0.2.so \
+                ${sysconfdir}/nss_mdns.conf"
+
+FILES_${PN}-dev += "${libdir}/libdns_sd.so \
+                    ${includedir}/dns_sd.h "
+
+FILES_${PN}-man += "${mandir}/man8/mdnsd.8 \
+                    ${mandir}/man5/nss_mdns.conf.5 \
+                    ${mandir}/man8/libnss_mdns.8"
+
+PACKAGES = "${PN} ${PN}-dev ${PN}-man ${PN}-dbg"
