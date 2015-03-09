@@ -49,7 +49,7 @@ Patches
 Please submit any patches against this BSP to the Yocto mailing list
 (meta-intel@yoctoproject.org) and cc: the maintainer:
 
-Maintainer: Ong Boon Leong <boon.leong.ong@intel.com>
+Maintainer: Ng Wei Tee <wei.tee.ng@intel.com>
 
 Please see the meta-intel/MAINTAINERS file for more details.
 
