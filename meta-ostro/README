@@ -1,0 +1,25 @@
+This README file contains information on the contents of the
+iot layer.
+
+Please see the corresponding sections below for details.
+
+
+Dependencies
+============
+
+This layer depends on:
+
+  URI: git://git.openembedded.org/bitbake
+  branch: master
+
+  URI: git://git.openembedded.org/openembedded-core
+  layers: meta
+  branch: master
+
+  URI: git://git.yoctoproject.org/meta-intel
+  layers: meta-intel
+  branch: master
+
+  URI: git://git.yoctoproject.org/meta-oic
+  layers: meta-oic
+  branch: master
