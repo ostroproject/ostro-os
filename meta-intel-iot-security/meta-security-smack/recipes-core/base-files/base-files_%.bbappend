@@ -1,7 +1,7 @@
 # Install default Smack rules, copied from a running Tizen IVI 3.0.
 # Corresponds to manifest file from default-access-domains in Tizen:
 # https://review.tizen.org/git?p=platform/core/security/default-ac-domains.git;a=blob;f=packaging/default-ac-domains.manifest
-do_install_append () {
+do_install_append_smack () {
     mkdir -p ${D}/${sysconfdir}/smack/accesses.d/
     cat >${D}/${sysconfdir}/smack/accesses.d/default-access-domains <<EOF
 System _ -----l
@@ -30,9 +30,9 @@ EOF
 # via postinst. This is much easier to use with bitbake, too:
 # - no need to maintain a patched rpm
 # - works for directories which are not packaged by default when empty
-RDEPENDS_${PN}_append = " smack-userspace"
-DEPENDS_append = " smack-userspace-native"
-pkg_postinst_${PN}() {
+RDEPENDS_${PN}_append_smack = " smack-userspace"
+DEPENDS_append_smack = " smack-userspace-native"
+pkg_postinst_${PN}_smack() {
     #!/bin/sh -e
 
     # https://review.tizen.org/gerrit/gitweb?p=platform/upstream/filesystem.git;a=blob;f=packaging/filesystem.manifest:
