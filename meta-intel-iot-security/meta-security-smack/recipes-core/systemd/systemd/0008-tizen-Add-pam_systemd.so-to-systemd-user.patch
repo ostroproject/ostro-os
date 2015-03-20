@@ -1,26 +1,10 @@
-From 4199aa82fafea0c7650b35ae7699136fc4a74aab Mon Sep 17 00:00:00 2001
+From d308275b85452b850b8cd088c8735669deb6bb05 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?=C5=81ukasz=20Stelmach?= <l.stelmach@samsung.com>
 Date: Wed, 29 Oct 2014 12:25:32 +0100
-Subject: [PATCH 19/24] Update to 216 with conditional kdbus support
+Subject: [PATCH 8/9] tizen: Add pam_systemd.so to systemd-user
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-
-+ Rename systemd-coredumpctl to coredumpctl (f4bab169) and introduce
-  coredump.conf (34c10968).
-
-+ Enable kdbus. With '--define "_with_kdbus 1"' as an argument for
-  gbs(1), or '--with kdbus' for rpmbuild(1), you can add kdbus support
-  to systemd.
-
-+ Disable some new features: sysusers, firstboot, timesyncd, resolved
-  and networked.
-
-+ New tools: systemd-escape and systemd-path.
-
-+ New header files in the devel package.
-
-+ Add package-specific rpllint configuration file.
 
 + Add pam_systemd.so to /etc/pam.d/systemd-user
 

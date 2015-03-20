@@ -1,23 +1,40 @@
-From 7123ca4f6c0c31433755d82246096aadb4c84308 Mon Sep 17 00:00:00 2001
+From c257eade1a39ea00d26c4c297efd654b6ad4edb4 Mon Sep 17 00:00:00 2001
 From: Casey Schaufler <casey@schaufler-ca.com>
-Date: Mon, 9 Dec 2013 17:14:57 -0800
-Subject: [PATCH 08/24] Set Smack netlabel host rules
+Date: Fri, 8 Nov 2013 09:42:26 -0800
+Subject: [PATCH 5/9] tizen-smack: Handling network
 
+- Set Smack ambient to match run label
+- Set Smack netlabel host rules
+
+Set Smack ambient to match run label
+------------------------------------
+Set the Smack networking ambient label to match the
+run label of systemd. System services may expect to
+communicate with external services over IP. Setting
+the ambient label assigns that label to IP packets
+that do not include CIPSO headers. This allows systemd
+and the services it spawns access to unlabeled IP
+packets, and hence external services.
+
+A system may choose to restrict network access to
+particular services later in the startup process.
+This is easily done by resetting the ambient label
+elsewhere.
+
+Set Smack netlabel host rules
+-----------------------------
 If SMACK_RUN_LABEL is defined set all other hosts to be
 single label hosts at the specified label. Set the loopback
 address to be a CIPSO host.
 
 If any netlabel host rules are defined in /etc/smack/netlabel.d
 install them into the smackfs netlabel interface.
-
-Change-Id: Iac0159bd5d53057911f231e1f69ed6f7a5f9b5cd
-Signed-off-by: Casey Schaufler <casey.schaufler@intel.com.com>
 ---
- src/core/smack-setup.c | 29 ++++++++++++++++++++++++++++-
- 1 file changed, 28 insertions(+), 1 deletion(-)
+ src/core/smack-setup.c | 33 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 32 insertions(+), 1 deletion(-)
 
 diff --git a/src/core/smack-setup.c b/src/core/smack-setup.c
-index 01dc1c0..ea2058e 100644
+index 59f6832..33dc1ca 100644
 --- a/src/core/smack-setup.c
 +++ b/src/core/smack-setup.c
 @@ -42,6 +42,7 @@
@@ -28,10 +45,14 @@ index 01dc1c0..ea2058e 100644
  
  #ifdef HAVE_SMACK
  
-@@ -150,6 +151,15 @@ int smack_setup(bool *loaded_policy) {
+@@ -146,6 +147,19 @@ int mac_smack_setup(bool *loaded_policy) {
          if (r)
-                 log_warning("Failed to set SMACK ambient label \"%s\": %s",
+                 log_warning("Failed to set SMACK label \"%s\" on self: %s",
                              SMACK_RUN_LABEL, strerror(-r));
++        r = write_string_file("/sys/fs/smackfs/ambient", SMACK_RUN_LABEL);
++        if (r)
++                log_warning("Failed to set SMACK ambient label \"%s\": %s",
++                            SMACK_RUN_LABEL, strerror(-r));
 +        r = write_string_file("/sys/fs/smackfs/netlabel",
 +			      "0.0.0.0/0 " SMACK_RUN_LABEL);
 +        if (r)
@@ -44,7 +65,7 @@ index 01dc1c0..ea2058e 100644
  #endif
  
          r = write_rules("/sys/fs/smackfs/cipso2", CIPSO_CONFIG);
-@@ -159,14 +169,31 @@ int smack_setup(bool *loaded_policy) {
+@@ -155,14 +169,31 @@ int mac_smack_setup(bool *loaded_policy) {
                  return 0;
          case ENOENT:
                  log_debug("Smack/CIPSO access rules directory " CIPSO_CONFIG " not found");
@@ -52,7 +73,7 @@ index 01dc1c0..ea2058e 100644
 +                break;
          case 0:
                  log_info("Successfully loaded Smack/CIPSO policies.");
-                 return 0;
+                 break;
          default:
                  log_warning("Failed to load Smack/CIPSO access rules: %s, ignoring.",
                              strerror(abs(r)));

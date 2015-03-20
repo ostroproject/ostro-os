@@ -1,7 +1,9 @@
-From b104124c6232d18ae72dfde33fdaa6fd05e91b8b Mon Sep 17 00:00:00 2001
+From ccf384ca0f1cabe37e07e752df95ddb1e017a7ef Mon Sep 17 00:00:00 2001
 From: Casey Schaufler <casey@schaufler-ca.com>
 Date: Thu, 19 Dec 2013 16:49:28 -0800
-Subject: [PATCH 12/24] Run systemd-journald with the hat ("^") Smack label.
+Subject: [PATCH 7/9] tizen-smack: Runs systemd-journald with ^
+
+Run systemd-journald with the hat ("^") Smack label.
 
 The journal daemon needs global read access to gather information
 about the services spawned by systemd. The hat label is intended
@@ -17,17 +19,17 @@ Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/units/systemd-journald.service.in b/units/systemd-journald.service.in
-index 7013979..532e0ec 100644
+index a3540c6..745dd84 100644
 --- a/units/systemd-journald.service.in
 +++ b/units/systemd-journald.service.in
-@@ -20,6 +20,7 @@ Restart=always
+@@ -21,6 +21,7 @@ Restart=always
  RestartSec=0
  NotifyAccess=all
  StandardOutput=null
-+SmackExecLabel=^
- CapabilityBoundingSet=CAP_SYS_ADMIN CAP_DAC_OVERRIDE CAP_SYS_PTRACE CAP_SYSLOG CAP_AUDIT_CONTROL CAP_CHOWN CAP_DAC_READ_SEARCH CAP_FOWNER CAP_SETUID CAP_SETGID
++SmackProcessLabel=^
+ CapabilityBoundingSet=CAP_SYS_ADMIN CAP_DAC_OVERRIDE CAP_SYS_PTRACE CAP_SYSLOG CAP_AUDIT_CONTROL CAP_AUDIT_READ CAP_CHOWN CAP_DAC_READ_SEARCH CAP_FOWNER CAP_SETUID CAP_SETGID CAP_MAC_OVERRIDE
  WatchdogSec=1min
- 
+ FileDescriptorStoreMax=1024
 -- 
 1.8.4.5
 

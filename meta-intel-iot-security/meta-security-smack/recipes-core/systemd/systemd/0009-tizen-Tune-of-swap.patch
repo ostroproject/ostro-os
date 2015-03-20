@@ -1,9 +1,11 @@
-From b780b57617b889a192d96bc9db9b11b4a6539216 Mon Sep 17 00:00:00 2001
+From 120059a14d70640eedb00af68b8555c453ee5202 Mon Sep 17 00:00:00 2001
 From: Michael I Doherty <michael.i.doherty@intel.com>
 Date: Tue, 23 Jul 2013 14:12:50 +0100
-Subject: [PATCH 03/24] Allow swap to be activated concurrently with sysinit
- target
+Subject: [PATCH 9/9] tizen: Tune of swap
 
+Allow swap to be activated concurrently with sysinit target
+
+Change-Id: I56aef31809e50ae6c4b10174c0f3b144f72b9746
 ---
  units/sysinit.target | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
