@@ -49,4 +49,8 @@ pkg_postinst_${PN}_smack() {
     # <filesystem path="/var/tmp" label="*" />
     # These are in a file system mounted by systemd. We patch the systemd service
     # to set these attributes.
+
+    # From https://review.tizen.org/git/?p=platform/core/appfw/tizen-platform-config.git;a=blob;f=packaging/tizen-platform-config.spec
+    find $D${sysconfdir}/skel | xargs chsmack -a User
+    chsmack -a User::Home $D${sysconfdir}/skel
 }
