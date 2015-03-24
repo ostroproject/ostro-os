@@ -22,6 +22,7 @@ BBCLASSEXTEND = "native"
 
 # Fix copied from meta-tizen.
 do_configure_prepend() {
+  export ac_cv_prog_DOXYGEN=""
   sed -i 's@systemd_new=no@systemd_new=yes@' ${S}/configure.ac
   sed -i '/PKG_CHECK_MODULES(/,/)/{s/b/r/p;d}' ${S}/configure.ac
 }
