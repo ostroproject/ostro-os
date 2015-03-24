@@ -1,0 +1,44 @@
+From a273547ffb8ad131a3c80b8b2c9f0a8b5214c14e Mon Sep 17 00:00:00 2001
+From: Patrick Ohly <patrick.ohly@intel.com>
+Date: Tue, 24 Mar 2015 04:54:03 -0700
+Subject: [PATCH] systemd: stop using compat libs
+
+libsystemd-journal and libsystemd-daemon are considered obsolete
+in systemd since 2.09 and may not be available (not compiled
+by default).
+
+The code works fine with the current libsystemd, so just
+use that.
+---
+ src/common/CMakeLists.txt | 2 +-
+ src/server/CMakeLists.txt | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/common/CMakeLists.txt b/src/common/CMakeLists.txt
+index cbcea64..317f389 100644
+--- a/src/common/CMakeLists.txt
++++ b/src/common/CMakeLists.txt
+@@ -3,7 +3,7 @@ SET(COMMON_VERSION ${COMMON_VERSION_MAJOR}.0.1)
+ 
+ PKG_CHECK_MODULES(COMMON_DEP
+     REQUIRED
+-    libsystemd-journal
++    libsystemd
+     libsmack
+     db-util
+     cynara-admin
+diff --git a/src/server/CMakeLists.txt b/src/server/CMakeLists.txt
+index 753eb96..6849d76 100644
+--- a/src/server/CMakeLists.txt
++++ b/src/server/CMakeLists.txt
+@@ -1,6 +1,6 @@
+ PKG_CHECK_MODULES(SERVER_DEP
+     REQUIRED
+-    libsystemd-daemon
++    libsystemd
+     )
+ 
+ FIND_PACKAGE(Boost REQUIRED)
+-- 
+1.8.4.5
+
