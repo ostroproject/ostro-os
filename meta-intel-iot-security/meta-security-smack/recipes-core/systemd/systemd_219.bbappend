@@ -1,7 +1,11 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-# Additional systemd patches from Tizen 3.0 (accepted/tizen/mobile/20150208.065204-0-g1c6d7a3).
-SRC_URI += " \
+# From sandbox/jobol/v219. Cannot be applied unconditionally
+# because systemd panics when booted without Smack support:
+# systemd[1]: Cannot determine cgroup we are running in: No such file or directory
+# systemd[1]: Failed to allocate manager object: No such file or directory
+# [!!!!!!] Failed to allocate manager object, freezing.
+SRC_URI_append_smack = " \
 file://0001-tizen-rpm-2-useful-macro-for-RPM.patch \
 file://0002-tizen-smack-Handling-of-tmp.patch \
 file://0003-tizen-smack-Handling-of-run-and-sys-fs-cgroup.patch \
@@ -20,7 +24,7 @@ file://0007-tizen-smack-Runs-systemd-journald-with.patch \
 # 0009-tizen-Tune-of-swap.patch
 
 # From Tizen .spec file.
-EXTRA_OECONF += "--with-smack-run-label=System"
+EXTRA_OECONF_append_smack = " --with-smack-run-label=System"
 
 # We need to emulate parts of the filesystem permissions from Tizen here.
 # The part for regular files is in base-files.bbappend, but /var/log and
