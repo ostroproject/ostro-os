@@ -6,9 +6,8 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=e8db6501ed294e65418a933925d12058"
 
 DEPENDS = "nodejs-native swig-native curl"
 
-PR = "r1"
-
-SRC_URI = "git://github.com/enableiot/iotkit-lib-c.git;protocol=https;tag=v1.4.6"
+SRC_URI = "git://github.com/enableiot/iotkit-lib-c.git;protocol=https"
+SRCREV = "eaa4af960ffda40c0ca6eca80c18c61f415ef685"
 
 S = "${WORKDIR}/git"
 
@@ -44,6 +43,6 @@ FILES_${PN}-dbg += "${libdir}/node_modules/iotkitjs/.debug/ \
 FILES_${PN}-tests = "${datadir}/iotkit-lib/tests/*"
 
 FILES_${PN} += "${sysconfdir} \
-                    ${datadir}/iotkit-lib/.setup.done"
+                ${datadir}/iotkit-lib/.setup.done"
 
 RDEPENDS_${PN}-tests += "${PN} gcov cmake"
