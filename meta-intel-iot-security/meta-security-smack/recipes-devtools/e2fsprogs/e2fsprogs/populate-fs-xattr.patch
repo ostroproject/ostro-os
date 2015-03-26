@@ -1,0 +1,88 @@
+Upstream-Status: Submitted
+Signed-off-by: Ross Burton <ross.burton@intel.com>
+
+commit 582b4ceda06456f8e33492dd0f87a3d2a5ff1514
+Author: Ross Burton <ross.burton@intel.com>
+Date:   Fri Jun 27 19:44:35 2014 +0100
+
+    misc: copy extended attributes in populate_fs
+    
+    When creating a file system using a source directory, also copy any extended
+    attributes that have been set.
+    
+    Signed-off-by: Ross Burton <ross.burton@intel.com>
+
+diff --git a/misc/create_inode.c b/misc/create_inode.c
+index c9c99b5..2795f9e 100644
+--- a/misc/create_inode.c
++++ b/misc/create_inode.c
+@@ -103,6 +103,55 @@ static errcode_t set_inode_extra(ext2_filsys fs, ext2_ino_t cwd,
+ 	return retval;
+ }
+ 
++static errcode_t set_inode_xattr(ext2_filsys fs, ext2_ino_t ino, const char *filename)
++{
++	errcode_t			retval;
++	struct ext2_inode		inode;
++	struct ext2_xattr_handle	*handle;
++	ssize_t				size, value_size;
++	char				*list;
++	int				i;
++
++	size = llistxattr(filename, NULL, 0);
++	if (size == -1) {
++		com_err(__func__, errno, "listxattr failed on %s", filename);
++		return errno;
++	} else if (size == 0) {
++		return 0;
++	}
++
++	retval = ext2fs_xattrs_open(fs, ino, &handle);
++	if (retval) {
++		com_err(__func__, errno, "while opening inode %u", ino);
++		return errno;
++	}
++
++	list = malloc(size);
++	size = llistxattr(filename, list, size);
++
++	for (i = 0; i < size; i += strlen(&list[i]) + 1) {
++		const char *name = &list[i];
++		char *value;
++
++		value_size = getxattr(filename, name, NULL, 0);
++		value = malloc(value_size);
++		value_size = getxattr(filename, name, value, value_size);
++
++		retval = ext2fs_xattr_set(handle, name, value, value_size);
++		if (retval)
++			com_err(__func__, retval, "while writing xattr %u", ino);
++
++		free (value);
++	}
++	free(list);
++
++	retval = ext2fs_xattrs_close(&handle);
++	if (retval)
++		com_err(__func__, errno, "while closing inode %u", ino);
++
++	return retval;
++}
++
+ /* Make a special files (block and character devices), fifo's, and sockets  */
+ errcode_t do_mknod_internal(ext2_filsys fs, ext2_ino_t cwd, const char *name,
+ 			    struct stat *st)
+@@ -615,6 +664,13 @@ static errcode_t __populate_fs(ext2_filsys fs, ext2_ino_t parent_ino,
+ 			goto out;
+ 		}
+ 
++		retval = set_inode_xattr(fs, ino, name);
++		if (retval) {
++			com_err(__func__, retval,
++				_("while setting xattrs for \"%s\""), name);
++			goto out;
++		}
++
+ 		/* Save the hardlink ino */
+ 		if (save_inode) {
+ 			/*

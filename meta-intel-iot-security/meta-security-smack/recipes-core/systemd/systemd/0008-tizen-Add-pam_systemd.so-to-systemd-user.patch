@@ -1,0 +1,28 @@
+From d308275b85452b850b8cd088c8735669deb6bb05 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=C5=81ukasz=20Stelmach?= <l.stelmach@samsung.com>
+Date: Wed, 29 Oct 2014 12:25:32 +0100
+Subject: [PATCH 8/9] tizen: Add pam_systemd.so to systemd-user
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
++ Add pam_systemd.so to /etc/pam.d/systemd-user
+
+Change-Id: I87e9b5514f2cc77c37bc40aac4f15a4c741ee4e4
+Signed-off-by: Łukasz Stelmach <l.stelmach@samsung.com>
+---
+ src/login/systemd-user | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/login/systemd-user b/src/login/systemd-user
+index 8112d74..13f6629 100644
+--- a/src/login/systemd-user
++++ b/src/login/systemd-user
+@@ -4,3 +4,4 @@
+ 
+ account  include system-auth
+ session  include system-auth
++session  optional pam_systemd.so
+-- 
+1.8.4.5
+

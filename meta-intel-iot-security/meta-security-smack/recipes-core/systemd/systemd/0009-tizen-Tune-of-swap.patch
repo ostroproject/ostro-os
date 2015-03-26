@@ -1,0 +1,25 @@
+From 120059a14d70640eedb00af68b8555c453ee5202 Mon Sep 17 00:00:00 2001
+From: Michael I Doherty <michael.i.doherty@intel.com>
+Date: Tue, 23 Jul 2013 14:12:50 +0100
+Subject: [PATCH 9/9] tizen: Tune of swap
+
+Allow swap to be activated concurrently with sysinit target
+
+Change-Id: I56aef31809e50ae6c4b10174c0f3b144f72b9746
+---
+ units/sysinit.target | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/units/sysinit.target b/units/sysinit.target
+index ec33503..a381dcb 100644
+--- a/units/sysinit.target
++++ b/units/sysinit.target
+@@ -10,4 +10,4 @@ Description=System Initialization
+ Documentation=man:systemd.special(7)
+ Conflicts=emergency.service emergency.target
+ Wants=local-fs.target swap.target
+-After=local-fs.target swap.target emergency.service emergency.target
++After=local-fs.target emergency.service emergency.target
+-- 
+1.8.4.5
+
