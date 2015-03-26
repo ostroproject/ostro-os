@@ -217,3 +217,10 @@ ASSUME_PROVIDED += "libsdl-native"
 # track the version of this file when it was generated. This can safely be ignored if
 # this doesn't mean anything to you.
 CONF_VERSION = "1"
+
+#
+# Misc configuration
+#
+# Workaround broken swig needed by meta-intel-iot-middleware (mraa) and use
+# host's swig.
+ASSUME_PROVIDED += "swig-native"
