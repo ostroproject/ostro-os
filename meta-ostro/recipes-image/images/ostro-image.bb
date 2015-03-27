@@ -5,6 +5,7 @@ IMAGE_INSTALL = " \
                 ${ROOTFS_PKGMANAGE_BOOTSTRAP} \
                 ${CORE_IMAGE_EXTRA_INSTALL} \
                 iotivity iotivity-simple-client \
+                iotivity-resource iotivity-resource-samples \
 		"
 
 IMAGE_LINGUAS = " "
