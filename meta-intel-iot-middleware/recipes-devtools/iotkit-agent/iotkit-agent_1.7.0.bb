@@ -2,12 +2,12 @@ DESCRIPTION = "Transparently implements the necessary message formats and transp
 HOMEPAGE = "http://enableiot.com"
 LICENSE = "BSD-2-Clause & BSD-3-Clause & GPL-2.0 & Apache-2.0 & MIT & PD"
 
-LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSE;md5=30c8ae0368f724cf5f753d08bf033034"
+LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSE;md5=870ddb48d988d029f664c7652b439548"
 
 DEPENDS = "nodejs-native"
 
 SRC_URI = "git://github.com/enableiot/iotkit-agent.git;protocol=git"
-SRCREV = "47c3ab71d22088a951abf120715e9ec5755b7fa0"
+SRCREV = "0cbca49289ca0ccfee6310de03ad5c4288749bae"
 
 S = "${WORKDIR}/git"
 
@@ -63,5 +63,7 @@ SYSTEMD_SERVICE_${PN} = "iotkit-agent.service"
 FILES_${PN} = "${libdir}/node_modules/ \
                ${bindir}/ \
 "
+
+INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
 PACKAGES = "${PN}"
