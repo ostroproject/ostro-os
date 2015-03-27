@@ -1,0 +1,32 @@
+From 0119a93333ddad8edeccfe97d2c4463443d99a38 Mon Sep 17 00:00:00 2001
+From: Patrick Ohly <patrick.ohly@intel.com>
+Date: Tue, 24 Mar 2015 05:56:34 -0700
+Subject: [PATCH] support cross-compiling
+
+When cross-compiling with bitbake we have to prepend the sysroot to the path
+found by pkg-config since the path returned from does not have sysroot
+prefixed. That causes compilation to look for the files on the host system,
+which do not exist there.
+
+This should work ok with non sysrooted builds too since in those cases
+PKG_CONFIG_SYSROOT_DIR will be empty.
+---
+ src/Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 4d470ab..0edfaf6 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -4,7 +4,7 @@ lib_LIBRARIES = libtzplatform-config-static.a
+ 
+ bin_PROGRAMS = tzplatform-get
+ 
+-wrappersrcdir=$(shell pkg-config --variable=datadir tizen-platform-wrapper)
++wrappersrcdir=${PKG_CONFIG_SYSROOT_DIR}$(shell pkg-config --variable=datadir tizen-platform-wrapper)
+ 
+ SRC_FROMWRAPPER_STATIC= \
+ 	static-api.c \
+-- 
+1.8.4.5
+
