@@ -25,7 +25,7 @@
 #MACHINE ?= "qemux86-64"
 #
 # This sets the default machine to be qemux86 if no other machine is selected:
-MACHINE ??= "qemux86"
+MACHINE ??= "intel-corei7-64"
 
 #
 # Where to place downloads
@@ -76,8 +76,7 @@ MACHINE ??= "qemux86"
 # Ultimately when creating custom policy, people will likely end up subclassing 
 # these defaults.
 #
-# TODO: define ostro.conf (not available yet)
-#DISTRO ?= "ostro"
+DISTRO ?= "ostro"
 
 #
 # Package Management configuration
@@ -218,3 +217,10 @@ ASSUME_PROVIDED += "libsdl-native"
 # track the version of this file when it was generated. This can safely be ignored if
 # this doesn't mean anything to you.
 CONF_VERSION = "1"
+
+#
+# Misc configuration
+#
+# Workaround broken swig needed by meta-intel-iot-middleware (mraa) and use
+# host's swig.
+ASSUME_PROVIDED += "swig-native"
