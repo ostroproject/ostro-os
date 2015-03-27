@@ -10,6 +10,8 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-intel \
   ##OEROOT##/meta-ostro \
   ##OEROOT##/meta-oic \
+  ##OEROOT##/meta-security-smack \
+  ##OEROOT##/meta-security-framework \
   "
 
 BBLAYERS_NON_REMOVABLE ?= " \
