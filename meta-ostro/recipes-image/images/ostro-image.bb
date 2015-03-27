@@ -7,6 +7,7 @@ IMAGE_INSTALL = " \
                 ${OSTRO_IMAGE_SECURITY_INSTALL} \
                 iotivity iotivity-simple-client \
                 iotivity-resource iotivity-resource-samples \
+                nodejs hid-api iotkit-agent upm tempered mraa linuxptp \
 		"
 
 # Cynara does not have a hard dependency on Smack security,
