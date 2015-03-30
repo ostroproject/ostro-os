@@ -1,6 +1,8 @@
 SUMMARY = "Ostro OS Image."
 
 IMAGE_INSTALL = " \
+		kernel-modules \
+		linux-firmware \
 		packagegroup-core-boot \
                 ${ROOTFS_PKGMANAGE_BOOTSTRAP} \
                 ${CORE_IMAGE_EXTRA_INSTALL} \
