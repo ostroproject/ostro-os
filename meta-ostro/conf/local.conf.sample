@@ -221,6 +221,3 @@ CONF_VERSION = "1"
 #
 # Misc configuration
 #
-# Workaround broken swig needed by meta-intel-iot-middleware (mraa) and use
-# host's swig.
-ASSUME_PROVIDED += "swig-native"
