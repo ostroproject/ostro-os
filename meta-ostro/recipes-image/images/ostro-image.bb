@@ -12,6 +12,9 @@ IMAGE_INSTALL = " \
                 nodejs hid-api iotkit-agent upm tempered mraa linuxptp \
 		"
 
+# Use gummiboot as the EFI bootloader.
+EFI_PROVIDER = "gummiboot"
+
 # Cynara does not have a hard dependency on Smack security,
 # but is meant to be used with it. security-manager even
 # links against smack-userspace. So only install them by
