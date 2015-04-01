@@ -14,6 +14,7 @@ IMAGE_INSTALL = " \
 
 IMAGE_FEATURES_append = " \
                         package-management \
+                        ssh-server-dropbear \
                         "
 
 # Use gummiboot as the EFI bootloader.
