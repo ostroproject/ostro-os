@@ -12,6 +12,10 @@ IMAGE_INSTALL = " \
                 nodejs hid-api iotkit-agent upm tempered mraa linuxptp \
 		"
 
+IMAGE_FEATURES_append = " \
+                        package-management \
+                        "
+
 # Use gummiboot as the EFI bootloader.
 EFI_PROVIDER = "gummiboot"
 
