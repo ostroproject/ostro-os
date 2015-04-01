@@ -30,6 +30,13 @@ IMAGE_LINGUAS = " "
 
 LICENSE = "MIT"
 
-inherit core-image
+inherit core-image extrausers
 
 IMAGE_ROOTFS_SIZE ?= "8192"
+
+# Set root password to "ostro" if not set
+OSTRO_ROOT_PASSWORD ?= "J68YI80le.9oU"
+
+EXTRA_USERS_PARAMS = "\
+usermod -p '${OSTRO_ROOT_PASSWORD}' root; \
+"
