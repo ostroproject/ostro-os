@@ -36,8 +36,18 @@ inherit core-image extrausers
 IMAGE_ROOTFS_SIZE ?= "8192"
 
 # Set root password to "ostro" if not set
-OSTRO_ROOT_PASSWORD ?= "J68YI80le.9oU"
+OSTRO_ROOT_PASSWORD ?= "ostro"
+
+def crypt_pass(d):
+    import crypt, string, random
+    character_set = string.letters + string.digits
+    plaintext = d.getVar('OSTRO_ROOT_PASSWORD', True)
+
+    if plaintext == "":
+        return plaintext
+    else:
+        return crypt.crypt(plaintext, random.choice(character_set) + random.choice(character_set))
 
 EXTRA_USERS_PARAMS = "\
-usermod -p '${OSTRO_ROOT_PASSWORD}' root; \
+usermod -p '${@crypt_pass(d)}' root; \
 "
