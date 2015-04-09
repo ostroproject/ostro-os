@@ -61,24 +61,25 @@ Just adding the layer does not enable Smack. These changes can be
 enabled and disabled separately via configuration variables. To enable
 Smack security, add the following entries to local.conf:
 
-# Enable Smack support. Eventually this needs to move into a distro conf
-# where it needs to be added to DISTROOVERRIDES depending on a distro
-# feature.
-OVERRIDES .= ":smack"
+    # Enable Smack support. May also be done by a distro config,
+    # (using DISTRO_OVERRIDES and directly updating DISTRO_FEATURES,
+    # without the _append).
+    OVERRIDES .= ":smack"
+    DISTRO_FEATURES_append = " smack"
 
-# Enable systemd.
-DISTRO_FEATURES_append = " pam"
-DISTRO_FEATURES_append += " systemd"
-VIRTUAL-RUNTIME_init_manager = "systemd"
-DISTRO_FEATURES_BACKFILL_CONSIDERED = "sysvinit"
-VIRTUAL-RUNTIME_initscripts = ""
-# CORE_IMAGE_EXTRA_INSTALL += "systemd-analyze"
+    # Enable systemd.
+    DISTRO_FEATURES_append = " pam"
+    DISTRO_FEATURES_append += " systemd"
+    VIRTUAL-RUNTIME_init_manager = "systemd"
+    DISTRO_FEATURES_BACKFILL_CONSIDERED = "sysvinit"
+    VIRTUAL-RUNTIME_initscripts = ""
+    # CORE_IMAGE_EXTRA_INSTALL += "systemd-analyze"
 
-# Need Smack support in file utilities.
-CORE_IMAGE_EXTRA_INSTALL += "coreutils"
+    # Need Smack support in file utilities.
+    CORE_IMAGE_EXTRA_INSTALL += "coreutils"
 
-# Having Smack utilities is useful.
-CORE_IMAGE_EXTRA_INSTALL += "smack-userspace"
+    # Having Smack utilities is useful.
+    CORE_IMAGE_EXTRA_INSTALL += "smack-userspace"
 
 II. Misc
 ========
