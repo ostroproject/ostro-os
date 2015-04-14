@@ -3,7 +3,7 @@ HOMEPAGE = "http://github.com/Wyliodrin/libwyliodrin"
 LICENSE = "GPLv2"
 SECTION = "libs"
 DEPENDS = "icu fuse mraa hiredis jansson swig-native"
-RDEPENDS_${PN} = "python-redis"
+RDEPENDS_${PN} = "python-redis bash"
 PR = "r0"
 
 LIC_FILES_CHKSUM = "file://LICENSE;md5=e8c1458438ead3c34974bc0be3a03ed6"
