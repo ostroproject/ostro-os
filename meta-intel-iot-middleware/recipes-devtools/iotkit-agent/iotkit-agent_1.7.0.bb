@@ -5,6 +5,7 @@ LICENSE = "BSD-2-Clause & BSD-3-Clause & GPL-2.0 & Apache-2.0 & MIT & PD"
 LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSE;md5=870ddb48d988d029f664c7652b439548"
 
 DEPENDS = "nodejs-native"
+RDEPENDS_${PN} += "bash"
 
 SRC_URI = "git://github.com/enableiot/iotkit-agent.git;protocol=git"
 SRCREV = "0cbca49289ca0ccfee6310de03ad5c4288749bae"
