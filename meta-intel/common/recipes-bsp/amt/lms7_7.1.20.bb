@@ -12,6 +12,8 @@ SRC_URI = "http://software.intel.com/sites/default/files/m/4/e/a/9/b/37962-${BPN
            file://atnetworktool-printf-fix.patch \
            file://readlink-declaration.patch"
 
+LOCALSRC = "file://${WORKDIR}/outputdir/${BPN}-${PV}-${PV_SUB}.tar.gz"
+
 COMPATIBLE_HOST = '(i.86|x86_64).*-linux'
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=7264184cf88d9f27b719a9656255b47b"
@@ -24,12 +26,18 @@ inherit autotools update-rc.d
 INITSCRIPT_NAME = "lms7"
 INITSCRIPT_PARAMS = "defaults"
 
-do_unpack2() {
-	cd ${WORKDIR}
-	tar -xvzf ${WORKDIR}/outputdir/${BPN}-${PV}-${PV_SUB}.tar.gz
+python do_unpack() {
+    s = d.getVar('S', True)
+    d.setVar('S', '${WORKDIR}/outputdir')
+    bb.build.exec_func('base_do_unpack', d)
+    # temorarily change SRC_URI for unpack
+    src_uri = d.getVar('SRC_URI')
+    d.setVar('SRC_URI', '${LOCALSRC}')
+    d.setVar('S', s)
+    bb.build.exec_func('base_do_unpack', d)
+    d.setVar('SRC_URI', src_uri)
 }
 
-addtask unpack2 after do_unpack before do_patch
 
 do_install_append () {
 	mv ${D}/${sbindir}/lms ${D}/${sbindir}/lms7
