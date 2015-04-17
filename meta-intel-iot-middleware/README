@@ -16,10 +16,11 @@ Guidelines for submitting patches
 =================================
 
 Please submit any patches to the meta-intel mailing list
-(meta-intel@yoctoproject.org). Also, if your patches are available via a public
-git repository, please also include a URL to the repo and branch containing
-your patches as that makes it easier for maintainers to grab and test your
-patches.
+(meta-intel@yoctoproject.org) and cc the most appropriate maintainer in the
+MAINTAINERS file. Prefix your email with [meta-intel-iot-middleware]. Also, if
+your patches are available via a public git repository, please also include a
+URL to the repo and branch containing your patches as that makes it easier for
+maintainers to grab and test your patches.
 
 Regardless of how you submit a patch or patchset, the patches should
 at minimum follow the suggestions outlined in the 'How to Submit a
