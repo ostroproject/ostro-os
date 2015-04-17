@@ -5,7 +5,7 @@ LICENSE = "MIT & BSD-2-Clause & BSD-3-Clause & BSD-4-Clause & ISC & GPLv2 & GPLv
 LIC_FILES_CHKSUM = "file://LICENSE;md5=e804bf1e856481415099460bc54d9316"
 
 DEPENDS = "openssl"
-DEPENDS_class-target = "nodejs-native"
+DEPENDS_append_class-target = "nodejs-native"
 
 SRC_URI = "http://nodejs.org/dist/v${PV}/node-v${PV}.tar.gz"
 
