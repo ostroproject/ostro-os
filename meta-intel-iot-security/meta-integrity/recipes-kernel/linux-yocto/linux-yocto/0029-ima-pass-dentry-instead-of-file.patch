@@ -1,0 +1,77 @@
+From 1c146cb5d3888573ef08862a440cfe3f1953dd68 Mon Sep 17 00:00:00 2001
+From: Dmitry Kasatkin <d.kasatkin@samsung.com>
+Date: Mon, 12 Aug 2013 11:24:57 +0300
+Subject: [PATCH 29/45] ima: pass dentry instead of file
+
+Function does not need file pointer, but just dentry.
+Following patches will pass dentry only.
+
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ security/integrity/ima/ima.h          | 5 +++--
+ security/integrity/ima/ima_appraise.c | 4 ++--
+ security/integrity/ima/ima_main.c     | 5 +++--
+ 3 files changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index 67f8fb4..22ca359 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -211,7 +211,8 @@ static inline void ima_load_policy(char *path)
+ 
+ #ifdef CONFIG_IMA_APPRAISE
+ int ima_appraise_measurement(int func, struct integrity_iint_cache *iint,
+-			     struct file *file, const unsigned char *filename,
++			     struct dentry *dentry,
++			     const unsigned char *filename,
+ 			     struct evm_ima_xattr_data *xattr_value,
+ 			     int xattr_len, int opened);
+ int ima_must_appraise(struct dentry *dentry, int mask, enum ima_hooks func);
+@@ -226,7 +227,7 @@ int ima_read_xattr(struct dentry *dentry,
+ #else
+ static inline int ima_appraise_measurement(int func,
+ 					   struct integrity_iint_cache *iint,
+-					   struct file *file,
++					   struct dentry *dentry,
+ 					   const unsigned char *filename,
+ 					   struct evm_ima_xattr_data *xattr_value,
+ 					   int xattr_len, int opened)
+diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+index 28381cd..a0aa32c 100644
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -195,13 +195,13 @@ int ima_read_xattr(struct dentry *dentry,
+  * Return 0 on success, error code otherwise
+  */
+ int ima_appraise_measurement(int func, struct integrity_iint_cache *iint,
+-			     struct file *file, const unsigned char *filename,
++			     struct dentry *dentry,
++                             const unsigned char *filename,
+ 			     struct evm_ima_xattr_data *xattr_value,
+ 			     int xattr_len, int opened)
+ {
+ 	static const char op[] = "appraise_data";
+ 	char *cause = "unknown";
+-	struct dentry *dentry = file->f_path.dentry;
+ 	struct inode *inode = dentry->d_inode;
+ 	enum integrity_status status = INTEGRITY_UNKNOWN;
+ 	int rc = xattr_len, hash_start = 0;
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index ec4995b..7ab4453 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -262,8 +262,9 @@ static int process_measurement(struct file *file, int mask, int function,
+ 
+ 	if (action & IMA_APPRAISE_SUBMASK) {
+ 		mutex_lock(&inode->i_mutex);
+-		rc = ima_appraise_measurement(function, iint, file, pathname,
+-					      xattr_value, xattr_len, opened);
++		rc = ima_appraise_measurement(function, iint, file->f_path.dentry,
++					      pathname, xattr_value, xattr_len,
++					      opened);
+ 		mutex_unlock(&inode->i_mutex);
+ 	}
+ 	if (action & IMA_MEASURE)
+-- 
+2.1.4
+

@@ -1,0 +1,176 @@
+From 5b29baecd7d96edb6b66b278fb20edf1f7639cf5 Mon Sep 17 00:00:00 2001
+From: Marek Smolinski <m.smolinski@samsung.com>
+Date: Thu, 3 Apr 2014 13:33:24 +0200
+Subject: [PATCH 43/45] ima: add ima_state interface
+
+The state of IMA can be change by writing to the <securityfs>/ima/ima_state,
+and can be check by reading from the interface.
+
+Notice that ima have to be initialized before you use the interface.
+
+Changes in v2 (Dmitry):
+* added handling of IMA_APPRAISE_LOG
+* added calling ima_update_policy_flag()
+
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ security/integrity/ima/Kconfig  |  10 ++++
+ security/integrity/ima/ima_fs.c | 102 +++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 111 insertions(+), 1 deletion(-)
+
+diff --git a/security/integrity/ima/Kconfig b/security/integrity/ima/Kconfig
+index d501284..42b71e6 100644
+--- a/security/integrity/ima/Kconfig
++++ b/security/integrity/ima/Kconfig
+@@ -190,3 +190,13 @@ config IMA_READABLE_POLICY_INTERFACE
+ 	 interface.
+ 
+ 	 WARNING: Enable this option only if your really need it.
++
++config IMA_STATE_INTERFACE
++	bool "IMA state interface"
++	depends on IMA_APPRAISE
++	default n
++	help
++	 Create the IMA state interface and makes possible change IMA
++	 state in runtime.
++
++	 WARNING: Enable this option only if your really need it.
+diff --git a/security/integrity/ima/ima_fs.c b/security/integrity/ima/ima_fs.c
+index 03ea0bf..abb6bd4 100644
+--- a/security/integrity/ima/ima_fs.c
++++ b/security/integrity/ima/ima_fs.c
+@@ -354,6 +354,10 @@ enum ima_fs_flags {
+ 
+ static unsigned long ima_fs_flags;
+ 
++#ifdef CONFIG_IMA_STATE_INTERFACE
++static struct dentry *state;
++#endif
++
+ /*
+  * ima_open_policy: sequentialize access to the policy file
+  */
+@@ -436,6 +440,88 @@ void __init ima_load_policy(char *path)
+ }
+ #endif
+ 
++#ifdef CONFIG_IMA_STATE_INTERFACE
++static ssize_t ima_state_write(struct file *file, const char __user *buf,
++			       size_t datalen, loff_t *ppos)
++{
++	char *data = NULL;
++	ssize_t result;
++	int val;
++
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
++	if (datalen > PAGE_SIZE)
++		datalen = PAGE_SIZE - 1;
++
++	if (*ppos != 0)
++		return -EINVAL;
++
++	result = -EFAULT;
++	data = kmalloc(datalen + 1, GFP_KERNEL);
++	if (!data)
++		goto out;
++
++	*(data + datalen) = '\0';
++
++	result = -EFAULT;
++	if (copy_from_user(data, buf, datalen))
++		goto out;
++
++	result = -EINVAL;
++	if (sscanf(data, "%d", &val) != 1)
++		goto out;
++
++	if (val == 0) {
++		ima_appraise = 0;
++		pr_info("IMA: off\n");
++	} else if (val == IMA_APPRAISE_FIX) {
++		ima_appraise = IMA_APPRAISE_FIX;
++		pr_info("IMA: fix\n");
++	} else if (val == IMA_APPRAISE_ENFORCE) {
++		ima_appraise = IMA_APPRAISE_ENFORCE;
++		pr_info("IMA: enforce\n");
++	} else if (val == IMA_APPRAISE_LOG) {
++		ima_appraise = IMA_APPRAISE_LOG;
++		pr_info("IMA: log\n");
++	} else {
++		pr_err("IMA ima_state Error: unknown value\n");
++		goto out;
++	}
++
++	ima_update_policy_flag();
++
++	result = datalen;
++
++out:
++	kfree(data);
++	return result;
++}
++
++static ssize_t ima_state_read(struct file *file, char __user *buf,
++			      size_t datalen, loff_t *ppos)
++{
++	char temp[80];
++	ssize_t rc;
++
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
++	if (*ppos != 0)
++		return 0;
++
++	sprintf(temp, "%d", ima_appraise);
++	rc = simple_read_from_buffer(buf, datalen, ppos, temp, strlen(temp));
++
++	return rc;
++}
++
++static const struct file_operations ima_state_ops = {
++	.write = ima_state_write,
++	.read = ima_state_read,
++};
++#endif /* CONFIG_IMA_STATE_INTERFACE */
++
+ int __init ima_fs_init(void)
+ {
+ 	ima_dir = securityfs_create_dir("ima", NULL);
+@@ -486,6 +572,15 @@ int __init ima_fs_init(void)
+ 	if (IS_ERR(ima_policy))
+ 		goto out;
+ 
++#ifdef CONFIG_IMA_STATE_INTERFACE
++	state = securityfs_create_file("ima_state",
++					    S_IWUSR | S_IRGRP,
++					    ima_dir, NULL,
++					    &ima_state_ops);
++	if (IS_ERR(state))
++		goto out;
++#endif
++
+ 	return 0;
+ out:
+ 	securityfs_remove(violations);
+@@ -493,8 +588,13 @@ out:
+ 	securityfs_remove(runtime_measurements_count);
+ 	securityfs_remove(ascii_runtime_measurements);
+ 	securityfs_remove(binary_runtime_measurements);
+-	securityfs_remove(ima_dir);
+ 	securityfs_remove(ima_policy);
++
++#ifdef CONFIG_IMA_STATE_INTERFACE
++	securityfs_remove(state);
++#endif
++
++	securityfs_remove(ima_dir);
+ 	return -1;
+ }
+ 
+-- 
+2.1.4
+

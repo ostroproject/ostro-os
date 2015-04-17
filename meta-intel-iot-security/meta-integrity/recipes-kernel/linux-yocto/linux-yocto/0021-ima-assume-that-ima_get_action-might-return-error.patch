@@ -1,0 +1,31 @@
+From e689bc50d2f0071441f18d02af9b170de553362e Mon Sep 17 00:00:00 2001
+From: Dmitry Kasatkin <d.kasatkin@samsung.com>
+Date: Fri, 15 Nov 2013 18:53:56 +0200
+Subject: [PATCH 21/45] ima: assume that ima_get_action might return error
+
+Policy verification functions might allocated memory and return -ENOMEM
+if memory cannot be allocated when MAY_NOT_BLOCK is provided.
+Directory verification implementation will force to switch path walk
+from RCU talk to ref walk.
+
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ security/integrity/ima/ima_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index a17e211..f73576f 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -178,6 +178,8 @@ static int process_measurement(struct file *file, int mask, int function,
+ 	 * Included is the appraise submask.
+ 	 */
+ 	action = ima_get_action(file->f_path.dentry, mask, function, &ctx);
++	if (action < 0)
++		return action;
+ 	violation_check = ((function == FILE_CHECK || function == MMAP_CHECK) &&
+ 			   (ima_policy_flag & IMA_MEASURE));
+ 	if (!action && !violation_check)
+-- 
+2.1.4
+

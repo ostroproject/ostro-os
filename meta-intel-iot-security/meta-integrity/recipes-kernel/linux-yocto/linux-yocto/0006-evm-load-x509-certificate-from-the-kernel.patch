@@ -1,0 +1,194 @@
+From abdb4d8958a629a9cbd755ebca77743659c8d25a Mon Sep 17 00:00:00 2001
+From: Dmitry Kasatkin <d.kasatkin@samsung.com>
+Date: Fri, 13 Jun 2014 16:31:46 +0300
+Subject: [PATCH 06/45] evm: load x509 certificate from the kernel
+
+This patch defines configuration option to load X509 certificate into the
+EVM trusted kernel keyring and differentiate between HMAC keys and public
+key certificates. Loading of the certificate enables EVM before invoking
+'init' process
+
+Changes in v2:
+* default key patch changed to /etc/keys
+
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ security/integrity/evm/Kconfig      | 15 +++++++++++++++
+ security/integrity/evm/evm.h        |  3 +++
+ security/integrity/evm/evm_crypto.c | 11 +++++++++++
+ security/integrity/evm/evm_main.c   | 17 +++++++++++++++++
+ security/integrity/evm/evm_secfs.c  | 12 ++++--------
+ security/integrity/iint.c           |  1 +
+ security/integrity/integrity.h      |  8 ++++++++
+ 7 files changed, 59 insertions(+), 8 deletions(-)
+
+diff --git a/security/integrity/evm/Kconfig b/security/integrity/evm/Kconfig
+index df586fa..952c71a 100644
+--- a/security/integrity/evm/Kconfig
++++ b/security/integrity/evm/Kconfig
+@@ -42,3 +42,18 @@ config EVM_EXTRA_SMACK_XATTRS
+ 	  additional info to the calculation, requires existing EVM
+ 	  labeled file systems to be relabeled.
+ 
++config EVM_LOAD_X509
++	bool "Load X509 certificate to the '.evm' trusted keyring"
++	depends on INTEGRITY_TRUSTED_KEYRING
++	default n
++	help
++	   This option enables X509 certificate loading from the kernel
++	   to the '.evm' trusted keyring.
++
++config EVM_X509_PATH
++	string "EVM X509 certificate path"
++	depends on EVM_LOAD_X509
++	default "/etc/keys/x509_evm.der"
++	help
++	   This option defines X509 certificate path.
++
+diff --git a/security/integrity/evm/evm.h b/security/integrity/evm/evm.h
+index 88bfe77..cb22476 100644
+--- a/security/integrity/evm/evm.h
++++ b/security/integrity/evm/evm.h
+@@ -21,6 +21,9 @@
+ 
+ #include "../integrity.h"
+ 
++#define EVM_STATE_KEY_SET	0x0001
++#define EVM_STATE_X509_SET	0x0002
++
+ extern int evm_initialized;
+ extern char *evm_hmac;
+ extern char *evm_hash;
+diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
+index 5e9687f..6e9a9b7 100644
+--- a/security/integrity/evm/evm_crypto.c
++++ b/security/integrity/evm/evm_crypto.c
+@@ -40,6 +40,8 @@ static struct shash_desc *init_desc(char type)
+ 	struct shash_desc *desc;
+ 
+ 	if (type == EVM_XATTR_HMAC) {
++		if (!(evm_initialized & EVM_STATE_KEY_SET))
++			return ERR_PTR(-ENOKEY);
+ 		tfm = &hmac_tfm;
+ 		algo = evm_hmac;
+ 	} else {
+@@ -242,6 +244,9 @@ int evm_init_key(void)
+ 	struct encrypted_key_payload *ekp;
+ 	int rc = 0;
+ 
++	if (evm_initialized & EVM_STATE_KEY_SET)
++		return -EBUSY;
++
+ 	evm_key = request_key(&key_type_encrypted, EVMKEY, NULL);
+ 	if (IS_ERR(evm_key))
+ 		return -ENOENT;
+@@ -258,5 +263,11 @@ out:
+ 	memset(ekp->decrypted_data, 0, ekp->decrypted_datalen);
+ 	up_read(&evm_key->sem);
+ 	key_put(evm_key);
++	if (!rc) {
++		evm_initialized |= EVM_STATE_KEY_SET;
++		pr_info("key initialized\n");
++	} else {
++		pr_err("key initialization failed\n");
++	}
+ 	return rc;
+ }
+diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+index aee9c75..ef44707 100644
+--- a/security/integrity/evm/evm_main.c
++++ b/security/integrity/evm/evm_main.c
+@@ -25,6 +25,12 @@
+ #include <crypto/hash.h>
+ #include "evm.h"
+ 
++#ifdef CONFIG_EVM_X509_PATH
++#define EVM_X509_PATH	CONFIG_EVM_X509_PATH
++#else
++#define EVM_X509_PATH	"/etc/keys/x509_evm.der"
++#endif
++
+ int evm_initialized;
+ 
+ static char *integrity_status_msg[] = {
+@@ -462,6 +468,17 @@ out:
+ }
+ EXPORT_SYMBOL_GPL(evm_inode_init_security);
+ 
++#ifdef CONFIG_EVM_LOAD_X509
++void __init evm_load_x509(void)
++{
++	int rc;
++
++	rc = integrity_load_x509(INTEGRITY_KEYRING_EVM, EVM_X509_PATH);
++	if (!rc)
++		evm_initialized |= EVM_STATE_X509_SET;
++}
++#endif
++
+ static int __init init_evm(void)
+ {
+ 	int error;
+diff --git a/security/integrity/evm/evm_secfs.c b/security/integrity/evm/evm_secfs.c
+index cf12a04..525ae2d 100644
+--- a/security/integrity/evm/evm_secfs.c
++++ b/security/integrity/evm/evm_secfs.c
+@@ -62,9 +62,9 @@ static ssize_t evm_write_key(struct file *file, const char __user *buf,
+ 			     size_t count, loff_t *ppos)
+ {
+ 	char temp[80];
+-	int i, error;
++	int i;
+ 
+-	if (!capable(CAP_SYS_ADMIN) || evm_initialized)
++	if (!capable(CAP_SYS_ADMIN) || (evm_initialized & EVM_STATE_KEY_SET))
+ 		return -EPERM;
+ 
+ 	if (count >= sizeof(temp) || count == 0)
+@@ -78,12 +78,8 @@ static ssize_t evm_write_key(struct file *file, const char __user *buf,
+ 	if ((sscanf(temp, "%d", &i) != 1) || (i != 1))
+ 		return -EINVAL;
+ 
+-	error = evm_init_key();
+-	if (!error) {
+-		evm_initialized = 1;
+-		pr_info("initialized\n");
+-	} else
+-		pr_err("initialization failed\n");
++	evm_init_key();
++
+ 	return count;
+ }
+ 
+diff --git a/security/integrity/iint.c b/security/integrity/iint.c
+index eb6eacc..1fd7fc9 100644
+--- a/security/integrity/iint.c
++++ b/security/integrity/iint.c
+@@ -253,4 +253,5 @@ out:
+ void __init integrity_load_keys(void)
+ {
+ 	ima_load_x509();
++	evm_load_x509();
+ }
+diff --git a/security/integrity/integrity.h b/security/integrity/integrity.h
+index 1f220ee..90ba4b8 100644
+--- a/security/integrity/integrity.h
++++ b/security/integrity/integrity.h
+@@ -183,6 +183,14 @@ static inline void ima_load_x509(void)
+ }
+ #endif
+ 
++#ifdef CONFIG_EVM_LOAD_X509
++void __init evm_load_x509(void);
++#else
++static inline void evm_load_x509(void)
++{
++}
++#endif
++
+ #ifdef CONFIG_INTEGRITY_AUDIT
+ /* declarations */
+ void integrity_audit_msg(int audit_msgno, struct inode *inode,
+-- 
+2.1.4
+

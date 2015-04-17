@@ -1,0 +1,67 @@
+From 896523cd3747b0837039035336cb767e805a177e Mon Sep 17 00:00:00 2001
+From: Dmitry Kasatkin <d.kasatkin@samsung.com>
+Date: Fri, 15 Nov 2013 18:56:50 +0200
+Subject: [PATCH 28/45] ima: use MAY_NOT_BLOCK flag to select memory allocation
+ flag
+
+Directory verification hooks may pass MAY_NOT_BLOCK flag.
+We cannot sleep in memory allocation.
+
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ security/integrity/ima/ima.h        | 2 +-
+ security/integrity/ima/ima_api.c    | 5 +++--
+ security/integrity/ima/ima_policy.c | 2 +-
+ 3 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index 15f987a..67f8fb4 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -182,7 +182,7 @@ int ima_store_template(struct ima_template_entry *entry, int violation,
+ 		       struct inode *inode, const unsigned char *filename);
+ void ima_free_template_entry(struct ima_template_entry *entry);
+ const char *ima_d_path(struct path *path, char **pathbuf);
+-const char *ima_dentry_path(struct dentry *dentry, char **pathbuf);
++const char *ima_dentry_path(struct dentry *dentry, char **pathbuf, int mask);
+ 
+ int ima_match_policy(struct dentry *dentry, enum ima_hooks func, int mask,
+ 		     int flags, struct ima_action_context *ctx);
+diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
+index 2a265bc..e01dc17 100644
+--- a/security/integrity/ima/ima_api.c
++++ b/security/integrity/ima/ima_api.c
+@@ -346,14 +346,15 @@ static int prepend(char **buffer, int buflen, const char *str, int namelen)
+  * d_path() or d_absolute_path() are not very suitable as they
+  * return mount hierarchy and chroot specific path
+  */
+-const char *ima_dentry_path(struct dentry *dentry, char **pathbuf)
++const char *ima_dentry_path(struct dentry *dentry, char **pathbuf, int mask)
+ {
+ 	char bdname[BDEVNAME_SIZE + 1];
+ 	int namelen;
+ 	char *pathname;
+ 	struct super_block *sb = dentry->d_sb;
++	gfp_t gfp = (mask & MAY_NOT_BLOCK) ? GFP_ATOMIC : GFP_KERNEL;
+ 
+-	*pathbuf = __getname();
++	*pathbuf = kmem_cache_alloc(names_cachep, gfp);
+ 	if (!*pathbuf)
+ 		return NULL;
+ 
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index ebac8cc..03be42b 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -278,7 +278,7 @@ int ima_match_policy(struct dentry *dentry, enum ima_hooks func, int mask,
+ 
+ 	if (path_rules) {
+ 		/* resolve path only if we have path rules */
+-		pathname = ima_dentry_path(dentry, &pathbuf);
++		pathname = ima_dentry_path(dentry, &pathbuf, mask);
+ 		if (!pathname)
+ 			return -ENOMEM;
+ 	}
+-- 
+2.1.4
+

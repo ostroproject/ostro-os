@@ -1,0 +1,29 @@
+From fe5eb8878ef7870107acf5241b4021e800af9c69 Mon Sep 17 00:00:00 2001
+From: Dmitry Kasatkin <d.kasatkin@samsung.com>
+Date: Thu, 2 Oct 2014 20:31:43 +0300
+Subject: [PATCH 40/45] ima: use d_path() for fifos, as it uses d_op->d_name
+
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ security/integrity/ima/ima_api.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
+index 29b2d82..9af2e41 100644
+--- a/security/integrity/ima/ima_api.c
++++ b/security/integrity/ima/ima_api.c
+@@ -324,7 +324,10 @@ const char *ima_d_path(struct path *path, char **pathbuf)
+ 
+ 	*pathbuf = __getname();
+ 	if (*pathbuf) {
+-		pathname = d_absolute_path(path, *pathbuf, PATH_MAX);
++		if (S_ISFIFO(dentry->d_inode->i_mode))
++			pathname = d_path(path, *pathbuf, PATH_MAX);
++		else
++			pathname = d_absolute_path(path, *pathbuf, PATH_MAX);
+ 		if (IS_ERR(pathname)) {
+ 			__putname(*pathbuf);
+ 			*pathbuf = NULL;
+-- 
+2.1.4
+

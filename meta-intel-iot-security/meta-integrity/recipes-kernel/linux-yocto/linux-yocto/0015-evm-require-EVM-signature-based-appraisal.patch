@@ -1,0 +1,35 @@
+From 1a134316ab86cec19adcd62dd9d47e431095064e Mon Sep 17 00:00:00 2001
+From: Dmitry Kasatkin <d.kasatkin@samsung.com>
+Date: Thu, 30 Oct 2014 14:04:49 +0200
+Subject: [PATCH 15/45] evm: require EVM signature based appraisal
+
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ security/integrity/ima/ima_policy.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index d558031..6d5de0c 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -101,6 +101,7 @@ static struct ima_rule_entry default_appraise_rules[] = {
+ 	{.action = DONT_APPRAISE, .fsmagic = SECURITYFS_MAGIC, .flags = IMA_FSMAGIC},
+ 	{.action = DONT_APPRAISE, .fsmagic = SELINUX_MAGIC, .flags = IMA_FSMAGIC},
+ 	{.action = DONT_APPRAISE, .fsmagic = CGROUP_SUPER_MAGIC, .flags = IMA_FSMAGIC},
++#ifndef CONFIG_EVM_LOAD_X509
+ #ifndef CONFIG_IMA_APPRAISE_SIGNED_INIT
+ 	{.action = APPRAISE, .fowner = GLOBAL_ROOT_UID, .flags = IMA_FOWNER},
+ #else
+@@ -108,6 +109,9 @@ static struct ima_rule_entry default_appraise_rules[] = {
+ 	{.action = APPRAISE, .fowner = GLOBAL_ROOT_UID,
+ 	 .flags = IMA_FOWNER | IMA_DIGSIG_REQUIRED},
+ #endif
++#else
++	{.action = APPRAISE, .fowner = GLOBAL_ROOT_UID, .flags = IMA_FOWNER | EVM_DIGSIG_REQUIRED},
++#endif
+ };
+ 
+ static LIST_HEAD(ima_default_rules);
+-- 
+2.1.4
+

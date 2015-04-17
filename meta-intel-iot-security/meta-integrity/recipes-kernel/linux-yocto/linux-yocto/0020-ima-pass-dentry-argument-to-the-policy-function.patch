@@ -1,0 +1,142 @@
+From 48a79bf9ea46d9b2e963319414044f9a11ba76ea Mon Sep 17 00:00:00 2001
+From: Dmitry Kasatkin <d.kasatkin@samsung.com>
+Date: Fri, 15 Nov 2013 12:15:11 +0200
+Subject: [PATCH 20/45] ima: pass dentry argument to the policy function
+
+Pass dentry argument to the policy search functions instead of
+inode. It provides efficient way to access path related information.
+It will be used by path support for the policy.
+
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ security/integrity/ima/ima.h          | 10 +++++-----
+ security/integrity/ima/ima_api.c      |  4 ++--
+ security/integrity/ima/ima_appraise.c |  6 +++---
+ security/integrity/ima/ima_main.c     |  2 +-
+ security/integrity/ima/ima_policy.c   |  3 ++-
+ 5 files changed, 13 insertions(+), 12 deletions(-)
+
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index d79c636..639a6f2 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -160,9 +160,9 @@ struct ima_action_context {
+ };
+ 
+ /* LIM API function definitions */
+-int ima_get_action(struct inode *inode, int mask, int function,
++int ima_get_action(struct dentry *dentry, int mask, int function,
+ 		   struct ima_action_context *ctx);
+-int ima_must_measure(struct inode *inode, int mask, int function);
++int ima_must_measure(struct dentry *dentry, int mask, int function);
+ int ima_collect_measurement(struct integrity_iint_cache *iint,
+ 			    struct file *file, enum hash_algo algo);
+ void ima_store_measurement(struct integrity_iint_cache *iint, struct file *file,
+@@ -180,7 +180,7 @@ int ima_store_template(struct ima_template_entry *entry, int violation,
+ void ima_free_template_entry(struct ima_template_entry *entry);
+ const char *ima_d_path(struct path *path, char **pathbuf);
+ 
+-int ima_match_policy(struct inode *inode, enum ima_hooks func, int mask,
++int ima_match_policy(struct dentry *dentry, enum ima_hooks func, int mask,
+ 		     int flags, struct ima_action_context *ctx);
+ void ima_init_policy(void);
+ void ima_update_policy(void);
+@@ -202,7 +202,7 @@ int ima_appraise_measurement(int func, struct integrity_iint_cache *iint,
+ 			     struct file *file, const unsigned char *filename,
+ 			     struct evm_ima_xattr_data *xattr_value,
+ 			     int xattr_len, int opened);
+-int ima_must_appraise(struct inode *inode, int mask, enum ima_hooks func);
++int ima_must_appraise(struct dentry *dentry, int mask, enum ima_hooks func);
+ void ima_update_xattr(struct integrity_iint_cache *iint, struct file *file);
+ enum integrity_status ima_get_cache_status(struct integrity_iint_cache *iint,
+ 					   int func);
+@@ -222,7 +222,7 @@ static inline int ima_appraise_measurement(int func,
+ 	return INTEGRITY_UNKNOWN;
+ }
+ 
+-static inline int ima_must_appraise(struct inode *inode, int mask,
++static inline int ima_must_appraise(struct dentry *dentry, int mask,
+ 				    enum ima_hooks func)
+ {
+ 	return 0;
+diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
+index e96b41e..1645319 100644
+--- a/security/integrity/ima/ima_api.c
++++ b/security/integrity/ima/ima_api.c
+@@ -169,14 +169,14 @@ err_out:
+  * Returns IMA_MEASURE, IMA_APPRAISE mask.
+  *
+  */
+-int ima_get_action(struct inode *inode, int mask, int function,
++int ima_get_action(struct dentry *dentry, int mask, int function,
+ 		   struct ima_action_context *ctx)
+ {
+ 	int flags = IMA_MEASURE | IMA_AUDIT | IMA_APPRAISE;
+ 
+ 	flags &= ima_policy_flag;
+ 
+-	return ima_match_policy(inode, function, mask, flags, ctx);
++	return ima_match_policy(dentry, function, mask, flags, ctx);
+ }
+ 
+ /*
+diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+index dc52cc2..56e832b 100644
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -36,12 +36,12 @@ __setup("ima_appraise=", default_appraise_setup);
+  *
+  * Return 1 to appraise
+  */
+-int ima_must_appraise(struct inode *inode, int mask, enum ima_hooks func)
++int ima_must_appraise(struct dentry *dentry, int mask, enum ima_hooks func)
+ {
+ 	if (!ima_appraise)
+ 		return 0;
+ 
+-	return ima_match_policy(inode, func, mask, IMA_APPRAISE, NULL);
++	return ima_match_policy(dentry, func, mask, IMA_APPRAISE, NULL);
+ }
+ 
+ static int ima_fix_xattr(struct dentry *dentry,
+@@ -336,7 +336,7 @@ void ima_inode_post_setattr(struct dentry *dentry)
+ 	    || !inode->i_op->removexattr)
+ 		return;
+ 
+-	must_appraise = ima_must_appraise(inode, MAY_ACCESS, POST_SETATTR);
++	must_appraise = ima_must_appraise(dentry, MAY_ACCESS, POST_SETATTR);
+ 	if (!must_appraise)
+ 		inode->i_op->removexattr(dentry, XATTR_NAME_IMA);
+ 	iint = integrity_iint_find(inode);
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index 4d064c8..a17e211 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -177,7 +177,7 @@ static int process_measurement(struct file *file, int mask, int function,
+ 	 * bitmask based on the appraise/audit/measurement policy.
+ 	 * Included is the appraise submask.
+ 	 */
+-	action = ima_get_action(inode, mask, function, &ctx);
++	action = ima_get_action(file->f_path.dentry, mask, function, &ctx);
+ 	violation_check = ((function == FILE_CHECK || function == MMAP_CHECK) &&
+ 			   (ima_policy_flag & IMA_MEASURE));
+ 	if (!action && !violation_check)
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index 3bbf09c..e112237 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -256,9 +256,10 @@ static int get_subaction(struct ima_rule_entry *rule, int func)
+  * as elements in the list are never deleted, nor does the list
+  * change.)
+  */
+-int ima_match_policy(struct inode *inode, enum ima_hooks func, int mask,
++int ima_match_policy(struct dentry *dentry, enum ima_hooks func, int mask,
+ 		     int flags, struct ima_action_context *ctx)
+ {
++	struct inode *inode = dentry->d_inode;
+ 	struct ima_rule_entry *entry;
+ 	int action = 0, actmask = flags | (flags << 1);
+ 
+-- 
+2.1.4
+

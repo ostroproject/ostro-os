@@ -1,0 +1,192 @@
+From 0d222e02466213c98cab2b3a8a1654ef28426871 Mon Sep 17 00:00:00 2001
+From: Dmitry Kasatkin <d.kasatkin@samsung.com>
+Date: Sun, 26 Oct 2014 10:56:32 +0200
+Subject: [PATCH 11/45] ima: provide ima_policy_check hook
+
+Provide ima_policy_check() hook to handle kernel policy loading events.
+With this hook it is possible to require signature based appraisal of
+policy files.
+
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ include/linux/ima.h                   | 6 ++++++
+ security/integrity/iint.c             | 5 +++++
+ security/integrity/ima/ima.h          | 3 ++-
+ security/integrity/ima/ima_appraise.c | 8 ++++++++
+ security/integrity/ima/ima_main.c     | 5 +++++
+ security/integrity/ima/ima_policy.c   | 5 +++++
+ security/integrity/integrity.h        | 7 +++++--
+ 7 files changed, 36 insertions(+), 3 deletions(-)
+
+diff --git a/include/linux/ima.h b/include/linux/ima.h
+index 120ccc5..3fce836 100644
+--- a/include/linux/ima.h
++++ b/include/linux/ima.h
+@@ -20,6 +20,7 @@ extern void ima_file_free(struct file *file);
+ extern int ima_file_mmap(struct file *file, unsigned long prot);
+ extern int ima_module_check(struct file *file);
+ extern int ima_fw_from_file(struct file *file, char *buf, size_t size);
++extern int ima_policy_check(struct file *file);
+ 
+ #else
+ static inline int ima_bprm_check(struct linux_binprm *bprm)
+@@ -52,6 +53,11 @@ static inline int ima_fw_from_file(struct file *file, char *buf, size_t size)
+ 	return 0;
+ }
+ 
++static inline int ima_policy_check(struct file *file)
++{
++	return 0;
++}
++
+ #endif /* CONFIG_IMA */
+ 
+ #ifdef CONFIG_IMA_APPRAISE
+diff --git a/security/integrity/iint.c b/security/integrity/iint.c
+index cf2d71f..929b4e3 100644
+--- a/security/integrity/iint.c
++++ b/security/integrity/iint.c
+@@ -21,6 +21,7 @@
+ #include <linux/rbtree.h>
+ #include <linux/file.h>
+ #include <linux/uaccess.h>
++#include <linux/ima.h>
+ #include "integrity.h"
+ 
+ static struct rb_root integrity_iint_tree = RB_ROOT;
+@@ -224,6 +225,10 @@ int integrity_read_file(const char *path, char **data)
+ 	if (rc)
+ 		goto out_fput;
+ 
++	rc = ima_policy_check(file);
++	if (rc)
++		goto out;
++
+ 	size = i_size_read(file_inode(file));
+ 	if (size <= 0)
+ 		goto out;
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index 1571a91..dbcf91e 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -149,7 +149,8 @@ void ima_free_template_entry(struct ima_template_entry *entry);
+ const char *ima_d_path(struct path *path, char **pathbuf);
+ 
+ /* IMA policy related functions */
+-enum ima_hooks { FILE_CHECK = 1, MMAP_CHECK, BPRM_CHECK, MODULE_CHECK, FIRMWARE_CHECK, POST_SETATTR };
++enum ima_hooks { FILE_CHECK = 1, MMAP_CHECK, BPRM_CHECK, MODULE_CHECK,
++		 FIRMWARE_CHECK, POLICY_CHECK, POST_SETATTR };
+ 
+ int ima_match_policy(struct inode *inode, enum ima_hooks func, int mask,
+ 		     int flags);
+diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+index 6b60298..4605530 100644
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -78,6 +78,8 @@ enum integrity_status ima_get_cache_status(struct integrity_iint_cache *iint,
+ 		return iint->ima_module_status;
+ 	case FIRMWARE_CHECK:
+ 		return iint->ima_firmware_status;
++	case POLICY_CHECK:
++		return iint->ima_policy_status;
+ 	case FILE_CHECK:
+ 	default:
+ 		return iint->ima_file_status;
+@@ -100,6 +102,9 @@ static void ima_set_cache_status(struct integrity_iint_cache *iint,
+ 	case FIRMWARE_CHECK:
+ 		iint->ima_firmware_status = status;
+ 		break;
++	case POLICY_CHECK:
++		iint->ima_policy_status = status;
++		break;
+ 	case FILE_CHECK:
+ 	default:
+ 		iint->ima_file_status = status;
+@@ -122,6 +127,9 @@ static void ima_cache_flags(struct integrity_iint_cache *iint, int func)
+ 	case FIRMWARE_CHECK:
+ 		iint->flags |= (IMA_FIRMWARE_APPRAISED | IMA_APPRAISED);
+ 		break;
++	case POLICY_CHECK:
++		iint->flags |= (IMA_POLICY_APPRAISED | IMA_APPRAISED);
++		break;
+ 	case FILE_CHECK:
+ 	default:
+ 		iint->flags |= (IMA_FILE_APPRAISED | IMA_APPRAISED);
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index e18ede6..c1f1fe1 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -371,6 +371,11 @@ int ima_fw_from_file(struct file *file, char *buf, size_t size)
+ 	return process_measurement(file, MAY_EXEC, FIRMWARE_CHECK, 0);
+ }
+ 
++int ima_policy_check(struct file *file)
++{
++	return process_measurement(file, MAY_READ, POLICY_CHECK, 0);
++}
++
+ static int __init init_ima(void)
+ {
+ 	int error;
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index d1eefb9..c9944ca 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -87,6 +87,7 @@ static struct ima_rule_entry default_rules[] = {
+ 	 .flags = IMA_FUNC | IMA_MASK | IMA_UID},
+ 	{.action = MEASURE, .func = MODULE_CHECK, .flags = IMA_FUNC},
+ 	{.action = MEASURE, .func = FIRMWARE_CHECK, .flags = IMA_FUNC},
++	{.action = MEASURE, .func = POLICY_CHECK, .flags = IMA_FUNC},
+ };
+ 
+ static struct ima_rule_entry default_appraise_rules[] = {
+@@ -252,6 +253,8 @@ static int get_subaction(struct ima_rule_entry *rule, int func)
+ 		return IMA_MODULE_APPRAISE;
+ 	case FIRMWARE_CHECK:
+ 		return IMA_FIRMWARE_APPRAISE;
++	case POLICY_CHECK:
++		return IMA_POLICY_APPRAISE;
+ 	case FILE_CHECK:
+ 	default:
+ 		return IMA_FILE_APPRAISE;
+@@ -514,6 +517,8 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
+ 				entry->func = MMAP_CHECK;
+ 			else if (strcmp(args[0].from, "BPRM_CHECK") == 0)
+ 				entry->func = BPRM_CHECK;
++			else if (strcmp(args[0].from, "POLICY_CHECK") == 0)
++				entry->func = POLICY_CHECK;
+ 			else
+ 				result = -EINVAL;
+ 			if (!result)
+diff --git a/security/integrity/integrity.h b/security/integrity/integrity.h
+index c32e5eb..09aad9c 100644
+--- a/security/integrity/integrity.h
++++ b/security/integrity/integrity.h
+@@ -48,12 +48,14 @@
+ #define IMA_MODULE_APPRAISED	0x00008000
+ #define IMA_FIRMWARE_APPRAISE	0x00010000
+ #define IMA_FIRMWARE_APPRAISED	0x00020000
++#define IMA_POLICY_APPRAISE	0x00040000
++#define IMA_POLICY_APPRAISED	0x00080000
+ #define IMA_APPRAISE_SUBMASK	(IMA_FILE_APPRAISE | IMA_MMAP_APPRAISE | \
+ 				 IMA_BPRM_APPRAISE | IMA_MODULE_APPRAISE | \
+-				 IMA_FIRMWARE_APPRAISE)
++				 IMA_FIRMWARE_APPRAISE | IMA_POLICY_APPRAISE)
+ #define IMA_APPRAISED_SUBMASK	(IMA_FILE_APPRAISED | IMA_MMAP_APPRAISED | \
+ 				 IMA_BPRM_APPRAISED | IMA_MODULE_APPRAISED | \
+-				 IMA_FIRMWARE_APPRAISED)
++				 IMA_FIRMWARE_APPRAISED | IMA_POLICY_APPRAISED)
+ 
+ /* iint cache atomic_flags */
+ #define IMA_CHANGE_XATTR	0
+@@ -118,6 +120,7 @@ struct integrity_iint_cache {
+ 	enum integrity_status ima_bprm_status:4;
+ 	enum integrity_status ima_module_status:4;
+ 	enum integrity_status ima_firmware_status:4;
++	enum integrity_status ima_policy_status:4;
+ 	enum integrity_status evm_status:4;
+ 	struct ima_digest_data *ima_hash;
+ };
+-- 
+2.1.4
+

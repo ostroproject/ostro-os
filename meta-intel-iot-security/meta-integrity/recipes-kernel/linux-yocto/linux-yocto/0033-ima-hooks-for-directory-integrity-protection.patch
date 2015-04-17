@@ -1,0 +1,249 @@
+From 217aedbfc7b6b321646030b13ce0ed131fdcdf69 Mon Sep 17 00:00:00 2001
+From: Dmitry Kasatkin <d.kasatkin@samsung.com>
+Date: Mon, 18 Nov 2013 21:24:21 +0200
+Subject: [PATCH 33/45] ima: hooks for directory integrity protection
+
+Both IMA-appraisal and EVM protect the integrity of regular files.
+IMA protects file data integrity, while EVM protects the file meta-data
+integrity, such as file attributes and extended attributes. This patch
+set adds hooks for offline directory integrity protection.
+
+An inode itself does not have any file name associated with it.  The
+association of the file name to inode is done via directory entries.
+On a running system, mandatory and/or discretionary access control prevent
+unprivileged file deletion, file name change, or hardlink creation.
+In an offline attack, without these protections, the association between
+a file name and an inode is unprotected. Files can be deleted, renamed
+or moved from one directory to another one. In all of these cases,
+the integrity of the file data and metadata is good.
+
+To prevent such attacks, it is necessary to protect integrity of directory
+content.
+
+This patch adds 2 new hooks for directory integrity protection:
+  ima_dir_check() and ima_dir_update().
+
+ima_dir_check() is called to verify integrity of the the directory during
+the initial path lookup.
+
+ima_dir_update() is called from several places in namei.c, when the directory
+content is changing, for updating the directory hash.
+
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ fs/namei.c                        | 42 ++++++++++++++++++++++++++++++++++++---
+ fs/open.c                         |  6 ++++++
+ include/linux/ima.h               | 23 +++++++++++++++++++++
+ net/unix/af_unix.c                |  2 ++
+ security/integrity/ima/ima_main.c |  3 +++
+ 5 files changed, 73 insertions(+), 3 deletions(-)
+
+diff --git a/fs/namei.c b/fs/namei.c
+index bc35b02..843b8ad 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -1509,16 +1509,33 @@ static int lookup_slow(struct nameidata *nd, struct path *path)
+ 	return 0;
+ }
+ 
++static inline int may_lookup_ima(struct nameidata *nd, int err)
++{
++	if (err)
++		return err;
++	err = ima_dir_check(&nd->path, MAY_EXEC|MAY_NOT_BLOCK);
++	if (err != -ECHILD)
++		return err;
++	if (unlazy_walk(nd, NULL))
++		return -ECHILD;
++	return ima_dir_check(&nd->path, MAY_EXEC);
++}
++
+ static inline int may_lookup(struct nameidata *nd)
+ {
++	int err = 0;
++
+ 	if (nd->flags & LOOKUP_RCU) {
+-		int err = inode_permission(nd->inode, MAY_EXEC|MAY_NOT_BLOCK);
++		err = inode_permission(nd->inode, MAY_EXEC|MAY_NOT_BLOCK);
+ 		if (err != -ECHILD)
+-			return err;
++			return may_lookup_ima(nd, err);
+ 		if (unlazy_walk(nd, NULL))
+ 			return -ECHILD;
+ 	}
+-	return inode_permission(nd->inode, MAY_EXEC);
++	err = inode_permission(nd->inode, MAY_EXEC);
++	if (err)
++		return err;
++	return ima_dir_check(&nd->path, MAY_EXEC);
+ }
+ 
+ static inline int handle_dots(struct nameidata *nd, int type)
+@@ -2966,6 +2983,8 @@ retry_lookup:
+ 	}
+ 	mutex_lock(&dir->d_inode->i_mutex);
+ 	error = lookup_open(nd, path, file, op, got_write, opened);
++	if (error >= 0 && (*opened & FILE_CREATED))
++		ima_dir_update(&nd->path, NULL);
+ 	mutex_unlock(&dir->d_inode->i_mutex);
+ 
+ 	if (error <= 0) {
+@@ -3461,6 +3480,8 @@ retry:
+ 			error = vfs_mknod(path.dentry->d_inode,dentry,mode,0);
+ 			break;
+ 	}
++	if (!error)
++		ima_dir_update(&path, dentry);
+ out:
+ 	done_path_create(&path, dentry);
+ 	if (retry_estale(error, lookup_flags)) {
+@@ -3518,6 +3539,8 @@ retry:
+ 	error = security_path_mkdir(&path, dentry, mode);
+ 	if (!error)
+ 		error = vfs_mkdir(path.dentry->d_inode, dentry, mode);
++	if (!error)
++		ima_dir_update(&path, dentry);
+ 	done_path_create(&path, dentry);
+ 	if (retry_estale(error, lookup_flags)) {
+ 		lookup_flags |= LOOKUP_REVAL;
+@@ -3637,6 +3660,8 @@ retry:
+ 	if (error)
+ 		goto exit3;
+ 	error = vfs_rmdir(nd.path.dentry->d_inode, dentry);
++	if (!error)
++		ima_dir_update(&nd.path, NULL);
+ exit3:
+ 	dput(dentry);
+ exit2:
+@@ -3759,6 +3784,8 @@ retry_deleg:
+ 		if (error)
+ 			goto exit2;
+ 		error = vfs_unlink(nd.path.dentry->d_inode, dentry, &delegated_inode);
++		if (!error)
++			ima_dir_update(&nd.path, NULL);
+ exit2:
+ 		dput(dentry);
+ 	}
+@@ -3850,6 +3877,8 @@ retry:
+ 	error = security_path_symlink(&path, dentry, from->name);
+ 	if (!error)
+ 		error = vfs_symlink(path.dentry->d_inode, dentry, from->name);
++	if (!error)
++		ima_dir_update(&path, dentry);
+ 	done_path_create(&path, dentry);
+ 	if (retry_estale(error, lookup_flags)) {
+ 		lookup_flags |= LOOKUP_REVAL;
+@@ -3992,6 +4021,8 @@ retry:
+ 	if (error)
+ 		goto out_dput;
+ 	error = vfs_link(old_path.dentry, new_path.dentry->d_inode, new_dentry, &delegated_inode);
++	if (!error)
++		ima_dir_update(&new_path, NULL);
+ out_dput:
+ 	done_path_create(&new_path, new_dentry);
+ 	if (delegated_inode) {
+@@ -4315,6 +4346,11 @@ retry_deleg:
+ 	error = vfs_rename(old_dir->d_inode, old_dentry,
+ 			   new_dir->d_inode, new_dentry,
+ 			   &delegated_inode, flags);
++	if (!error) {
++		ima_dir_update(&oldnd.path, NULL);
++		if (!path_equal(&oldnd.path, &newnd.path))
++			ima_dir_update(&newnd.path, NULL);
++	}
+ exit5:
+ 	dput(new_dentry);
+ exit4:
+diff --git a/fs/open.c b/fs/open.c
+index 813be03..4932f758 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -422,6 +422,9 @@ retry:
+ 	error = inode_permission(path.dentry->d_inode, MAY_EXEC | MAY_CHDIR);
+ 	if (error)
+ 		goto dput_and_out;
++	error = ima_dir_check(&path, MAY_EXEC);
++	if (error)
++		goto dput_and_out;
+ 
+ 	set_fs_pwd(current->fs, &path);
+ 
+@@ -452,6 +455,9 @@ SYSCALL_DEFINE1(fchdir, unsigned int, fd)
+ 		goto out_putf;
+ 
+ 	error = inode_permission(inode, MAY_EXEC | MAY_CHDIR);
++	if (error)
++		goto out_putf;
++	error = ima_dir_check(&f.file->f_path, MAY_EXEC);
+ 	if (!error)
+ 		set_fs_pwd(current->fs, &f.file->f_path);
+ out_putf:
+diff --git a/include/linux/ima.h b/include/linux/ima.h
+index 3fce836..639d576 100644
+--- a/include/linux/ima.h
++++ b/include/linux/ima.h
+@@ -85,4 +85,27 @@ static inline int ima_inode_removexattr(struct dentry *dentry,
+ 	return 0;
+ }
+ #endif /* CONFIG_IMA_APPRAISE */
++
++#ifdef CONFIG_IMA_APPRAISE_DIRECTORIES
++extern int ima_dir_check(struct path *dir, int mask);
++extern int ima_special_check(struct file *file, int mask);
++extern void ima_dir_update(struct path *dir, struct dentry *dentry);
++#else
++static inline int ima_dir_check(struct path *dir, int mask)
++{
++	return 0;
++}
++
++static inline int ima_special_check(struct file *file, int mask)
++{
++	return 0;
++}
++
++static inline void ima_dir_update(struct path *dir, struct dentry *dentry)
++{
++	return;
++}
++
++#endif /* CONFIG_IMA_APPRAISE_DIRECTORIES */
++
+ #endif /* _LINUX_IMA_H */
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index 8e1b102..f4738a0 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -117,6 +117,7 @@
+ #include <net/checksum.h>
+ #include <linux/security.h>
+ #include <linux/freezer.h>
++#include <linux/ima.h>
+ 
+ struct hlist_head unix_socket_table[2 * UNIX_HASH_SIZE];
+ EXPORT_SYMBOL_GPL(unix_socket_table);
+@@ -848,6 +849,7 @@ static int unix_mknod(const char *sun_path, umode_t mode, struct path *res)
+ 		if (!err) {
+ 			res->mnt = mntget(path.mnt);
+ 			res->dentry = dget(dentry);
++			ima_dir_update(&path, dentry);
+ 		}
+ 	}
+ 	done_path_create(&path, dentry);
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index 7ab4453..f553163 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -365,6 +365,9 @@ int ima_bprm_check(struct linux_binprm *bprm)
+  */
+ int ima_file_check(struct file *file, int mask, int opened)
+ {
++	if (!S_ISREG(file->f_path.dentry->d_inode->i_mode))
++		return ima_special_check(file, mask);
++
+ 	return process_measurement(file,
+ 				   mask & (MAY_READ | MAY_WRITE | MAY_EXEC),
+ 				   FILE_CHECK, opened);
+-- 
+2.1.4
+

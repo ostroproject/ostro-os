@@ -1,0 +1,52 @@
+From 0764578a9f4f9a322d7603efea6f13057ffa317e Mon Sep 17 00:00:00 2001
+From: Dmitry Kasatkin <d.kasatkin@samsung.com>
+Date: Fri, 8 Nov 2013 17:19:02 +0200
+Subject: [PATCH 32/45] ima: provide inode type information in audit
+
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ security/integrity/integrity_audit.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/security/integrity/integrity_audit.c b/security/integrity/integrity_audit.c
+index 90987d1..95e5a3c 100644
+--- a/security/integrity/integrity_audit.c
++++ b/security/integrity/integrity_audit.c
+@@ -28,6 +28,26 @@ static int __init integrity_audit_setup(char *str)
+ }
+ __setup("integrity_audit=", integrity_audit_setup);
+ 
++static const char *get_type(struct inode *inode)
++{
++	if (S_ISLNK(inode->i_mode))
++		return "link";
++	else if (S_ISREG(inode->i_mode))
++		return "file";
++	else if (S_ISDIR(inode->i_mode))
++		return "dir";
++	else if (S_ISCHR(inode->i_mode))
++		return "chr";
++	else if (S_ISBLK(inode->i_mode))
++		return "blk";
++	else if (S_ISFIFO(inode->i_mode))
++		return "fifo";
++	else if (S_ISSOCK(inode->i_mode))
++		return "sock";
++	else
++		return "unknown";
++}
++
+ void integrity_audit_msg(int audit_msgno, struct inode *inode,
+ 			 const unsigned char *fname, const char *op,
+ 			 const char *cause, int result, int audit_info)
+@@ -56,6 +76,7 @@ void integrity_audit_msg(int audit_msgno, struct inode *inode,
+ 		audit_log_untrustedstring(ab, fname);
+ 	}
+ 	if (inode) {
++		audit_log_format(ab, " type=%s", get_type(inode));
+ 		audit_log_format(ab, " dev=");
+ 		audit_log_untrustedstring(ab, inode->i_sb->s_id);
+ 		audit_log_format(ab, " ino=%lu", inode->i_ino);
+-- 
+2.1.4
+

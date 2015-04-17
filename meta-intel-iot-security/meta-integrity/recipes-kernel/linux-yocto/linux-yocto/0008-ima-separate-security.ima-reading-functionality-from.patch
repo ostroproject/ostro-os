@@ -1,0 +1,281 @@
+From 9be955101b4216049b3d383f697dd9ad9df8e596 Mon Sep 17 00:00:00 2001
+From: Dmitry Kasatkin <d.kasatkin@samsung.com>
+Date: Thu, 30 Oct 2014 12:39:39 +0200
+Subject: [PATCH 08/45] ima: separate 'security.ima' reading functionality from
+ collect
+
+Instead of playing with setting and passing pointers to pointers to the
+ima_collect_measurent() to read and return 'security.ima' xattr value,
+this patch moves functionality to the calling process_measurement()
+to directly read xattr and pass only hash algo to the ima_collect_measurement().
+Code looks clearer this way.
+
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ security/integrity/ima/ima.h              | 14 ++++++--------
+ security/integrity/ima/ima_api.c          | 15 +++------------
+ security/integrity/ima/ima_appraise.c     | 25 ++++++++++++++-----------
+ security/integrity/ima/ima_crypto.c       |  2 +-
+ security/integrity/ima/ima_init.c         |  2 +-
+ security/integrity/ima/ima_main.c         | 11 +++++++----
+ security/integrity/ima/ima_template.c     |  2 --
+ security/integrity/ima/ima_template_lib.c |  1 -
+ 8 files changed, 32 insertions(+), 40 deletions(-)
+
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index 2eb1da2..1571a91 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -23,6 +23,7 @@
+ #include <linux/hash.h>
+ #include <linux/tpm.h>
+ #include <linux/audit.h>
++#include <crypto/hash_info.h>
+ 
+ #include "../integrity.h"
+ 
+@@ -131,9 +132,7 @@ static inline unsigned long ima_hash_key(u8 *digest)
+ int ima_get_action(struct inode *inode, int mask, int function);
+ int ima_must_measure(struct inode *inode, int mask, int function);
+ int ima_collect_measurement(struct integrity_iint_cache *iint,
+-			    struct file *file,
+-			    struct evm_ima_xattr_data **xattr_value,
+-			    int *xattr_len);
++			    struct file *file, enum hash_algo algo);
+ void ima_store_measurement(struct integrity_iint_cache *iint, struct file *file,
+ 			   const unsigned char *filename,
+ 			   struct evm_ima_xattr_data *xattr_value,
+@@ -176,8 +175,8 @@ int ima_must_appraise(struct inode *inode, int mask, enum ima_hooks func);
+ void ima_update_xattr(struct integrity_iint_cache *iint, struct file *file);
+ enum integrity_status ima_get_cache_status(struct integrity_iint_cache *iint,
+ 					   int func);
+-void ima_get_hash_algo(struct evm_ima_xattr_data *xattr_value, int xattr_len,
+-		       struct ima_digest_data *hash);
++enum hash_algo ima_get_hash_algo(struct evm_ima_xattr_data *xattr_value,
++				 int xattr_len);
+ int ima_read_xattr(struct dentry *dentry,
+ 		   struct evm_ima_xattr_data **xattr_value);
+ 
+@@ -209,9 +208,8 @@ static inline enum integrity_status ima_get_cache_status(struct integrity_iint_c
+ 	return INTEGRITY_UNKNOWN;
+ }
+ 
+-static inline void ima_get_hash_algo(struct evm_ima_xattr_data *xattr_value,
+-				     int xattr_len,
+-				     struct ima_digest_data *hash)
++static inline enum hash_algo
++ima_get_hash_algo(struct evm_ima_xattr_data *xattr_value, int xattr_len)
+ {
+ }
+ 
+diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
+index b8a27c5..8eb6a0a 100644
+--- a/security/integrity/ima/ima_api.c
++++ b/security/integrity/ima/ima_api.c
+@@ -18,7 +18,7 @@
+ #include <linux/fs.h>
+ #include <linux/xattr.h>
+ #include <linux/evm.h>
+-#include <crypto/hash_info.h>
++
+ #include "ima.h"
+ 
+ /*
+@@ -189,9 +189,7 @@ int ima_get_action(struct inode *inode, int mask, int function)
+  * Return 0 on success, error code otherwise
+  */
+ int ima_collect_measurement(struct integrity_iint_cache *iint,
+-			    struct file *file,
+-			    struct evm_ima_xattr_data **xattr_value,
+-			    int *xattr_len)
++			    struct file *file, enum hash_algo algo)
+ {
+ 	const char *audit_cause = "failed";
+ 	struct inode *inode = file_inode(file);
+@@ -202,9 +200,6 @@ int ima_collect_measurement(struct integrity_iint_cache *iint,
+ 		char digest[IMA_MAX_DIGEST_SIZE];
+ 	} hash;
+ 
+-	if (xattr_value)
+-		*xattr_len = ima_read_xattr(file->f_path.dentry, xattr_value);
+-
+ 	if (!(iint->flags & IMA_COLLECTED)) {
+ 		u64 i_version = file_inode(file)->i_version;
+ 
+@@ -214,11 +209,7 @@ int ima_collect_measurement(struct integrity_iint_cache *iint,
+ 			goto out;
+ 		}
+ 
+-		/* use default hash algorithm */
+-		hash.hdr.algo = ima_hash_algo;
+-
+-		if (xattr_value)
+-			ima_get_hash_algo(*xattr_value, *xattr_len, &hash.hdr);
++		hash.hdr.algo = algo;
+ 
+ 		result = ima_calc_file_hash(file, &hash.hdr);
+ 		if (!result) {
+diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+index 6fff5cb..6b60298 100644
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -15,7 +15,6 @@
+ #include <linux/magic.h>
+ #include <linux/ima.h>
+ #include <linux/evm.h>
+-#include <crypto/hash_info.h>
+ 
+ #include "ima.h"
+ 
+@@ -130,36 +129,40 @@ static void ima_cache_flags(struct integrity_iint_cache *iint, int func)
+ 	}
+ }
+ 
+-void ima_get_hash_algo(struct evm_ima_xattr_data *xattr_value, int xattr_len,
+-		       struct ima_digest_data *hash)
++enum hash_algo ima_get_hash_algo(struct evm_ima_xattr_data *xattr_value,
++				 int xattr_len)
+ {
+ 	struct signature_v2_hdr *sig;
+ 
+ 	if (!xattr_value || xattr_len < 2)
+-		return;
++		/* return default hash algo */
++		return ima_hash_algo;
+ 
+ 	switch (xattr_value->type) {
+ 	case EVM_IMA_XATTR_DIGSIG:
+ 		sig = (typeof(sig))xattr_value;
+ 		if (sig->version != 2 || xattr_len <= sizeof(*sig))
+-			return;
+-		hash->algo = sig->hash_algo;
++			return ima_hash_algo;
++		return sig->hash_algo;
+ 		break;
+ 	case IMA_XATTR_DIGEST_NG:
+-		hash->algo = xattr_value->digest[0];
++		return xattr_value->digest[0];
+ 		break;
+ 	case IMA_XATTR_DIGEST:
+ 		/* this is for backward compatibility */
+ 		if (xattr_len == 21) {
+ 			unsigned int zero = 0;
+ 			if (!memcmp(&xattr_value->digest[16], &zero, 4))
+-				hash->algo = HASH_ALGO_MD5;
++				return HASH_ALGO_MD5;
+ 			else
+-				hash->algo = HASH_ALGO_SHA1;
++				return HASH_ALGO_SHA1;
+ 		} else if (xattr_len == 17)
+-			hash->algo = HASH_ALGO_MD5;
++			return HASH_ALGO_MD5;
+ 		break;
+ 	}
++
++	/* return default hash algo */
++	return ima_hash_algo;
+ }
+ 
+ int ima_read_xattr(struct dentry *dentry,
+@@ -297,7 +300,7 @@ void ima_update_xattr(struct integrity_iint_cache *iint, struct file *file)
+ 	if (test_bit(IMA_DIGSIG, &iint->atomic_flags))
+ 		return;
+ 
+-	rc = ima_collect_measurement(iint, file, NULL, NULL);
++	rc = ima_collect_measurement(iint, file, ima_hash_algo);
+ 	if (rc < 0)
+ 		return;
+ 
+diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
+index 686355f..3333e10 100644
+--- a/security/integrity/ima/ima_crypto.c
++++ b/security/integrity/ima/ima_crypto.c
+@@ -24,7 +24,7 @@
+ #include <linux/err.h>
+ #include <linux/slab.h>
+ #include <crypto/hash.h>
+-#include <crypto/hash_info.h>
++
+ #include "ima.h"
+ 
+ struct ahash_completion {
+diff --git a/security/integrity/ima/ima_init.c b/security/integrity/ima/ima_init.c
+index fe6df5a..32e8f22 100644
+--- a/security/integrity/ima/ima_init.c
++++ b/security/integrity/ima/ima_init.c
+@@ -21,7 +21,7 @@
+ #include <linux/scatterlist.h>
+ #include <linux/slab.h>
+ #include <linux/err.h>
+-#include <crypto/hash_info.h>
++
+ #include "ima.h"
+ 
+ #ifdef CONFIG_IMA_X509_PATH
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index 6cd30d0..e18ede6 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -24,7 +24,6 @@
+ #include <linux/slab.h>
+ #include <linux/xattr.h>
+ #include <linux/ima.h>
+-#include <crypto/hash_info.h>
+ 
+ #include "ima.h"
+ 
+@@ -165,9 +164,10 @@ static int process_measurement(struct file *file, int mask, int function,
+ 	char *pathbuf = NULL;
+ 	const char *pathname = NULL;
+ 	int rc = 0, action, must_appraise = 0;
+-	struct evm_ima_xattr_data *xattr_value = NULL, **xattr_ptr = NULL;
++	struct evm_ima_xattr_data *xattr_value = NULL;
+ 	int xattr_len = 0;
+ 	bool violation_check;
++	enum hash_algo hash_algo;
+ 
+ 	if (!ima_policy_flag || !S_ISREG(inode->i_mode))
+ 		return 0;
+@@ -241,9 +241,12 @@ static int process_measurement(struct file *file, int mask, int function,
+ 	template_desc = ima_template_desc_current();
+ 	if ((action & IMA_APPRAISE_SUBMASK) ||
+ 		    strcmp(template_desc->name, IMA_TEMPLATE_IMA_NAME) != 0)
+-		xattr_ptr = &xattr_value;
++		/* read 'security.ima' */
++		xattr_len = ima_read_xattr(file->f_path.dentry, &xattr_value);
+ 
+-	rc = ima_collect_measurement(iint, file, xattr_ptr, &xattr_len);
++	hash_algo = ima_get_hash_algo(xattr_value, xattr_len);
++
++	rc = ima_collect_measurement(iint, file, hash_algo);
+ 	if (rc != 0) {
+ 		if (file->f_flags & O_DIRECT)
+ 			rc = (iint->flags & IMA_PERMIT_DIRECTIO) ? 0 : -EACCES;
+diff --git a/security/integrity/ima/ima_template.c b/security/integrity/ima/ima_template.c
+index 0b7404e..febd12e 100644
+--- a/security/integrity/ima/ima_template.c
++++ b/security/integrity/ima/ima_template.c
+@@ -15,8 +15,6 @@
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ 
+-#include <crypto/hash_info.h>
+-
+ #include "ima.h"
+ #include "ima_template_lib.h"
+ 
+diff --git a/security/integrity/ima/ima_template_lib.c b/security/integrity/ima/ima_template_lib.c
+index bcfc36c..7e8e1c3 100644
+--- a/security/integrity/ima/ima_template_lib.c
++++ b/security/integrity/ima/ima_template_lib.c
+@@ -12,7 +12,6 @@
+  * File: ima_template_lib.c
+  *      Library of supported template fields.
+  */
+-#include <crypto/hash_info.h>
+ 
+ #include "ima_template_lib.h"
+ 
+-- 
+2.1.4
+

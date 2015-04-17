@@ -1,0 +1,79 @@
+From 7dff7a7f623972eb44f7d6be9345b163eb2b1507 Mon Sep 17 00:00:00 2001
+From: Dmitry Kasatkin <d.kasatkin@samsung.com>
+Date: Wed, 24 Sep 2014 12:49:02 +0300
+Subject: [PATCH 19/45] ima: do not remove sysfs 'policy' entry
+
+By moving the checking if policy was already updated to 'open' operation
+makes it possible to keep policy sysfs entry and return -EACCESS meaning
+that policy was already updated. In future patches 'policy' interface
+will be used to read runtime policy and update policy multiple times.
+
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ security/integrity/ima/ima.h        |  1 +
+ security/integrity/ima/ima_fs.c     | 12 +++++++-----
+ security/integrity/ima/ima_policy.c |  5 +++++
+ 3 files changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index 6372a14..d79c636 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -185,6 +185,7 @@ int ima_match_policy(struct inode *inode, enum ima_hooks func, int mask,
+ void ima_init_policy(void);
+ void ima_update_policy(void);
+ void ima_update_policy_flag(void);
++bool ima_default_policy(void);
+ ssize_t ima_parse_add_rule(char *);
+ void ima_delete_rules(void);
+ 
+diff --git a/security/integrity/ima/ima_fs.c b/security/integrity/ima/ima_fs.c
+index fc66c73..acdf9e6 100644
+--- a/security/integrity/ima/ima_fs.c
++++ b/security/integrity/ima/ima_fs.c
+@@ -349,6 +349,10 @@ static int ima_open_policy(struct inode *inode, struct file *filp)
+ 		return -EACCES;
+ 	if (test_and_set_bit(IMA_FS_BUSY, &ima_fs_flags))
+ 		return -EBUSY;
++	if (!ima_default_policy()) {
++		clear_bit(IMA_FS_BUSY, &ima_fs_flags);
++		return -EACCES;
++	}
+ 	return 0;
+ }
+ 
+@@ -370,12 +374,10 @@ static int ima_release_policy(struct inode *inode, struct file *file)
+ 	if (!valid_policy) {
+ 		ima_delete_rules();
+ 		valid_policy = 1;
+-		clear_bit(IMA_FS_BUSY, &ima_fs_flags);
+-		return 0;
++	} else {
++		ima_update_policy();
+ 	}
+-	ima_update_policy();
+-	securityfs_remove(ima_policy);
+-	ima_policy = NULL;
++	clear_bit(IMA_FS_BUSY, &ima_fs_flags);
+ 	return 0;
+ }
+ 
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index a309938..3bbf09c 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -341,6 +341,11 @@ void __init ima_init_policy(void)
+ 	ima_rules = &ima_default_rules;
+ }
+ 
++bool ima_default_policy(void)
++{
++	return ima_rules == &ima_default_rules;
++}
++
+ /**
+  * ima_update_policy - update default_rules with new measure rules
+  *
+-- 
+2.1.4
+

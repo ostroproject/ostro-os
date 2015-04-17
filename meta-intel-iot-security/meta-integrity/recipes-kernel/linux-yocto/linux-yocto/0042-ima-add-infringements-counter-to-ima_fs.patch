@@ -1,0 +1,106 @@
+From 8f58b2202cdbdbad4a224ecd8eb3a74a82b79517 Mon Sep 17 00:00:00 2001
+From: Zbigniew Jasinski <z.jasinski@samsung.com>
+Date: Tue, 1 Apr 2014 17:25:20 +0200
+Subject: [PATCH 42/45] ima: add infringements counter to ima_fs
+
+Each time an infringed file is accessed a counter is incremented.
+---
+ security/integrity/ima/ima.h          |  1 +
+ security/integrity/ima/ima_appraise.c |  2 ++
+ security/integrity/ima/ima_fs.c       | 21 +++++++++++++++++++++
+ security/integrity/ima/ima_queue.c    |  1 +
+ 4 files changed, 25 insertions(+)
+
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index 16ee496..4d2376f 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -122,6 +122,7 @@ extern spinlock_t ima_queue_lock;
+ struct ima_h_table {
+ 	atomic_long_t len;	/* number of stored measurements in the list */
+ 	atomic_long_t violations;
++	atomic_long_t infringements;
+ 	struct hlist_head queue[IMA_MEASURE_HTABLE_SIZE];
+ };
+ extern struct ima_h_table ima_htable;
+diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+index f02be0f..237908e 100644
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -289,6 +289,8 @@ out:
+ 		}
+ 		integrity_audit_msg(AUDIT_INTEGRITY_DATA, inode, filename,
+ 				    op, cause, rc, 0);
++		if (rc != INTEGRITY_PASS)
++			atomic_long_inc(&ima_htable.infringements);
+ 	} else {
+ 		ima_cache_flags(iint, func);
+ 	}
+diff --git a/security/integrity/ima/ima_fs.c b/security/integrity/ima/ima_fs.c
+index 7762998..03ea0bf 100644
+--- a/security/integrity/ima/ima_fs.c
++++ b/security/integrity/ima/ima_fs.c
+@@ -50,6 +50,19 @@ static const struct file_operations ima_htable_violations_ops = {
+ 	.llseek = generic_file_llseek,
+ };
+ 
++static ssize_t ima_show_htable_infringements(struct file *filp,
++					  char __user *buf,
++					  size_t count, loff_t *ppos)
++{
++	return ima_show_htable_value(buf, count, ppos,
++				     &ima_htable.infringements);
++}
++
++static const struct file_operations ima_htable_infringements_ops = {
++	.read = ima_show_htable_infringements,
++	.llseek = generic_file_llseek,
++};
++
+ static ssize_t ima_show_measurements_count(struct file *filp,
+ 					   char __user *buf,
+ 					   size_t count, loff_t *ppos)
+@@ -332,6 +345,7 @@ static struct dentry *binary_runtime_measurements;
+ static struct dentry *ascii_runtime_measurements;
+ static struct dentry *runtime_measurements_count;
+ static struct dentry *violations;
++static struct dentry *infringements;
+ static struct dentry *ima_policy;
+ 
+ enum ima_fs_flags {
+@@ -455,6 +469,12 @@ int __init ima_fs_init(void)
+ 	if (IS_ERR(violations))
+ 		goto out;
+ 
++	infringements =
++	    securityfs_create_file("infringements", S_IRUSR | S_IRGRP, ima_dir,
++				   NULL, &ima_htable_infringements_ops);
++	if (IS_ERR(infringements))
++		goto out;
++
+ 	ima_policy = securityfs_create_file("policy",
+ #ifndef CONFIG_IMA_READABLE_POLICY_INTERFACE
+ 					    S_IWUSR,
+@@ -469,6 +489,7 @@ int __init ima_fs_init(void)
+ 	return 0;
+ out:
+ 	securityfs_remove(violations);
++	securityfs_remove(infringements);
+ 	securityfs_remove(runtime_measurements_count);
+ 	securityfs_remove(ascii_runtime_measurements);
+ 	securityfs_remove(binary_runtime_measurements);
+diff --git a/security/integrity/ima/ima_queue.c b/security/integrity/ima/ima_queue.c
+index 552705d..e47e9a5 100644
+--- a/security/integrity/ima/ima_queue.c
++++ b/security/integrity/ima/ima_queue.c
+@@ -34,6 +34,7 @@ LIST_HEAD(ima_measurements);	/* list of all measurements */
+ struct ima_h_table ima_htable = {
+ 	.len = ATOMIC_LONG_INIT(0),
+ 	.violations = ATOMIC_LONG_INIT(0),
++	.infringements = ATOMIC_LONG_INIT(0),
+ 	.queue[0 ... IMA_MEASURE_HTABLE_SIZE - 1] = HLIST_HEAD_INIT
+ };
+ 
+-- 
+2.1.4
+

@@ -1,0 +1,264 @@
+From 166921e2491569019a56e02b93e9f92c242cdeba Mon Sep 17 00:00:00 2001
+From: Janusz Kozerski <j.kozerski@samsung.com>
+Date: Wed, 1 Oct 2014 13:53:08 +0200
+Subject: [PATCH 45/45] evm: add interface to read and write EVM state
+ (ENABLE/DISABLE/FIX).
+
+The state of EVM can be change by writing to the <securityfs>/evm_state,
+and can be check by reading from the interface.
+To change the state of EVM write:
+0 - for disabling
+1 - for enabling
+2 - for FIX mode
+
+Notice that evm have to be initialized before you use the interface.
+
+To enable this option you have to set a proper option in Kconfig.
+
+Signed-off-by: Janusz Kozerski <j.kozerski@samsung.com>
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ security/integrity/evm/Kconfig      | 10 +++++++++
+ security/integrity/evm/evm.h        |  6 ++++++
+ security/integrity/evm/evm_crypto.c |  2 ++
+ security/integrity/evm/evm_main.c   | 19 +++++++++-------
+ security/integrity/evm/evm_secfs.c  | 43 +++++++++++++++++++++++++++++++++----
+ 5 files changed, 68 insertions(+), 12 deletions(-)
+
+diff --git a/security/integrity/evm/Kconfig b/security/integrity/evm/Kconfig
+index 640ae40..cecdd79 100644
+--- a/security/integrity/evm/Kconfig
++++ b/security/integrity/evm/Kconfig
+@@ -80,3 +80,13 @@ config EVM_KMK_PATH
+ 	help
+ 	   This option defines EVM master key path.
+ 
++config EVM_STATE_INTERFACE
++	boolean "EVM state interface"
++	depends on EVM
++	default n
++	help
++	  Creates the EVM state interface and makes possible change EVM
++	  state in runtime.
++
++	  WARNING: Enable this option only if you really need it.
++
+diff --git a/security/integrity/evm/evm.h b/security/integrity/evm/evm.h
+index 6bdd6c1..c99141f 100644
+--- a/security/integrity/evm/evm.h
++++ b/security/integrity/evm/evm.h
+@@ -24,7 +24,13 @@
+ #define EVM_STATE_KEY_SET	0x0001
+ #define EVM_STATE_X509_SET	0x0002
+ 
++#define EVM_STATE_DISABLED 0x00
++#define EVM_STATE_ENABLED  0x01
++#define EVM_STATE_FIX      0x02
++
++extern int evm_enabled;
+ extern int evm_initialized;
++extern int evm_fixmode;
+ extern char *evm_hmac;
+ extern char *evm_hash;
+ 
+diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
+index 4e1482c..095712f 100644
+--- a/security/integrity/evm/evm_crypto.c
++++ b/security/integrity/evm/evm_crypto.c
+@@ -42,6 +42,7 @@ int evm_set_key(void *key, int keylen)
+ 		return -EINVAL;
+ 	memcpy(evmkey, key, keylen);
+ 	evm_initialized |= EVM_STATE_KEY_SET;
++	evm_enabled = evm_fixmode ? EVM_STATE_FIX : EVM_STATE_ENABLED;
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(evm_set_key);
+@@ -284,6 +285,7 @@ out:
+ 	key_put(evm_key);
+ 	if (!rc) {
+ 		evm_initialized |= EVM_STATE_KEY_SET;
++		evm_enabled = evm_fixmode ? EVM_STATE_FIX : EVM_STATE_ENABLED;
+ 		pr_info("key initialized\n");
+ 	} else {
+ 		pr_err("key initialization failed\n");
+diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+index dd82435..3103d64 100644
+--- a/security/integrity/evm/evm_main.c
++++ b/security/integrity/evm/evm_main.c
+@@ -31,7 +31,9 @@
+ #define EVM_X509_PATH	"/etc/keys/x509_evm.der"
+ #endif
+ 
++int evm_enabled;
+ int evm_initialized;
++int evm_fixmode;
+ 
+ static char *integrity_status_msg[] = {
+ 	"pass", "fail", "no_label", "no_xattrs", "unknown", "pass_digsig"
+@@ -59,7 +61,6 @@ char *evm_config_xattrnames[] = {
+ 	NULL
+ };
+ 
+-static int evm_fixmode;
+ static int __init evm_set_fixmode(char *str)
+ {
+ 	if (strncmp(str, "fix", 3) == 0)
+@@ -272,7 +273,7 @@ enum integrity_status evm_verifyxattr(struct dentry *dentry,
+ 				      void *xattr_value, size_t xattr_value_len,
+ 				      struct integrity_iint_cache *iint)
+ {
+-	if (!evm_initialized || !evm_protected_xattr(xattr_name))
++	if (!evm_enabled || !evm_protected_xattr(xattr_name))
+ 		return INTEGRITY_UNKNOWN;
+ 
+ 	if (!iint) {
+@@ -296,7 +297,7 @@ static enum integrity_status evm_verify_current_integrity(struct dentry *dentry)
+ {
+ 	struct inode *inode = dentry->d_inode;
+ 
+-	if (!evm_initialized || !S_ISREG(inode->i_mode) || evm_fixmode)
++	if (!evm_enabled || !S_ISREG(inode->i_mode) || evm_enabled == EVM_STATE_FIX)
+ 		return 0;
+ 	return evm_verify_hmac(dentry, NULL, NULL, 0, NULL);
+ }
+@@ -404,7 +405,7 @@ int evm_inode_removexattr(struct dentry *dentry, const char *xattr_name)
+ void evm_inode_post_setxattr(struct dentry *dentry, const char *xattr_name,
+ 			     const void *xattr_value, size_t xattr_value_len)
+ {
+-	if (!evm_initialized || (!evm_protected_xattr(xattr_name)
++	if (!evm_enabled || (!evm_protected_xattr(xattr_name)
+ 				 && !posix_xattr_acl(xattr_name)))
+ 		return;
+ 
+@@ -425,7 +426,7 @@ void evm_inode_post_removexattr(struct dentry *dentry, const char *xattr_name)
+ {
+ 	struct inode *inode = dentry->d_inode;
+ 
+-	if (!evm_initialized || !evm_protected_xattr(xattr_name))
++	if (!evm_enabled || !evm_protected_xattr(xattr_name))
+ 		return;
+ 
+ 	evm_update_evmxattr(dentry, xattr_name, NULL, 0);
+@@ -467,7 +468,7 @@ int evm_inode_setattr(struct dentry *dentry, struct iattr *attr)
+  */
+ void evm_inode_post_setattr(struct dentry *dentry, int ia_valid)
+ {
+-	if (!evm_initialized)
++	if (!evm_enabled)
+ 		return;
+ 
+ 	if (ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID))
+@@ -484,7 +485,7 @@ int evm_inode_init_security(struct inode *inode,
+ 	struct evm_ima_xattr_data *xattr_data;
+ 	int rc;
+ 
+-	if (!evm_initialized || !evm_protected_xattr(lsm_xattr->name))
++	if (!evm_enabled || !evm_protected_xattr(lsm_xattr->name))
+ 		return 0;
+ 
+ 	xattr_data = kzalloc(sizeof(*xattr_data), GFP_NOFS);
+@@ -514,8 +515,10 @@ void __init evm_load_keys(void)
+ 
+ #ifdef CONFIG_EVM_LOAD_X509
+ 	rc = integrity_load_x509(INTEGRITY_KEYRING_EVM, EVM_X509_PATH);
+-	if (!rc)
++	if (!rc) {
+ 		evm_initialized |= EVM_STATE_X509_SET;
++		evm_enabled = evm_fixmode ? EVM_STATE_FIX : EVM_STATE_ENABLED;
++	}
+ #endif
+ #ifdef CONFIG_EVM_LOAD_KEY
+ 	if (evm_load)
+diff --git a/security/integrity/evm/evm_secfs.c b/security/integrity/evm/evm_secfs.c
+index 525ae2d..1b77d11 100644
+--- a/security/integrity/evm/evm_secfs.c
++++ b/security/integrity/evm/evm_secfs.c
+@@ -29,6 +29,18 @@ static struct dentry *evm_init_tpm;
+  * @count: maximum to send along
+  * @ppos: where to start
+  *
++ * If EVM_STATE_INTERFACE is enabled this should write to the userspace:
++ * 0 - when EVM is disabled or uninitialized
++ * 1 - when EVM is in enforce mode (initialized and enabled)
++ * 2 - when EVM is in FIX mode (initialized and fix)
++ * To use this interface user needs to have CAP_SYS_ADMIN
++ * Notice that the param "evm=fix" has higher priority, and if it was passed
++ * to the kernel then EVM will be running in FIX mode (or will be disabled).
++ *
++ * If EVM_STATE_INTERFACE is disabled it writes:
++ * 0 - when EVM is uninitialized
++ * 1 - when EVM is initialized
++ *
+  * Returns number of bytes read or error code, as appropriate
+  */
+ static ssize_t evm_read_key(struct file *filp, char __user *buf,
+@@ -36,11 +48,16 @@ static ssize_t evm_read_key(struct file *filp, char __user *buf,
+ {
+ 	char temp[80];
+ 	ssize_t rc;
++	int mode = evm_initialized;
+ 
+ 	if (*ppos != 0)
+ 		return 0;
+ 
+-	sprintf(temp, "%d", evm_initialized);
++#ifdef CONFIG_EVM_STATE_INTERFACE
++	mode = evm_enabled;
++#endif
++
++	sprintf(temp, "%d", mode);
+ 	rc = simple_read_from_buffer(buf, count, ppos, temp, strlen(temp));
+ 
+ 	return rc;
+@@ -62,9 +79,9 @@ static ssize_t evm_write_key(struct file *file, const char __user *buf,
+ 			     size_t count, loff_t *ppos)
+ {
+ 	char temp[80];
+-	int i;
++	long mode;
+ 
+-	if (!capable(CAP_SYS_ADMIN) || (evm_initialized & EVM_STATE_KEY_SET))
++	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 
+ 	if (count >= sizeof(temp) || count == 0)
+@@ -75,11 +92,28 @@ static ssize_t evm_write_key(struct file *file, const char __user *buf,
+ 
+ 	temp[count] = '\0';
+ 
+-	if ((sscanf(temp, "%d", &i) != 1) || (i != 1))
++	if (kstrtol(temp, 0, &mode))
++		return -EINVAL;
++
++#ifndef CONFIG_EVM_STATE_INTERFACE
++	if (mode != EVM_STATE_ENABLED)
++		return -EINVAL;
++#else
++	if (mode != EVM_STATE_DISABLED &&
++	    mode != EVM_STATE_ENABLED  &&
++	    mode != EVM_STATE_FIX)
+ 		return -EINVAL;
++#endif
+ 
+ 	evm_init_key();
+ 
++#ifdef CONFIG_EVM_STATE_INTERFACE
++	if (mode && evm_initialized)
++		evm_enabled = evm_fixmode ? EVM_STATE_FIX : mode;
++	else
++		evm_enabled = EVM_STATE_DISABLED;
++#endif
++
+ 	return count;
+ }
+ 
+@@ -96,5 +130,6 @@ int __init evm_init_secfs(void)
+ 					      NULL, NULL, &evm_key_ops);
+ 	if (!evm_init_tpm || IS_ERR(evm_init_tpm))
+ 		error = -EFAULT;
++
+ 	return error;
+ }
+-- 
+2.1.4
+

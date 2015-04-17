@@ -1,0 +1,154 @@
+From 3e7c1eeb363da044a8ad47abb9731581c0693179 Mon Sep 17 00:00:00 2001
+From: Dmitry Kasatkin <d.kasatkin@samsung.com>
+Date: Tue, 15 Apr 2014 18:09:09 +0300
+Subject: [PATCH 24/45] ima: load policy from the kernel
+
+This patch provide IMA policy loading from the kernel. When
+CONFIG_IMA_LOAD_POLICY is enabled, kernel tries to load default
+/etc/ima/ima_policy. Policy signature must be located in
+/etc/ima/ima_policy.sig.
+
+Until 'ima_tcb' and 'ima_appraise_tcb' are not specified on the kernel
+command line, IMA policy is empty and IMA functionality is disabled.
+
+IMA policy remains empty and IMA functionality is disabled.
+
+In order to keep default behaviour, this patch adds the kernel parameter
+'ima_load' to enable loading of the IMA policy within the kernel.
+
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ security/integrity/ima/Kconfig    | 14 ++++++++++++++
+ security/integrity/ima/ima.h      |  8 ++++++++
+ security/integrity/ima/ima_fs.c   | 18 +++++++++++++++++-
+ security/integrity/ima/ima_init.c | 19 +++++++++++++++++++
+ 4 files changed, 58 insertions(+), 1 deletion(-)
+
+diff --git a/security/integrity/ima/Kconfig b/security/integrity/ima/Kconfig
+index fd025f6..cf342df 100644
+--- a/security/integrity/ima/Kconfig
++++ b/security/integrity/ima/Kconfig
+@@ -157,3 +157,17 @@ config IMA_APPRAISE_SIGNED_INIT
+ 	default n
+ 	help
+ 	   This option requires user-space init to be signed.
++
++config IMA_LOAD_POLICY
++	bool "Load IMA policy from the kernel"
++	depends on IMA_POLICY_LOADER
++	default n
++	help
++	  This option enables IMA policy loading from the kernel.
++
++config IMA_POLICY_PATH
++	string "IMA policy path"
++	depends on IMA_LOAD_POLICY
++	default "/etc/ima/ima_policy"
++	help
++	   This option defines IMA policy path.
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index e98c1e1..53c70e5 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -193,6 +193,14 @@ bool ima_default_policy(void);
+ ssize_t ima_parse_add_rule(char *);
+ void ima_delete_rules(void);
+ 
++#ifdef CONFIG_IMA_LOAD_POLICY
++void ima_load_policy(char *path);
++#else
++static inline void ima_load_policy(char *path)
++{
++}
++#endif
++
+ /* Appraise integrity measurements */
+ #define IMA_APPRAISE_ENFORCE	0x01
+ #define IMA_APPRAISE_FIX	0x02
+diff --git a/security/integrity/ima/ima_fs.c b/security/integrity/ima/ima_fs.c
+index acdf9e6..fb3d038 100644
+--- a/security/integrity/ima/ima_fs.c
++++ b/security/integrity/ima/ima_fs.c
+@@ -363,7 +363,7 @@ static int ima_open_policy(struct inode *inode, struct file *filp)
+  * point to the new policy rules, and remove the securityfs policy file,
+  * assuming a valid policy.
+  */
+-static int ima_release_policy(struct inode *inode, struct file *file)
++static void ima_check_policy(void)
+ {
+ 	const char *cause = valid_policy ? "completed" : "failed";
+ 
+@@ -378,6 +378,11 @@ static int ima_release_policy(struct inode *inode, struct file *file)
+ 		ima_update_policy();
+ 	}
+ 	clear_bit(IMA_FS_BUSY, &ima_fs_flags);
++}
++
++static int ima_release_policy(struct inode *inode, struct file *file)
++{
++	ima_check_policy();
+ 	return 0;
+ }
+ 
+@@ -388,6 +393,17 @@ static const struct file_operations ima_measure_policy_ops = {
+ 	.llseek = generic_file_llseek,
+ };
+ 
++#ifdef CONFIG_IMA_LOAD_POLICY
++void __init ima_load_policy(char *path)
++{
++	if (test_and_set_bit(IMA_FS_BUSY, &ima_fs_flags))
++		return;
++	if (ima_read_policy(path) < 0)
++		valid_policy = 0;
++	ima_check_policy();
++}
++#endif
++
+ int __init ima_fs_init(void)
+ {
+ 	ima_dir = securityfs_create_dir("ima", NULL);
+diff --git a/security/integrity/ima/ima_init.c b/security/integrity/ima/ima_init.c
+index 32e8f22..febbb16 100644
+--- a/security/integrity/ima/ima_init.c
++++ b/security/integrity/ima/ima_init.c
+@@ -30,10 +30,27 @@
+ #define IMA_X509_PATH	"/etc/keys/x509_ima.der"
+ #endif
+ 
++#ifdef CONFIG_IMA_POLICY_PATH
++#define IMA_POLICY_PATH		CONFIG_IMA_POLICY_PATH
++#else
++#define IMA_POLICY_PATH		"/etc/ima/ima_policy"
++#endif
++
++
+ /* name for boot aggregate entry */
+ static const char *boot_aggregate_name = "boot_aggregate";
+ int ima_used_chip;
+ 
++static int ima_load;
++
++static int __init ima_setup(char *str)
++{
++	ima_load = 1;
++	return 1;
++}
++__setup("ima_load", ima_setup);
++
++
+ /* Add the boot aggregate to the IMA measurement list and extend
+  * the PCR register.
+  *
+@@ -104,6 +121,8 @@ void __init ima_load_x509(void)
+ 
+ 	ima_policy_flag &= ~unset_flags;
+ 	integrity_load_x509(INTEGRITY_KEYRING_IMA, IMA_X509_PATH);
++	if (ima_load)
++		ima_load_policy(IMA_POLICY_PATH);
+ 	ima_policy_flag |= unset_flags;
+ }
+ #endif
+-- 
+2.1.4
+

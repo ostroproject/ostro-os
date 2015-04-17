@@ -1,0 +1,348 @@
+From 54b5f3d5b05f296cf86c5942e6792395986dfcac Mon Sep 17 00:00:00 2001
+From: Dmitry Kasatkin <d.kasatkin@samsung.com>
+Date: Mon, 12 Aug 2013 11:26:09 +0300
+Subject: [PATCH 36/45] ima: special files integrity verification
+ implementation
+
+This patch implements special files integrity verification hooks.
+It maintains a hashes of symbolic links, device nodes' major and
+minor numbers.
+
+Signed-off-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+---
+ fs/namei.c                            | 18 ++++++-------
+ include/linux/ima.h                   |  6 +++--
+ net/unix/af_unix.c                    |  2 +-
+ security/integrity/ima/ima.h          |  3 ++-
+ security/integrity/ima/ima_api.c      |  3 +++
+ security/integrity/ima/ima_appraise.c |  2 +-
+ security/integrity/ima/ima_dir.c      | 49 +++++++++++++++++++++++------------
+ security/integrity/ima/ima_policy.c   |  2 ++
+ 8 files changed, 55 insertions(+), 30 deletions(-)
+
+diff --git a/fs/namei.c b/fs/namei.c
+index 843b8ad..17018a6 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -2984,7 +2984,7 @@ retry_lookup:
+ 	mutex_lock(&dir->d_inode->i_mutex);
+ 	error = lookup_open(nd, path, file, op, got_write, opened);
+ 	if (error >= 0 && (*opened & FILE_CREATED))
+-		ima_dir_update(&nd->path, NULL);
++		ima_dir_update(&nd->path, NULL, NULL);
+ 	mutex_unlock(&dir->d_inode->i_mutex);
+ 
+ 	if (error <= 0) {
+@@ -3481,7 +3481,7 @@ retry:
+ 			break;
+ 	}
+ 	if (!error)
+-		ima_dir_update(&path, dentry);
++		ima_dir_update(&path, dentry, NULL);
+ out:
+ 	done_path_create(&path, dentry);
+ 	if (retry_estale(error, lookup_flags)) {
+@@ -3540,7 +3540,7 @@ retry:
+ 	if (!error)
+ 		error = vfs_mkdir(path.dentry->d_inode, dentry, mode);
+ 	if (!error)
+-		ima_dir_update(&path, dentry);
++		ima_dir_update(&path, dentry, NULL);
+ 	done_path_create(&path, dentry);
+ 	if (retry_estale(error, lookup_flags)) {
+ 		lookup_flags |= LOOKUP_REVAL;
+@@ -3661,7 +3661,7 @@ retry:
+ 		goto exit3;
+ 	error = vfs_rmdir(nd.path.dentry->d_inode, dentry);
+ 	if (!error)
+-		ima_dir_update(&nd.path, NULL);
++		ima_dir_update(&nd.path, NULL, NULL);
+ exit3:
+ 	dput(dentry);
+ exit2:
+@@ -3785,7 +3785,7 @@ retry_deleg:
+ 			goto exit2;
+ 		error = vfs_unlink(nd.path.dentry->d_inode, dentry, &delegated_inode);
+ 		if (!error)
+-			ima_dir_update(&nd.path, NULL);
++			ima_dir_update(&nd.path, NULL, NULL);
+ exit2:
+ 		dput(dentry);
+ 	}
+@@ -3878,7 +3878,7 @@ retry:
+ 	if (!error)
+ 		error = vfs_symlink(path.dentry->d_inode, dentry, from->name);
+ 	if (!error)
+-		ima_dir_update(&path, dentry);
++		ima_dir_update(&path, dentry, from->name);
+ 	done_path_create(&path, dentry);
+ 	if (retry_estale(error, lookup_flags)) {
+ 		lookup_flags |= LOOKUP_REVAL;
+@@ -4022,7 +4022,7 @@ retry:
+ 		goto out_dput;
+ 	error = vfs_link(old_path.dentry, new_path.dentry->d_inode, new_dentry, &delegated_inode);
+ 	if (!error)
+-		ima_dir_update(&new_path, NULL);
++		ima_dir_update(&new_path, NULL, NULL);
+ out_dput:
+ 	done_path_create(&new_path, new_dentry);
+ 	if (delegated_inode) {
+@@ -4347,9 +4347,9 @@ retry_deleg:
+ 			   new_dir->d_inode, new_dentry,
+ 			   &delegated_inode, flags);
+ 	if (!error) {
+-		ima_dir_update(&oldnd.path, NULL);
++		ima_dir_update(&oldnd.path, NULL, NULL);
+ 		if (!path_equal(&oldnd.path, &newnd.path))
+-			ima_dir_update(&newnd.path, NULL);
++			ima_dir_update(&newnd.path, NULL, NULL);
+ 	}
+ exit5:
+ 	dput(new_dentry);
+diff --git a/include/linux/ima.h b/include/linux/ima.h
+index 639d576..e93a8df 100644
+--- a/include/linux/ima.h
++++ b/include/linux/ima.h
+@@ -89,7 +89,8 @@ static inline int ima_inode_removexattr(struct dentry *dentry,
+ #ifdef CONFIG_IMA_APPRAISE_DIRECTORIES
+ extern int ima_dir_check(struct path *dir, int mask);
+ extern int ima_special_check(struct file *file, int mask);
+-extern void ima_dir_update(struct path *dir, struct dentry *dentry);
++extern void ima_dir_update(struct path *dir, struct dentry *dentry,
++			   const char *link);
+ #else
+ static inline int ima_dir_check(struct path *dir, int mask)
+ {
+@@ -101,7 +102,8 @@ static inline int ima_special_check(struct file *file, int mask)
+ 	return 0;
+ }
+ 
+-static inline void ima_dir_update(struct path *dir, struct dentry *dentry)
++static inline void ima_dir_update(struct path *dir, struct dentry *dentry,
++				  const char *link)
+ {
+ 	return;
+ }
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index f4738a0..7354a7f 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -849,7 +849,7 @@ static int unix_mknod(const char *sun_path, umode_t mode, struct path *res)
+ 		if (!err) {
+ 			res->mnt = mntget(path.mnt);
+ 			res->dentry = dget(dentry);
+-			ima_dir_update(&path, dentry);
++			ima_dir_update(&path, dentry, NULL);
+ 		}
+ 	}
+ 	done_path_create(&path, dentry);
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index bbe8458..c5b6fcb 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -133,7 +133,8 @@ static inline unsigned long ima_hash_key(u8 *digest)
+ 
+ /* IMA policy related functions */
+ enum ima_hooks { FILE_CHECK = 1, MMAP_CHECK, BPRM_CHECK, MODULE_CHECK,
+-		 FIRMWARE_CHECK, POLICY_CHECK, DIR_CHECK, POST_SETATTR };
++		 FIRMWARE_CHECK, POLICY_CHECK, DIR_CHECK, SPECIAL_CHECK,
++		 POST_SETATTR };
+ 
+ #define MAX_LSM_RULES 6
+ enum lsm_rule_types { LSM_OBJ_USER, LSM_OBJ_ROLE, LSM_OBJ_TYPE,
+diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
+index e01dc17..c81128b 100644
+--- a/security/integrity/ima/ima_api.c
++++ b/security/integrity/ima/ima_api.c
+@@ -316,6 +316,9 @@ const char *ima_d_path(struct path *path, char **pathbuf)
+ {
+ 	char *pathname = NULL;
+ 
++	if (!path->mnt)
++		return NULL;
++
+ 	*pathbuf = __getname();
+ 	if (*pathbuf) {
+ 		pathname = d_absolute_path(path, *pathbuf, PATH_MAX);
+diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+index bdbb728..f02be0f 100644
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -214,7 +214,7 @@ int ima_appraise_measurement(int func, struct integrity_iint_cache *iint,
+ 
+ 		cause = "missing-hash";
+ 		status = INTEGRITY_NOLABEL;
+-		if (opened & FILE_CREATED) {
++		if (S_ISREG(inode->i_mode) && (opened & FILE_CREATED)) {
+ 			iint->flags |= IMA_NEW_FILE;
+ 			status = INTEGRITY_PASS;
+ 		}
+diff --git a/security/integrity/ima/ima_dir.c b/security/integrity/ima/ima_dir.c
+index 3e7cfd5..a6e5256 100644
+--- a/security/integrity/ima/ima_dir.c
++++ b/security/integrity/ima/ima_dir.c
+@@ -129,11 +129,12 @@ int ima_calc_dir_hash(struct path *path, struct file *file,
+ 
+ static int ima_dir_collect(struct integrity_iint_cache *iint,
+ 			  struct path *path, struct file *file,
+-			  enum hash_algo algo)
++			  enum hash_algo algo, const char *link)
+ {
+ 	struct dentry *dentry = path->dentry;
+ 	struct inode *inode = dentry->d_inode;
+ 	int rc = -EINVAL;
++	u32 dev;
+ 	struct {
+ 		struct ima_digest_data hdr;
+ 		char digest[IMA_MAX_DIGEST_SIZE];
+@@ -149,6 +150,14 @@ static int ima_dir_collect(struct integrity_iint_cache *iint,
+ 	case S_IFDIR:
+ 		rc = ima_calc_dir_hash(path, file, &hash.hdr);
+ 		break;
++	case S_IFIFO: case S_IFSOCK:
++	case S_IFCHR: case S_IFBLK:
++		dev = new_encode_dev(inode->i_rdev);
++		rc = ima_calc_buffer_hash(&dev, sizeof(dev), &hash.hdr);
++		break;
++	case S_IFLNK:
++		rc = ima_calc_buffer_hash(link, strlen(link), &hash.hdr);
++		break;
+ 	default:
+ 		pr_debug("UKNOWN: dentry: %s, 0%o\n",
+ 			 dentry->d_name.name, inode->i_mode & S_IFMT);
+@@ -174,14 +183,16 @@ static int ima_dir_collect(struct integrity_iint_cache *iint,
+ 	return rc;
+ }
+ 
+-static int dir_measurement(struct path *path, struct file *file, int mask)
++static int dir_measurement(struct path *path, struct file *file, int mask,
++			   const char *link)
+ {
+ 	struct dentry *dentry = path->dentry;
+ 	struct inode *inode = dentry->d_inode;
+ 	struct integrity_iint_cache *iint;
+ 	char *pathbuf = NULL;
+ 	const char *pathname;
+-	int rc = 0, action, xattr_len = 0, func = DIR_CHECK;
++	int rc = 0, action, xattr_len = 0;
++	int func = S_ISDIR(inode->i_mode) ? DIR_CHECK : SPECIAL_CHECK;
+ 	struct evm_ima_xattr_data *xattr_value = NULL;
+ 	enum hash_algo algo;
+ 	int permit;
+@@ -206,9 +217,10 @@ static int dir_measurement(struct path *path, struct file *file, int mask)
+ 
+ 		mutex_lock(&inode->i_mutex);
+ 	} else {
++		int func = S_ISDIR(inode->i_mode) ? DIR_CHECK : SPECIAL_CHECK;
+ 		/* Determine if in appraise/measurement policy,
+ 		* returns IMA_MEASURE, IMA_APPRAISE bitmask.  */
+-		action = ima_must_appraise(dentry, mask, DIR_CHECK);
++		action = ima_must_appraise(dentry, mask, func);
+ 		if (!action)
+ 			return 0;
+ 
+@@ -240,7 +252,7 @@ static int dir_measurement(struct path *path, struct file *file, int mask)
+ 	xattr_len = ima_read_xattr(dentry, &xattr_value);
+ 	algo = ima_get_hash_algo(xattr_value, xattr_len);
+ 
+-	rc = ima_dir_collect(iint, path, file, algo);
++	rc = ima_dir_collect(iint, path, file, algo, link);
+ 	if (rc)
+ 		goto out_locked;
+ 
+@@ -267,19 +279,17 @@ int ima_dir_check(struct path *dir, int mask)
+ {
+ 	BUG_ON(!S_ISDIR(dir->dentry->d_inode->i_mode));
+ 
+-	return dir_measurement(dir, NULL, mask);
++	return dir_measurement(dir, NULL, mask, NULL);
+ }
+ EXPORT_SYMBOL_GPL(ima_dir_check);
+ 
+ int ima_special_check(struct file *file, int mask)
+ {
+-	if (!S_ISDIR(file->f_path.dentry->d_inode->i_mode))
+-		return 0;
+-	return dir_measurement(&file->f_path, file, mask);
++	return dir_measurement(&file->f_path, file, mask, NULL);
+ }
+ 
+ static void ima_dir_update_xattr(struct integrity_iint_cache *iint,
+-				 struct path *path)
++				 struct path *path, const char *link)
+ {
+ 	struct dentry *dentry = path->dentry;
+ 	struct inode *inode = NULL;
+@@ -287,12 +297,13 @@ static void ima_dir_update_xattr(struct integrity_iint_cache *iint,
+ 
+ 	if (!iint) {
+ 		/* if iint is NULL, then we allocated iint for new directory */
+-		int action;
++		int action, func;
+ 
+ 		inode = dentry->d_inode;
++		func = S_ISDIR(inode->i_mode) ? DIR_CHECK : SPECIAL_CHECK;
+ 
+ 		/* Determine if in appraise/measurement policy */
+-		action = ima_must_appraise(dentry, MAY_READ, DIR_CHECK);
++		action = ima_must_appraise(dentry, MAY_READ, func);
+ 		if (action <= 0)
+ 			return;
+ 
+@@ -307,7 +318,7 @@ static void ima_dir_update_xattr(struct integrity_iint_cache *iint,
+ 		iint->ima_file_status = INTEGRITY_PASS;
+ 	}
+ 
+-	rc = ima_dir_collect(iint, path, NULL, ima_hash_algo);
++	rc = ima_dir_collect(iint, path, NULL, ima_hash_algo, link);
+ 	if (!rc)
+ 		ima_fix_xattr(dentry, iint);
+ out:
+@@ -324,7 +335,7 @@ out:
+  * and is used to re-calculate and update integrity data.
+  * It is called with dir i_mutex locked.
+  */
+-void ima_dir_update(struct path *dir, struct dentry *dentry)
++void ima_dir_update(struct path *dir, struct dentry *dentry, const char *link)
+ {
+ 	struct inode *inode = dir->dentry->d_inode;
+ 	struct integrity_iint_cache *iint;
+@@ -345,7 +356,7 @@ void ima_dir_update(struct path *dir, struct dentry *dentry)
+ 		/* new entry -> set initial security.ima value */
+ 		struct path path = { .mnt = dir->mnt, .dentry = dentry };
+ 		BUG_ON(!dentry->d_inode);
+-		ima_dir_update_xattr(NULL, &path);
++		ima_dir_update_xattr(NULL, &path, link);
+ 	}
+ 
+ 	/* do not reset flags for directories, correct ?
+@@ -353,6 +364,12 @@ void ima_dir_update(struct path *dir, struct dentry *dentry)
+ 	*/
+ 	iint->flags &= ~IMA_COLLECTED;
+ 	if (iint->flags & IMA_APPRAISE)
+-		ima_dir_update_xattr(iint, dir);
++		ima_dir_update_xattr(iint, dir, NULL);
+ }
+ EXPORT_SYMBOL_GPL(ima_dir_update);
++
++int ima_link_check(struct dentry *dentry, const char *link)
++{
++	struct path path = { .mnt = NULL, .dentry = dentry };
++	return dir_measurement(&path, NULL, MAY_READ, link);
++}
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index 243c561..3c30d09 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -613,6 +613,8 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
+ 				entry->func = POLICY_CHECK;
+ 			else if (strcmp(args[0].from, "DIR_CHECK") == 0)
+ 				entry->func = DIR_CHECK;
++			else if (strcmp(args[0].from, "SPECIAL_CHECK") == 0)
++				entry->func = SPECIAL_CHECK;
+ 			else
+ 				result = -EINVAL;
+ 			if (!result)
+-- 
+2.1.4
+
