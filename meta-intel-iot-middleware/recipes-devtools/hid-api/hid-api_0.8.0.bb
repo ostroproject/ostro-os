@@ -2,7 +2,7 @@ SUMMARY = "Low Level HID-API package on Intel platforms"
 SECTION = "libs"
 AUTHOR = "Alan Ott"
 HOMEPAGE = "https://github.com/signal11/hidapi"
-LICENSE = "BSD-2-Clause & BSD-3-Clause & BSD-4-Clause & GPLv2 & GPLv3"
+LICENSE = "BSD-3-Clause | GPLv3"
 
 LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=7c3949a631240cb6c31c50f3eb696077"
 
