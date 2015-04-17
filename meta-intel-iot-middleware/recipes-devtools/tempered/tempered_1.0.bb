@@ -3,7 +3,7 @@ SECTION = "libs"
 AUTHOR = "Frode Austvik"
 HOMEPAGE = "https://github.com/edorfaus/TEMPered"
 
-LICENSE = "BSD-2-Clause & BSD-3-Clause & BSD-4-Clause & GPLv2 & GPLv3"
+LICENSE = "BSD-2-Clause"
 
 LIC_FILES_CHKSUM = "file://LICENSE;md5=7a3b4938b14feadc92e125c3af60e69a"
 
