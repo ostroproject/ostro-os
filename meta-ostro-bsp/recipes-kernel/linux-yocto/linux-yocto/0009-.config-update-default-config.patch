@@ -1,0 +1,38 @@
+From 268009e5642ef6c6f4d25b86331ff28190fd3170 Mon Sep 17 00:00:00 2001
+From: Todor Minchev <todor@minchev.co.uk>
+Date: Fri, 30 Jan 2015 08:00:16 +0000
+Subject: [PATCH 09/16] .config: update default config
+
+The kernel now requires that X86_UP_APIC is enabled
+when PCI_MSI support is selected on 32bit UP systems
+
+Signed-off-by: Todor Minchev <todor@minchev.co.uk>
+---
+ .config | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/.config b/.config
+index 915100a..21a9baf 100644
+--- a/.config
++++ b/.config
+@@ -1,6 +1,6 @@
+ #
+ # Automatically generated file; DO NOT EDIT.
+-# Linux/i386 3.18.2 Kernel Configuration
++# Linux/i386 3.18.5 Kernel Configuration
+ #
+ # CONFIG_64BIT is not set
+ CONFIG_X86_32=y
+@@ -385,6 +385,9 @@ CONFIG_NR_CPUS=1
+ # CONFIG_PREEMPT_NONE is not set
+ CONFIG_PREEMPT_VOLUNTARY=y
+ # CONFIG_PREEMPT is not set
++CONFIG_X86_UP_APIC=y
++CONFIG_X86_UP_APIC_MSI=y
++# CONFIG_X86_UP_IOAPIC is not set
+ CONFIG_X86_LOCAL_APIC=y
+ CONFIG_X86_IO_APIC=y
+ # CONFIG_X86_REROUTE_FOR_BROKEN_BOOT_IRQS is not set
+-- 
+1.9.1
+

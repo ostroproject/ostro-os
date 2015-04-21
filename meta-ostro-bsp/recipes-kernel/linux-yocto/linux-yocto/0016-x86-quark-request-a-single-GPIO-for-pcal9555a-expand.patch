@@ -1,0 +1,42 @@
+From 6fc1276a7c82968768e910de087104c6b7c39e87 Mon Sep 17 00:00:00 2001
+From: Todor Minchev <todor@minchev.co.uk>
+Date: Tue, 24 Feb 2015 18:28:34 +0000
+Subject: [PATCH 16/16] x86:quark: request a single GPIO for pcal9555a expander
+
+Signed-off-by: Todor Minchev <todor@minchev.co.uk>
+---
+ drivers/platform/x86/quark/intel_qrk_plat_galileo_gen2.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
+
+diff --git a/drivers/platform/x86/quark/intel_qrk_plat_galileo_gen2.c b/drivers/platform/x86/quark/intel_qrk_plat_galileo_gen2.c
+index 498d47f..4e4e0e0 100644
+--- a/drivers/platform/x86/quark/intel_qrk_plat_galileo_gen2.c
++++ b/drivers/platform/x86/quark/intel_qrk_plat_galileo_gen2.c
+@@ -258,15 +258,6 @@ static int intel_qrk_spi_add_onboard_devs(void)
+ 					ARRAY_SIZE(spi1_onboard_devs));
+ }
+ 
+-
+-static struct gpio reserved_gpios[] = {
+-	{
+-		GPIO_PCAL9555A_EXP2_INT,
+-		GPIOF_IN,
+-		"pcal9555a-exp2-int",
+-	},
+-};
+-
+ /**
+  * intel_qrk_gpio_restrict_probe
+  *
+@@ -292,7 +283,7 @@ static int intel_qrk_gpio_restrict_probe(struct platform_device *pdev)
+ 		return -EPROBE_DEFER;
+ 	}
+ 
+-	ret = gpio_request_array(reserved_gpios, ARRAY_SIZE(reserved_gpios));
++	ret = gpio_request_one(GPIO_PCAL9555A_EXP2_INT, GPIOF_IN, "pcal9555a-exp2-int");
+ 	if (ret) {
+ 		dev_err(&client->dev, "failed to request reserved gpios\n");
+ 		goto end;
+-- 
+1.9.1
+

@@ -1,0 +1,27 @@
+From 5146192bcad63f8440f5551ca39c72fd50b0ab52 Mon Sep 17 00:00:00 2001
+From: Imran Zaman <imran.zaman@intel.com>
+Date: Tue, 21 Apr 2015 16:07:22 +0300
+Subject: [PATCH 17/17] Fixed build error for DATE macro
+
+error: macro __DATE__ might prevent reproducible builds
+
+Signed-off-by: Imran Zaman <imran.zaman@intel.com>
+---
+ drivers/platform/x86/quark/intel_qrk_esram_test.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/platform/x86/quark/intel_qrk_esram_test.c b/drivers/platform/x86/quark/intel_qrk_esram_test.c
+index c337dc5..9613173 100644
+--- a/drivers/platform/x86/quark/intel_qrk_esram_test.c
++++ b/drivers/platform/x86/quark/intel_qrk_esram_test.c
+@@ -498,7 +498,6 @@ static int intel_qrk_esram_test_probe(struct platform_device * pdev)
+ 		kfree(esram_test_dev.pdata);
+ 		return -EINVAL;
+ 	}
+-	printk(KERN_INFO "%s/%s/%s complete OK !!\n", __FUNCTION__, __DATE__,__TIME__);
+ 	return 0;
+ 
+ }
+-- 
+1.9.1
+

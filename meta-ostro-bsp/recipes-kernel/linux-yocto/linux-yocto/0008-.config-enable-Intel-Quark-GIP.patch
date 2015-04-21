@@ -1,0 +1,58 @@
+From 92ab97339dbd430a85a1cb4788cd0e963db94a23 Mon Sep 17 00:00:00 2001
+From: Todor Minchev <todor@minchev.co.uk>
+Date: Tue, 20 Jan 2015 18:42:15 +0000
+Subject: [PATCH 08/16] .config: enable Intel Quark GIP
+
+Signed-off-by: Todor Minchev <todor@minchev.co.uk>
+---
+ .config | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/.config b/.config
+index 7415fb4..915100a 100644
+--- a/.config
++++ b/.config
+@@ -1,6 +1,6 @@
+ #
+ # Automatically generated file; DO NOT EDIT.
+-# Linux/i386 3.18.1 Kernel Configuration
++# Linux/i386 3.18.2 Kernel Configuration
+ #
+ # CONFIG_64BIT is not set
+ CONFIG_X86_32=y
+@@ -80,6 +80,7 @@ CONFIG_HAVE_ARCH_AUDITSYSCALL=y
+ CONFIG_GENERIC_IRQ_PROBE=y
+ CONFIG_GENERIC_IRQ_SHOW=y
+ CONFIG_GENERIC_IRQ_LEGACY_ALLOC_HWIRQ=y
++CONFIG_GENERIC_IRQ_CHIP=y
+ CONFIG_IRQ_DOMAIN=y
+ # CONFIG_IRQ_DOMAIN_DEBUG is not set
+ CONFIG_IRQ_FORCED_THREADING=y
+@@ -1931,6 +1932,7 @@ CONFIG_MFD_CORE=y
+ # CONFIG_HTC_I2CPLD is not set
+ # CONFIG_LPC_ICH is not set
+ CONFIG_CY8C9540A=m
++CONFIG_INTEL_QRK_GIP=m
+ CONFIG_LPC_SCH=y
+ # CONFIG_INTEL_SOC_PMIC is not set
+ # CONFIG_MFD_JANZ_CMODIO is not set
+@@ -3549,7 +3551,7 @@ CONFIG_HAVE_ARCH_KGDB=y
+ CONFIG_X86_VERBOSE_BOOTUP=y
+ CONFIG_EARLY_PRINTK=y
+ # CONFIG_EARLY_PRINTK_DBGP is not set
+-# CONFIG_EARLY_PRINTK_EFI is not set
++CONFIG_EARLY_PRINTK_EFI=y
+ CONFIG_X86_PTDUMP=y
+ # CONFIG_EFI_PGT_DUMP is not set
+ CONFIG_DEBUG_RODATA=y
+@@ -3771,4 +3773,7 @@ CONFIG_AVERAGE=y
+ # CONFIG_CORDIC is not set
+ # CONFIG_DDR is not set
+ CONFIG_UCS2_STRING=y
++CONFIG_FONT_SUPPORT=y
++CONFIG_FONT_8x16=y
++CONFIG_FONT_AUTOSELECT=y
+ CONFIG_ARCH_HAS_SG_CHAIN=y
+-- 
+1.9.1
+

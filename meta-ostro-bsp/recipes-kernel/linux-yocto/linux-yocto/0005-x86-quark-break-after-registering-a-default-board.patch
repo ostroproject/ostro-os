@@ -1,0 +1,28 @@
+From ec37392458084749eb1bf4833afdaa6673ef770d Mon Sep 17 00:00:00 2001
+From: Todor Minchev <todor@minchev.co.uk>
+Date: Mon, 22 Dec 2014 20:56:31 +0000
+Subject: [PATCH 05/16] x86:quark: break after registering a default board
+
+Stop looking for a platform device after a default board
+has been registered.
+
+Signed-off-by: Todor Minchev <todor@minchev.co.uk>
+---
+ drivers/platform/x86/quark/intel_qrk_board_data.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/platform/x86/quark/intel_qrk_board_data.c b/drivers/platform/x86/quark/intel_qrk_board_data.c
+index c9d4f99..604ffdd 100644
+--- a/drivers/platform/x86/quark/intel_qrk_board_data.c
++++ b/drivers/platform/x86/quark/intel_qrk_board_data.c
+@@ -191,6 +191,7 @@ static int __init intel_qrk_board_data_init_legacy(void)
+ 		if (!strcmp(bsp_data[i].name, DEFAULT_BOARD)){
+ 			board_name = (char*)bsp_data[i].name;
+ 			platform_device_register(&bsp_data[i]);
++			break ;
+ 		}
+ 	}
+ 
+-- 
+1.9.1
+

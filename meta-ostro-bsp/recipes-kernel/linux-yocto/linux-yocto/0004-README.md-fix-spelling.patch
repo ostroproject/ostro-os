@@ -1,0 +1,26 @@
+From 17001e6614f1073e0309537a3035cb92f761e693 Mon Sep 17 00:00:00 2001
+From: Todor Minchev <todor@minchev.co.uk>
+Date: Sun, 21 Dec 2014 18:05:52 +0000
+Subject: [PATCH 04/16] README.md: fix spelling
+
+Signed-off-by: Todor Minchev <todor@minchev.co.uk>
+---
+ README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/README.md b/README.md
+index ee03eae..b40b943 100644
+--- a/README.md
++++ b/README.md
+@@ -43,7 +43,7 @@ cp arch/x86/boot/bzImage ../galileo-stable-install/
+ 
+ 5.Install the new kernel and modules from the target directory (e.g ../galileo-stable-install) to your micro SD card
+ 
+-5.1.Replace the bzImage found in the first partition (ESP) of your micro SD card with the one from you target directory (backup the bzImage on the micro SD card e.g. rename it to bzImage.old)
++5.1.Replace the bzImage found in the first partition (ESP) of your micro SD card with the one from your target directory (backup the bzImage on the micro SD card e.g. rename it to bzImage.old)
+ 
+ 5.2.Copy the kernel modules from the target directory to the /lib/modules/ directory found in the second 
+ partition of your micro SD card (e.g /lib/modules/3.18.1-galileo-g1)
+-- 
+1.9.1
+
