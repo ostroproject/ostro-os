@@ -13,6 +13,7 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-security-smack \
   ##OEROOT##/meta-security-framework \
   ##OEROOT##/meta-intel-iot-middleware \
+  ##OEROOT##/meta-oic-fixes \
   "
 
 BBLAYERS_NON_REMOVABLE ?= " \
