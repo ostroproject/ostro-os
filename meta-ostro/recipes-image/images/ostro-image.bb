@@ -51,3 +51,6 @@ def crypt_pass(d):
 EXTRA_USERS_PARAMS = "\
 usermod -p '${@crypt_pass(d)}' root; \
 "
+
+# Do not create ISO images by default, only HDDIMG will be created
+NOISO = "1"
