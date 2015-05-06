@@ -1,3 +1,8 @@
+#[PROTEXCAT]
+#\License: ALL RIGHTS RESERVED
+#\Author: Wang, Jing <jing.j.wang@intel.com>
+
+'''base os test module'''
 from oeqa.oetest import oeRuntimeTest
 
 class BaseOsTest(oeRuntimeTest):

@@ -1,22 +1,15 @@
-import subprocess
-import time
+#[PROTEXCAT]
+#\License: ALL RIGHTS RESERVED
+#\Author: Wang, Jing <jing.j.wang@intel.com>
+
+'''ping device test module'''
 from oeqa.oetest import oeRuntimeTest
+from oeqa.runtime.helper import shell_cmd_timeout
 
 class PingDevTest(oeRuntimeTest):
     '''Ping target device'''
     def test_ping_dev(self):
         '''Check connectivity by ping command'''
-        output = ''
-        count = 0
-        endtime = time.time() + 60
-        while count < 5 and time.time() < endtime:
-            proc = subprocess.Popen("ping -c 1 %s" % self.target.ip,
-                                       shell=True, stdout=subprocess.PIPE)
-            output += proc.communicate()[0]
-            if proc.poll() == 0:
-                count += 1
-            else:
-                count = 0
-        self.assertEqual(count, 5, msg=\
-                    "Expected 5 consecutive replies, got %d.\
-                     ping output is:\n%s" % (count, output))
+        cmd = "ping -c 5 %s" % self.target.ip
+        ret, output = shell_cmd_timeout(cmd, timeout=16)
+        self.assertEqual(ret, 0, msg="Fail to ping target:\n%s" % output)
