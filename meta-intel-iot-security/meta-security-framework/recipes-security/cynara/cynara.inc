@@ -79,7 +79,9 @@ DEPENDS_append_smack = " smack-userspace-native"
 CHSMACK_smack = "chsmack"
 CHSMACK = "true"
 pkg_postinst_${PN} () {
-#!/bin/sh -e
+   # Fail on error.
+   set -e
+
    # It would be nice to run the code below while building an image,
    # but currently the calls to cynara-db-chsgen (a binary) in
    # cynara-db-migration (a script) prevent that. Rely instead
