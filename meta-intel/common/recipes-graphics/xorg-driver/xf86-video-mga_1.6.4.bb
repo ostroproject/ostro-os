@@ -14,8 +14,8 @@ PR = "r1"
 
 COMPATIBLE_HOST = '(i.86.*-linux|x86_64.*-linux)'
 
-SRC_URI[md5sum] = "f543877db4e260d8b43c7da3095605ed"
-SRC_URI[sha256sum] = "3f89ce250eea93f0de890954687790e06c0bab9e3e303df393e8759a187eca6c"
+SRC_URI[md5sum] = "cd3db8370caa3e607614ea4e74d4c350"
+SRC_URI[sha256sum] = "48c6690b6751c76f53de64f8dbeaa9d6c62dbcfe890c768fd87167951247d44f"
 
 PACKAGECONFIG ?= "${@base_contains('DISTRO_FEATURES', 'opengl', 'dri', '', d)}"
 PACKAGECONFIG[dri] = "--enable-dri,--disable-dri,drm xf86driproto,xserver-xorg-extension-dri"
