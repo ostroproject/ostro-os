@@ -93,7 +93,7 @@ pkg_postinst_${PN} () {
    mkdir -p $D${sysconfdir}/cynara
    ${CHSMACK} -a System $D${sysconfdir}/cynara
 
-   if [ $1 -gt 1 ] ; then
+   if [ -d $D${localstatedir}/cynara ] ; then
       # upgrade
       $D${sbindir}/cynara-db-migration upgrade -f 0.0.0 -t ${PV}
    else
