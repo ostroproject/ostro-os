@@ -5,6 +5,10 @@ Subject: [PATCH 1/2] cynara-db-migration: abort on errors
 
 "set -e" enables error checking for all commands invoked by the script.
 Previously, errors were silently ignored.
+
+Upstream-status: Submitted [https://github.com/Samsung/cynara/pull/8]
+
+Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
 ---
  migration/cynara-db-migration | 2 ++
  1 file changed, 2 insertions(+)

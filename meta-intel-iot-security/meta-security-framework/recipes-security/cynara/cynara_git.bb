@@ -1,8 +1,8 @@
 require cynara.inc
 
-PV = "0.6.1+git${SRCPV}"
-SRCREV = "229ec1e1e8c5940c62f734e4b8a0b9c49eb8f9f2"
-SRC_URI = "git://review.tizen.org/platform/core/security/cynara;nobranch=1"
+PV = "0.8.0+git${SRCPV}"
+SRCREV = "b4cb3d8e86ef3a2bea256c2215d4d2f9bd73bb97"
+SRC_URI = "git://github.com/Samsung/cynara.git"
 S = "${WORKDIR}/git"
 
 SRC_URI += " \
