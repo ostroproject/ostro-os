@@ -93,14 +93,17 @@ pkg_postinst_${PN} () {
    mkdir -p $D${sysconfdir}/cynara
    ${CHSMACK} -a System $D${sysconfdir}/cynara
 
+   # Strip git patch level information, the version comparison code
+   # in cynara-db-migration only expect major.minor.patch version numbers.
+   VERSION=${@bb.data.getVar('PV',d,1).split('+git')[0]}
    if [ -d $D${localstatedir}/cynara ] ; then
       # upgrade
-      $D${sbindir}/cynara-db-migration upgrade -f 0.0.0 -t ${PV}
+      $D${sbindir}/cynara-db-migration upgrade -f 0.0.0 -t $VERSION
    else
       # install
       mkdir -p $D${localstatedir}/cynara
       ${CHSMACK} -a System $D${localstatedir}/cynara
-      $D${sbindir}/cynara-db-migration install -t ${PV}
+      $D${sbindir}/cynara-db-migration install -t $VERSION
    fi
 
    # Workaround for systemd.bbclass issue: it would call
