@@ -98,9 +98,11 @@ pkg_postinst_${PN} () {
    VERSION=${@bb.data.getVar('PV',d,1).split('+git')[0]}
    if [ -d $D${localstatedir}/cynara ] ; then
       # upgrade
+      echo "NOTE: updating cynara DB to version $VERSION"
       $D${sbindir}/cynara-db-migration upgrade -f 0.0.0 -t $VERSION
    else
       # install
+      echo "NOTE: creating cynara DB for version $VERSION"
       mkdir -p $D${localstatedir}/cynara
       ${CHSMACK} -a System $D${localstatedir}/cynara
       $D${sbindir}/cynara-db-migration install -t $VERSION
@@ -111,6 +113,7 @@ pkg_postinst_${PN} () {
    # the service is not ready to run at the time when
    # this scripts gets executed by run-postinsts.service,
    # booting deadlocks.
+   echo "NOTE: enabling and starting cynara service"
    systemctl enable cynara
    systemctl start --no-block cynara
 }
