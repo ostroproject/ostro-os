@@ -13,7 +13,7 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-security-smack \
   ##OEROOT##/meta-security-framework \
   ##OEROOT##/meta-intel-iot-middleware \
-  ##OEROOT##/meta-oic-fixes \
+  ##OEROOT##/meta-ostro-fixes \
   ##OEROOT##/meta-ostro-bsp \
   "
 
