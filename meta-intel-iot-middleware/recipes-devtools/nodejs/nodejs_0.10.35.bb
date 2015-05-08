@@ -81,6 +81,7 @@ RDEPENDS_${PN}_class-native = ""
 PACKAGES += "${PN}-npm"
 FILES_${PN}-npm = "${libdir}/node_modules ${bindir}/npm"
 RDEPENDS_${PN}-npm = "python-shell python-datetime python-subprocess python-crypt python-textutils \
-                      python-netclient python-ctypes python-misc python-compiler python-multiprocessing"
+                      python-netclient python-ctypes python-misc python-compiler python-multiprocessing \
+                      bash"
 
 BBCLASSEXTEND = "native"
