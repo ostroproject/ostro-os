@@ -3,7 +3,7 @@ SECTION = "libs"
 AUTHOR = "Brendan Le Foll, Tom Ingleby, Yevgeniy Kiveisha"
 
 LICENSE = "MIT"
-LIC_FILES_CHKSUM = "file://COPYING;md5=e8db6501ed294e65418a933925d12058"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=e8db6501ed294e65418a933925d12058"
 
 DEPENDS = "nodejs swig-native mraa"
 
