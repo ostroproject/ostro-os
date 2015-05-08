@@ -4,7 +4,7 @@ LICENSE = "Proprietary"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=121fc3cd97e5c1db39627399a7d72288"
 
 DEPENDS = "nodejs-native mdns"
-RDEPENDS_${PN} = "libarchive-bin"
+RDEPENDS_${PN} = "libarchive-bin mdns nodejs"
 
 PR = "r0"
 
