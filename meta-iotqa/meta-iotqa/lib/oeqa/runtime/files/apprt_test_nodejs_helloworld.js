@@ -1,7 +1,7 @@
 var http = require('http');
 var exec = require('child_process').exec;
 
-var body = "Hello World!";
+var body = 'Hello World!';
 var port = 12346;
 
 var server = http.createServer(function(req, res) {
