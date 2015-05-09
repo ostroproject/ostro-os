@@ -29,7 +29,7 @@ class SanityTestNodejs(oeRuntimeTest):
         (major, minor, patch) = target_version.split('.')
         self.assertTrue(major.isdigit() and minor.isdigit() and patch.isdigit(), msg = 'The node version number is invalid!')
         version_num = int(major) * 10000 + int(minor) * 100 + int(patch)
-        self.assertTrue(version_num >= 1035, msg = 'node major version must not less than 0.10.35!')
+        self.assertTrue(version_num >= 1035, msg = 'node version must not be less than 0.10.35!')
 
 
     def test_npm_exists(self):
@@ -44,7 +44,7 @@ class SanityTestNodejs(oeRuntimeTest):
         (major, minor, patch) = target_version.split('.')
         self.assertTrue(major.isdigit() and minor.isdigit() and patch.isdigit(), msg = 'The node version number is invalid!')
         version_num = int(major) * 10000 + int(minor) * 100 + int(patch)
-        self.assertTrue(version_num >= 10428 , msg = 'npm major version must not less than 1.4.28!')
+        self.assertTrue(version_num >= 10428 , msg = 'npm version must not be less than 1.4.28!')
 
 
     def test_node_helloworld(self):
