@@ -4,30 +4,8 @@ from oeqa.oetest import oeRuntimeTest, skipModule
 from oeqa.utils.decorators import *
 
 
-def read_version(file_path, executable):
-    version = {}
-    # A configuration file must exist in the ./files directory
-    # It store the version info of node, npm
-    # the format is like this
-    # 
-    # node: 0.10.35
-    # npm: 2.7.4
-    with open(file_path) as f:
-        for line in f:
-            if not ':' in line:
-                continue
-
-            (app, ver) = line.strip().split(':')
-            app = app.strip().lower()
-            ver = ver.strip()
-            version[app] = ver
-
-    return version.get(executable)
-
-
 class SanityTestNodejs(oeRuntimeTest):
     
-    local_ver_file = os.path.join(oeRuntimeTest.tc.filesdir, 'apprt_version.txt')
     apprt_test_node_helloworld = 'apprt_test_nodejs_helloworld.js'
     apprt_test_node_helloworld_target = '/tmp/%s' % apprt_test_node_helloworld
     
@@ -43,11 +21,15 @@ class SanityTestNodejs(oeRuntimeTest):
 
 
     def test_node_version(self):
-        pre_node_version = read_version(SanityTestNodejs.local_ver_file, 'node')
         (status, output) = self.target.run('node -v')
         self.assertEqual(status, 0, msg = 'v option for node command is invalid or node does not work.')
         target_version = output.strip().lstrip('v')
-        self.assertEqual(target_version, pre_node_version, msg = 'node version: %s is expected but %s is found on target.' % (pre_node_version, target_version))
+        if target_version.endswith('-pre'):
+        	target_version = target_version.rstrip('-pre')
+        (major, minor, patch) = target_version.split('.')
+        self.assertTrue(major.isdigit() and minor.isdigit() and patch.isdigit(), msg = 'The node version number is invalid!')
+        version_num = int(major) * 10000 + int(minor) * 100 + int(patch)
+        self.assertTrue(version_num >= 1035, msg = 'node major version must higher than 0.10.35!')
 
 
     def test_npm_exists(self):
@@ -56,11 +38,13 @@ class SanityTestNodejs(oeRuntimeTest):
 
 
     def test_npm_version(self):
-        pre_npm_version = read_version(SanityTestNodejs.local_ver_file, 'npm')
         (status, output) = self.target.run('npm -v')
         self.assertEqual(status, 0, msg = 'v option for npm is invalid or npm does not work.')
         target_version = output.strip()
-        self.assertEqual(target_version, pre_npm_version, msg = 'npm version: %s is expected but %s is found on target.' % (pre_npm_version, target_version))
+        (major, minor, patch) = target_version.split('.')
+        self.assertTrue(major.isdigit() and minor.isdigit() and patch.isdigit(), msg = 'The node version number is invalid!')
+        version_num = int(major) * 10000 + int(minor) * 100 + int(patch)
+        self.assertTrue(version_num >= 10428 , msg = 'npm major version must not lower than 1.4.28!')
 
 
     def test_node_helloworld(self):
