@@ -3,6 +3,7 @@
 #\Author: Wang, Jing <jing.j.wang@intel.com>
 
 import time
+import os
 import subprocess
 
 def shell_cmd(cmd):
@@ -33,3 +34,17 @@ def shell_cmd_timeout(cmd, timeout=0):
             ret = -99999
             break
     return ret, output
+
+def collect_pnp_log(casename,log):
+    """collect the result log for pnp part"""
+    curpath=os.getcwd()
+    logname=casename+".log"
+    
+    if not os.path.exists(casename):
+        os.makedirs(casename)
+
+    logpath=curpath+"/"+casename+"/"+logname
+        
+    with open(logpath, "w") as text_file:
+        text_file.write("%s:%s\n" %(casename, log))
+ 
