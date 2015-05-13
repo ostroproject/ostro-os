@@ -1,4 +1,6 @@
 import os
+import string
+import time
 from oeqa.oetest import oeRuntimeTest
 
 class IOtvtServer(oeRuntimeTest):
@@ -18,3 +20,9 @@ class IOtvtServer(oeRuntimeTest):
         reg_cmd = "/opt/iotivity-test/apps/iotivity-test/servertest > /dev/null 2>&1 &"
         (status, output) = self.target.run(reg_cmd)
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
+
+        ''' after several seconds, the daemon should not crash'''
+        time.sleep(5)
+        (status, output) = self.target.run('ps | grep servertest -c')
+        number = string.atoi(output)
+        self.assertEqual(number, 3, msg="Error messages: %s" % output)
