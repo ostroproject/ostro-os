@@ -12,6 +12,8 @@ class IOtvtServer(oeRuntimeTest):
         if status != 0:
             (status,output) = self.target.copy_to(os.path.join(oeRuntimeTest.tc.filesdir,
                           'servertest'), "/opt/iotivity-test/apps/iotivity-test/")
+        (status, output) = self.target.run('ls /opt/iotivity-test/apps/iotivity-test/clienttest')
+        if status != 0:
             (status,output) = self.target.copy_to(os.path.join(oeRuntimeTest.tc.filesdir,
                           'clienttest'), "/opt/iotivity-test/apps/iotivity-test/")
 
