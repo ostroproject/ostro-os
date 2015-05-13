@@ -10,9 +10,13 @@ pkgconfig \
 "
 
 # blkid is called by evmctl when creating evm checksums.
-RDEPENDS_${PN} += "util-linux-blkid"
+# This is less useful when signing files on the build host,
+# so disable it when compiling on the host.
+RDEPENDS_${PN}_append_class-target = " util-linux-blkid"
 
 # Documentation depends on asciidoc, which we do not have, so
 # do not build documentation.
 
 inherit autotools
+
+BBCLASSEXTEND = "native"
