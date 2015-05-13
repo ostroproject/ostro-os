@@ -62,3 +62,6 @@ file://0043-ima-add-ima_state-interface.patch \
 file://0044-ima-make-IMA-policy-replaceable-at-runtime.patch \
 file://0045-evm-add-interface-to-read-and-write-EVM-state-ENABLE.patch \
 "
+
+# IMA_LOAD_POLICY is unusable in 3.19 (and other versions of the kernel) without this patch.
+SRC_URI_append = " file://0001-ima-fix-configuration-of-policy-loading.patch"
