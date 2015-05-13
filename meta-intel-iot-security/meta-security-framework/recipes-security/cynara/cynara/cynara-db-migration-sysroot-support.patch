@@ -9,6 +9,8 @@ the database works, creating the checksums does not because
 the target's cynara-db-chsgen will not run. Further work is
 needed to select a cynara-db-chsgen on the host.
 
+Upstream-status: Inappropriate [embedded specific]
+
 Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
 ---
  migration/cynara-db-migration | 7 +++++--

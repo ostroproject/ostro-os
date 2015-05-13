@@ -10,6 +10,8 @@ by default).
 The cynara code works fine with the current libsystemd, so just
 use that.
 
+Upstream-status: Submitted [https://github.com/Samsung/cynara/pull/8]
+
 Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
 ---
  src/CMakeLists.txt | 3 +--

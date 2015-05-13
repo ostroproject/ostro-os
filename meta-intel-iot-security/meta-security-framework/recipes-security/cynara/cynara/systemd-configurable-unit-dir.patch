@@ -9,6 +9,8 @@ the %_unitdir macro and passing that information also to cmake.
 Makes Cynara more flexible and allows experimenting with the file
 system layout.
 
+Upstream-status: Submitted [https://github.com/Samsung/cynara/pull/8]
+
 Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
 ---
  packaging/cynara.spec  | 25 +++++++++++++------------
