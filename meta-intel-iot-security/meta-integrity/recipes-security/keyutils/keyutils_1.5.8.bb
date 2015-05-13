@@ -22,8 +22,22 @@ S = "${WORKDIR}/git"
 
 inherit autotools
 
-INSTALL_FLAGS = "BINDIR=/usr/bin SBINDIR=/usr/sbin DESTDIR=${D}"
+INSTALL_FLAGS = " \
+BINDIR=${bindir} \
+SBINDIR=${sbindir} \
+INCLUDEDIR=${includedir} \
+ETCDIR=${sysconfdir} \
+LIBDIR=${libdir} \
+USRLIBDIR=${libdir} \
+SHAREDIR=${datadir} \
+MAN1=${mandir}/man1 \
+MAN3=${mandir}/man3 \
+MAN5=${mandir}/man5 \
+MAN8=${mandir}/man8 \
+DESTDIR=${D}"
 
 do_install() {
     cd ${S} && oe_runmake ${INSTALL_FLAGS} install
 }
+
+BBCLASSEXTEND = "native"
