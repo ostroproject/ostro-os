@@ -170,6 +170,18 @@ executing the file is no longer allowed:
     # rpm --version
     -sh: /usr/bin/rpm: Permission denied
 
+Enabling the audit kernel subsystem may help to debug appraisal
+issues. Enable it by adding the meta-security-framework layer and
+changing your local.conf:
+    SRC_URI_append_pn-linux-yocto = " file://audit.cfg"
+    CORE_IMAGE_EXTRA_INSTALL += "auditd"
+
+Then boot with "ima_appraise=log ima_appraise_tcb".
+
+Adding auditd is not strictly necessary but helps to capture a
+more complete set of events in /var/log/audit/ and search in
+them with ausearch.
+
 
 3. Known Issues
 ===============
