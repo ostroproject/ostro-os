@@ -1,0 +1,2938 @@
+From f73f654734c5f0d1a6568c6c8fba232b01f919f4 Mon Sep 17 00:00:00 2001
+From: Joe MacDonald <joe@deserted.net>
+Date: Wed, 23 Oct 2013 16:02:34 -0400
+Subject: [PATCH] audit: use generated headers for cross compiling
+
+In the same vein as the patch for audit 2.2.1 (commit: 6c77455b), we generate
+the headers which are inherently architecture specific but portable on a
+convenient platform and use them for all platforms.
+
+Upstream-Status: Inappropriate [cross-compile specific]
+
+Signed-off-by: Joe MacDonald <joe@deserted.net>
+---
+ auparse/Makefile.am       |  200 ---------------------------------------------
+ auparse/accesstabs.h      |    6 ++
+ auparse/captabs.h         |   14 ++++
+ auparse/clocktabs.h       |    8 ++
+ auparse/clone-flagtabs.h  |   10 +++
+ auparse/epoll_ctls.h      |    8 ++
+ auparse/famtabs.h         |   14 ++++
+ auparse/fcntl-cmdtabs.h   |   17 ++++
+ auparse/flagtabs.h        |    6 ++
+ auparse/icmptypetabs.h    |   10 +++
+ auparse/ip6optnametabs.h  |   20 +++++
+ auparse/ipccmdtabs.h      |    6 ++
+ auparse/ipctabs.h         |   11 +++
+ auparse/ipoptnametabs.h   |   17 ++++
+ auparse/mmaptabs.h        |    8 ++
+ auparse/mounttabs.h       |   10 +++
+ auparse/nfprototabs.h     |    9 ++
+ auparse/open-flagtabs.h   |    8 ++
+ auparse/persontabs.h      |   17 ++++
+ auparse/pktoptnametabs.h  |   10 +++
+ auparse/prctl_opttabs.h   |   14 ++++
+ auparse/prottabs.h        |    6 ++
+ auparse/ptracetabs.h      |   17 ++++
+ auparse/recvtabs.h        |    8 ++
+ auparse/rlimittabs.h      |   10 +++
+ auparse/schedtabs.h       |    8 ++
+ auparse/seccomptabs.h     |   11 +++
+ auparse/seektabs.h        |    8 ++
+ auparse/shm_modetabs.h    |    6 ++
+ auparse/signaltabs.h      |   14 ++++
+ auparse/sockleveltabs.h   |   12 +++
+ auparse/sockoptnametabs.h |   23 ++++++
+ auparse/socktabs.h        |   10 +++
+ auparse/socktypetabs.h    |    8 ++
+ auparse/tcpoptnametabs.h  |   12 +++
+ auparse/typetabs.h        |   35 ++++++++
+ auparse/umounttabs.h      |    6 ++
+ lib/Makefile.am           |  106 ------------------------
+ lib/aarch64_tables.h      |  125 ++++++++++++++++++++++++++++
+ lib/actiontabs.h          |   26 ++++++
+ lib/alpha_tables.h        |  196 ++++++++++++++++++++++++++++++++++++++++++++
+ lib/armeb_tables.h        |  165 +++++++++++++++++++++++++++++++++++++
+ lib/errtabs.h             |   78 ++++++++++++++++++
+ lib/fieldtabs.h           |   49 +++++++++++
+ lib/flagtabs.h            |   26 ++++++
+ lib/ftypetabs.h           |   29 +++++++
+ lib/i386_tables.h         |  163 ++++++++++++++++++++++++++++++++++++
+ lib/ia64_tables.h         |  147 +++++++++++++++++++++++++++++++++
+ lib/machinetabs.h         |   26 ++++++
+ lib/msg_typetabs.h        |  104 +++++++++++++++++++++++
+ lib/optabs.h              |   11 +++
+ lib/ppc_tables.h          |  163 ++++++++++++++++++++++++++++++++++++
+ lib/s390_tables.h         |  153 ++++++++++++++++++++++++++++++++++
+ lib/s390x_tables.h        |  144 ++++++++++++++++++++++++++++++++
+ lib/x86_64_tables.h       |  150 ++++++++++++++++++++++++++++++++++
+ 55 files changed, 2172 insertions(+), 306 deletions(-)
+ create mode 100644 auparse/accesstabs.h
+ create mode 100644 auparse/captabs.h
+ create mode 100644 auparse/clocktabs.h
+ create mode 100644 auparse/clone-flagtabs.h
+ create mode 100644 auparse/epoll_ctls.h
+ create mode 100644 auparse/famtabs.h
+ create mode 100644 auparse/fcntl-cmdtabs.h
+ create mode 100644 auparse/flagtabs.h
+ create mode 100644 auparse/icmptypetabs.h
+ create mode 100644 auparse/ip6optnametabs.h
+ create mode 100644 auparse/ipccmdtabs.h
+ create mode 100644 auparse/ipctabs.h
+ create mode 100644 auparse/ipoptnametabs.h
+ create mode 100644 auparse/mmaptabs.h
+ create mode 100644 auparse/mounttabs.h
+ create mode 100644 auparse/nfprototabs.h
+ create mode 100644 auparse/open-flagtabs.h
+ create mode 100644 auparse/persontabs.h
+ create mode 100644 auparse/pktoptnametabs.h
+ create mode 100644 auparse/prctl_opttabs.h
+ create mode 100644 auparse/prottabs.h
+ create mode 100644 auparse/ptracetabs.h
+ create mode 100644 auparse/recvtabs.h
+ create mode 100644 auparse/rlimittabs.h
+ create mode 100644 auparse/schedtabs.h
+ create mode 100644 auparse/seccomptabs.h
+ create mode 100644 auparse/seektabs.h
+ create mode 100644 auparse/shm_modetabs.h
+ create mode 100644 auparse/signaltabs.h
+ create mode 100644 auparse/sockleveltabs.h
+ create mode 100644 auparse/sockoptnametabs.h
+ create mode 100644 auparse/socktabs.h
+ create mode 100644 auparse/socktypetabs.h
+ create mode 100644 auparse/tcpoptnametabs.h
+ create mode 100644 auparse/typetabs.h
+ create mode 100644 auparse/umounttabs.h
+ create mode 100644 lib/aarch64_tables.h
+ create mode 100644 lib/actiontabs.h
+ create mode 100644 lib/alpha_tables.h
+ create mode 100644 lib/armeb_tables.h
+ create mode 100644 lib/errtabs.h
+ create mode 100644 lib/fieldtabs.h
+ create mode 100644 lib/flagtabs.h
+ create mode 100644 lib/ftypetabs.h
+ create mode 100644 lib/i386_tables.h
+ create mode 100644 lib/ia64_tables.h
+ create mode 100644 lib/machinetabs.h
+ create mode 100644 lib/msg_typetabs.h
+ create mode 100644 lib/optabs.h
+ create mode 100644 lib/ppc_tables.h
+ create mode 100644 lib/s390_tables.h
+ create mode 100644 lib/s390x_tables.h
+ create mode 100644 lib/x86_64_tables.h
+
+diff --git a/auparse/Makefile.am b/auparse/Makefile.am
+index f0ca18f..7d1527c 100644
+--- a/auparse/Makefile.am
++++ b/auparse/Makefile.am
+@@ -53,203 +53,3 @@ BUILT_SOURCES = accesstabs.h captabs.h clocktabs.h clone-flagtabs.h \
+ 	seektabs.h shm_modetabs.h signaltabs.h sockoptnametabs.h \
+ 	socktabs.h sockleveltabs.h socktypetabs.h \
+ 	tcpoptnametabs.h typetabs.h umounttabs.h
+-noinst_PROGRAMS = gen_accesstabs_h gen_captabs_h gen_clock_h \
+-	gen_clone-flagtabs_h \
+-	gen_epoll_ctls_h gen_famtabs_h \
+-	gen_fcntl-cmdtabs_h gen_flagtabs_h \
+-	gen_icmptypetabs_h gen_ipctabs_h gen_ipccmdtabs_h\
+-	gen_ipoptnametabs_h gen_ip6optnametabs_h gen_nfprototabs_h \
+-	gen_mmaptabs_h gen_mounttabs_h \
+-	gen_open-flagtabs_h gen_persontabs_h \
+-	gen_prctl_opttabs_h gen_pktoptnametabs_h gen_prottabs_h \
+-	gen_recvtabs_h gen_rlimit_h gen_ptracetabs_h \
+-	gen_schedtabs_h gen_seccomptabs_h \
+-	gen_seektabs_h gen_shm_modetabs_h gen_signals_h \
+-	gen_sockoptnametabs_h gen_socktabs_h gen_sockleveltabs_h \
+-	gen_socktypetabs_h gen_tcpoptnametabs_h gen_typetabs_h \
+-	gen_umounttabs_h
+-
+-gen_accesstabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h accesstab.h
+-gen_accesstabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="accesstab.h"'
+-accesstabs.h: gen_accesstabs_h Makefile
+-	./gen_accesstabs_h --i2s-transtab access > $@
+-
+-gen_captabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h captab.h
+-gen_captabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="captab.h"'
+-captabs.h: gen_captabs_h Makefile
+-	./gen_captabs_h --i2s cap > $@
+-
+-gen_clock_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h clocktab.h
+-gen_clock_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="clocktab.h"'
+-clocktabs.h: gen_clock_h Makefile
+-	./gen_clock_h --i2s clock > $@
+-
+-gen_clone_flagtabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h \
+-	clone-flagtab.h
+-gen_clone_flagtabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="clone-flagtab.h"'
+-clone-flagtabs.h: gen_clone-flagtabs_h Makefile
+-	./gen_clone-flagtabs_h --i2s-transtab clone_flag > $@
+-
+-gen_epoll_ctls_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h epoll_ctl.h
+-gen_epoll_ctls_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="epoll_ctl.h"'
+-epoll_ctls.h: gen_epoll_ctls_h Makefile
+-	./gen_epoll_ctls_h --i2s epoll_ctl > $@
+-
+-gen_famtabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h famtab.h
+-gen_famtabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="famtab.h"'
+-famtabs.h: gen_famtabs_h Makefile
+-	./gen_famtabs_h --i2s fam > $@
+-
+-gen_flagtabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h flagtab.h
+-# ../auparse/ is used to avoid using ../lib/flagtab.h
+-gen_flagtabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="../auparse/flagtab.h"'
+-flagtabs.h: gen_flagtabs_h Makefile
+-	./gen_flagtabs_h --i2s-transtab flag > $@
+-
+-gen_fcntl_cmdtabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h \
+-	fcntl-cmdtab.h
+-gen_fcntl_cmdtabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="fcntl-cmdtab.h"'
+-fcntl-cmdtabs.h: gen_fcntl-cmdtabs_h Makefile
+-	./gen_fcntl-cmdtabs_h --i2s fcntl > $@
+-
+-gen_icmptypetabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h icmptypetab.h
+-gen_icmptypetabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="icmptypetab.h"'
+-icmptypetabs.h: gen_icmptypetabs_h Makefile
+-	./gen_icmptypetabs_h --i2s icmptype > $@
+-
+-gen_ipctabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h ipctab.h
+-gen_ipctabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="ipctab.h"'
+-ipctabs.h: gen_ipctabs_h Makefile
+-	./gen_ipctabs_h --i2s ipc > $@
+-
+-gen_ipccmdtabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h ipccmdtab.h
+-gen_ipccmdtabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="ipccmdtab.h"'
+-ipccmdtabs.h: gen_ipccmdtabs_h Makefile
+-	./gen_ipccmdtabs_h --i2s-transtab ipccmd > $@
+-
+-gen_ipoptnametabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h ipoptnametab.h
+-gen_ipoptnametabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="ipoptnametab.h"'
+-ipoptnametabs.h: gen_ipoptnametabs_h Makefile
+-	./gen_ipoptnametabs_h --i2s ipoptname > $@
+-
+-gen_ip6optnametabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h ip6optnametab.h
+-gen_ip6optnametabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="ip6optnametab.h"'
+-ip6optnametabs.h: gen_ip6optnametabs_h Makefile
+-	./gen_ip6optnametabs_h --i2s ip6optname > $@
+-
+-gen_mmaptabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h mmaptab.h
+-gen_mmaptabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="mmaptab.h"'
+-mmaptabs.h: gen_mmaptabs_h Makefile
+-	./gen_mmaptabs_h --i2s-transtab mmap > $@
+-
+-gen_mounttabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h mounttab.h
+-gen_mounttabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="mounttab.h"'
+-mounttabs.h: gen_mounttabs_h Makefile
+-	./gen_mounttabs_h --i2s-transtab mount > $@
+-
+-gen_nfprototabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h nfprototab.h
+-gen_nfprototabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="nfprototab.h"'
+-nfprototabs.h: gen_nfprototabs_h Makefile
+-	./gen_nfprototabs_h --i2s nfproto > $@
+-
+-gen_open_flagtabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h \
+-	open-flagtab.h
+-gen_open_flagtabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="open-flagtab.h"'
+-open-flagtabs.h: gen_open-flagtabs_h Makefile
+-	./gen_open-flagtabs_h --i2s-transtab open_flag > $@
+-
+-gen_persontabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h persontab.h
+-gen_persontabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="persontab.h"'
+-persontabs.h: gen_persontabs_h Makefile
+-	./gen_persontabs_h --i2s person > $@
+-
+-gen_ptracetabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h ptracetab.h
+-gen_ptracetabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="ptracetab.h"'
+-ptracetabs.h: gen_ptracetabs_h Makefile
+-	./gen_ptracetabs_h --i2s ptrace > $@
+-
+-gen_prctl_opttabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h prctl-opt-tab.h
+-gen_prctl_opttabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="prctl-opt-tab.h"'
+-prctl_opttabs.h: gen_prctl_opttabs_h Makefile
+-	./gen_prctl_opttabs_h --i2s prctl_opt > $@
+-
+-gen_pktoptnametabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h pktoptnametab.h
+-gen_pktoptnametabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="pktoptnametab.h"'
+-pktoptnametabs.h: gen_pktoptnametabs_h Makefile
+-	./gen_pktoptnametabs_h --i2s pktoptname > $@
+-
+-gen_prottabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h prottab.h
+-gen_prottabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="prottab.h"'
+-prottabs.h: gen_prottabs_h Makefile
+-	./gen_prottabs_h --i2s-transtab prot > $@
+-
+-gen_recvtabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h recvtab.h
+-gen_recvtabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="recvtab.h"'
+-recvtabs.h: gen_recvtabs_h Makefile
+-	./gen_recvtabs_h --i2s-transtab recv > $@
+-
+-gen_rlimit_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h rlimittab.h
+-gen_rlimit_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="rlimittab.h"'
+-rlimittabs.h: gen_rlimit_h Makefile
+-	./gen_rlimit_h --i2s rlimit > $@
+-
+-gen_schedtabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h schedtab.h
+-gen_schedtabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="schedtab.h"'
+-schedtabs.h: gen_schedtabs_h Makefile
+-	./gen_schedtabs_h --i2s sched > $@
+-
+-gen_seccomptabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h seccomptab.h
+-gen_seccomptabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="seccomptab.h"'
+-seccomptabs.h: gen_seccomptabs_h Makefile
+-	./gen_seccomptabs_h --i2s seccomp > $@
+-
+-gen_seektabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h seektab.h
+-gen_seektabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="seektab.h"'
+-seektabs.h: gen_seektabs_h Makefile
+-	./gen_seektabs_h --i2s seek > $@
+-
+-gen_shm_modetabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h shm_modetab.h
+-gen_shm_modetabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="shm_modetab.h"'
+-shm_modetabs.h: gen_shm_modetabs_h Makefile
+-	./gen_shm_modetabs_h --i2s-transtab shm_mode > $@
+-
+-gen_signals_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h signaltab.h
+-gen_signals_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="signaltab.h"'
+-signaltabs.h: gen_signals_h Makefile
+-	./gen_signals_h --i2s signal > $@
+-
+-gen_sockleveltabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h sockleveltab.h
+-gen_sockleveltabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="sockleveltab.h"'
+-sockleveltabs.h: gen_sockleveltabs_h Makefile
+-	./gen_sockleveltabs_h --i2s socklevel > $@
+-
+-gen_sockoptnametabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h sockoptnametab.h
+-gen_sockoptnametabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="sockoptnametab.h"'
+-sockoptnametabs.h: gen_sockoptnametabs_h Makefile
+-	./gen_sockoptnametabs_h --i2s sockoptname > $@
+-
+-gen_socktabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h socktab.h
+-gen_socktabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="socktab.h"'
+-socktabs.h: gen_socktabs_h Makefile
+-	./gen_socktabs_h --i2s sock > $@
+-
+-gen_socktypetabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h socktypetab.h
+-gen_socktypetabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="socktypetab.h"'
+-socktypetabs.h: gen_socktypetabs_h Makefile
+-	./gen_socktypetabs_h --i2s sock_type > $@
+-
+-gen_tcpoptnametabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h tcpoptnametab.h
+-gen_tcpoptnametabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="tcpoptnametab.h"'
+-tcpoptnametabs.h: gen_tcpoptnametabs_h Makefile
+-	./gen_tcpoptnametabs_h --i2s tcpoptname > $@
+-
+-gen_typetabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h typetab.h
+-gen_typetabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="typetab.h"'
+-typetabs.h: gen_typetabs_h Makefile
+-	./gen_typetabs_h --s2i type > $@
+-
+-gen_umounttabs_h_SOURCES = ../lib/gen_tables.c ../lib/gen_tables.h umounttab.h
+-gen_umounttabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="umounttab.h"'
+-umounttabs.h: gen_umounttabs_h Makefile
+-	./gen_umounttabs_h --i2s-transtab umount > $@
+-
+diff --git a/auparse/accesstabs.h b/auparse/accesstabs.h
+new file mode 100644
+index 0000000..867d99c
+--- /dev/null
++++ b/auparse/accesstabs.h
+@@ -0,0 +1,6 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char access_strings[] = "R_OK\0W_OK\0X_OK";
++static const struct transtab access_table[] = {
++	{1,10},{2,5},{4,0},
++};
++#define ACCESS_NUM_ENTRIES (sizeof(access_table) / sizeof(*access_table))
+diff --git a/auparse/captabs.h b/auparse/captabs.h
+new file mode 100644
+index 0000000..9267466
+--- /dev/null
++++ b/auparse/captabs.h
+@@ -0,0 +1,14 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char cap_strings[] = "audit_control\0audit_write\0block_suspend\0chown\0compromise_kernel\0dac_override\0dac_read_search\0fowner\0fsetid\0ipc_lock\0"
++	"ipc_owner\0kill\0lease\0linux_immutable\0mac_admin\0mac_override\0mknod\0net_admin\0net_bind_service\0net_broadcast\0"
++	"net_raw\0setfcap\0setgid\0setpcap\0setuid\0sys_admin\0sys_boot\0sys_chroot\0sys_module\0sys_nice\0"
++	"sys_pacct\0sys_ptrace\0sys_rawio\0sys_resource\0sys_time\0sys_tty_config\0syslog\0wake_alarm";
++static const unsigned cap_i2s_direct[] = {
++	40,64,77,93,100,126,239,254,246,137,
++	192,209,182,223,107,116,291,332,280,321,
++	311,261,271,302,342,355,364,176,131,14,
++	0,231,163,153,379,386,26,46,
++};
++static const char *cap_i2s(int v) {
++	return i2s_direct__(cap_strings, cap_i2s_direct, 0, 37, v);
++}
+diff --git a/auparse/clocktabs.h b/auparse/clocktabs.h
+new file mode 100644
+index 0000000..03f9f09
+--- /dev/null
++++ b/auparse/clocktabs.h
+@@ -0,0 +1,8 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char clock_strings[] = "CLOCK_BOOTTIME\0CLOCK_BOOTTIME_ALARM\0CLOCK_MONOTONIC\0CLOCK_MONOTONIC_COARSE\0CLOCK_MONOTONIC_RAW\0CLOCK_PROCESS_CPUTIME_ID\0CLOCK_REALTIME\0CLOCK_REALTIME_ALARM\0CLOCK_REALTIME_COARSE\0CLOCK_THREAD_CPUTIME_ID";
++static const unsigned clock_i2s_direct[] = {
++	120,36,95,178,75,156,52,0,135,15,
++};
++static const char *clock_i2s(int v) {
++	return i2s_direct__(clock_strings, clock_i2s_direct, 0, 9, v);
++}
+diff --git a/auparse/clone-flagtabs.h b/auparse/clone-flagtabs.h
+new file mode 100644
+index 0000000..b8f815d
+--- /dev/null
++++ b/auparse/clone-flagtabs.h
+@@ -0,0 +1,10 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char clone_flag_strings[] = "CLONE_CHILD_CLEARTID\0CLONE_CHILD_SETTID\0CLONE_DETACHED\0CLONE_FILES\0CLONE_FS\0CLONE_IO\0CLONE_NEWIPC\0CLONE_NEWNET\0CLONE_NEWNS\0CLONE_NEWPID\0"
++	"CLONE_NEWUSER\0CLONE_NEWUTS\0CLONE_PARENT\0CLONE_PARENT_SETTID\0CLONE_PTRACE\0CLONE_SETTLS\0CLONE_SIGHAND\0CLONE_STOPPED\0CLONE_SYSVSEM\0CLONE_THREAD\0"
++	"CLONE_UNTRACED\0CLONE_VFORK\0CLONE_VM";
++static const struct transtab clone_flag_table[] = {
++	{256,304},{512,67},{1024,55},{2048,222},{8192,196},{16384,292},{32768,163},{65536,264},{131072,111},{262144,250},
++	{524288,209},{1048576,176},{2097152,0},{4194304,40},{8388608,277},{16777216,21},{33554432,236},{67108864,150},{134217728,85},{268435456,136},
++	{536870912,123},{1073741824,98},{-2147483648,76},
++};
++#define CLONE_FLAG_NUM_ENTRIES (sizeof(clone_flag_table) / sizeof(*clone_flag_table))
+diff --git a/auparse/epoll_ctls.h b/auparse/epoll_ctls.h
+new file mode 100644
+index 0000000..2787c18
+--- /dev/null
++++ b/auparse/epoll_ctls.h
+@@ -0,0 +1,8 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char epoll_ctl_strings[] = "EPOLL_CTL_ADD\0EPOLL_CTL_DEL\0EPOLL_CTL_MOD";
++static const unsigned epoll_ctl_i2s_direct[] = {
++	0,14,28,
++};
++static const char *epoll_ctl_i2s(int v) {
++	return i2s_direct__(epoll_ctl_strings, epoll_ctl_i2s_direct, 1, 3, v);
++}
+diff --git a/auparse/famtabs.h b/auparse/famtabs.h
+new file mode 100644
+index 0000000..cae396b
+--- /dev/null
++++ b/auparse/famtabs.h
+@@ -0,0 +1,14 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char fam_strings[] = "alg\0appletalk\0ash\0atmpvc\0atmsvc\0ax25\0bluetooth\0bridge\0caif\0can\0"
++	"decnet\0econet\0ieee802154\0inet\0inet6\0ipx\0irda\0isdn\0iucv\0key\0"
++	"llc\0local\0netbeui\0netlink\0netrom\0nfc\0packet\0phonet\0pppox\0rds\0"
++	"rose\0rxrpc\0security\0sna\0tipc\0vsock\0wanpipe\0x25";
++static const unsigned fam_i2s_direct[] = {
++	126,88,32,99,4,148,47,18,226,93,
++	183,63,132,194,118,140,159,14,70,25,
++	179,203,103,173,218,122,-1u,-1u,59,207,
++	37,113,188,108,166,77,54,0,155,212,
++};
++static const char *fam_i2s(int v) {
++	return i2s_direct__(fam_strings, fam_i2s_direct, 1, 40, v);
++}
+diff --git a/auparse/fcntl-cmdtabs.h b/auparse/fcntl-cmdtabs.h
+new file mode 100644
+index 0000000..18c6cc7
+--- /dev/null
++++ b/auparse/fcntl-cmdtabs.h
+@@ -0,0 +1,17 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char fcntl_strings[] = "F_CANCELLK\0F_DUPFD\0F_DUPFD_CLOEXEC\0F_GETFD\0F_GETFL\0F_GETLEASE\0F_GETLK\0F_GETLK64\0F_GETOWN\0F_GETOWNER_UIDS\0"
++	"F_GETOWN_EX\0F_GETPIPE_SZ\0F_GETSIG\0F_NOTIFY\0F_SETFD\0F_SETFL\0F_SETLEASE\0F_SETLK\0F_SETLK64\0F_SETLKW\0"
++	"F_SETLKW64\0F_SETOWN\0F_SETOWN_EX\0F_SETPIPE_SZ\0F_SETSIG";
++static const int fcntl_i2s_i[] = {
++	0,1,2,3,4,5,6,7,8,9,
++	10,11,12,13,14,15,16,17,1024,1025,
++	1026,1029,1030,1031,1032,
++};
++static const unsigned fcntl_i2s_s[] = {
++	11,35,148,43,156,62,175,193,213,80,
++	247,130,70,183,202,222,105,89,164,51,
++	139,0,19,234,117,
++};
++static const char *fcntl_i2s(int v) {
++	return i2s_bsearch__(fcntl_strings, fcntl_i2s_i, fcntl_i2s_s, 25, v);
++}
+diff --git a/auparse/flagtabs.h b/auparse/flagtabs.h
+new file mode 100644
+index 0000000..5f57e14
+--- /dev/null
++++ b/auparse/flagtabs.h
+@@ -0,0 +1,6 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char flag_strings[] = "access\0atomic\0continue\0create\0directory\0follow\0noalt\0open\0parent";
++static const struct transtab flag_table[] = {
++	{1,40},{2,30},{4,14},{16,58},{32,47},{64,7},{256,53},{512,23},{1024,0},
++};
++#define FLAG_NUM_ENTRIES (sizeof(flag_table) / sizeof(*flag_table))
+diff --git a/auparse/icmptypetabs.h b/auparse/icmptypetabs.h
+new file mode 100644
+index 0000000..49b44bf
+--- /dev/null
++++ b/auparse/icmptypetabs.h
+@@ -0,0 +1,10 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char icmptype_strings[] = "address-mask-reply\0address-mask-request\0destination-unreachable\0echo\0echo-reply\0info-reply\0info-request\0parameter-problem\0redirect\0source-quench\0"
++	"time-exceeded\0timestamp-reply\0timestamp-request";
++static const unsigned icmptype_i2s_direct[] = {
++	69,-1u,-1u,40,131,122,-1u,-1u,64,-1u,
++	-1u,145,104,175,159,91,80,19,0,
++};
++static const char *icmptype_i2s(int v) {
++	return i2s_direct__(icmptype_strings, icmptype_i2s_direct, 0, 18, v);
++}
+diff --git a/auparse/ip6optnametabs.h b/auparse/ip6optnametabs.h
+new file mode 100644
+index 0000000..4af11c2
+--- /dev/null
++++ b/auparse/ip6optnametabs.h
+@@ -0,0 +1,20 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char ip6optname_strings[] = "IP6T_SO_GET_REVISION_MATCH\0IP6T_SO_GET_REVISION_TARGET\0IP6T_SO_ORIGINAL_DST\0IP6T_SO_SET_ADD_COUNTERS\0IP6T_SO_SET_REPLACE\0IPV6_2292DSTOPTS\0IPV6_2292HOPLIMIT\0IPV6_2292HOPOPTS\0IPV6_2292PKTINFO\0IPV6_2292PKTOPTIONS\0"
++	"IPV6_2292RTHDR\0IPV6_ADDRFORM\0IPV6_ADDR_PREFERENCES\0IPV6_ADD_MEMBERSHIP\0IPV6_AUTHHDR\0IPV6_CHECKSUM\0IPV6_DONTFRAG\0IPV6_DROP_MEMBERSHIP\0IPV6_DSTOPTS\0IPV6_FLOWINFO\0"
++	"IPV6_FLOWINFO_SEND\0IPV6_FLOWLABEL_MGR\0IPV6_HOPLIMIT\0IPV6_HOPOPTS\0IPV6_IPSEC_POLICY\0IPV6_JOIN_ANYCAST\0IPV6_LEAVE_ANYCAST\0IPV6_MINHOPCOUNT\0IPV6_MTU\0IPV6_MTU_DISCOVER\0"
++	"IPV6_MULTICAST_HOPS\0IPV6_MULTICAST_IF\0IPV6_MULTICAST_LOOP\0IPV6_NEXTHOP\0IPV6_ORIGDSTADDR\0IPV6_PATHMTU\0IPV6_PKTINFO\0IPV6_RECVDSTOPTS\0IPV6_RECVERR\0IPV6_RECVHOPLIMIT\0"
++	"IPV6_RECVHOPOPTS\0IPV6_RECVPATHMTU\0IPV6_RECVPKTINFO\0IPV6_RECVRTHDR\0IPV6_RECVTCLASS\0IPV6_ROUTER_ALERT\0IPV6_RTHDR\0IPV6_RTHDRDSTOPTS\0IPV6_TCLASS\0IPV6_TRANSPARENT\0"
++	"IPV6_UNICAST_HOPS\0IPV6_UNICAST_IF\0IPV6_USE_MIN_MTU\0IPV6_V6ONLY\0IPV6_XFRM_POLICY";
++static const unsigned ip6optname_i2s_direct[] = {
++	225,173,156,121,210,190,294,138,592,281,
++	356,-1u,-1u,-1u,-1u,854,554,534,572,261,
++	322,778,516,507,665,905,453,471,-1u,-1u,
++	-1u,389,370,435,917,-1u,-1u,-1u,-1u,-1u,
++	-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,730,635,
++	678,408,696,422,807,747,796,648,343,713,
++	622,308,888,101,76,762,825,0,27,-1u,
++	-1u,239,490,605,837,872,-1u,-1u,-1u,55,
++};
++static const char *ip6optname_i2s(int v) {
++	return i2s_direct__(ip6optname_strings, ip6optname_i2s_direct, 1, 80, v);
++}
+diff --git a/auparse/ipccmdtabs.h b/auparse/ipccmdtabs.h
+new file mode 100644
+index 0000000..ff43dbb
+--- /dev/null
++++ b/auparse/ipccmdtabs.h
+@@ -0,0 +1,6 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char ipccmd_strings[] = "IPC_CREAT\0IPC_EXCL\0IPC_NOWAIT";
++static const struct transtab ipccmd_table[] = {
++	{512,0},{1024,10},{2048,19},
++};
++#define IPCCMD_NUM_ENTRIES (sizeof(ipccmd_table) / sizeof(*ipccmd_table))
+diff --git a/auparse/ipctabs.h b/auparse/ipctabs.h
+new file mode 100644
+index 0000000..4bf3bcd
+--- /dev/null
++++ b/auparse/ipctabs.h
+@@ -0,0 +1,11 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char ipc_strings[] = "msgctl\0msgget\0msgrcv\0msgsnd\0semctl\0semget\0semop\0semtimedop\0shmat\0shmctl\0"
++	"shmdt\0shmget";
++static const unsigned ipc_i2s_direct[] = {
++	42,35,28,48,-1u,-1u,-1u,-1u,-1u,-1u,
++	21,14,7,0,-1u,-1u,-1u,-1u,-1u,-1u,
++	59,72,78,65,
++};
++static const char *ipc_i2s(int v) {
++	return i2s_direct__(ipc_strings, ipc_i2s_direct, 1, 24, v);
++}
+diff --git a/auparse/ipoptnametabs.h b/auparse/ipoptnametabs.h
+new file mode 100644
+index 0000000..fb0b8b7
+--- /dev/null
++++ b/auparse/ipoptnametabs.h
+@@ -0,0 +1,17 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char ipoptname_strings[] = "IPT_SO_GET_REVISION_TARGET\0IPT_SO_SET_ADD_COUNTERS\0IPT_SO_SET_REPLACE\0IP_ADD_MEMBERSHIP\0IP_ADD_SOURCE_MEMBERSHIP\0IP_BLOCK_SOURCE\0IP_DROP_MEMBERSHIP\0IP_DROP_SOURCE_MEMBERSHIP\0IP_FREEBIND\0IP_HDRINCL\0"
++	"IP_IPSEC_POLICY\0IP_MINTTL\0IP_MSFILTER\0IP_MTU\0IP_MTU_DISCOVER\0IP_MULTICAST_ALL\0IP_MULTICAST_IF\0IP_MULTICAST_LOOP\0IP_MULTICAST_TTL\0IP_NODEFRAG\0"
++	"IP_OPTIONS\0IP_ORIGDSTADDR\0IP_PASSSEC\0IP_PKTINFO\0IP_PKTOPTIONS\0IP_RECVERR\0IP_RECVOPTS\0IP_RECVTTL\0IP_RETOPTS\0IP_ROUTER_ALERT\0"
++	"IP_TOS\0IP_TRANSPARENT\0IP_TTL\0IP_UNBLOCK_SOURCE\0IP_UNICAST_IF\0IP_XFRM_POLICY";
++static const unsigned ipoptname_i2s_direct[] = {
++	461,483,186,338,445,411,434,375,386,242,
++	400,423,-1u,235,174,197,522,364,468,349,
++	213,326,-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,
++	-1u,275,309,291,70,129,490,113,88,148,
++	223,-1u,-1u,-1u,-1u,-1u,-1u,-1u,258,508,
++	-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,
++	-1u,-1u,-1u,51,27,0,
++};
++static const char *ipoptname_i2s(int v) {
++	return i2s_direct__(ipoptname_strings, ipoptname_i2s_direct, 1, 66, v);
++}
+diff --git a/auparse/mmaptabs.h b/auparse/mmaptabs.h
+new file mode 100644
+index 0000000..386833c
+--- /dev/null
++++ b/auparse/mmaptabs.h
+@@ -0,0 +1,8 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char mmap_strings[] = "MAP_32BIT\0MAP_ANONYMOUS\0MAP_DENYWRITE\0MAP_EXECUTABLE\0MAP_FIXED\0MAP_GROWSDOWN\0MAP_HUGETLB\0MAP_LOCKED\0MAP_NONBLOCK\0MAP_NORESERVE\0"
++	"MAP_POPULATE\0MAP_PRIVATE\0MAP_SHARED\0MAP_STACK";
++static const struct transtab mmap_table[] = {
++	{1,152},{2,140},{16,53},{32,10},{64,0},{256,63},{2048,24},{4096,38},{8192,89},{16384,113},
++	{32768,127},{65536,100},{131072,163},{262144,77},
++};
++#define MMAP_NUM_ENTRIES (sizeof(mmap_table) / sizeof(*mmap_table))
+diff --git a/auparse/mounttabs.h b/auparse/mounttabs.h
+new file mode 100644
+index 0000000..ca66885
+--- /dev/null
++++ b/auparse/mounttabs.h
+@@ -0,0 +1,10 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char mount_strings[] = "MS_ACTIVE\0MS_BIND\0MS_BORN\0MS_DIRSYNC\0MS_I_VERSION\0MS_KERNMOUNT\0MS_MANDLOCK\0MS_MOVE\0MS_NOATIME\0MS_NODEV\0"
++	"MS_NODIRATIME\0MS_NOEXEC\0MS_NOSEC\0MS_NOSUID\0MS_NOUSER\0MS_POSIXACL\0MS_PRIVATE\0MS_RDONLY\0MS_REC\0MS_RELATIME\0"
++	"MS_REMOUNT\0MS_SHARED\0MS_SILENT\0MS_SLAVE\0MS_SNAP_STABLE\0MS_STRICTATIME\0MS_SYNCHRONOUS\0MS_UNBINDABLE";
++static const struct transtab mount_table[] = {
++	{1,179},{2,136},{4,94},{8,117},{16,278},{32,208},{64,63},{128,26},{1024,83},{2048,103},
++	{4096,10},{8192,75},{16384,189},{32768,229},{65536,156},{131072,293},{262144,168},{524288,239},{1048576,219},{2097152,196},
++	{4194304,50},{8388608,37},{16777216,263},{134217728,248},{268435456,127},{536870912,18},{1073741824,0},{-2147483648,146},
++};
++#define MOUNT_NUM_ENTRIES (sizeof(mount_table) / sizeof(*mount_table))
+diff --git a/auparse/nfprototabs.h b/auparse/nfprototabs.h
+new file mode 100644
+index 0000000..9bb2723
+--- /dev/null
++++ b/auparse/nfprototabs.h
+@@ -0,0 +1,9 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char nfproto_strings[] = "arp\0bridge\0decnet\0ipv4\0ipv6\0unspecified";
++static const unsigned nfproto_i2s_direct[] = {
++	28,-1u,18,0,-1u,-1u,-1u,4,-1u,-1u,
++	23,-1u,11,
++};
++static const char *nfproto_i2s(int v) {
++	return i2s_direct__(nfproto_strings, nfproto_i2s_direct, 0, 12, v);
++}
+diff --git a/auparse/open-flagtabs.h b/auparse/open-flagtabs.h
+new file mode 100644
+index 0000000..5e3c3eb
+--- /dev/null
++++ b/auparse/open-flagtabs.h
+@@ -0,0 +1,8 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char open_flag_strings[] = "O_APPEND\0O_ASYNC\0O_CLOEXEC\0O_CREAT\0O_DIRECT\0O_DIRECTORY\0O_DSYNC\0O_EXCL\0O_NOATIME\0O_NOCTTY\0"
++	"O_NOFOLLOW\0O_NONBLOCK\0O_PATH\0O_RDWR\0O_TRUNC\0O_WRONLY\0__O_SYNC";
++static const struct transtab open_flag_table[] = {
++	{1,134},{2,119},{64,27},{128,64},{256,81},{512,126},{1024,0},{2048,101},{4096,56},{8192,9},
++	{16384,35},{65536,44},{131072,90},{262144,71},{524288,17},{1048576,143},{2097152,112},
++};
++#define OPEN_FLAG_NUM_ENTRIES (sizeof(open_flag_table) / sizeof(*open_flag_table))
+diff --git a/auparse/persontabs.h b/auparse/persontabs.h
+new file mode 100644
+index 0000000..d099839
+--- /dev/null
++++ b/auparse/persontabs.h
+@@ -0,0 +1,17 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char person_strings[] = "PER_BSD\0PER_HPUX\0PER_IRIX32\0PER_IRIX64\0PER_IRIXN32\0PER_ISCR4\0PER_LINUX\0PER_LINUX32\0PER_LINUX32_3GB\0PER_LINUX_32BIT\0"
++	"PER_OSF4\0PER_OSR5\0PER_RISCOS\0PER_SCOSVR3\0PER_SOLARIS\0PER_SUNOS\0PER_SVR3\0PER_SVR4\0PER_UW7\0PER_WYSEV386\0"
++	"PER_XENIX";
++static const int person_i2s_i[] = {
++	0,6,8,12,15,16,8388608,67108869,67108870,67108873,
++	67108874,67108875,67108877,68157441,68157454,83886082,83886084,83886087,100663299,117440515,
++	134217736,
++};
++static const unsigned person_i2s_s[] = {
++	61,0,71,133,115,8,99,51,168,17,
++	39,28,156,187,196,178,204,217,124,144,
++	83,
++};
++static const char *person_i2s(int v) {
++	return i2s_bsearch__(person_strings, person_i2s_i, person_i2s_s, 21, v);
++}
+diff --git a/auparse/pktoptnametabs.h b/auparse/pktoptnametabs.h
+new file mode 100644
+index 0000000..4613372
+--- /dev/null
++++ b/auparse/pktoptnametabs.h
+@@ -0,0 +1,10 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char pktoptname_strings[] = "PACKET_ADD_MEMBERSHIP\0PACKET_AUXDATA\0PACKET_COPY_THRESH\0PACKET_DROP_MEMBERSHIP\0PACKET_FANOUT\0PACKET_HDRLEN\0PACKET_LOSS\0PACKET_ORIGDEV\0PACKET_RECV_OUTPUT\0PACKET_RESERVE\0"
++	"PACKET_RX_RING\0PACKET_STATISTICS\0PACKET_TIMESTAMP\0PACKET_TX_HAS_OFF\0PACKET_TX_RING\0PACKET_TX_TIMESTAMP\0PACKET_VERSION\0PACKET_VNET_HDR";
++static const unsigned pktoptname_i2s_direct[] = {
++	0,56,134,-1u,168,183,37,22,119,271,
++	93,153,236,107,286,251,201,79,218,
++};
++static const char *pktoptname_i2s(int v) {
++	return i2s_direct__(pktoptname_strings, pktoptname_i2s_direct, 1, 19, v);
++}
+diff --git a/auparse/prctl_opttabs.h b/auparse/prctl_opttabs.h
+new file mode 100644
+index 0000000..03707a8
+--- /dev/null
++++ b/auparse/prctl_opttabs.h
+@@ -0,0 +1,14 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char prctl_opt_strings[] = "PR_CAPBSET_DROP\0PR_CAPBSET_READ\0PR_GET_CHILD_SUBREAPER\0PR_GET_DUMPABLE\0PR_GET_ENDIAN\0PR_GET_FPEMU\0PR_GET_FPEXC\0PR_GET_KEEPCAPS\0PR_GET_NAME\0PR_GET_NO_NEW_PRIVS\0"
++	"PR_GET_PDEATHSIG\0PR_GET_SECCOMP\0PR_GET_SECUREBITS\0PR_GET_TID_ADDRESS\0PR_GET_TIMERSLACK\0PR_GET_TIMING\0PR_GET_TSC\0PR_GET_UNALIGN\0PR_MCE_KILL\0PR_MCE_KILL_GET\0"
++	"PR_SET_CHILD_SUBREAPER\0PR_SET_DUMPABLE\0PR_SET_ENDIAN\0PR_SET_FPEMU\0PR_SET_FPEXC\0PR_SET_KEEPCAPS\0PR_SET_MM\0PR_SET_NAME\0PR_SET_NO_NEW_PRIVS\0PR_SET_PDEATHSIG\0"
++	"PR_SET_SECCOMP\0PR_SET_SECUREBITS\0PR_SET_TIMERSLACK\0PR_SET_TIMING\0PR_SET_TSC\0PR_SET_UNALIGN\0PR_TASK_PERF_EVENTS_DISABLE\0PR_TASK_PERF_EVENTS_ENABLE";
++static const unsigned prctl_opt_i2s_direct[] = {
++	451,159,55,337,271,544,111,393,85,367,
++	98,380,246,519,419,127,-1u,-1u,71,353,
++	176,468,16,0,260,533,191,483,501,228,
++	559,587,286,298,409,314,32,431,139,209,
++};
++static const char *prctl_opt_i2s(int v) {
++	return i2s_direct__(prctl_opt_strings, prctl_opt_i2s_direct, 1, 40, v);
++}
+diff --git a/auparse/prottabs.h b/auparse/prottabs.h
+new file mode 100644
+index 0000000..1727f43
+--- /dev/null
++++ b/auparse/prottabs.h
+@@ -0,0 +1,6 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char prot_strings[] = "PROT_EXEC\0PROT_READ\0PROT_SEM\0PROT_WRITE";
++static const struct transtab prot_table[] = {
++	{1,10},{2,29},{4,0},{8,20},
++};
++#define PROT_NUM_ENTRIES (sizeof(prot_table) / sizeof(*prot_table))
+diff --git a/auparse/ptracetabs.h b/auparse/ptracetabs.h
+new file mode 100644
+index 0000000..6bbfc9b
+--- /dev/null
++++ b/auparse/ptracetabs.h
+@@ -0,0 +1,17 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char ptrace_strings[] = "PTRACE_ATTACH\0PTRACE_CONT\0PTRACE_DETACH\0PTRACE_GETEVENTMSG\0PTRACE_GETFPREGS\0PTRACE_GETFPXREGS\0PTRACE_GETREGS\0PTRACE_GETREGSET\0PTRACE_GETSIGINFO\0PTRACE_INTERRUPT\0"
++	"PTRACE_KILL\0PTRACE_LISTEN\0PTRACE_PEEKDATA\0PTRACE_PEEKTEXT\0PTRACE_PEEKUSER\0PTRACE_POKEDATA\0PTRACE_POKETEXT\0PTRACE_POKEUSER\0PTRACE_SEIZE\0PTRACE_SETFPREGS\0"
++	"PTRACE_SETFPXREGS\0PTRACE_SETOPTIONS\0PTRACE_SETREGS\0PTRACE_SETREGSET\0PTRACE_SETSIGINFO\0PTRACE_SINGLESTEP\0PTRACE_SYSCALL\0PTRACE_TRACEME";
++static const int ptrace_i2s_i[] = {
++	0,1,2,3,4,5,6,7,8,9,
++	12,13,14,15,16,17,18,19,24,16896,
++	16897,16898,16899,16900,16901,16902,16903,16904,
++};
++static const unsigned ptrace_i2s_s[] = {
++	432,203,187,219,251,235,267,14,161,399,
++	94,349,59,296,0,26,76,313,417,331,
++	40,126,381,109,364,283,144,173,
++};
++static const char *ptrace_i2s(int v) {
++	return i2s_bsearch__(ptrace_strings, ptrace_i2s_i, ptrace_i2s_s, 28, v);
++}
+diff --git a/auparse/recvtabs.h b/auparse/recvtabs.h
+new file mode 100644
+index 0000000..9cab5a3
+--- /dev/null
++++ b/auparse/recvtabs.h
+@@ -0,0 +1,8 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char recv_strings[] = "MSG_CMSG_CLOEXEC\0MSG_CONFIRM\0MSG_CTRUNC\0MSG_DONTROUTE\0MSG_DONTWAIT\0MSG_EOR\0MSG_ERRQUEUE\0MSG_FASTOPEN\0MSG_FIN\0MSG_MORE\0"
++	"MSG_NOSIGNAL\0MSG_OOB\0MSG_PEEK\0MSG_PROXY\0MSG_RST\0MSG_SENDPAGE_NOTLAST\0MSG_SYN\0MSG_TRUNC\0MSG_WAITALL\0MSG_WAITFORONE";
++static const struct transtab recv_table[] = {
++	{1,131},{2,139},{4,40},{8,29},{16,148},{32,195},{64,54},{128,67},{256,205},{512,101},
++	{1024,187},{2048,17},{4096,158},{8192,75},{16384,118},{32768,109},{65536,217},{131072,166},{536870912,88},{1073741824,0},
++};
++#define RECV_NUM_ENTRIES (sizeof(recv_table) / sizeof(*recv_table))
+diff --git a/auparse/rlimittabs.h b/auparse/rlimittabs.h
+new file mode 100644
+index 0000000..364ad69
+--- /dev/null
++++ b/auparse/rlimittabs.h
+@@ -0,0 +1,10 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char rlimit_strings[] = "RLIMIT_AS\0RLIMIT_CORE\0RLIMIT_CPU\0RLIMIT_DATA\0RLIMIT_FSIZE\0RLIMIT_LOCKS\0RLIMIT_MEMLOCK\0RLIMIT_MSGQUEUE\0RLIMIT_NICE\0RLIMIT_NOFILE\0"
++	"RLIMIT_NPROC\0RLIMIT_RSS\0RLIMIT_RTPRIO\0RLIMIT_RTTIME\0RLIMIT_SIGPENDING\0RLIMIT_STACK";
++static const unsigned rlimit_i2s_direct[] = {
++	22,45,33,198,10,141,128,114,71,0,
++	58,180,86,102,152,166,
++};
++static const char *rlimit_i2s(int v) {
++	return i2s_direct__(rlimit_strings, rlimit_i2s_direct, 0, 15, v);
++}
+diff --git a/auparse/schedtabs.h b/auparse/schedtabs.h
+new file mode 100644
+index 0000000..875317f
+--- /dev/null
++++ b/auparse/schedtabs.h
+@@ -0,0 +1,8 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char sched_strings[] = "SCHED_BATCH\0SCHED_FIFO\0SCHED_IDLE\0SCHED_OTHER\0SCHED_RR";
++static const unsigned sched_i2s_direct[] = {
++	34,12,46,0,-1u,23,
++};
++static const char *sched_i2s(int v) {
++	return i2s_direct__(sched_strings, sched_i2s_direct, 0, 5, v);
++}
+diff --git a/auparse/seccomptabs.h b/auparse/seccomptabs.h
+new file mode 100644
+index 0000000..5c6c911
+--- /dev/null
++++ b/auparse/seccomptabs.h
+@@ -0,0 +1,11 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char seccomp_strings[] = "allow\0errno\0kill\0trace\0trap";
++static const int seccomp_i2s_i[] = {
++	0,196608,327680,2146435072,2147418112,
++};
++static const unsigned seccomp_i2s_s[] = {
++	12,23,6,17,0,
++};
++static const char *seccomp_i2s(int v) {
++	return i2s_bsearch__(seccomp_strings, seccomp_i2s_i, seccomp_i2s_s, 5, v);
++}
+diff --git a/auparse/seektabs.h b/auparse/seektabs.h
+new file mode 100644
+index 0000000..0d0f542
+--- /dev/null
++++ b/auparse/seektabs.h
+@@ -0,0 +1,8 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char seek_strings[] = "SEEK_CUR\0SEEK_DATA\0SEEK_END\0SEEK_HOLE\0SEEK_SET";
++static const unsigned seek_i2s_direct[] = {
++	38,0,19,9,28,
++};
++static const char *seek_i2s(int v) {
++	return i2s_direct__(seek_strings, seek_i2s_direct, 0, 4, v);
++}
+diff --git a/auparse/shm_modetabs.h b/auparse/shm_modetabs.h
+new file mode 100644
+index 0000000..ddd414d
+--- /dev/null
++++ b/auparse/shm_modetabs.h
+@@ -0,0 +1,6 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char shm_mode_strings[] = "SHM_DEST\0SHM_HUGETLB\0SHM_LOCKED\0SHM_NORESERVE";
++static const struct transtab shm_mode_table[] = {
++	{512,0},{1024,21},{2048,9},{4096,32},
++};
++#define SHM_MODE_NUM_ENTRIES (sizeof(shm_mode_table) / sizeof(*shm_mode_table))
+diff --git a/auparse/signaltabs.h b/auparse/signaltabs.h
+new file mode 100644
+index 0000000..91ce38e
+--- /dev/null
++++ b/auparse/signaltabs.h
+@@ -0,0 +1,14 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char signal_strings[] = "IGPWR\0SIG0\0SIGABRT\0SIGALRM\0SIGBUS\0SIGCHLD\0SIGCONT\0SIGFPE\0SIGHUP\0SIGILL\0"
++	"SIGINT\0SIGIO\0SIGKILL\0SIGPIPE\0SIGPROF\0SIGQUIT\0SIGSEGV\0SIGSTKFLT\0SIGSTOP\0SIGSYS\0"
++	"SIGTERM\0SIGTRAP\0SIGTSTP\0SIGTTIN\0SIGTTOU\0SIGURG\0SIGUSR1\0SIGUSR2\0SIGVTALRM\0SIGWINCH\0"
++	"SIGXCPU\0SIGXFSZ";
++static const unsigned signal_i2s_direct[] = {
++	6,57,71,108,64,157,11,27,50,84,
++	196,116,204,92,19,149,124,34,42,134,
++	165,173,181,189,231,239,212,100,222,78,
++	0,142,
++};
++static const char *signal_i2s(int v) {
++	return i2s_direct__(signal_strings, signal_i2s_direct, 0, 31, v);
++}
+diff --git a/auparse/sockleveltabs.h b/auparse/sockleveltabs.h
+new file mode 100644
+index 0000000..4473d8c
+--- /dev/null
++++ b/auparse/sockleveltabs.h
+@@ -0,0 +1,12 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char socklevel_strings[] = "SOL_AAL\0SOL_ALG\0SOL_ATALK\0SOL_ATM\0SOL_AX25\0SOL_BLUETOOTH\0SOL_CAIF\0SOL_DCCP\0SOL_DECNET\0SOL_IPX\0"
++	"SOL_IRDA\0SOL_IUCV\0SOL_LLC\0SOL_NETBEUI\0SOL_NETLINK\0SOL_NETROM\0SOL_PACKET\0SOL_PNPIPE\0SOL_PPPOL2TP\0SOL_RAW\0"
++	"SOL_RDS\0SOL_ROSE\0SOL_RXRPC\0SOL_TIPC";
++static const unsigned socklevel_i2s_direct[] = {
++	190,86,34,16,144,206,75,-1u,155,26,
++	0,94,120,112,66,132,225,215,177,43,
++	166,198,103,57,8,
++};
++static const char *socklevel_i2s(int v) {
++	return i2s_direct__(socklevel_strings, socklevel_i2s_direct, 255, 279, v);
++}
+diff --git a/auparse/sockoptnametabs.h b/auparse/sockoptnametabs.h
+new file mode 100644
+index 0000000..831a030
+--- /dev/null
++++ b/auparse/sockoptnametabs.h
+@@ -0,0 +1,23 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char sockoptname_strings[] = "SO_ACCEPTCONN\0SO_ATTACH_FILTER\0SO_BINDTODEVICE\0SO_BROADCAST\0SO_BSDCOMPAT\0SO_DEBUG\0SO_DETACH_FILTER\0SO_DOMAIN\0SO_DONTROUTE\0SO_ERROR\0"
++	"SO_KEEPALIVE\0SO_LINGER\0SO_LOCK_FILTER\0SO_MARK\0SO_NOFCS\0SO_NO_CHECK\0SO_OOBINLINE\0SO_PASSCRED\0SO_PASSCRED\0SO_PASSSEC\0"
++	"SO_PEEK_OFF\0SO_PEERCRED\0SO_PEERCRED\0SO_PEERNAME\0SO_PEERSEC\0SO_PRIORITY\0SO_PROTOCOL\0SO_RCVBUF\0SO_RCVBUFFORCE\0SO_RCVLOWAT\0"
++	"SO_RCVLOWAT\0SO_RCVTIMEO\0SO_RCVTIMEO\0SO_REUSEADDR\0SO_REUSEPORT\0SO_RXQ_OVFL\0SO_SECURITY_AUTHENTICATION\0SO_SECURITY_ENCRYPTION_NETWORK\0SO_SECURITY_ENCRYPTION_TRANSPORT\0SO_SNDBUF\0"
++	"SO_SNDBUFFORCE\0SO_SNDLOWAT\0SO_SNDLOWAT\0SO_SNDTIMEO\0SO_SNDTIMEO\0SO_TIMESTAMP\0SO_TIMESTAMPING\0SO_TIMESTAMPNS\0SO_TYPE\0SO_WIFI_STATUS";
++static const int sockoptname_i2s_i[] = {
++	1,2,3,4,5,6,7,8,9,10,
++	11,12,13,14,15,16,17,18,19,20,
++	21,22,23,24,25,26,27,28,29,30,
++	31,32,33,34,35,36,37,38,39,40,
++	41,42,43,44,116,117,118,119,120,121,
++};
++static const unsigned sockoptname_i2s_s[] = {
++	73,402,648,122,109,47,531,329,131,198,
++	186,305,144,60,415,211,258,354,556,378,
++	580,440,498,467,31,14,82,282,604,0,
++	294,541,339,235,633,169,617,317,99,428,
++	656,246,177,154,366,568,390,592,223,270,
++};
++static const char *sockoptname_i2s(int v) {
++	return i2s_bsearch__(sockoptname_strings, sockoptname_i2s_i, sockoptname_i2s_s, 50, v);
++}
+diff --git a/auparse/socktabs.h b/auparse/socktabs.h
+new file mode 100644
+index 0000000..66a8235
+--- /dev/null
++++ b/auparse/socktabs.h
+@@ -0,0 +1,10 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char sock_strings[] = "accept\0accept4\0bind\0connect\0getpeername\0getsockname\0getsockopt\0listen\0recv\0recvfrom\0"
++	"recvmmsg\0recvmsg\0send\0sendmmsg\0sendmsg\0sendto\0setsockopt\0shutdown\0socket\0socketpair";
++static const unsigned sock_i2s_direct[] = {
++	150,15,20,63,0,40,28,157,101,70,
++	123,75,141,130,52,115,93,7,84,106,
++};
++static const char *sock_i2s(int v) {
++	return i2s_direct__(sock_strings, sock_i2s_direct, 1, 20, v);
++}
+diff --git a/auparse/socktypetabs.h b/auparse/socktypetabs.h
+new file mode 100644
+index 0000000..05e8d36
+--- /dev/null
++++ b/auparse/socktypetabs.h
+@@ -0,0 +1,8 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char sock_type_strings[] = "SOCK_DCCP\0SOCK_DGRAM\0SOCK_PACKET\0SOCK_RAW\0SOCK_RDM\0SOCK_SEQPACKET\0SOCK_STREAM";
++static const unsigned sock_type_i2s_direct[] = {
++	66,10,33,42,51,0,-1u,-1u,-1u,21,
++};
++static const char *sock_type_i2s(int v) {
++	return i2s_direct__(sock_type_strings, sock_type_i2s_direct, 1, 10, v);
++}
+diff --git a/auparse/tcpoptnametabs.h b/auparse/tcpoptnametabs.h
+new file mode 100644
+index 0000000..061db3f
+--- /dev/null
++++ b/auparse/tcpoptnametabs.h
+@@ -0,0 +1,12 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char tcpoptname_strings[] = "TCP_CONGESTION\0TCP_COOKIE_TRANSACTIONS\0TCP_CORK\0TCP_DEFER_ACCEPT\0TCP_FASTOPEN\0TCP_INFO\0TCP_KEEPCNT\0TCP_KEEPIDLE\0TCP_KEEPINTVL\0TCP_LINGER2\0"
++	"TCP_MAXSEG\0TCP_MD5SIG\0TCP_NODELAY\0TCP_QUEUE_SEQ\0TCP_QUICKACK\0TCP_REPAIR\0TCP_REPAIR_OPTIONS\0TCP_REPAIR_QUEUE\0TCP_SYNCNT\0TCP_THIN_DUPACK\0"
++	"TCP_THIN_LINEAR_TIMEOUTS\0TCP_TIMESTAMP\0TCP_USER_TIMEOUT\0TCP_WINDOW_CLAMP";
++static const unsigned tcpoptname_i2s_direct[] = {
++	160,138,39,99,112,87,246,126,48,329,
++	78,186,0,149,15,273,257,312,199,229,
++	172,210,65,298,
++};
++static const char *tcpoptname_i2s(int v) {
++	return i2s_direct__(tcpoptname_strings, tcpoptname_i2s_direct, 1, 24, v);
++}
+diff --git a/auparse/typetabs.h b/auparse/typetabs.h
+new file mode 100644
+index 0000000..a99d398
+--- /dev/null
++++ b/auparse/typetabs.h
+@@ -0,0 +1,35 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char type_strings[] = "a0\0a1\0a2\0a3\0acct\0addr\0arch\0auid\0cap_fi\0cap_fp\0"
++	"cap_pe\0cap_pi\0cap_pp\0capability\0cgroup\0cmd\0code\0comm\0cwd\0data\0"
++	"device\0dir\0egid\0euid\0exe\0exit\0family\0fe\0fi\0file\0"
++	"flags\0fp\0fsgid\0fsuid\0gid\0icmptype\0id\0igid\0inode_gid\0inode_uid\0"
++	"iuid\0key\0list\0mode\0name\0new-disk\0new-fs\0new-rng\0new_gid\0new_pe\0"
++	"new_pi\0new_pp\0oauid\0obj_gid\0obj_uid\0ocomm\0oflag\0ogid\0old-disk\0old-fs\0"
++	"old-rng\0old_pe\0old_pi\0old_pp\0old_prom\0ouid\0path\0per\0perm\0perm_mask\0"
++	"prom\0proto\0res\0result\0saddr\0sauid\0ses\0sgid\0sig\0sigev_signo\0"
++	"suid\0syscall\0uid\0vm\0watch";
++static const unsigned type_s2i_s[] = {
++	0,3,6,9,12,17,22,27,32,39,
++	46,53,60,67,78,85,89,94,99,103,
++	108,115,119,124,129,133,138,145,148,151,
++	156,162,165,171,177,181,190,193,198,208,
++	218,223,227,232,237,242,251,258,266,274,
++	281,288,295,301,309,317,323,329,334,343,
++	350,358,365,372,379,388,393,398,402,407,
++	417,422,428,432,439,445,451,455,460,464,
++	476,481,489,493,496,
++};
++static const int type_s2i_i[] = {
++	14,15,16,17,6,26,4,1,22,22,
++	22,22,22,12,6,6,28,6,6,20,
++	6,6,2,1,6,5,23,22,22,6,
++	30,22,2,1,2,24,1,2,2,1,
++	1,6,19,8,6,6,6,6,2,22,
++	22,22,1,2,1,6,29,2,6,6,
++	6,22,22,22,11,1,6,27,7,7,
++	11,25,13,13,9,1,21,2,18,18,
++	1,3,1,6,6,
++};
++static int type_s2i(const char *s, int *value) {
++	return s2i__(type_strings, type_s2i_s, type_s2i_i, 85, s, value);
++}
+diff --git a/auparse/umounttabs.h b/auparse/umounttabs.h
+new file mode 100644
+index 0000000..e98118f
+--- /dev/null
++++ b/auparse/umounttabs.h
+@@ -0,0 +1,6 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char umount_strings[] = "MNT_DETACH\0MNT_EXPIRE\0MNT_FORCE\0UMOUNT_NOFOLLOW\0UMOUNT_UNUSED";
++static const struct transtab umount_table[] = {
++	{1,22},{2,0},{4,11},{8,32},{-2147483647,48},
++};
++#define UMOUNT_NUM_ENTRIES (sizeof(umount_table) / sizeof(*umount_table))
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index 5e9f966..5a7d12b 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -50,109 +50,3 @@ endif
+ if USE_AARCH64
+ BUILT_SOURCES += aarch64_tables.h
+ endif
+-noinst_PROGRAMS = gen_actiontabs_h gen_errtabs_h gen_fieldtabs_h \
+-	gen_flagtabs_h gen_ftypetabs_h gen_i386_tables_h \
+-	gen_ia64_tables_h gen_machinetabs_h gen_msg_typetabs_h \
+-	gen_optabs_h gen_ppc_tables_h gen_s390_tables_h \
+-	gen_s390x_tables_h gen_x86_64_tables_h
+-if USE_ALPHA
+-noinst_PROGRAMS += gen_alpha_tables_h
+-endif
+-if USE_ARMEB
+-noinst_PROGRAMS += gen_armeb_tables_h
+-endif
+-if USE_AARCH64
+-noinst_PROGRAMS += gen_aarch64_tables_h
+-endif
+-gen_actiontabs_h_SOURCES = gen_tables.c gen_tables.h actiontab.h
+-gen_actiontabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="actiontab.h"'
+-actiontabs.h: gen_actiontabs_h Makefile
+-	./gen_actiontabs_h --lowercase --i2s --s2i action > $@
+-
+-if USE_ALPHA
+-gen_alpha_tables_h_SOURCES = gen_tables.c gen_tables.h alpha_table.h
+-gen_alpha_tables_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="alpha_table.h"'
+-alpha_tables.h: gen_alpha_tables_h Makefile
+-	./gen_alpha_tables_h --lowercase --i2s --s2i alpha_syscall > $@
+-endif
+-
+-if USE_ARMEB
+-gen_armeb_tables_h_SOURCES = gen_tables.c gen_tables.h armeb_table.h
+-gen_armeb_tables_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="armeb_table.h"'
+-armeb_tables.h: gen_armeb_tables_h Makefile
+-	./gen_armeb_tables_h --lowercase --i2s --s2i armeb_syscall > $@
+-endif
+-
+-if USE_AARCH64
+-gen_aarch64_tables_h_SOURCES = gen_tables.c gen_tables.h aarch64_table.h
+-gen_aarch64_tables_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="aarch64_table.h"'
+-aarch64_tables.h: gen_aarch64_tables_h Makefile
+-	./gen_aarch64_tables_h --lowercase --i2s --s2i aarch64_syscall > $@
+-endif
+-
+-gen_errtabs_h_SOURCES = gen_tables.c gen_tables.h errtab.h
+-gen_errtabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="errtab.h"'
+-errtabs.h: gen_errtabs_h Makefile
+-	./gen_errtabs_h --duplicate-ints --uppercase --i2s --s2i err > $@
+-
+-gen_fieldtabs_h_SOURCES = gen_tables.c gen_tables.h fieldtab.h
+-gen_fieldtabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="fieldtab.h"'
+-fieldtabs.h: gen_fieldtabs_h Makefile
+-	./gen_fieldtabs_h --duplicate-ints --lowercase --i2s --s2i field > $@
+-
+-gen_flagtabs_h_SOURCES = gen_tables.c gen_tables.h flagtab.h
+-gen_flagtabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="flagtab.h"'
+-flagtabs.h: gen_flagtabs_h Makefile
+-	./gen_flagtabs_h --lowercase --i2s --s2i flag > $@
+-
+-gen_ftypetabs_h_SOURCES = gen_tables.c gen_tables.h ftypetab.h
+-gen_ftypetabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="ftypetab.h"'
+-ftypetabs.h: gen_ftypetabs_h Makefile
+-	./gen_ftypetabs_h --lowercase --i2s --s2i ftype > $@
+-
+-gen_i386_tables_h_SOURCES = gen_tables.c gen_tables.h i386_table.h
+-gen_i386_tables_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="i386_table.h"'
+-i386_tables.h: gen_i386_tables_h Makefile
+-	./gen_i386_tables_h --duplicate-ints --lowercase --i2s --s2i \
+-		i386_syscall > $@
+-
+-gen_ia64_tables_h_SOURCES = gen_tables.c gen_tables.h ia64_table.h
+-gen_ia64_tables_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="ia64_table.h"'
+-ia64_tables.h: gen_ia64_tables_h Makefile
+-	./gen_ia64_tables_h --lowercase --i2s --s2i ia64_syscall > $@
+-
+-gen_machinetabs_h_SOURCES = gen_tables.c gen_tables.h machinetab.h
+-gen_machinetabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="machinetab.h"'
+-machinetabs.h: gen_machinetabs_h Makefile
+-	./gen_machinetabs_h --duplicate-ints --lowercase --i2s --s2i machine \
+-		> $@
+-
+-gen_msg_typetabs_h_SOURCES = gen_tables.c gen_tables.h msg_typetab.h
+-gen_msg_typetabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="msg_typetab.h"'
+-msg_typetabs.h: gen_msg_typetabs_h Makefile
+-	./gen_msg_typetabs_h --uppercase --i2s --s2i msg_type > $@
+-
+-gen_optabs_h_SOURCES = gen_tables.c gen_tables.h optab.h
+-gen_optabs_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="optab.h"'
+-optabs.h: gen_optabs_h Makefile
+-	./gen_optabs_h --i2s op > $@
+-
+-gen_ppc_tables_h_SOURCES = gen_tables.c gen_tables.h ppc_table.h
+-gen_ppc_tables_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="ppc_table.h"'
+-ppc_tables.h: gen_ppc_tables_h Makefile
+-	./gen_ppc_tables_h --lowercase --i2s --s2i ppc_syscall > $@
+-
+-gen_s390_tables_h_SOURCES = gen_tables.c gen_tables.h s390_table.h
+-gen_s390_tables_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="s390_table.h"'
+-s390_tables.h: gen_s390_tables_h Makefile
+-	./gen_s390_tables_h --lowercase --i2s --s2i s390_syscall > $@
+-
+-gen_s390x_tables_h_SOURCES = gen_tables.c gen_tables.h s390x_table.h
+-gen_s390x_tables_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="s390x_table.h"'
+-s390x_tables.h: gen_s390x_tables_h Makefile
+-	./gen_s390x_tables_h --lowercase --i2s --s2i s390x_syscall > $@
+-
+-gen_x86_64_tables_h_SOURCES = gen_tables.c gen_tables.h x86_64_table.h
+-gen_x86_64_tables_h_CFLAGS = $(AM_CFLAGS) '-DTABLE_H="x86_64_table.h"'
+-x86_64_tables.h: gen_x86_64_tables_h Makefile
+-	./gen_x86_64_tables_h --lowercase --i2s --s2i x86_64_syscall > $@
+diff --git a/lib/aarch64_tables.h b/lib/aarch64_tables.h
+new file mode 100644
+index 0000000..571d6ee
+--- /dev/null
++++ b/lib/aarch64_tables.h
+@@ -0,0 +1,125 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char aarch64_syscall_strings[] = "accept\0accept4\0acct\0add_key\0adjtimex\0bind\0brk\0capget\0capset\0chdir\0"
++	"chroot\0clock_adjtime\0clock_getres\0clock_gettime\0clock_nanosleep\0clock_settime\0clone\0close\0connect\0delete_module\0"
++	"dup\0dup3\0epoll_create1\0epoll_ctl\0epoll_pwait\0eventfd2\0execve\0exit\0exit_group\0faccessat\0"
++	"fallocate\0fanotify_init\0fanotify_mark\0fchdir\0fchmod\0fchmodat\0fchown\0fchownat\0fdatasync\0fgetxattr\0"
++	"finit_module\0flistxattr\0flock\0fremovexattr\0fsetxattr\0fsync\0futex\0get_mempolicy\0get_robust_list\0getcpu\0"
++	"getcwd\0getdents64\0getegid\0geteuid\0getgid\0getgroups\0getitimer\0getpeername\0getpgid\0getpid\0"
++	"getppid\0getpriority\0getresgid\0getresuid\0getrlimit\0getrusage\0getsid\0getsockname\0getsockopt\0gettid\0"
++	"gettimeofday\0getuid\0getxattr\0init_module\0inotify_add_watch\0inotify_init1\0inotify_rm_watch\0io_cancel\0io_destroy\0io_getevents\0"
++	"io_setup\0io_submit\0ioctl\0ioprio_get\0ioprio_set\0kcmp\0kexec_load\0keyctl\0kill\0lgetxattr\0"
++	"linkat\0listen\0listxattr\0llistxattr\0lookup_dcookie\0lremovexattr\0lsetxattr\0madvise\0mbind\0migrate_pages\0"
++	"mincore\0mkdirat\0mknodat\0mlock\0mlockall\0mount\0move_pages\0mprotect\0mq_getsetattr\0mq_notify\0"
++	"mq_open\0mq_timedreceive\0mq_timedsend\0mq_unlink\0mremap\0msgctl\0msgget\0msgrcv\0msgsnd\0msync\0"
++	"munlock\0munlockall\0munmap\0name_to_handle_at\0nanosleep\0nfsservctl\0open_by_handle_at\0openat\0perf_event_open\0personality\0"
++	"pipe2\0pivot_root\0ppoll\0prctl\0pread64\0preadv\0prlimit64\0process_vm_readv\0process_vm_writev\0pselect6\0"
++	"ptrace\0pwrite64\0pwritev\0quotactl\0read\0readahead\0readlinkat\0readv\0reboot\0recvfrom\0"
++	"recvmmsg\0recvmsg\0remap_file_pages\0removexattr\0renameat\0request_key\0restart_syscall\0rt_sigaction\0rt_sigpending\0rt_sigprocmask\0"
++	"rt_sigqueueinfo\0rt_sigreturn\0rt_sigsuspend\0rt_sigtimedwait\0rt_tgsigqueueinfo\0sched_get_priority_max\0sched_get_priority_min\0sched_getaffinity\0sched_getparam\0sched_getscheduler\0"
++	"sched_rr_get_interval\0sched_setaffinity\0sched_setparam\0sched_setscheduler\0sched_yield\0semctl\0semget\0semop\0semtimedop\0sendmmsg\0"
++	"sendmsg\0sendto\0set_mempolicy\0set_robust_list\0set_tid_address\0setdomainname\0setfsgid\0setfsuid\0setgid\0setgroups\0"
++	"sethostname\0setitimer\0setns\0setpgid\0setpriority\0setregid\0setresgid\0setresuid\0setreuid\0setrlimit\0"
++	"setsid\0setsockopt\0settimeofday\0setuid\0setxattr\0shmat\0shmctl\0shmdt\0shmget\0shutdown\0"
++	"sigaltstack\0signalfd4\0socket\0socketpair\0splice\0swapoff\0swapon\0symlinkat\0sync\0sync_file_range\0"
++	"syncfs\0sysinfo\0syslog\0tee\0tgkill\0timer_create\0timer_delete\0timer_getoverrun\0timer_gettime\0timer_settime\0"
++	"timerfd_create\0timerfd_gettime\0timerfd_settime\0times\0tkill\0umask\0umount2\0uname\0unlinkat\0unshare\0"
++	"utimensat\0vhangup\0vmsplice\0wait4\0waitid\0write\0writev";
++static const unsigned aarch64_syscall_s2i_s[] = {
++	0,7,15,20,28,37,42,46,53,60,
++	66,73,87,100,114,130,144,150,156,164,
++	178,182,187,201,211,223,232,239,244,255,
++	265,275,289,303,310,317,326,333,342,352,
++	362,375,386,392,405,415,421,427,441,457,
++	464,471,482,490,498,505,515,525,537,545,
++	552,560,572,582,592,602,612,619,631,642,
++	649,662,669,678,690,708,722,739,749,760,
++	773,782,792,798,809,820,825,836,843,848,
++	858,865,872,882,893,908,921,931,939,945,
++	959,967,975,983,989,998,1004,1015,1024,1038,
++	1048,1056,1072,1085,1095,1102,1109,1116,1123,1130,
++	1136,1144,1155,1162,1180,1190,1201,1219,1226,1242,
++	1254,1260,1271,1277,1283,1291,1298,1308,1325,1343,
++	1352,1359,1368,1376,1385,1390,1400,1411,1417,1424,
++	1433,1442,1450,1467,1479,1488,1500,1516,1529,1543,
++	1558,1574,1587,1601,1617,1635,1658,1681,1699,1714,
++	1733,1755,1773,1788,1807,1819,1826,1833,1839,1850,
++	1859,1867,1874,1888,1904,1920,1934,1943,1952,1959,
++	1969,1981,1991,1997,2005,2017,2026,2036,2046,2055,
++	2065,2072,2083,2096,2103,2112,2118,2125,2131,2138,
++	2147,2159,2169,2176,2187,2194,2202,2209,2219,2224,
++	2240,2247,2255,2262,2266,2273,2286,2299,2316,2330,
++	2344,2359,2375,2391,2397,2403,2409,2417,2423,2432,
++	2440,2450,2458,2467,2473,2480,2486,
++};
++static const int aarch64_syscall_s2i_i[] = {
++	202,242,89,217,171,200,214,90,91,49,
++	51,266,114,113,115,112,220,57,203,106,
++	23,24,20,21,22,19,221,93,94,48,
++	47,262,263,50,52,53,55,54,83,10,
++	273,13,32,16,7,82,98,236,100,168,
++	17,61,177,175,176,158,102,205,155,172,
++	173,141,150,148,163,165,156,204,209,178,
++	169,174,8,105,27,26,28,3,1,4,
++	0,2,29,31,30,272,104,219,129,9,
++	37,201,11,12,18,15,6,233,235,238,
++	232,34,33,228,230,40,239,226,185,184,
++	180,183,182,181,216,187,186,188,189,227,
++	229,231,215,264,101,42,265,56,241,92,
++	59,41,73,167,67,69,261,270,271,72,
++	117,68,70,60,63,213,78,65,142,207,
++	243,212,234,14,38,218,128,134,136,135,
++	138,139,133,137,240,125,126,123,121,120,
++	127,122,118,119,124,191,190,193,192,269,
++	211,206,237,99,96,162,152,151,144,159,
++	161,103,268,154,140,143,149,147,145,164,
++	157,208,170,146,5,196,195,197,194,210,
++	132,74,198,199,76,225,224,36,81,84,
++	267,179,116,77,131,107,111,109,108,110,
++	85,87,86,153,130,166,39,160,35,97,
++	88,58,75,260,95,64,66,
++};
++static int aarch64_syscall_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISUPPER(c) ? c - 'A' + 'a' : c;
++	}
++	copy[i] = 0;
++	return s2i__(aarch64_syscall_strings, aarch64_syscall_s2i_s, aarch64_syscall_s2i_i, 247, copy, value);
++	}
++}
++static const unsigned aarch64_syscall_i2s_direct[] = {
++	773,749,782,739,760,2103,921,405,669,848,
++	352,872,882,375,1467,908,392,464,893,223,
++	187,201,211,178,182,-1u,708,690,722,792,
++	809,798,386,975,967,2423,2209,858,1479,2409,
++	998,1260,1190,-1u,-1u,-1u,-1u,265,255,60,
++	303,66,310,317,333,326,1219,150,2450,1254,
++	1376,471,-1u,1385,2480,1411,2486,1283,1359,1291,
++	1368,-1u,1343,1271,2159,2458,2187,2262,1400,-1u,
++	-1u,2219,415,342,2224,2344,2375,2359,2440,15,
++	46,53,1242,239,244,2473,1904,2432,421,1888,
++	441,1180,515,1981,825,678,164,2273,2316,2299,
++	2330,2286,130,100,87,114,2255,1352,1773,1788,
++	1714,1699,1755,1681,1807,1635,1658,1733,1500,843,
++	2397,2266,2147,1587,1516,1543,1529,1601,1558,1574,
++	2005,560,1417,2017,1952,2046,2096,2036,582,2026,
++	572,1943,1934,2391,1997,537,612,2065,505,1959,
++	2417,1969,1920,592,2055,602,2403,1277,457,649,
++	2083,28,545,552,662,490,498,482,642,2247,
++	1048,1085,1072,1056,1038,1024,1109,1102,1116,1123,
++	1826,1819,1839,1833,2131,2118,2112,2125,2169,2176,
++	37,865,0,156,619,525,1867,1424,2072,631,
++	2138,1859,1442,1390,42,1155,1095,20,1488,836,
++	144,232,-1u,-1u,2202,2194,1015,1130,983,1136,
++	989,1144,959,931,1450,939,427,1874,945,1004,
++	1617,1226,7,1433,-1u,-1u,-1u,-1u,-1u,-1u,
++	-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,
++	2467,1298,275,289,1162,1201,73,2240,1991,1850,
++	1308,1325,820,362,
++};
++static const char *aarch64_syscall_i2s(int v) {
++	return i2s_direct__(aarch64_syscall_strings, aarch64_syscall_i2s_direct, 0, 273, v);
++}
+diff --git a/lib/actiontabs.h b/lib/actiontabs.h
+new file mode 100644
+index 0000000..a7a9e62
+--- /dev/null
++++ b/lib/actiontabs.h
+@@ -0,0 +1,26 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char action_strings[] = "always\0never\0possible";
++static const unsigned action_s2i_s[] = {
++	0,7,13,
++};
++static const int action_s2i_i[] = {
++	2,0,1,
++};
++static int action_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISUPPER(c) ? c - 'A' + 'a' : c;
++	}
++	copy[i] = 0;
++	return s2i__(action_strings, action_s2i_s, action_s2i_i, 3, copy, value);
++	}
++}
++static const unsigned action_i2s_direct[] = {
++	7,13,0,
++};
++static const char *action_i2s(int v) {
++	return i2s_direct__(action_strings, action_i2s_direct, 0, 2, v);
++}
+diff --git a/lib/alpha_tables.h b/lib/alpha_tables.h
+new file mode 100644
+index 0000000..b57e54c
+--- /dev/null
++++ b/lib/alpha_tables.h
+@@ -0,0 +1,196 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char alpha_syscall_strings[] = "_sysctl\0accept\0accept4\0access\0acct\0add_key\0adjtimex\0afs_syscall\0bdflush\0bind\0"
++	"brk\0capget\0capset\0chdir\0chmod\0chown\0chroot\0clock_adjtime\0clone\0close\0"
++	"connect\0create_module\0delete_module\0dipc\0dup\0dup2\0dup3\0epoll_create\0epoll_create1\0epoll_ctl\0"
++	"epoll_pwait\0epoll_wait\0eventfd\0eventfd2\0exec_with_loader\0execve\0exit\0exit_group\0faccessat\0fadvise64\0"
++	"fallocate\0fanotify_init\0fanotify_mark\0fchdir\0fchmod\0fchmodat\0fchown\0fchownat\0fcntl\0fdatasync\0"
++	"fgetxattr\0flistxattr\0flock\0fork\0fremovexattr\0fsetxattr\0fstat\0fstat64\0fstatat64\0fstatfs\0"
++	"fsync\0ftruncate\0futex\0futimesat\0get_kernel_syms\0get_mempolicy\0get_robust_list\0getcpu\0getcwd\0getdents\0"
++	"getdents64\0getdtablesize\0getgroups\0gethostname\0getitimer\0getpagesize\0getpeername\0getpgid\0getpgrp\0getpriority\0"
++	"getresgid\0getresuid\0getrlimit\0getrusage\0getsid\0getsockname\0getsockopt\0gettid\0gettimeofday\0getxattr\0"
++	"getxgid\0getxpid\0getxuid\0init_module\0inotify_add_watch\0inotify_init\0inotify_init1\0inotify_rm_watch\0io_cancel\0io_destroy\0"
++	"io_getevents\0io_setup\0io_submit\0ioctl\0ioprio_get\0ioprio_set\0kexec_load\0keyctl\0kill\0lchown\0"
++	"lgetxattr\0link\0linkat\0listen\0listxattr\0llistxattr\0lookup_dcookie\0lremovexattr\0lseek\0lsetxattr\0"
++	"lstat\0lstat64\0madvise\0mbind\0migrate_pages\0mincore\0mkdir\0mkdirat\0mknod\0mknodat\0"
++	"mlock\0mlockall\0mmap\0mount\0move_pages\0mprotect\0mq_getsetattr\0mq_notify\0mq_open\0mq_timedreceive\0"
++	"mq_timedsend\0mq_unlink\0mremap\0msgctl\0msgget\0msgrcv\0msgsnd\0msync\0munlock\0munlockall\0"
++	"munmap\0name_to_handle_at\0nanosleep\0nfsservctl\0old_adjtimex\0oldumount\0open\0open_by_handle_at\0openat\0osf_adjtime\0"
++	"osf_afs_syscall\0osf_alt_plock\0osf_alt_setsid\0osf_alt_sigpending\0osf_asynch_daemon\0osf_audcntl\0osf_audgen\0osf_chflags\0osf_execve\0osf_exportfs\0"
++	"osf_fchflags\0osf_fdatasync\0osf_fpathconf\0osf_fstatfs\0osf_fuser\0osf_getaddressconf\0osf_getdirentries\0osf_getdomainname\0osf_getfh\0osf_getfsstat\0"
++	"osf_gethostid\0osf_getitimer\0osf_getlogin\0osf_getmnt\0osf_getrusage\0osf_getsysinfo\0osf_gettimeofday\0osf_kloadcall\0osf_kmodcall\0osf_memcntl\0"
++	"osf_mincore\0osf_mount\0osf_mremap\0osf_msfs_syscall\0osf_msleep\0osf_mvalid\0osf_mwakeup\0osf_naccept\0osf_nfssvc\0osf_ngetpeername\0"
++	"osf_ngetsockname\0osf_nrecvfrom\0osf_nrecvmsg\0osf_nsendmsg\0osf_ntp_adjtime\0osf_ntp_gettime\0osf_old_creat\0osf_old_fstat\0osf_old_getpgrp\0osf_old_killpg\0"
++	"osf_old_lstat\0osf_old_open\0osf_old_sigaction\0osf_old_sigblock\0osf_old_sigreturn\0osf_old_sigsetmask\0osf_old_sigvec\0osf_old_stat\0osf_old_vadvise\0osf_old_vtrace\0"
++	"osf_old_wait\0osf_oldquota\0osf_pathconf\0osf_pid_block\0osf_pid_unblock\0osf_plock\0osf_priocntlset\0osf_profil\0osf_proplist_syscall\0osf_reboot\0"
++	"osf_revoke\0osf_sbrk\0osf_security\0osf_select\0osf_set_program_attributes\0osf_set_speculative\0osf_sethostid\0osf_setitimer\0osf_setlogin\0osf_setsysinfo\0"
++	"osf_settimeofday\0osf_shmat\0osf_signal\0osf_sigprocmask\0osf_sigsendset\0osf_sigstack\0osf_sigwaitprim\0osf_sstk\0osf_statfs\0osf_subsys_info\0"
++	"osf_swapctl\0osf_swapon\0osf_syscall\0osf_sysinfo\0osf_table\0osf_uadmin\0osf_usleep_thread\0osf_uswitch\0osf_utc_adjtime\0osf_utc_gettime\0"
++	"osf_utimes\0osf_utsname\0osf_wait4\0osf_waitid\0pciconfig_iobase\0pciconfig_read\0pciconfig_write\0perf_event_open\0personality\0pipe\0"
++	"pipe2\0pivot_root\0poll\0ppoll\0prctl\0pread\0preadv\0prlimit64\0process_vm_readv\0process_vm_writev\0"
++	"pselect6\0ptrace\0pwrite\0pwritev\0query_module\0quotactl\0read\0readahead\0readlink\0readlinkat\0"
++	"readv\0reboot\0recv\0recvfrom\0recvmmsg\0recvmsg\0remap_file_pages\0removexattr\0rename\0renameat\0"
++	"request_key\0restart_syscall\0rmdir\0rt_sigaction\0rt_sigpending\0rt_sigprocmask\0rt_sigqueueinfo\0rt_sigreturn\0rt_sigsuspend\0rt_sigtimedwait\0"
++	"rt_tgsigqueueinfo\0sched_get_priority_max\0sched_get_priority_min\0sched_getaffinity\0sched_getparam\0sched_getscheduler\0sched_rr_get_interval\0sched_setaffinity\0sched_setparam\0sched_setscheduler\0"
++	"sched_yield\0select\0semctl\0semget\0semop\0send\0sendfile\0sendmmsg\0sendmsg\0sendto\0"
++	"set_mempolicy\0set_robust_list\0set_tid_address\0setdomainname\0setfsgid\0setfsuid\0setgid\0setgroups\0sethae\0sethostname\0"
++	"setitimer\0setns\0setpgid\0setpgrp\0setpriority\0setregid\0setresgid\0setresuid\0setreuid\0setrlimit\0"
++	"setsid\0setsockopt\0settimeofday\0setuid\0setxattr\0shmctl\0shmdt\0shmget\0shutdown\0sigaction\0"
++	"sigaltstack\0signalfd\0signalfd4\0sigpending\0sigreturn\0sigsuspend\0socket\0socketpair\0splice\0stat\0"
++	"stat64\0statfs\0swapoff\0swapon\0symlink\0symlinkat\0sync\0sync_file_range\0syncfs\0sysfs\0"
++	"sysinfo\0syslog\0tee\0tgkill\0timerfd\0timerfd_create\0timerfd_gettime\0timerfd_settime\0times\0tkill\0"
++	"truncate\0tuxcall\0umask\0umount\0uname\0unlink\0unlinkat\0unshare\0uselib\0ustat\0"
++	"utimensat\0utimes\0vfork\0vhangup\0vmsplice\0vserver\0wait4\0waitid\0write\0writev";
++static const unsigned alpha_syscall_s2i_s[] = {
++	0,8,15,23,30,35,43,52,64,72,
++	77,81,88,95,101,107,113,120,134,140,
++	146,154,168,182,187,191,196,201,214,228,
++	238,250,261,269,278,295,302,307,318,328,
++	338,348,362,376,383,390,399,406,415,421,
++	431,441,452,458,463,476,486,492,500,510,
++	518,524,534,540,550,566,580,596,603,610,
++	619,630,644,654,666,676,688,700,708,716,
++	728,738,748,758,768,775,787,798,805,818,
++	827,835,843,851,863,881,894,908,925,935,
++	946,959,968,978,984,995,1006,1017,1024,1029,
++	1036,1046,1051,1058,1065,1075,1086,1101,1114,1120,
++	1130,1136,1144,1152,1158,1172,1180,1186,1194,1200,
++	1208,1214,1223,1228,1234,1245,1254,1268,1278,1286,
++	1302,1315,1325,1332,1339,1346,1353,1360,1366,1374,
++	1385,1392,1410,1420,1431,1444,1454,1459,1477,1484,
++	1496,1512,1526,1541,1560,1578,1590,1601,1613,1624,
++	1637,1650,1664,1678,1690,1700,1719,1737,1755,1765,
++	1779,1793,1807,1820,1831,1845,1860,1877,1891,1904,
++	1916,1928,1938,1949,1966,1977,1988,2000,2012,2023,
++	2040,2057,2071,2084,2097,2113,2129,2143,2157,2173,
++	2188,2202,2215,2233,2250,2268,2287,2302,2315,2331,
++	2346,2359,2372,2385,2399,2415,2425,2441,2452,2473,
++	2484,2495,2504,2517,2528,2555,2575,2589,2603,2616,
++	2631,2648,2658,2669,2685,2700,2713,2729,2738,2749,
++	2765,2777,2788,2800,2812,2822,2833,2851,2863,2879,
++	2895,2906,2918,2928,2939,2956,2971,2987,3003,3015,
++	3020,3026,3037,3042,3048,3054,3060,3067,3077,3094,
++	3112,3121,3128,3135,3143,3156,3165,3170,3180,3189,
++	3200,3206,3213,3218,3227,3236,3244,3261,3273,3280,
++	3289,3301,3317,3323,3336,3350,3365,3381,3394,3408,
++	3424,3442,3465,3488,3506,3521,3540,3562,3580,3595,
++	3614,3626,3633,3640,3647,3653,3658,3667,3676,3684,
++	3691,3705,3721,3737,3751,3760,3769,3776,3786,3793,
++	3805,3815,3821,3829,3837,3849,3858,3868,3878,3887,
++	3897,3904,3915,3928,3935,3944,3951,3957,3964,3973,
++	3983,3995,4004,4014,4025,4035,4046,4053,4064,4071,
++	4076,4083,4090,4098,4105,4113,4123,4128,4144,4151,
++	4157,4165,4172,4176,4183,4191,4206,4222,4238,4244,
++	4250,4259,4267,4273,4280,4286,4293,4302,4310,4317,
++	4323,4333,4340,4346,4354,4363,4371,4377,4384,4390,
++};
++static const int alpha_syscall_s2i_i[] = {
++	319,99,502,33,51,439,366,338,300,104,
++	17,368,369,12,15,16,61,499,312,6,
++	98,306,308,373,41,90,487,407,486,408,
++	474,409,478,485,25,59,1,405,462,413,
++	480,494,495,13,124,461,123,453,92,447,
++	387,390,131,2,393,384,91,427,455,329,
++	95,130,394,454,309,430,467,473,367,305,
++	377,89,79,87,361,64,141,233,63,100,
++	372,344,144,364,234,150,118,378,359,385,
++	47,20,24,307,445,444,489,446,402,399,
++	400,398,401,54,443,442,448,441,37,208,
++	386,9,458,106,388,389,406,392,19,383,
++	68,426,75,429,449,375,136,451,14,452,
++	314,316,71,302,472,74,437,436,432,435,
++	434,433,341,200,201,202,203,217,315,317,
++	73,497,340,342,303,321,45,498,450,140,
++	258,181,188,187,163,252,253,34,11,169,
++	35,261,248,161,243,214,159,165,164,18,
++	142,86,49,184,117,256,116,223,77,260,
++	78,21,65,240,215,213,216,30,158,31,
++	32,29,27,28,245,246,8,62,81,146,
++	40,5,46,109,139,110,108,38,72,115,
++	84,149,247,153,154,107,237,44,244,55,
++	56,69,222,93,43,239,143,83,50,257,
++	122,209,218,48,238,112,157,70,160,255,
++	259,199,0,241,85,242,251,250,220,219,
++	138,207,7,236,376,345,346,493,324,42,
++	488,374,94,464,348,349,490,496,504,505,
++	463,26,350,491,347,148,3,379,58,460,
++	120,311,102,125,479,113,410,391,128,457,
++	440,412,137,352,354,353,356,351,357,355,
++	492,335,336,396,331,333,337,395,330,332,
++	334,358,204,205,206,101,370,503,114,133,
++	431,466,411,166,326,325,132,80,301,88,
++	362,501,39,82,96,127,371,343,126,145,
++	147,105,360,23,382,210,211,212,134,156,
++	235,476,484,52,103,111,97,135,468,67,
++	425,328,304,322,57,459,36,469,500,254,
++	318,310,470,424,477,481,483,482,323,381,
++	129,397,60,22,339,10,456,465,313,327,
++	475,363,66,76,471,428,365,438,4,121,
++};
++static int alpha_syscall_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISUPPER(c) ? c - 'A' + 'a' : c;
++	}
++	copy[i] = 0;
++	return s2i__(alpha_syscall_strings, alpha_syscall_s2i_s, alpha_syscall_s2i_i, 410, copy, value);
++	}
++}
++static const unsigned alpha_syscall_i2s_direct[] = {
++	2788,302,458,3165,4384,2202,140,2918,2129,1046,
++	4286,1613,95,376,1194,101,107,77,1765,1114,
++	835,1928,4273,3928,843,278,3121,2071,2084,2057,
++	2000,2023,2040,23,1601,1637,4123,1024,2302,3821,
++	2188,187,3015,2528,2441,1454,2215,827,2669,1807,
++	2603,30,4014,-1u,978,2473,2484,4105,3180,295,
++	4267,113,2143,708,676,1938,4340,4071,1130,2495,
++	2729,1223,2315,1385,1245,1144,4346,1891,1916,644,
++	3776,2157,3829,2589,2346,2812,1793,654,3793,630,
++	191,486,415,2517,3037,518,3837,4046,146,8,
++	716,3653,3213,4025,72,3904,1058,2415,2287,2233,
++	2268,4035,2700,3236,3676,2331,1860,1831,787,-1u,
++	3200,4390,2631,399,383,3218,3878,3849,3273,4250,
++	524,452,3769,3684,3964,4053,1180,3317,2895,2250,
++	1484,688,1779,2575,748,3887,2173,3897,3156,2359,
++	775,-1u,-1u,2385,2399,-1u,3973,2713,2012,1719,
++	2738,1678,-1u,1560,1755,1737,3737,-1u,-1u,1624,
++	-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,
++	-1u,1512,-1u,-1u,1820,-1u,-1u,1541,1526,-1u,
++	-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,2777,
++	1332,1339,1346,1353,3633,3640,3647,2906,1029,2648,
++	3944,3951,3957,1977,1700,1966,1988,1360,2658,2879,
++	2863,-1u,2504,1877,-1u,-1u,-1u,-1u,-1u,-1u,
++	-1u,-1u,-1u,700,768,3983,2928,2425,2685,2555,
++	1949,2800,2822,1690,2452,2097,2113,2372,1664,-1u,
++	2851,2833,1578,1590,4151,2749,1845,2616,1496,2765,
++	1904,1650,-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,
++	-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,
++	-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,
++	-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,-1u,
++	64,3786,1228,1431,4090,610,154,851,168,550,
++	4165,3206,134,4310,1208,1366,1214,1374,4157,0,
++	-1u,1444,4098,4238,3003,3760,3751,4317,4083,510,
++	3580,3506,3595,3521,3614,3442,3465,3540,52,4280,
++	1410,1325,1420,3868,738,2956,2971,3143,3048,3054,
++	3128,3381,3323,3350,3336,3408,3365,3394,3626,805,
++	3915,666,3805,4333,758,4371,43,603,81,88,
++	3658,3858,728,182,3026,1172,2939,619,798,3170,
++	-1u,4244,3935,1120,476,818,1036,431,1065,1075,
++	441,3261,1101,463,534,3562,3488,4259,959,935,
++	946,968,925,-1u,-1u,307,1086,201,228,250,
++	3244,3721,3301,328,-1u,-1u,-1u,-1u,-1u,-1u,
++	-1u,-1u,-1u,-1u,4176,4076,1136,492,4363,1152,
++	566,3691,1278,1315,1302,1286,1268,1254,4377,35,
++	3289,1017,995,984,881,863,908,421,1006,1158,
++	1477,1186,1200,406,540,500,4293,3280,1051,4113,
++	3189,390,318,3112,3042,4302,3705,580,4064,4128,
++	4172,4354,1234,596,238,4323,3995,4183,261,3227,
++	338,4191,4222,4206,4004,269,214,196,3020,894,
++	3060,3135,3424,2987,348,362,3067,1392,1459,120,
++	4144,3815,15,3667,3077,3094,
++};
++static const char *alpha_syscall_i2s(int v) {
++	return i2s_direct__(alpha_syscall_strings, alpha_syscall_i2s_direct, 0, 505, v);
++}
+diff --git a/lib/armeb_tables.h b/lib/armeb_tables.h
+new file mode 100644
+index 0000000..dd2bf5f
+--- /dev/null
++++ b/lib/armeb_tables.h
+@@ -0,0 +1,165 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char armeb_syscall_strings[] = "accept\0accept4\0access\0acct\0add_key\0adjtimex\0alarm\0bdflush\0bind\0brk\0"
++	"capget\0capset\0chdir\0chmod\0chown\0chown32\0chroot\0clock_adjtime\0clock_getres\0clock_gettime\0"
++	"clock_nanosleep\0clock_settime\0clone\0close\0connect\0creat\0delete_module\0dup\0dup2\0dup3\0"
++	"epoll_create\0epoll_create1\0epoll_ctl\0epoll_wait\0eventfd\0eventfd2\0execve\0exit\0exit_group\0faccessat\0"
++	"fadvise64_64\0fallocate\0fanotify_init\0fanotify_mark\0fchdir\0fchmod\0fchmodat\0fchown\0fchown32\0fchownat\0"
++	"fcntl\0fcntl64\0fdatasync\0fgetxattr\0finit_module\0flistxattr\0flock\0fork\0fremovexattr\0fsetxattr\0"
++	"fstat\0fstat64\0fstatat64\0fstatfs\0fstatfs64\0fsync\0ftruncate\0ftruncate64\0futex\0futimesat\0"
++	"get_mempolicy\0get_robust_list\0getcpu\0getcwd\0getdents\0getdents64\0getegid\0getegid32\0geteuid\0geteuid32\0"
++	"getgid\0getgid32\0getgroups\0getgroups32\0getitimer\0getpeername\0getpgid\0getpgrp\0getpid\0getppid\0"
++	"getpriority\0getresgid\0getresgid32\0getresuid\0getresuid32\0getrlimit\0getrusage\0getsid\0getsockname\0getsockopt\0"
++	"gettid\0gettimeofday\0getuid\0getuid32\0getxattr\0init_module\0inotify_add_watch\0inotify_init\0inotify_init1\0inotify_rm_watch\0"
++	"io_cancel\0io_destroy\0io_getevents\0io_setup\0io_submit\0ioctl\0ioprio_get\0ioprio_set\0ipc\0kcmp\0"
++	"kexec_load\0keyctl\0kill\0lchown\0lchown32\0lgetxattr\0link\0linkat\0listen\0listxattr\0"
++	"llistxattr\0llseek\0lookup_dcookie\0lremovexattr\0lseek\0lsetxattr\0lstat\0lstat64\0madvise\0mbind\0"
++	"mincore\0mkdir\0mkdirat\0mknod\0mknodat\0mlock\0mlockall\0mmap\0mmap2\0mount\0"
++	"move_pages\0mprotect\0mq_getsetattr\0mq_notify\0mq_open\0mq_timedreceive\0mq_timedsend\0mq_unlink\0mremap\0msgctl\0"
++	"msgget\0msgrcv\0msgsnd\0msync\0munlock\0munlockall\0munmap\0name_to_handle_at\0nanosleep\0newselect\0"
++	"nfsservctl\0nice\0open\0open_by_handle_at\0openat\0pause\0pciconfig_iobase\0pciconfig_read\0pciconfig_write\0perf_event_open\0"
++	"personality\0pipe\0pipe2\0pivot_root\0poll\0prctl\0pread64\0preadv\0prlimit64\0process_vm_readv\0"
++	"process_vm_writev\0ptrace\0pwrite64\0pwritev\0quotactl\0read\0readahead\0readdir\0readlink\0readlinkat\0"
++	"readv\0reboot\0recv\0recvfrom\0recvmmsg\0recvmsg\0remap_file_pages\0removexattr\0rename\0renameat\0"
++	"request_key\0restart_syscall\0rmdir\0rt_sigaction\0rt_sigpending\0rt_sigprocmask\0rt_sigqueueinfo\0rt_sigreturn\0rt_sigsuspend\0rt_sigtimedwait\0"
++	"rt_tgsigqueueinfo\0sched_get_priority_max\0sched_get_priority_min\0sched_getaffinity\0sched_getparam\0sched_getscheduler\0sched_rr_get_interval\0sched_setaffinity\0sched_setparam\0sched_setscheduler\0"
++	"sched_yield\0select\0semctl\0semget\0semop\0semtimedop\0send\0sendfile\0sendfile64\0sendmmsg\0"
++	"sendmsg\0sendto\0set_mempolicy\0set_robust_list\0set_tid_address\0setdomainname\0setfsgid\0setfsgid32\0setfsuid\0setfsuid32\0"
++	"setgid\0setgid32\0setgroups\0setgroups32\0sethostname\0setitimer\0setns\0setpgid\0setpriority\0setregid\0"
++	"setregid32\0setresgid\0setresgid32\0setresuid\0setresuid32\0setreuid\0setreuid32\0setrlimit\0setsid\0setsockopt\0"
++	"settimeofday\0setuid\0setuid32\0setxattr\0shmat\0shmctl\0shmdt\0shmget\0shutdown\0sigaction\0"
++	"sigaltstack\0signalfd\0signalfd4\0sigpending\0sigprocmask\0sigreturn\0sigsuspend\0socket\0socketcall\0socketpair\0"
++	"splice\0stat\0stat64\0statfs\0statfs64\0stime\0swapoff\0swapon\0symlink\0symlinkat\0"
++	"sync\0sync_file_range\0syncfs\0syscall\0sysctl\0sysfs\0sysinfo\0syslog\0tee\0tgkill\0"
++	"time\0timer_create\0timer_delete\0timer_getoverrun\0timer_gettime\0timer_settime\0timerfd_create\0timerfd_gettime\0timerfd_settime\0times\0"
++	"tkill\0truncate\0truncate64\0ugetrlimit\0umask\0umount\0umount2\0uname\0unlink\0unlinkat\0"
++	"unshare\0uselib\0ustat\0utime\0utimensat\0utimes\0vfork\0vhangup\0vmsplice\0vserver\0"
++	"wait4\0waitid\0write\0writev";
++static const unsigned armeb_syscall_s2i_s[] = {
++	0,7,15,22,27,35,44,50,58,63,
++	67,74,81,87,93,99,107,114,128,141,
++	155,171,185,191,197,205,211,225,229,234,
++	239,252,266,276,287,295,304,311,316,327,
++	337,350,360,374,388,395,402,411,418,427,
++	436,442,450,460,470,483,494,500,505,518,
++	528,534,542,552,560,570,576,586,598,604,
++	614,628,644,651,658,667,678,686,696,704,
++	714,721,730,740,752,762,774,782,790,797,
++	805,817,827,839,849,861,871,881,888,900,
++	911,918,931,938,947,956,968,986,999,1013,
++	1030,1040,1051,1064,1073,1083,1089,1100,1111,1115,
++	1120,1131,1138,1143,1150,1159,1169,1174,1181,1188,
++	1198,1209,1216,1231,1244,1250,1260,1266,1274,1282,
++	1288,1296,1302,1310,1316,1324,1330,1339,1344,1350,
++	1356,1367,1376,1390,1400,1408,1424,1437,1447,1454,
++	1461,1468,1475,1482,1488,1496,1507,1514,1532,1542,
++	1552,1563,1568,1573,1591,1598,1604,1621,1636,1652,
++	1668,1680,1685,1691,1702,1707,1713,1721,1728,1738,
++	1755,1773,1780,1789,1797,1806,1811,1821,1829,1838,
++	1849,1855,1862,1867,1876,1885,1893,1910,1922,1929,
++	1938,1950,1966,1972,1985,1999,2014,2030,2043,2057,
++	2073,2091,2114,2137,2155,2170,2189,2211,2229,2244,
++	2263,2275,2282,2289,2296,2302,2313,2318,2327,2338,
++	2347,2355,2362,2376,2392,2408,2422,2431,2442,2451,
++	2462,2469,2478,2488,2500,2512,2522,2528,2536,2548,
++	2557,2568,2578,2590,2600,2612,2621,2632,2642,2649,
++	2660,2673,2680,2689,2698,2704,2711,2717,2724,2733,
++	2743,2755,2764,2774,2785,2797,2807,2818,2825,2836,
++	2847,2854,2859,2866,2873,2882,2888,2896,2903,2911,
++	2921,2926,2942,2949,2957,2964,2970,2978,2985,2989,
++	2996,3001,3014,3027,3044,3058,3072,3087,3103,3119,
++	3125,3131,3140,3151,3162,3168,3175,3183,3189,3196,
++	3205,3213,3220,3226,3232,3242,3249,3255,3263,3272,
++	3280,3286,3293,3299,
++};
++static const int armeb_syscall_s2i_i[] = {
++	285,366,33,51,309,124,27,134,282,45,
++	184,185,12,15,182,212,61,372,264,263,
++	265,262,120,6,283,8,129,41,63,358,
++	250,357,251,252,351,356,11,1,248,334,
++	270,352,367,368,133,94,333,95,207,325,
++	55,221,148,231,379,234,143,2,237,228,
++	108,197,327,100,267,118,93,194,240,326,
++	320,339,345,183,141,217,50,202,49,201,
++	47,200,80,205,105,287,132,65,20,64,
++	96,171,211,165,209,76,77,147,286,295,
++	224,78,24,199,229,128,317,316,360,318,
++	247,244,245,243,246,54,315,314,117,378,
++	347,311,37,16,198,230,9,330,284,232,
++	233,140,249,236,19,227,107,196,220,319,
++	219,39,323,14,324,150,152,90,192,21,
++	344,125,279,278,274,277,276,275,163,304,
++	303,302,301,144,151,153,91,370,162,142,
++	169,34,5,371,322,29,271,272,273,364,
++	136,42,359,218,168,172,180,361,369,376,
++	377,26,181,362,131,3,225,89,85,332,
++	145,88,291,292,365,297,253,235,38,329,
++	310,0,40,174,176,175,178,173,179,177,
++	363,159,160,242,155,157,161,241,154,156,
++	158,82,300,299,298,312,289,187,239,374,
++	296,290,321,338,256,121,139,216,138,215,
++	46,214,81,206,74,104,375,57,97,71,
++	204,170,210,164,208,70,203,75,66,294,
++	79,23,213,226,305,308,306,307,293,67,
++	186,349,355,73,126,119,72,281,102,288,
++	340,106,195,99,266,25,115,87,83,331,
++	36,341,373,113,149,135,116,103,342,268,
++	13,257,261,260,259,258,350,354,353,43,
++	238,92,193,191,60,22,52,122,10,328,
++	337,86,62,30,348,269,190,111,343,313,
++	114,280,4,146,
++};
++static int armeb_syscall_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISUPPER(c) ? c - 'A' + 'a' : c;
++	}
++	copy[i] = 0;
++	return s2i__(armeb_syscall_strings, armeb_syscall_s2i_s, armeb_syscall_s2i_i, 344, copy, value);
++	}
++}
++static const unsigned armeb_syscall_i2s_direct[] = {
++	1950,311,500,1806,3293,1568,191,-1u,205,1169,
++	3189,304,81,2996,1310,87,1143,-1u,-1u,1244,
++	790,1350,3168,2673,931,2882,1773,44,-1u,1598,
++	3226,-1u,-1u,15,1563,-1u,2921,1138,1922,1296,
++	1966,225,1680,3119,-1u,63,2462,714,-1u,696,
++	678,22,3175,-1u,1083,436,-1u,2528,-1u,-1u,
++	3162,107,3220,229,797,782,2642,2733,-1u,-1u,
++	2612,2548,2807,2774,2500,2632,861,871,918,2660,
++	730,2478,2275,2903,-1u,1829,3213,2896,1855,1821,
++	1339,1507,3131,576,395,411,805,2536,-1u,2866,
++	552,-1u,2825,2978,2512,752,2854,1260,528,-1u,
++	-1u,3255,-1u,2949,3280,2888,2970,1111,570,2797,
++	185,2408,3183,-1u,35,1367,2785,-1u,956,211,
++	-1u,1797,774,388,50,2964,1668,-1u,2442,2422,
++	1209,658,1542,494,1482,1849,3299,881,450,2957,
++	1324,1488,1330,1496,2229,2155,2244,2170,2263,2091,
++	2114,2189,1532,1447,2590,839,-1u,-1u,1702,1552,
++	2568,817,1707,2030,1972,1999,1985,2057,2014,2043,
++	1713,1780,93,651,67,74,2743,2318,-1u,-1u,
++	3249,3151,1344,3140,586,2859,1266,534,1150,938,
++	721,704,686,2621,2557,740,2488,418,2600,849,
++	2578,827,99,2680,2469,2451,2431,667,1691,1288,
++	1274,442,-1u,-1u,911,1811,2689,1250,518,947,
++	1159,460,1188,1198,483,1910,1231,505,3125,2327,
++	598,2211,2137,1064,1040,1051,1073,1030,316,1216,
++	239,266,276,1893,-1u,-1u,2392,3001,3058,3044,
++	3027,3014,171,141,128,155,2873,560,2989,3242,
++	337,1604,1621,1636,1400,1437,1424,1408,1390,1376,
++	3286,2818,58,197,1181,0,888,762,2836,2313,
++	2355,1862,1867,2724,2649,900,2347,1885,2296,2289,
++	2282,1475,1468,1461,1454,2698,2711,2717,2704,27,
++	1938,1131,2302,3272,1100,1089,986,968,1013,1282,
++	614,2362,1591,1302,1316,427,604,542,3196,1929,
++	1174,2911,1838,402,327,-1u,-1u,3205,2376,628,
++	2847,2926,2985,3263,1356,644,-1u,1120,3232,2755,
++	3072,287,350,3103,3087,2764,295,252,234,1685,
++	999,1721,1789,2073,1652,1876,7,360,374,1728,
++	1514,1573,114,2942,2338,2522,1738,1755,1115,470,
++};
++static const char *armeb_syscall_i2s(int v) {
++	return i2s_direct__(armeb_syscall_strings, armeb_syscall_i2s_direct, 0, 379, v);
++}
+diff --git a/lib/errtabs.h b/lib/errtabs.h
+new file mode 100644
+index 0000000..53deac2
+--- /dev/null
++++ b/lib/errtabs.h
+@@ -0,0 +1,78 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char err_strings[] = "E2BIG\0EACCES\0EADDRINUSE\0EADDRNOTAVAIL\0EADV\0EAFNOSUPPORT\0EAGAIN\0EALREADY\0EBADE\0EBADF\0"
++	"EBADFD\0EBADMSG\0EBADR\0EBADRQC\0EBADSLT\0EBFONT\0EBUSY\0ECANCELED\0ECHILD\0ECHRNG\0"
++	"ECOMM\0ECONNABORTED\0ECONNREFUSED\0ECONNRESET\0EDEADLK\0EDEADLOCK\0EDESTADDRREQ\0EDOM\0EDOTDOT\0EDQUOT\0"
++	"EEXIST\0EFAULT\0EFBIG\0EHOSTDOWN\0EHOSTUNREACH\0EIDRM\0EILSEQ\0EINPROGRESS\0EINTR\0EINVAL\0"
++	"EIO\0EISCONN\0EISDIR\0EISNAM\0EKEYEXPIRED\0EKEYREJECTED\0EKEYREVOKED\0EL2HLT\0EL2NSYNC\0EL3HLT\0"
++	"EL3RST\0ELIBACC\0ELIBBAD\0ELIBEXEC\0ELIBMAX\0ELIBSCN\0ELNRNG\0ELOOP\0EMEDIUMTYPE\0EMFILE\0"
++	"EMLINK\0EMSGSIZE\0EMULTIHOP\0ENAMETOOLONG\0ENAVAIL\0ENETDOWN\0ENETRESET\0ENETUNREACH\0ENFILE\0ENOANO\0"
++	"ENOBUFS\0ENOCSI\0ENODATA\0ENODEV\0ENOENT\0ENOEXEC\0ENOKEY\0ENOLCK\0ENOLINK\0ENOMEDIUM\0"
++	"ENOMEM\0ENOMSG\0ENONET\0ENOPKG\0ENOPROTOOPT\0ENOSPC\0ENOSR\0ENOSTR\0ENOSYS\0ENOTBLK\0"
++	"ENOTCONN\0ENOTDIR\0ENOTEMPTY\0ENOTNAM\0ENOTRECOVERABLE\0ENOTSOCK\0ENOTTY\0ENOTUNIQ\0ENXIO\0EOPNOTSUPP\0"
++	"EOVERFLOW\0EOWNERDEAD\0EPERM\0EPFNOSUPPORT\0EPIPE\0EPROTO\0EPROTONOSUPPORT\0EPROTOTYPE\0ERANGE\0EREMCHG\0"
++	"EREMOTE\0EREMOTEIO\0ERESTART\0EROFS\0ESHUTDOWN\0ESOCKTNOSUPPORT\0ESPIPE\0ESRCH\0ESRMNT\0ESTALE\0"
++	"ESTRPIPE\0ETIME\0ETIMEDOUT\0ETOOMANYREFS\0ETXTBSY\0EUCLEAN\0EUNATCH\0EUSERS\0EWOULDBLOCK\0EXDEV\0"
++	"EXFULL";
++static const unsigned err_s2i_s[] = {
++	0,6,13,24,38,43,56,63,72,78,
++	84,91,99,105,113,121,128,134,144,151,
++	158,164,177,190,201,209,219,232,237,245,
++	252,259,266,272,282,295,301,308,320,326,
++	333,337,345,352,359,371,384,396,403,412,
++	419,426,434,442,451,459,467,474,480,492,
++	499,506,515,525,538,546,555,565,577,584,
++	591,599,606,614,621,628,636,643,650,658,
++	668,675,682,689,696,708,715,721,728,735,
++	743,752,760,770,778,794,803,810,819,825,
++	836,846,857,863,876,882,889,905,916,923,
++	931,939,949,958,964,974,990,997,1003,1010,
++	1017,1026,1032,1042,1055,1063,1071,1079,1086,1098,
++	1104,
++};
++static const int err_s2i_i[] = {
++	7,13,98,99,68,97,11,114,52,9,
++	77,74,53,56,57,59,16,125,10,44,
++	70,103,111,104,35,35,89,33,73,122,
++	17,14,27,112,113,43,84,115,4,22,
++	5,106,21,120,127,129,128,51,45,46,
++	47,79,80,83,82,81,48,40,124,24,
++	31,90,72,36,119,100,102,101,23,55,
++	105,50,61,19,2,8,126,37,67,123,
++	12,42,64,65,92,28,63,60,38,15,
++	107,20,39,118,131,88,25,76,6,95,
++	75,130,1,96,32,71,93,91,34,78,
++	66,121,85,30,108,94,29,3,69,116,
++	86,62,110,109,26,117,49,87,11,18,
++	54,
++};
++static int err_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISLOWER(c) ? c - 'a' + 'A' : c;
++	}
++	copy[i] = 0;
++	return s2i__(err_strings, err_s2i_s, err_s2i_i, 131, copy, value);
++	}
++}
++static const unsigned err_i2s_direct[] = {
++	857,621,997,320,333,819,0,628,78,144,
++	56,668,6,259,735,128,252,1098,614,752,
++	345,326,577,492,803,1055,266,708,990,958,
++	499,876,232,916,201,525,643,728,760,474,
++	-1u,675,295,151,403,412,419,467,1071,599,
++	396,72,99,1104,584,105,113,-1u,121,721,
++	606,1026,715,682,689,931,650,38,1003,158,
++	882,515,237,91,836,810,84,923,426,434,
++	459,451,442,301,949,1017,1079,794,219,506,
++	905,696,889,974,825,863,43,13,24,546,
++	565,555,164,190,591,337,743,964,1042,1032,
++	177,272,282,63,308,1010,1063,770,538,352,
++	939,245,658,480,134,636,359,384,371,846,
++	778,
++};
++static const char *err_i2s(int v) {
++	return i2s_direct__(err_strings, err_i2s_direct, 1, 131, v);
++}
+diff --git a/lib/fieldtabs.h b/lib/fieldtabs.h
+new file mode 100644
+index 0000000..fb50e08
+--- /dev/null
++++ b/lib/fieldtabs.h
+@@ -0,0 +1,49 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char field_strings[] = "a0\0a1\0a2\0a3\0arch\0auid\0devmajor\0devminor\0dir\0egid\0"
++	"euid\0exit\0field_compare\0filetype\0fsgid\0fsuid\0gid\0inode\0key\0loginuid\0"
++	"msgtype\0obj_gid\0obj_lev_high\0obj_lev_low\0obj_role\0obj_type\0obj_uid\0obj_user\0path\0perm\0"
++	"pers\0pid\0ppid\0sgid\0subj_clr\0subj_role\0subj_sen\0subj_type\0subj_user\0success\0"
++	"suid\0uid";
++static const unsigned field_s2i_s[] = {
++	0,3,6,9,12,17,22,31,40,44,
++	49,54,59,73,82,88,94,98,104,108,
++	117,125,133,146,158,167,176,184,193,198,
++	203,208,212,217,222,231,241,250,260,270,
++	278,283,
++};
++static const int field_s2i_i[] = {
++	200,201,202,203,11,9,100,101,107,6,
++	2,103,111,108,8,4,5,102,210,9,
++	12,110,23,22,20,21,109,19,105,106,
++	10,0,18,7,17,14,16,15,13,104,
++	3,1,
++};
++static int field_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISUPPER(c) ? c - 'A' + 'a' : c;
++	}
++	copy[i] = 0;
++	return s2i__(field_strings, field_s2i_s, field_s2i_i, 42, copy, value);
++	}
++}
++static const int field_i2s_i[] = {
++	0,1,2,3,4,5,6,7,8,9,
++	10,11,12,13,14,15,16,17,18,19,
++	20,21,22,23,100,101,102,103,104,105,
++	106,107,108,109,110,111,200,201,202,203,
++	210,
++};
++static const unsigned field_i2s_s[] = {
++	208,283,49,278,88,94,44,217,82,17,
++	203,12,117,260,231,250,241,222,212,184,
++	158,167,146,133,22,31,98,54,270,193,
++	198,40,73,176,125,59,0,3,6,9,
++	104,
++};
++static const char *field_i2s(int v) {
++	return i2s_bsearch__(field_strings, field_i2s_i, field_i2s_s, 41, v);
++}
+diff --git a/lib/flagtabs.h b/lib/flagtabs.h
+new file mode 100644
+index 0000000..e191db3
+--- /dev/null
++++ b/lib/flagtabs.h
+@@ -0,0 +1,26 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char flag_strings[] = "entry\0exclude\0exit\0task\0user";
++static const unsigned flag_s2i_s[] = {
++	0,6,14,19,24,
++};
++static const int flag_s2i_i[] = {
++	2,5,4,1,0,
++};
++static int flag_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISUPPER(c) ? c - 'A' + 'a' : c;
++	}
++	copy[i] = 0;
++	return s2i__(flag_strings, flag_s2i_s, flag_s2i_i, 5, copy, value);
++	}
++}
++static const unsigned flag_i2s_direct[] = {
++	24,19,0,-1u,14,6,
++};
++static const char *flag_i2s(int v) {
++	return i2s_direct__(flag_strings, flag_i2s_direct, 0, 5, v);
++}
+diff --git a/lib/ftypetabs.h b/lib/ftypetabs.h
+new file mode 100644
+index 0000000..04aaa46
+--- /dev/null
++++ b/lib/ftypetabs.h
+@@ -0,0 +1,29 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char ftype_strings[] = "block\0character\0dir\0fifo\0file\0link\0socket";
++static const unsigned ftype_s2i_s[] = {
++	0,6,16,20,25,30,35,
++};
++static const int ftype_s2i_i[] = {
++	24576,8192,16384,4096,32768,40960,49152,
++};
++static int ftype_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISUPPER(c) ? c - 'A' + 'a' : c;
++	}
++	copy[i] = 0;
++	return s2i__(ftype_strings, ftype_s2i_s, ftype_s2i_i, 7, copy, value);
++	}
++}
++static const int ftype_i2s_i[] = {
++	4096,8192,16384,24576,32768,40960,49152,
++};
++static const unsigned ftype_i2s_s[] = {
++	20,6,16,0,25,30,35,
++};
++static const char *ftype_i2s(int v) {
++	return i2s_bsearch__(ftype_strings, ftype_i2s_i, ftype_i2s_s, 7, v);
++}
+diff --git a/lib/i386_tables.h b/lib/i386_tables.h
+new file mode 100644
+index 0000000..6703ffc
+--- /dev/null
++++ b/lib/i386_tables.h
+@@ -0,0 +1,163 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char i386_syscall_strings[] = "_llseek\0_newselect\0_sysctl\0access\0acct\0add_key\0adjtimex\0afs_syscall\0alarm\0bdflush\0"
++	"break\0brk\0capget\0capset\0chdir\0chmod\0chown\0chown32\0chroot\0clock_adjtime\0"
++	"clock_getres\0clock_gettime\0clock_nanosleep\0clock_settime\0clone\0close\0creat\0create_module\0delete_module\0dup\0"
++	"dup2\0dup3\0epoll_create\0epoll_create1\0epoll_ctl\0epoll_pwait\0epoll_wait\0eventfd\0eventfd2\0execve\0"
++	"exit\0exit_group\0faccessat\0fadvise64\0fadvise64_64\0fallocate\0fanotify_init\0fanotify_mark\0fchdir\0fchmod\0"
++	"fchmodat\0fchown\0fchown32\0fchownat\0fcntl\0fcntl64\0fdatasync\0fgetxattr\0finit_module\0flistxattr\0"
++	"flock\0fork\0fremovexattr\0fsetxattr\0fstat\0fstat64\0fstatat64\0fstatfs\0fstatfs64\0fsync\0"
++	"ftime\0ftruncate\0ftruncate64\0futex\0futimesat\0get_kernel_syms\0get_mempolicy\0get_robust_list\0get_thread_area\0getcpu\0"
++	"getcwd\0getdents\0getdents64\0getegid\0getegid32\0geteuid\0geteuid32\0getgid\0getgid32\0getgroups\0"
++	"getgroups32\0getitimer\0getpgid\0getpgrp\0getpid\0getpmsg\0getppid\0getpriority\0getresgid\0getresgid32\0"
++	"getresuid\0getresuid32\0getrlimit\0getrusage\0getsid\0gettid\0gettimeofday\0getuid\0getuid32\0getxattr\0"
++	"gtty\0idle\0init_module\0inotify_add_watch\0inotify_init\0inotify_init1\0inotify_rm_watch\0io_cancel\0io_destroy\0io_getevents\0"
++	"io_setup\0io_submit\0ioctl\0ioperm\0iopl\0ioprio_get\0ioprio_set\0ipc\0kcmp\0keyctl\0"
++	"kill\0lchown\0lchown32\0lgetxattr\0link\0linkat\0listxattr\0llistxattr\0lock\0lookup_dcookie\0"
++	"lremovexattr\0lseek\0lsetxattr\0lstat\0lstat64\0madvise\0madvise1\0mbind\0migrate_pages\0mincore\0"
++	"mkdir\0mkdirat\0mknod\0mknodat\0mlock\0mlockall\0mmap\0mmap2\0modify_ldt\0mount\0"
++	"move_pages\0mprotect\0mpx\0mq_getsetattr\0mq_notify\0mq_open\0mq_timedreceive\0mq_timedsend\0mq_unlink\0mremap\0"
++	"msync\0munlock\0munlockall\0munmap\0name_to_handle_at\0nanosleep\0nfsservctl\0nice\0oldfstat\0oldlstat\0"
++	"oldolduname\0oldstat\0olduname\0open\0open_by_handle_at\0openat\0pause\0perf_event_open\0personality\0pipe\0"
++	"pipe2\0pivot_root\0poll\0ppoll\0prctl\0pread64\0preadv\0prlimit64\0process_vm_readv\0process_vm_writev\0"
++	"prof\0profil\0pselect6\0ptrace\0putpmsg\0pwrite64\0pwritev\0query_module\0quotactl\0read\0"
++	"readahead\0readdir\0readlink\0readlinkat\0readv\0reboot\0recvmmsg\0remap_file_pages\0removexattr\0rename\0"
++	"renameat\0request_key\0restart_syscall\0rmdir\0rt_sigaction\0rt_sigpending\0rt_sigprocmask\0rt_sigqueueinfo\0rt_sigreturn\0rt_sigsuspend\0"
++	"rt_sigtimedwait\0rt_tgsigqueueinfo\0sched_get_priority_max\0sched_get_priority_min\0sched_getaffinity\0sched_getparam\0sched_getscheduler\0sched_rr_get_interval\0sched_setaffinity\0sched_setparam\0"
++	"sched_setscheduler\0sched_yield\0select\0sendfile\0sendfile64\0sendmmsg\0set_mempolicy\0set_robust_list\0set_thread_area\0set_tid_address\0"
++	"setdomainname\0setfsgid\0setfsgid32\0setfsuid\0setfsuid32\0setgid\0setgid32\0setgroups\0setgroups32\0sethostname\0"
++	"setitimer\0setns\0setpgid\0setpriority\0setregid\0setregid32\0setresgid\0setresgid32\0setresuid\0setresuid32\0"
++	"setreuid\0setreuid32\0setrlimit\0setsid\0settimeofday\0setuid\0setuid32\0setxattr\0sgetmask\0sigaction\0"
++	"sigaltstack\0signal\0signalfd\0signalfd4\0sigpending\0sigprocmask\0sigreturn\0sigsuspend\0socketcall\0splice\0"
++	"ssetmask\0stat\0stat64\0statfs\0statfs64\0stime\0stty\0swapoff\0swapon\0symlink\0"
++	"symlinkat\0sync\0sync_file_range\0syncfs\0sys_kexec_load\0sysfs\0sysinfo\0syslog\0tee\0tgkill\0"
++	"time\0timer_create\0timer_delete\0timer_getoverrun\0timer_gettime\0timer_settime\0timerfd\0timerfd_gettime\0timerfd_settime\0times\0"
++	"tkill\0truncate\0truncate64\0ugetrlimit\0ulimit\0umask\0umount\0umount2\0uname\0unlink\0"
++	"unlinkat\0unshare\0uselib\0ustat\0utime\0utimensat\0utimes\0vfork\0vhangup\0vm86\0"
++	"vm86old\0vmsplice\0vserver\0wait4\0waitid\0waitpid\0write\0writev";
++static const unsigned i386_syscall_s2i_s[] = {
++	0,8,19,27,34,39,47,56,68,74,
++	82,88,92,99,106,112,118,124,132,139,
++	153,166,180,196,210,216,222,228,242,256,
++	260,265,270,283,297,307,319,330,338,347,
++	354,359,370,380,390,403,413,427,441,448,
++	455,464,471,480,489,495,503,513,523,536,
++	547,553,558,571,581,587,595,605,613,623,
++	629,635,645,657,663,673,689,703,719,735,
++	742,749,758,769,777,787,795,805,812,821,
++	831,843,853,861,869,876,884,892,904,914,
++	926,936,948,958,968,975,982,995,1002,1011,
++	1020,1025,1030,1042,1060,1073,1087,1104,1114,1125,
++	1138,1147,1157,1163,1170,1175,1186,1197,1201,1206,
++	1213,1218,1225,1234,1244,1249,1256,1266,1277,1282,
++	1297,1310,1316,1326,1332,1340,1348,1357,1363,1377,
++	1385,1391,1399,1405,1413,1419,1428,1433,1439,1450,
++	1456,1467,1476,1480,1494,1504,1512,1528,1541,1551,
++	1558,1564,1572,1583,1590,1608,1618,1629,1634,1643,
++	1652,1664,1672,1681,1686,1704,1711,1717,1733,1745,
++	1750,1756,1767,1772,1778,1784,1792,1799,1809,1826,
++	1844,1849,1856,1865,1872,1880,1889,1897,1910,1919,
++	1924,1934,1942,1951,1962,1968,1975,1984,2001,2013,
++	2020,2029,2041,2057,2063,2076,2090,2105,2121,2134,
++	2148,2164,2182,2205,2228,2246,2261,2280,2302,2320,
++	2335,2354,2366,2373,2382,2393,2402,2416,2432,2448,
++	2464,2478,2487,2498,2507,2518,2525,2534,2544,2556,
++	2568,2578,2584,2592,2604,2613,2624,2634,2646,2656,
++	2668,2677,2688,2698,2705,2718,2725,2734,2743,2752,
++	2762,2774,2781,2790,2800,2811,2823,2833,2844,2855,
++	2862,2871,2876,2883,2890,2899,2905,2910,2918,2925,
++	2933,2943,2948,2964,2971,2986,2992,3000,3007,3011,
++	3018,3023,3036,3049,3066,3080,3094,3102,3118,3134,
++	3140,3146,3155,3166,3177,3184,3190,3197,3205,3211,
++	3218,3227,3235,3242,3248,3254,3264,3271,3277,3285,
++	3290,3298,3307,3315,3321,3328,3336,3342,
++};
++static const int i386_syscall_s2i_i[] = {
++	140,142,149,33,51,286,124,137,27,134,
++	17,45,184,185,12,15,182,212,61,343,
++	266,265,267,264,120,6,8,127,129,41,
++	63,330,254,329,255,319,256,323,328,11,
++	1,252,307,250,272,324,338,339,133,94,
++	306,95,207,298,55,221,148,231,350,234,
++	143,2,237,228,108,197,300,100,269,118,
++	35,93,194,240,299,130,275,312,244,318,
++	183,141,220,50,202,49,201,47,200,80,
++	205,105,132,65,20,188,64,96,171,211,
++	165,209,76,77,147,224,78,24,199,229,
++	32,112,128,292,291,332,293,249,246,247,
++	245,248,54,101,110,290,289,117,349,288,
++	37,16,198,230,9,303,232,233,53,253,
++	236,19,227,107,196,219,219,274,294,218,
++	39,296,14,297,150,152,90,192,123,21,
++	317,125,56,282,281,277,280,279,278,163,
++	144,151,153,91,341,162,169,34,28,84,
++	59,18,109,5,342,295,29,336,136,42,
++	331,217,168,309,172,180,333,340,347,348,
++	44,98,308,26,189,181,334,167,131,3,
++	225,89,85,305,145,88,337,257,235,38,
++	302,287,0,40,174,176,175,178,173,179,
++	177,335,159,160,242,155,157,161,241,154,
++	156,158,82,187,239,345,276,311,243,258,
++	121,139,216,138,215,46,214,81,206,74,
++	104,346,57,97,71,204,170,210,164,208,
++	70,203,75,66,79,23,213,226,68,67,
++	186,48,321,327,73,126,119,72,102,313,
++	69,106,195,99,268,25,31,115,87,83,
++	304,36,314,344,283,135,116,103,315,270,
++	13,259,263,262,261,260,322,326,325,43,
++	238,92,193,191,58,60,22,52,122,10,
++	301,310,86,62,30,320,271,190,111,166,
++	113,316,273,114,284,7,4,146,
++};
++static int i386_syscall_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISUPPER(c) ? c - 'A' + 'a' : c;
++	}
++	copy[i] = 0;
++	return s2i__(i386_syscall_strings, i386_syscall_s2i_s, i386_syscall_s2i_i, 348, copy, value);
++	}
++}
++static const unsigned i386_syscall_i2s_direct[] = {
++	2041,354,553,1919,3336,1681,216,3328,222,1244,
++	3211,347,106,3018,1399,112,1218,82,1664,1310,
++	869,1450,3190,2718,995,2899,1865,68,1634,1711,
++	3248,2905,1020,27,1629,629,2943,1213,2013,1385,
++	2057,256,1745,3134,1844,88,2518,805,2774,787,
++	769,34,3197,1277,1157,489,1476,2584,3177,1652,
++	3184,132,3242,260,884,861,2698,2752,2743,2862,
++	2668,2604,2833,2800,2556,2688,948,958,982,2705,
++	821,2534,2366,2925,1643,1942,3235,2918,1968,1934,
++	1428,1583,3146,635,448,464,892,2592,1849,2883,
++	605,1163,2844,3000,2568,843,2871,1326,581,1672,
++	1170,3277,1025,3290,3315,2910,2992,1197,623,2823,
++	210,2464,3205,1439,47,1467,2811,228,1030,242,
++	673,1910,853,441,74,2986,1733,56,2498,2478,
++	0,749,8,547,1558,1962,3342,968,503,19,
++	1413,1564,1419,1572,2320,2246,2335,2261,2354,2182,
++	2205,2280,1608,1551,2646,926,3285,1897,1767,1618,
++	2624,904,1778,2121,2063,2090,2076,2148,2105,2134,
++	1784,1880,118,742,92,99,2762,2373,876,1872,
++	3271,3166,1433,3155,645,2876,1332,587,1225,1002,
++	812,795,777,2677,2613,831,2544,471,2656,936,
++	2634,914,124,2725,2525,2507,2487,1756,1377,1340,
++	758,495,-1u,-1u,975,1924,2734,1316,571,1011,
++	1234,513,1256,1266,536,2001,1297,558,3140,2382,
++	657,2302,2228,2432,719,1138,1114,1125,1147,1104,
++	380,-1u,359,1282,270,297,319,1984,2448,3023,
++	3080,3066,3049,3036,196,166,153,180,2890,613,
++	3011,3264,390,3307,1357,689,2402,1504,1541,1528,
++	1512,1494,1480,2971,3321,-1u,39,2029,1206,1186,
++	1175,1060,1042,1087,1363,1704,1391,1405,480,663,
++	595,3218,2020,1249,2933,1951,455,370,1856,1772,
++	3227,2416,703,2855,2948,3007,3298,1456,735,307,
++	3254,2781,3094,330,403,3118,3102,2790,338,283,
++	265,1750,1073,1792,1889,2164,1717,1975,413,427,
++	1799,1590,1686,139,2964,2393,2578,1809,1826,1201,
++	523,
++};
++static const char *i386_syscall_i2s(int v) {
++	return i2s_direct__(i386_syscall_strings, i386_syscall_i2s_direct, 0, 350, v);
++}
+diff --git a/lib/ia64_tables.h b/lib/ia64_tables.h
+new file mode 100644
+index 0000000..9e127a0
+--- /dev/null
++++ b/lib/ia64_tables.h
+@@ -0,0 +1,147 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char ia64_syscall_strings[] = "_sysctl\0accept\0accept4\0access\0acct\0add_key\0adjtimex\0afs_syscall\0bdflush\0bind\0"
++	"brk\0capget\0capset\0chdir\0chmod\0chown\0chroot\0clock_adjtime\0clock_getres\0clock_gettime\0"
++	"clock_nanosleep\0clock_settime\0clone\0clone2\0close\0connect\0creat\0delete_module\0dup\0dup2\0"
++	"dup3\0epoll_create\0epoll_create1\0epoll_ctl\0epoll_pwait\0epoll_wait\0eventfd\0eventfd2\0execve\0exit\0"
++	"exit_group\0faccessat\0fadvise64\0fallocate\0fanotify_init\0fanotify_mark\0fchdir\0fchmod\0fchmodat\0fchown\0"
++	"fchownat\0fcntl\0fdatasync\0fgetxattr\0finit_module\0flistxattr\0flock\0fremovexattr\0fsetxattr\0fstat\0"
++	"fstatfs\0fstatfs64\0fsync\0ftruncate\0futex\0futimesat\0get_mempolicy\0get_robust_list\0getcpu\0getcwd\0"
++	"getdents\0getdents64\0getegid\0geteuid\0getgid\0getgroups\0getitimer\0getpeername\0getpgid\0getpid\0"
++	"getpmsg\0getppid\0getpriority\0getresgid\0getresuid\0getrlimit\0getrusage\0getsid\0getsockname\0getsockopt\0"
++	"gettid\0gettimeofday\0getuid\0getunwind\0getxattr\0init_module\0inotify_add_watch\0inotify_init\0inotify_init1\0inotify_rm_watch\0"
++	"io_cancel\0io_destroy\0io_getevents\0io_setup\0io_submit\0ioctl\0ioprio_get\0ioprio_set\0kexec_load\0keyctl\0"
++	"kill\0lchown\0lgetxattr\0link\0linkat\0listen\0listxattr\0llistxattr\0lookup_dcookie\0lremovexattr\0"
++	"lseek\0lsetxattr\0lstat\0madvise\0mbind\0migrate_pages\0mincore\0mkdir\0mkdirat\0mknod\0"
++	"mknodat\0mlock\0mlockall\0mmap\0mmap2\0mount\0mprotect\0mq_getsetattr\0mq_notify\0mq_open\0"
++	"mq_timedreceive\0mq_timedsend\0mq_unlink\0mremap\0msgctl\0msgget\0msgrcv\0msgsnd\0msync\0munlock\0"
++	"munlockall\0munmap\0name_to_handle_at\0nanosleep\0newfstatat\0nfsservctl\0ni_syscall\0open\0open_by_handle_at\0openat\0"
++	"pciconfig_read\0pciconfig_write\0perfmonctl\0personality\0pipe\0pipe2\0pivot_root\0poll\0ppoll\0prctl\0"
++	"pread64\0preadv\0prlimit64\0process_vm_readv\0process_vm_writev\0pselect\0ptrace\0putpmsg\0pwrite64\0pwritev\0"
++	"quotactl\0read\0readahead\0readlink\0readlinkat\0readv\0reboot\0recv\0recvfrom\0recvmmsg\0"
++	"recvmsg\0remap_file_pages\0removexattr\0rename\0renameat\0request_key\0restart_syscall\0rmdir\0rt_sigaction\0rt_sigpending\0"
++	"rt_sigprocmask\0rt_sigqueueinfo\0rt_sigreturn\0rt_sigsuspend\0rt_sigtimedwait\0rt_tgsigqueueinfo\0sched_get_priority_max\0sched_get_priority_min\0sched_getaffinity\0sched_getparam\0"
++	"sched_getscheduler\0sched_rr_get_interval\0sched_setaffinity\0sched_setparam\0sched_setscheduler\0sched_yield\0select\0semctl\0semget\0semop\0"
++	"semtimedop\0send\0sendfile\0sendmmsg\0sendmsg\0sendto\0set_mempolicy\0set_robust_list\0set_tid_address\0set_zone_reclaim\0"
++	"setdomainname\0setfsgid\0setfsuid\0setgid\0setgroups\0sethostname\0setitimer\0setns\0setpgid\0setpriority\0"
++	"setregid\0setresgid\0setresuid\0setreuid\0setrlimit\0setsid\0setsockopt\0settimeofday\0setuid\0setxattr\0"
++	"shmat\0shmctl\0shmdt\0shmget\0shutdown\0sigaltstack\0signalfd\0signalfd4\0socket\0socketpair\0"
++	"splice\0stat\0statfs\0statfs64\0swapoff\0swapon\0symlink\0symlinkat\0sync\0sync_file_range\0"
++	"syncfs\0sysfs\0sysinfo\0syslog\0tee\0tgkill\0timer_create\0timer_delete\0timer_getoverrun\0timer_gettime\0"
++	"timer_settime\0timerfd\0timerfd_create\0timerfd_gettime\0timerfd_settime\0times\0tkill\0truncate\0tux\0umask\0"
++	"umount\0uname\0unlink\0unlinkat\0unshare\0uselib\0ustat\0utimensat\0utimes\0vhangup\0"
++	"vmsplice\0vserver\0wait4\0waitid\0write\0writev";
++static const unsigned ia64_syscall_s2i_s[] = {
++	0,8,15,23,30,35,43,52,64,72,
++	77,81,88,95,101,107,113,120,134,147,
++	161,177,191,197,204,210,218,224,238,242,
++	247,252,265,279,289,301,312,320,329,336,
++	341,352,362,372,382,396,410,417,424,433,
++	440,449,455,465,475,488,499,505,518,528,
++	534,542,552,558,568,574,584,598,614,621,
++	628,637,648,656,664,671,681,691,703,711,
++	718,726,734,746,756,766,776,786,793,805,
++	816,823,836,843,853,862,874,892,905,919,
++	936,946,957,970,979,989,995,1006,1017,1028,
++	1035,1040,1047,1057,1062,1069,1076,1086,1097,1112,
++	1125,1131,1141,1147,1155,1161,1175,1183,1189,1197,
++	1203,1211,1217,1226,1231,1237,1243,1252,1266,1276,
++	1284,1300,1313,1323,1330,1337,1344,1351,1358,1364,
++	1372,1383,1390,1408,1418,1429,1440,1451,1456,1474,
++	1481,1496,1512,1523,1535,1540,1546,1557,1562,1568,
++	1574,1582,1589,1599,1616,1634,1642,1649,1657,1666,
++	1674,1683,1688,1698,1707,1718,1724,1731,1736,1745,
++	1754,1762,1779,1791,1798,1807,1819,1835,1841,1854,
++	1868,1883,1899,1912,1926,1942,1960,1983,2006,2024,
++	2039,2058,2080,2098,2113,2132,2144,2151,2158,2165,
++	2171,2182,2187,2196,2205,2213,2220,2234,2250,2266,
++	2283,2297,2306,2315,2322,2332,2344,2354,2360,2368,
++	2380,2389,2399,2409,2418,2428,2435,2446,2459,2466,
++	2475,2481,2488,2494,2501,2510,2522,2531,2541,2548,
++	2559,2566,2571,2578,2587,2595,2602,2610,2620,2625,
++	2641,2648,2654,2662,2669,2673,2680,2693,2706,2723,
++	2737,2751,2759,2774,2790,2806,2812,2818,2827,2831,
++	2837,2844,2850,2857,2866,2874,2881,2887,2897,2904,
++	2912,2921,2929,2935,2942,2948,
++};
++static const int ia64_syscall_s2i_i[] = {
++	1150,1194,1334,1049,1064,1271,1131,1141,1138,1191,
++	1060,1185,1186,1034,1038,1039,1068,1328,1255,1254,
++	1256,1253,1128,1213,1029,1192,1030,1134,1057,1070,
++	1316,1243,1315,1244,1305,1245,1309,1314,1033,1025,
++	1236,1293,1234,1303,1323,1324,1035,1099,1292,1100,
++	1284,1066,1052,1222,1335,1225,1145,1228,1219,1212,
++	1104,1257,1051,1098,1230,1285,1260,1299,1304,1184,
++	1144,1214,1063,1047,1062,1077,1119,1196,1079,1041,
++	1188,1042,1101,1075,1073,1085,1086,1082,1195,1204,
++	1105,1087,1046,1215,1220,1133,1278,1277,1318,1279,
++	1242,1239,1240,1238,1241,1065,1275,1274,1268,1273,
++	1053,1124,1221,1031,1289,1193,1223,1224,1237,1227,
++	1040,1218,1211,1209,1259,1280,1208,1055,1282,1037,
++	1283,1153,1154,1151,1172,1043,1155,1267,1266,1262,
++	1265,1264,1263,1156,1112,1109,1111,1110,1157,1158,
++	1159,1152,1326,1168,1286,1169,1024,1028,1327,1281,
++	1173,1174,1175,1140,1058,1317,1207,1090,1295,1170,
++	1148,1319,1325,1332,1333,1294,1048,1189,1149,1320,
++	1137,1026,1216,1092,1291,1146,1096,1200,1201,1322,
++	1206,1125,1226,1054,1288,1272,1246,1056,1177,1178,
++	1179,1180,1181,1182,1183,1321,1165,1166,1232,1160,
++	1162,1167,1231,1161,1163,1164,1089,1108,1106,1107,
++	1247,1198,1187,1331,1205,1199,1261,1298,1233,1276,
++	1129,1143,1142,1061,1078,1083,1118,1330,1080,1102,
++	1072,1076,1074,1071,1084,1081,1203,1088,1045,1217,
++	1114,1116,1115,1113,1202,1176,1307,1313,1190,1197,
++	1297,1210,1103,1258,1095,1094,1091,1290,1050,1300,
++	1329,1139,1127,1117,1301,1235,1248,1252,1251,1250,
++	1249,1308,1310,1312,1311,1059,1229,1097,1120,1067,
++	1044,1130,1032,1287,1296,1093,1069,1306,1036,1123,
++	1302,1269,1126,1270,1027,1147,
++};
++static int ia64_syscall_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISUPPER(c) ? c - 'A' + 'a' : c;
++	}
++	copy[i] = 0;
++	return s2i__(ia64_syscall_strings, ia64_syscall_s2i_s, ia64_syscall_s2i_i, 306, copy, value);
++	}
++}
++static const unsigned ia64_syscall_i2s_direct[] = {
++	1440,336,1683,2942,1451,204,218,1057,2850,329,
++	95,410,2897,1197,101,107,1125,711,726,1237,
++	2837,2459,836,656,1642,23,2620,552,455,1035,
++	1791,1183,1835,238,1535,2806,77,2315,664,648,
++	30,989,449,2831,113,2881,242,2409,2380,756,
++	2399,746,2389,671,2322,703,2360,2428,786,2332,
++	2418,766,776,823,2446,2144,1557,2602,1698,2874,
++	2595,2587,1724,2818,558,417,433,734,2368,2571,
++	534,816,2158,2165,2151,1337,1351,1344,1330,2494,
++	2475,2488,2481,2662,2344,681,2827,-1u,-1u,2904,
++	1040,1762,2929,2654,191,2283,2844,43,-1u,862,
++	224,-1u,-1u,1674,64,2648,1523,52,2306,2297,
++	628,499,1718,2948,1574,1657,0,1226,1383,1211,
++	1217,1243,1323,1358,1364,1372,2024,2098,2039,2113,
++	2132,1960,1983,2058,1408,1429,1568,-1u,1231,1481,
++	1496,1512,2510,1841,1854,1868,1883,1899,1912,1926,
++	621,81,88,2187,718,1649,2541,72,210,1069,
++	8,793,691,2548,2182,2213,1731,1736,2501,2435,
++	805,2205,1754,1546,1175,1147,2566,1141,528,197,
++	637,843,1688,2466,1131,518,853,1047,465,1076,
++	1086,488,1779,1112,505,2812,568,2080,2006,2250,
++	362,2673,341,1097,970,946,957,979,936,252,
++	279,301,1819,2171,2680,2737,2723,2706,2693,177,
++	147,134,161,542,2578,1155,584,2220,1276,1313,
++	1300,1284,1266,1252,1017,2921,2935,35,1807,1028,
++	1006,995,2266,892,874,919,1161,1474,1189,1203,
++	440,574,1418,2857,1798,1062,2610,1707,424,352,
++	1634,1562,2866,2559,2234,598,2625,2669,2912,372,
++	614,289,2887,2522,2751,312,2759,2790,2774,2531,
++	320,265,247,1540,905,1582,1666,1942,1745,382,
++	396,1589,1390,1456,120,2641,2354,2196,1599,1616,
++	15,475,
++};
++static const char *ia64_syscall_i2s(int v) {
++	return i2s_direct__(ia64_syscall_strings, ia64_syscall_i2s_direct, 1024, 1335, v);
++}
+diff --git a/lib/machinetabs.h b/lib/machinetabs.h
+new file mode 100644
+index 0000000..ec2d033
+--- /dev/null
++++ b/lib/machinetabs.h
+@@ -0,0 +1,26 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char machine_strings[] = "i386\0i486\0i586\0i686\0ia64\0ppc\0ppc64\0s390\0s390x\0x86_64";
++static const unsigned machine_s2i_s[] = {
++	0,5,10,15,20,25,29,35,40,46,
++};
++static const int machine_s2i_i[] = {
++	0,0,0,0,2,4,3,6,5,1,
++};
++static int machine_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISUPPER(c) ? c - 'A' + 'a' : c;
++	}
++	copy[i] = 0;
++	return s2i__(machine_strings, machine_s2i_s, machine_s2i_i, 10, copy, value);
++	}
++}
++static const unsigned machine_i2s_direct[] = {
++	0,46,20,29,25,40,35,
++};
++static const char *machine_i2s(int v) {
++	return i2s_direct__(machine_strings, machine_i2s_direct, 0, 6, v);
++}
+diff --git a/lib/msg_typetabs.h b/lib/msg_typetabs.h
+new file mode 100644
+index 0000000..770ec21
+--- /dev/null
++++ b/lib/msg_typetabs.h
+@@ -0,0 +1,104 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char msg_type_strings[] = "ADD_GROUP\0ADD_USER\0ANOM_ABEND\0ANOM_ACCESS_FS\0ANOM_ADD_ACCT\0ANOM_AMTU_FAIL\0ANOM_CRYPTO_FAIL\0ANOM_DEL_ACCT\0ANOM_EXEC\0ANOM_LINK\0"
++	"ANOM_LOGIN_ACCT\0ANOM_LOGIN_FAILURES\0ANOM_LOGIN_LOCATION\0ANOM_LOGIN_SESSIONS\0ANOM_LOGIN_TIME\0ANOM_MAX_DAC\0ANOM_MAX_MAC\0ANOM_MK_EXEC\0ANOM_MOD_ACCT\0ANOM_PROMISCUOUS\0"
++	"ANOM_RBAC_FAIL\0ANOM_RBAC_INTEGRITY_FAIL\0ANOM_ROOT_TRANS\0AVC\0AVC_PATH\0BPRM_FCAPS\0CAPSET\0CHGRP_ID\0CHUSER_ID\0CONFIG_CHANGE\0"
++	"CRED_ACQ\0CRED_DISP\0CRED_REFR\0CRYPTO_FAILURE_USER\0CRYPTO_KEY_USER\0CRYPTO_LOGIN\0CRYPTO_LOGOUT\0CRYPTO_PARAM_CHANGE_USER\0CRYPTO_REPLAY_USER\0CRYPTO_SESSION\0"
++	"CRYPTO_TEST_USER\0CWD\0DAC_CHECK\0DAEMON_ABORT\0DAEMON_ACCEPT\0DAEMON_CLOSE\0DAEMON_CONFIG\0DAEMON_END\0DAEMON_RESUME\0DAEMON_ROTATE\0"
++	"DAEMON_START\0DEL_GROUP\0DEL_USER\0DEV_ALLOC\0DEV_DEALLOC\0EOE\0EXECVE\0FD_PAIR\0FS_RELABEL\0GRP_AUTH\0"
++	"INTEGRITY_DATA\0INTEGRITY_HASH\0INTEGRITY_METADATA\0INTEGRITY_PCR\0INTEGRITY_RULE\0INTEGRITY_STATUS\0IPC\0IPC_SET_PERM\0KERNEL\0KERNEL_OTHER\0"
++	"LABEL_LEVEL_CHANGE\0LABEL_OVERRIDE\0LIST_RULES\0LOGIN\0MAC_CIPSOV4_ADD\0MAC_CIPSOV4_DEL\0MAC_CONFIG_CHANGE\0MAC_IPSEC_ADDSA\0MAC_IPSEC_ADDSPD\0MAC_IPSEC_DELSA\0"
++	"MAC_IPSEC_DELSPD\0MAC_IPSEC_EVENT\0MAC_MAP_ADD\0MAC_MAP_DEL\0MAC_POLICY_LOAD\0MAC_STATUS\0MAC_UNLBL_ALLOW\0MAC_UNLBL_STCADD\0MAC_UNLBL_STCDEL\0MMAP\0"
++	"MQ_GETSETATTR\0MQ_NOTIFY\0MQ_OPEN\0MQ_SENDRECV\0NETFILTER_CFG\0NETFILTER_PKT\0OBJ_PID\0PATH\0RESP_ACCT_LOCK\0RESP_ACCT_LOCK_TIMED\0"
++	"RESP_ACCT_REMOTE\0RESP_ACCT_UNLOCK_TIMED\0RESP_ALERT\0RESP_ANOMALY\0RESP_EXEC\0RESP_HALT\0RESP_KILL_PROC\0RESP_SEBOOL\0RESP_SINGLE\0RESP_TERM_ACCESS\0"
++	"RESP_TERM_LOCK\0ROLE_ASSIGN\0ROLE_MODIFY\0ROLE_REMOVE\0SECCOMP\0SELINUX_ERR\0SERVICE_START\0SERVICE_STOP\0SOCKADDR\0SOCKETCALL\0"
++	"SYSCALL\0SYSTEM_BOOT\0SYSTEM_RUNLEVEL\0SYSTEM_SHUTDOWN\0TEST\0TRUSTED_APP\0TTY\0TTY_GET\0TTY_SET\0USER\0"
++	"USER_ACCT\0USER_AUTH\0USER_AVC\0USER_CHAUTHTOK\0USER_CMD\0USER_END\0USER_ERR\0USER_LABELED_EXPORT\0USER_LOGIN\0USER_LOGOUT\0"
++	"USER_MAC_POLICY_LOAD\0USER_MGMT\0USER_ROLE_CHANGE\0USER_SELINUX_ERR\0USER_START\0USER_TTY\0USER_UNLABELED_EXPORT\0USYS_CONFIG\0VIRT_CONTROL\0VIRT_MACHINE_ID\0"
++	"VIRT_RESOURCE";
++static const unsigned msg_type_s2i_s[] = {
++	0,10,19,30,45,59,74,91,105,115,
++	125,141,161,181,201,217,230,243,256,270,
++	287,302,327,343,347,356,367,374,383,393,
++	407,416,426,436,456,472,485,499,524,543,
++	558,575,579,589,602,616,629,643,654,668,
++	682,695,705,714,724,736,740,747,755,766,
++	775,790,805,824,838,853,870,874,887,894,
++	907,926,941,952,958,974,990,1008,1024,1041,
++	1057,1074,1090,1102,1114,1130,1141,1157,1174,1191,
++	1196,1210,1220,1228,1240,1254,1268,1276,1281,1296,
++	1317,1334,1357,1368,1381,1391,1401,1416,1428,1440,
++	1457,1472,1484,1496,1508,1516,1528,1542,1555,1564,
++	1575,1583,1595,1611,1627,1632,1644,1648,1656,1664,
++	1669,1679,1689,1698,1713,1722,1731,1740,1760,1771,
++	1783,1804,1814,1831,1848,1859,1868,1890,1902,1915,
++	1931,
++};
++static const int msg_type_s2i_i[] = {
++	1116,1114,1701,2111,2114,2107,2110,2115,2112,1702,
++	2103,2100,2104,2102,2101,2105,2106,2113,2116,1700,
++	2108,2109,2117,1400,1402,1321,1322,1119,1125,1305,
++	1103,1104,1110,2405,2404,2402,2403,2401,2406,2407,
++	2400,1307,1118,1202,1207,1208,1203,1201,1206,1205,
++	1200,1117,1115,2307,2308,1320,1309,1317,2309,1126,
++	1800,1803,1801,1804,1805,1802,1303,1311,2000,1316,
++	2304,2303,1013,1006,1407,1408,1405,1411,1413,1412,
++	1414,1415,1409,1410,1403,1404,1406,1416,1417,1323,
++	1315,1314,1312,1313,1325,1324,1318,1302,2207,2205,
++	2204,2206,2201,2200,2210,2212,2202,2209,2211,2203,
++	2208,2301,2311,2302,1326,1401,1130,1131,1306,1304,
++	1300,1127,1129,1128,1120,1121,1319,1016,1017,1005,
++	1101,1100,1107,1108,1123,1106,1109,2305,1112,1113,
++	2310,1102,2300,1122,1105,1124,2306,1111,2500,2502,
++	2501,
++};
++static int msg_type_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISLOWER(c) ? c - 'a' + 'A' : c;
++	}
++	copy[i] = 0;
++	return s2i__(msg_type_strings, msg_type_s2i_s, msg_type_s2i_i, 151, copy, value);
++	}
++}
++static const int msg_type_i2s_i[] = {
++	1005,1006,1013,1016,1017,1100,1101,1102,1103,1104,
++	1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,
++	1115,1116,1117,1118,1119,1120,1121,1122,1123,1124,
++	1125,1126,1127,1128,1129,1130,1131,1200,1201,1202,
++	1203,1205,1206,1207,1208,1300,1302,1303,1304,1305,
++	1306,1307,1309,1311,1312,1313,1314,1315,1316,1317,
++	1318,1319,1320,1321,1322,1323,1324,1325,1326,1400,
++	1401,1402,1403,1404,1405,1406,1407,1408,1409,1410,
++	1411,1412,1413,1414,1415,1416,1417,1700,1701,1702,
++	1800,1801,1802,1803,1804,1805,2000,2100,2101,2102,
++	2103,2104,2105,2106,2107,2108,2109,2110,2111,2112,
++	2113,2114,2115,2116,2117,2200,2201,2202,2203,2204,
++	2205,2206,2207,2208,2209,2210,2211,2212,2300,2301,
++	2302,2303,2304,2305,2306,2307,2308,2309,2310,2311,
++	2400,2401,2402,2403,2404,2405,2406,2407,2500,2501,
++	2502,
++};
++static const unsigned msg_type_i2s_s[] = {
++	1664,952,941,1648,1656,1679,1669,1804,407,416,
++	1848,1722,1689,1698,1731,426,1890,1760,1771,10,
++	705,0,695,579,374,1627,1632,1831,1713,1859,
++	383,766,1583,1611,1595,1528,1542,682,643,589,
++	629,668,654,602,616,1575,1276,870,1564,393,
++	1555,575,740,874,1220,1228,1210,1196,894,747,
++	1268,1644,736,356,367,1191,1254,1240,1508,343,
++	1516,347,1114,1130,990,1141,958,974,1090,1102,
++	1008,1041,1024,1057,1074,1157,1174,270,19,115,
++	775,805,853,790,824,838,887,141,201,181,
++	125,161,217,230,59,287,302,74,30,105,
++	243,45,91,256,327,1368,1357,1401,1440,1317,
++	1296,1334,1281,1457,1416,1381,1428,1391,1814,1472,
++	1496,926,907,1740,1868,714,724,755,1783,1484,
++	558,499,472,485,456,436,524,543,1902,1931,
++	1915,
++};
++static const char *msg_type_i2s(int v) {
++	return i2s_bsearch__(msg_type_strings, msg_type_i2s_i, msg_type_i2s_s, 151, v);
++}
+diff --git a/lib/optabs.h b/lib/optabs.h
+new file mode 100644
+index 0000000..d79b665
+--- /dev/null
++++ b/lib/optabs.h
+@@ -0,0 +1,11 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char op_strings[] = "!=\0&\0&=\0<\0<=\0=\0>\0>=";
++static const int op_i2s_i[] = {
++	134217728,268435456,536870912,805306368,1073741824,1207959552,1342177280,1610612736,
++};
++static const unsigned op_i2s_s[] = {
++	3,8,15,0,13,5,10,17,
++};
++static const char *op_i2s(int v) {
++	return i2s_bsearch__(op_strings, op_i2s_i, op_i2s_s, 8, v);
++}
+diff --git a/lib/ppc_tables.h b/lib/ppc_tables.h
+new file mode 100644
+index 0000000..778fae3
+--- /dev/null
++++ b/lib/ppc_tables.h
+@@ -0,0 +1,163 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char ppc_syscall_strings[] = "_llseek\0_newselect\0_sysctl\0accept\0accept4\0access\0acct\0add_key\0adjtimex\0afs_syscall\0"
++	"alarm\0bdflush\0bind\0break\0brk\0capget\0capset\0chdir\0chmod\0chown\0"
++	"chroot\0clock_adjtime\0clock_getres\0clock_gettime\0clock_nanosleep\0clock_settime\0clone\0close\0connect\0creat\0"
++	"create_module\0delete_module\0dup\0dup2\0dup3\0epoll_create\0epoll_create1\0epoll_ctl\0epoll_pwait\0epoll_wait\0"
++	"eventfd\0eventfd2\0execve\0exit\0exit_group\0faccessat\0fadvise64\0fadvise64_64\0fallocate\0fanotify_init\0"
++	"fanotify_mark\0fchdir\0fchmod\0fchmodat\0fchown\0fchownat\0fcntl\0fcntl64\0fdatasync\0fgetxattr\0"
++	"finit_module\0flistxattr\0flock\0fork\0fremovexattr\0fsetxattr\0fstat\0fstat64\0fstatat\0fstatfs\0"
++	"fstatfs64\0fsync\0ftime\0ftruncate\0ftruncate64\0futex\0futimesat\0get_kernel_syms\0get_robust_list\0getcpu\0"
++	"getcwd\0getdents\0getdents64\0getegid\0geteuid\0getgid\0getgroups\0getitimer\0getpeername\0getpgid\0"
++	"getpgrp\0getpid\0getpmsg\0getppid\0getpriority\0getresgid\0getresuid\0getrlimit\0getrusage\0getsid\0"
++	"getsockname\0getsockopt\0gettid\0gettimeofday\0getuid\0getxattr\0gtty\0idle\0init_module\0inotify_add_watch\0"
++	"inotify_init\0inotify_init1\0inotify_rm_watch\0io_cancel\0io_destroy\0io_getevents\0io_setup\0io_submit\0ioctl\0ioperm\0"
++	"iopl\0ioprio_get\0ioprio_set\0ipc\0kcmp\0kexec_load\0keyctl\0kill\0lchown\0lgetxattr\0"
++	"link\0linkat\0listen\0listxattr\0llistxattr\0lock\0lookup_dcookie\0lremovexattr\0lseek\0lsetxattr\0"
++	"lstat\0lstat64\0madvise\0mincore\0mkdir\0mkdirat\0mknod\0mknodat\0mlock\0mlockall\0"
++	"mmap\0mmap2\0modify_ldt\0mount\0move_pages\0mprotect\0mpx\0mq_getsetattr\0mq_notify\0mq_open\0"
++	"mq_timedreceive\0mq_timedsend\0mq_unlink\0mremap\0msync\0multiplexer\0munlock\0munlockall\0munmap\0name_to_handle_at\0"
++	"nanosleep\0nfsservctl\0nice\0oldfstat\0oldlstat\0oldolduname\0oldstat\0olduname\0open\0open_by_handle_at\0"
++	"openat\0pause\0pciconfig_iobase\0pciconfig_read\0pciconfig_write\0perf_counter_open\0personality\0pipe\0pipe2\0pivot_root\0"
++	"poll\0ppoll\0prctl\0pread\0preadv\0prlimit64\0process_vm_readv\0process_vm_writev\0prof\0profil\0"
++	"pselect6\0ptrace\0putpmsg\0pwrite\0pwritev\0query_module\0quotactl\0read\0readahead\0readdir\0"
++	"readlink\0readlinkat\0readv\0reboot\0recv\0recvfrom\0recvmmsg\0recvmsg\0remap_file_pages\0removexattr\0"
++	"rename\0renameat\0request_key\0rmdir\0rt_sigaction\0rt_sigpending\0rt_sigprocmask\0rt_sigqueueinfo\0rt_sigreturn\0rt_sigsuspend\0"
++	"rt_sigtimedwait\0rt_tgsigqueueinfo\0rtas\0sched_get_priority_max\0sched_get_priority_min\0sched_getaffinity\0sched_getparam\0sched_getscheduler\0sched_rr_get_interval\0sched_setaffinity\0"
++	"sched_setparam\0sched_setscheduler\0sched_yield\0select\0send\0sendfile\0sendfile64\0sendmmsg\0sendmsg\0sendto\0"
++	"set_robust_list\0set_tid_address\0setdomainname\0setfsgid\0setfsuid\0setgid\0setgroups\0sethostname\0setitimer\0setns\0"
++	"setpgid\0setpriority\0setregid\0setresgid\0setresuid\0setreuid\0setrlimit\0setsid\0setsockopt\0settimeofday\0"
++	"setuid\0setxattr\0sgetmask\0shutdown\0sigaction\0sigaltstack\0signal\0signalfd\0signalfd4\0sigpending\0"
++	"sigprocmask\0sigreturn\0sigsuspend\0socket\0socketcall\0socketpair\0splice\0spu_create\0spu_run\0ssetmask\0"
++	"stat\0stat64\0statfs\0statfs64\0stime\0stty\0subpage_prot\0swapcontext\0swapoff\0swapon\0"
++	"symlink\0symlinkat\0sync\0sync_file_range2\0syncfs\0sysfs\0sysinfo\0syslog\0tee\0tgkill\0"
++	"time\0timer_create\0timer_delete\0timer_getoverrun\0timer_gettime\0timer_settime\0timerfd\0timerfd_gettime\0timerfd_settime\0times\0"
++	"tkill\0truncate\0truncate64\0tuxcall\0ugetrlimit\0ulimit\0umask\0umount\0umount2\0uname\0"
++	"unlink\0unlinkat\0unshare\0uselib\0ustat\0utime\0utimensat\0utimes\0vfork\0vhangup\0"
++	"vm86\0vmsplice\0wait4\0waitid\0waitpid\0write\0writev";
++static const unsigned ppc_syscall_s2i_s[] = {
++	0,8,19,27,34,42,49,54,62,71,
++	83,89,97,102,108,112,119,126,132,138,
++	144,151,165,178,192,208,222,228,234,242,
++	248,262,276,280,285,290,303,317,327,339,
++	350,358,367,374,379,390,400,410,423,433,
++	447,461,468,475,484,491,500,506,514,524,
++	534,547,558,564,569,582,592,598,606,614,
++	622,632,638,644,654,666,672,682,698,714,
++	721,728,737,748,756,764,771,781,791,803,
++	811,819,826,834,842,854,864,874,884,894,
++	901,913,924,931,944,951,960,965,970,982,
++	1000,1013,1027,1044,1054,1065,1078,1087,1097,1103,
++	1110,1115,1126,1137,1141,1146,1157,1164,1169,1176,
++	1186,1191,1198,1205,1215,1226,1231,1246,1259,1265,
++	1275,1281,1289,1297,1305,1311,1319,1325,1333,1339,
++	1348,1353,1359,1370,1376,1387,1396,1400,1414,1424,
++	1432,1448,1461,1471,1478,1484,1496,1504,1515,1522,
++	1540,1550,1561,1566,1575,1584,1596,1604,1613,1618,
++	1636,1643,1649,1666,1681,1697,1715,1727,1732,1738,
++	1749,1754,1760,1766,1772,1779,1789,1806,1824,1829,
++	1836,1845,1852,1860,1867,1875,1888,1897,1902,1912,
++	1920,1929,1940,1946,1953,1958,1967,1976,1984,2001,
++	2013,2020,2029,2041,2047,2060,2074,2089,2105,2118,
++	2132,2148,2166,2171,2194,2217,2235,2250,2269,2291,
++	2309,2324,2343,2355,2362,2367,2376,2387,2396,2404,
++	2411,2427,2443,2457,2466,2475,2482,2492,2504,2514,
++	2520,2528,2540,2549,2559,2569,2578,2588,2595,2606,
++	2619,2626,2635,2644,2653,2663,2675,2682,2691,2701,
++	2712,2724,2734,2745,2752,2763,2774,2781,2792,2800,
++	2809,2814,2821,2828,2837,2843,2848,2861,2873,2881,
++	2888,2896,2906,2911,2928,2935,2941,2949,2956,2960,
++	2967,2972,2985,2998,3015,3029,3043,3051,3067,3083,
++	3089,3095,3104,3115,3123,3134,3141,3147,3154,3162,
++	3168,3175,3184,3192,3199,3205,3211,3221,3228,3234,
++	3242,3247,3256,3262,3269,3277,3283,
++};
++static const int ppc_syscall_s2i_i[] = {
++	140,142,149,330,344,33,51,269,124,137,
++	27,134,327,17,45,183,184,12,15,181,
++	61,347,247,246,248,245,120,6,328,8,
++	127,129,41,63,316,236,315,237,303,238,
++	307,314,11,1,234,298,233,254,309,323,
++	324,133,94,297,95,289,55,204,148,214,
++	353,217,143,2,220,211,108,197,291,100,
++	253,118,35,93,194,221,290,130,299,302,
++	182,141,202,50,49,47,80,105,332,132,
++	65,20,187,64,96,170,165,76,77,147,
++	331,340,207,78,24,212,32,112,128,276,
++	275,318,277,231,228,229,227,230,54,101,
++	110,274,273,117,354,268,271,37,16,213,
++	9,294,329,215,216,53,235,219,19,210,
++	107,196,205,206,39,287,14,288,150,152,
++	90,192,123,21,301,125,56,267,266,262,
++	265,264,263,163,144,201,151,153,91,345,
++	162,168,34,28,84,59,18,109,5,346,
++	286,29,200,198,199,319,136,42,317,203,
++	167,281,171,179,320,325,351,352,44,98,
++	280,26,188,180,321,166,131,3,191,89,
++	85,296,145,88,336,337,343,342,239,218,
++	38,293,270,40,173,175,174,177,172,178,
++	176,322,255,159,160,223,155,157,161,222,
++	154,156,158,82,334,186,226,349,341,335,
++	300,232,121,139,138,46,81,74,104,350,
++	57,97,71,169,164,70,75,66,339,79,
++	23,209,68,338,67,185,48,305,313,73,
++	126,119,72,326,102,333,283,279,278,69,
++	106,195,99,252,25,31,310,249,115,87,
++	83,295,36,308,348,135,116,103,284,250,
++	13,240,244,243,242,241,306,312,311,43,
++	208,92,193,225,190,58,60,22,52,122,
++	10,292,282,86,62,30,304,251,189,111,
++	113,285,114,272,7,4,146,
++};
++static int ppc_syscall_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISUPPER(c) ? c - 'A' + 'a' : c;
++	}
++	copy[i] = 0;
++	return s2i__(ppc_syscall_strings, ppc_syscall_s2i_s, ppc_syscall_s2i_i, 347, copy, value);
++	}
++}
++static const unsigned ppc_syscall_i2s_direct[] = {
++	374,564,1897,3277,1613,228,3269,242,1186,3168,
++	367,126,2967,1319,132,1169,102,1596,1259,819,
++	1370,3147,2619,944,2837,1845,83,1566,1643,3205,
++	2843,960,42,1561,638,2906,1164,2013,1305,2041,
++	276,1727,3083,1824,108,2475,764,2675,756,748,
++	49,3154,1226,1097,500,1396,2520,3134,1584,3141,
++	144,3199,280,834,811,2588,2653,2635,2800,2569,
++	2540,2734,2701,2492,2578,874,884,931,2606,771,
++	2482,2355,2888,1575,1920,3192,2881,1946,1912,1348,
++	1515,3095,644,468,484,842,2528,1829,2821,614,
++	1103,2752,2949,2504,781,2809,1275,592,1604,1110,
++	3234,965,3242,3256,2873,2941,1137,632,2724,222,
++	2443,3162,1359,62,1387,2712,248,970,262,682,
++	1888,803,461,89,2935,1715,71,2466,2457,0,
++	728,8,558,1478,1940,3283,894,514,19,1333,
++	1496,1339,1504,2309,2235,2324,2250,2343,2171,2194,
++	2269,1540,1471,2559,864,1875,1749,1550,2549,854,
++	1760,2105,2047,2074,2060,2132,2089,2118,1766,1860,
++	138,721,112,119,2663,2367,826,1852,3228,3123,
++	1902,1353,3104,654,2814,1281,598,1666,1681,1649,
++	1484,737,1738,506,1289,1297,924,3089,2626,1265,
++	582,951,1176,524,1205,1215,547,2001,1246,569,
++	666,2291,2217,-1u,3115,2376,1078,1054,1065,1087,
++	1044,2427,400,379,1231,290,317,339,1984,2972,
++	3029,3015,2998,2985,208,178,165,192,2861,2960,
++	3221,2828,622,410,2166,-1u,-1u,-1u,-1u,-1u,
++	-1u,1424,1461,1448,1432,1414,1400,1146,54,2029,
++	1157,3262,1126,1115,1000,982,1027,2792,2781,1836,
++	1754,3184,2774,2956,3247,1636,1311,1325,491,672,
++	606,3175,2020,1191,2896,1929,475,390,698,2411,
++	1376,714,327,3211,2682,3043,350,2911,423,2848,
++	3067,3051,2691,358,303,285,1732,1013,1697,1772,
++	1867,2148,433,447,1779,2745,97,234,1198,27,
++	901,791,2763,2362,2404,1953,1958,2644,2595,913,
++	2396,1976,1967,34,1522,1618,151,2928,2387,2514,
++	1789,1806,534,1141,
++};
++static const char *ppc_syscall_i2s(int v) {
++	return i2s_direct__(ppc_syscall_strings, ppc_syscall_i2s_direct, 1, 354, v);
++}
+diff --git a/lib/s390_tables.h b/lib/s390_tables.h
+new file mode 100644
+index 0000000..218482e
+--- /dev/null
++++ b/lib/s390_tables.h
+@@ -0,0 +1,153 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char s390_syscall_strings[] = "_llseek\0_newselect\0_sysctl\0access\0acct\0add_key\0adjtimex\0afs_syscall\0alarm\0bdflush\0"
++	"brk\0capget\0capset\0chdir\0chmod\0chown\0chown32\0chroot\0clock_adjtime\0clock_getres\0"
++	"clock_gettime\0clock_nanosleep\0clock_settime\0clone\0close\0creat\0create_module\0delete_module\0dup\0dup2\0"
++	"dup3\0epoll_create\0epoll_create1\0epoll_ctl\0epoll_pwait\0epoll_wait\0eventfd\0eventfd2\0execve\0exit\0"
++	"exit_group\0faccessat\0fadvise64\0fadvise64_64\0fallocate\0fanotify_init\0fanotify_mark\0fchdir\0fchmod\0fchmodat\0"
++	"fchown\0fchown32\0fchownat\0fcntl\0fcntl64\0fdatasync\0fgetxattr\0finit_module\0flistxattr\0flock\0"
++	"fork\0fremovexattr\0fsetxattr\0fstat\0fstat64\0fstatat\0fstatfs\0fstatfs64\0fsync\0ftruncate\0"
++	"ftruncate64\0futex\0futimesat\0get_kernel_syms\0get_robust_list\0getcpu\0getcwd\0getdents\0getdents64\0getegid\0"
++	"getegid32\0geteuid\0geteuid32\0getgid\0getgid32\0getgroups\0getgroups32\0getitimer\0getpgid\0getpgrp\0"
++	"getpid\0getpmsg\0getppid\0getpriority\0getresgid\0getresgid32\0getresuid\0getresuid32\0getrlimit\0getrusage\0"
++	"getsid\0gettid\0gettimeofday\0getuid\0getuid32\0getxattr\0idle\0init_module\0inotify_add_watch\0inotify_init\0"
++	"inotify_init1\0inotify_rm_watch\0io_cancel\0io_destroy\0io_getevents\0io_setup\0io_submit\0ioctl\0ioperm\0ioprio_get\0"
++	"ioprio_set\0ipc\0kcmp\0kexec_load\0keyctl\0kill\0lchown\0lchown32\0lgetxattr\0link\0"
++	"linkat\0listxattr\0llistxattr\0lremovexattr\0lseek\0lsetxattr\0lstat\0lstat64\0madvise\0mincore\0"
++	"mkdir\0mkdirat\0mknod\0mknodat\0mlock\0mlockall\0mmap\0mmap2\0mount\0mprotect\0"
++	"mq_getsetattr\0mq_notify\0mq_open\0mq_timedreceive\0mq_timedsend\0mq_unlink\0mremap\0msync\0munlock\0munlockall\0"
++	"munmap\0name_to_handle_at\0nanosleep\0nfsservctl\0nice\0open\0open_by_handle_at\0openat\0pause\0perf_event_open\0"
++	"personality\0pipe\0pipe2\0pivot_root\0poll\0ppoll\0prctl\0pread\0preadv\0prlimit64\0"
++	"process_vm_readv\0process_vm_writev\0pselect6\0ptrace\0putpmsg\0pwrite\0pwritev\0query_module\0quotactl\0read\0"
++	"readahead\0readdir\0readlink\0readlinkat\0readv\0reboot\0remap_file_pages\0removexattr\0rename\0renameat\0"
++	"request_key\0rmdir\0rt_sigaction\0rt_sigpending\0rt_sigprocmask\0rt_sigqueueinfo\0rt_sigreturn\0rt_sigsuspend\0rt_sigtimedwait\0rt_tgsigqueueinfo\0"
++	"s390_runtime_instr\0sched_get_priority_max\0sched_get_priority_min\0sched_getaffinity\0sched_getparam\0sched_getscheduler\0sched_rr_get_interval\0sched_setaffinity\0sched_setparam\0sched_setscheduler\0"
++	"sched_yield\0sendfile\0sendfile64\0set_robust_list\0set_tid_address\0setdomainname\0setfsgid\0setfsgid32\0setfsuid\0setfsuid32\0"
++	"setgid\0setgid32\0setgroups\0setgroups32\0sethostname\0setitimer\0setns\0setpgid\0setpriority\0setregid\0"
++	"setregid32\0setresgid\0setresgid32\0setresuid\0setresuid32\0setreuid\0setreuid32\0setrlimit\0setsid\0settimeofday\0"
++	"setuid\0setuid32\0setxattr\0sigaction\0sigaltstack\0signal\0signalfd\0signalfd4\0sigpending\0sigprocmask\0"
++	"sigreturn\0sigsuspend\0socketcall\0splice\0stat\0stat64\0statfs\0statfs64\0stime\0swapoff\0"
++	"swapon\0symlink\0symlinkat\0sync\0sync_file_range\0syncfs\0sysfs\0sysinfo\0syslog\0tee\0"
++	"tgkill\0time\0timer_create\0timer_delete\0timer_getoverrun\0timer_gettime\0timer_settime\0timerfd\0timerfd_create\0timerfd_gettime\0"
++	"timerfd_settime\0times\0tkill\0truncate\0truncate64\0ugetrlimit\0umask\0umount\0umount2\0uname\0"
++	"unlink\0unlinkat\0unshare\0uselib\0ustat\0utime\0utimensat\0utimes\0vfork\0vhangup\0"
++	"vmsplice\0wait4\0waitid\0write\0writev";
++static const unsigned s390_syscall_s2i_s[] = {
++	0,8,19,27,34,39,47,56,68,74,
++	82,86,93,100,106,112,118,126,133,147,
++	160,174,190,204,210,216,222,236,250,254,
++	259,264,277,291,301,313,324,332,341,348,
++	353,364,374,384,397,407,421,435,442,449,
++	458,465,474,483,489,497,507,517,530,541,
++	547,552,565,575,581,589,597,605,615,621,
++	631,643,649,659,675,691,698,705,714,725,
++	733,743,751,761,768,777,787,799,809,817,
++	825,832,840,848,860,870,882,892,904,914,
++	924,931,938,951,958,967,976,981,993,1011,
++	1024,1038,1055,1065,1076,1089,1098,1108,1114,1121,
++	1132,1143,1147,1152,1163,1170,1175,1182,1191,1201,
++	1206,1213,1223,1234,1247,1253,1263,1269,1277,1285,
++	1293,1299,1307,1313,1321,1327,1336,1341,1347,1353,
++	1362,1376,1386,1394,1410,1423,1433,1440,1446,1454,
++	1465,1472,1490,1500,1511,1516,1521,1539,1546,1552,
++	1568,1580,1585,1591,1602,1607,1613,1619,1625,1632,
++	1642,1659,1677,1686,1693,1701,1708,1716,1729,1738,
++	1743,1753,1761,1770,1781,1787,1794,1811,1823,1830,
++	1839,1851,1857,1870,1884,1899,1915,1928,1942,1958,
++	1976,1995,2018,2041,2059,2074,2093,2115,2133,2148,
++	2167,2179,2188,2199,2215,2231,2245,2254,2265,2274,
++	2285,2292,2301,2311,2323,2335,2345,2351,2359,2371,
++	2380,2391,2401,2413,2423,2435,2444,2455,2465,2472,
++	2485,2492,2501,2510,2520,2532,2539,2548,2558,2569,
++	2581,2591,2602,2613,2620,2625,2632,2639,2648,2654,
++	2662,2669,2677,2687,2692,2708,2715,2721,2729,2736,
++	2740,2747,2752,2765,2778,2795,2809,2823,2831,2846,
++	2862,2878,2884,2890,2899,2910,2921,2927,2934,2942,
++	2948,2955,2964,2972,2979,2985,2991,3001,3008,3014,
++	3022,3031,3037,3044,3050,
++};
++static const int s390_syscall_s2i_i[] = {
++	140,142,149,33,51,278,124,137,27,134,
++	45,184,185,12,15,182,212,61,337,261,
++	260,262,259,120,6,8,127,129,41,63,
++	326,249,327,250,312,251,318,323,11,1,
++	248,300,253,264,314,332,333,133,94,299,
++	95,207,291,55,221,148,229,344,232,143,
++	2,235,226,108,197,293,100,266,118,93,
++	194,238,292,130,305,311,183,141,220,50,
++	202,49,201,47,200,80,205,105,132,65,
++	20,188,64,96,171,211,165,209,76,77,
++	147,236,78,24,199,227,112,128,285,284,
++	324,286,247,244,245,243,246,54,101,283,
++	282,117,343,277,280,37,16,198,228,9,
++	296,230,231,234,19,225,107,196,219,218,
++	39,289,14,290,150,152,90,192,21,125,
++	276,275,271,274,273,272,163,144,151,153,
++	91,335,162,169,34,5,336,288,29,331,
++	136,42,325,217,168,302,172,180,328,334,
++	340,341,301,26,189,181,329,167,131,3,
++	222,89,85,298,145,88,267,233,38,295,
++	279,40,174,176,175,178,173,179,177,330,
++	342,159,160,240,155,157,161,239,154,156,
++	158,187,223,304,252,121,139,216,138,215,
++	46,214,81,206,74,104,339,57,97,71,
++	204,170,210,164,208,70,203,75,66,79,
++	23,213,224,67,186,48,316,322,73,126,
++	119,72,102,306,106,195,99,265,25,115,
++	87,83,297,36,307,338,135,116,103,308,
++	241,13,254,258,257,256,255,317,319,321,
++	320,43,237,92,193,191,60,22,52,122,
++	10,294,303,86,62,30,315,313,190,111,
++	309,114,281,4,146,
++};
++static int s390_syscall_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISUPPER(c) ? c - 'A' + 'a' : c;
++	}
++	copy[i] = 0;
++	return s2i__(s390_syscall_strings, s390_syscall_s2i_s, s390_syscall_s2i_i, 315, copy, value);
++	}
++}
++static const unsigned s390_syscall_i2s_direct[] = {
++	348,547,1738,3044,1516,210,-1u,216,1201,2948,
++	341,100,2747,1307,106,1175,-1u,-1u,1247,825,
++	1347,2927,2485,951,2648,1686,68,-1u,1546,2985,
++	-1u,-1u,27,1511,-1u,2687,1170,1823,1293,1851,
++	250,1580,2878,-1u,82,2285,761,2532,743,725,
++	34,2934,-1u,1108,483,-1u,2351,-1u,-1u,2921,
++	126,2979,254,840,817,2465,2510,-1u,-1u,2435,
++	2371,2591,2558,2323,2455,904,914,938,2472,777,
++	2301,-1u,2669,-1u,1761,2972,2662,1787,1753,1336,
++	1465,2890,621,442,458,848,2359,-1u,2632,597,
++	1114,2602,2729,2335,799,2620,1263,575,-1u,-1u,
++	3014,976,-1u,3031,2654,2721,1143,615,2581,204,
++	2231,2942,-1u,47,1353,2569,222,981,236,659,
++	1729,809,435,74,2715,1568,56,2265,2245,0,
++	705,8,541,1440,1781,3050,924,497,19,1321,
++	1446,1327,1454,2133,2059,2148,2074,2167,1995,2018,
++	2093,1490,1433,2413,882,-1u,1716,1602,1500,2391,
++	860,1613,1915,1857,1884,1870,1942,1899,1928,1619,
++	1701,112,698,86,93,2520,2179,832,1693,3008,
++	2910,1341,2899,631,2625,1269,581,1182,958,768,
++	751,733,2444,2380,787,2311,465,2423,892,2401,
++	870,118,2492,2292,2274,2254,1591,1285,1277,714,
++	489,1743,2188,2501,1253,565,967,1191,507,1213,
++	1223,530,1811,1234,552,931,2884,643,2115,2041,
++	2740,-1u,1089,1065,1076,1098,1055,353,264,291,
++	313,2215,374,2752,2809,2795,2778,2765,190,160,
++	147,174,-1u,384,2639,605,1794,-1u,-1u,-1u,
++	1386,1423,1410,1394,1376,1362,1152,39,1839,1163,
++	3037,1132,1121,1011,993,1038,-1u,1539,1299,1313,
++	474,649,589,2955,1830,1206,2677,1770,449,364,
++	1677,1607,2964,2199,675,2613,2692,2736,3022,-1u,
++	691,301,3001,397,2991,2539,2823,324,2831,2862,
++	2846,2548,332,1024,1585,259,277,1625,1708,1958,
++	1552,407,421,1632,1472,1521,133,2708,2345,1642,
++	1659,1976,1147,517,
++};
++static const char *s390_syscall_i2s(int v) {
++	return i2s_direct__(s390_syscall_strings, s390_syscall_i2s_direct, 1, 344, v);
++}
+diff --git a/lib/s390x_tables.h b/lib/s390x_tables.h
+new file mode 100644
+index 0000000..36099fc
+--- /dev/null
++++ b/lib/s390x_tables.h
+@@ -0,0 +1,144 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char s390x_syscall_strings[] = "_sysctl\0access\0acct\0add_key\0adjtimex\0afs_syscall\0alarm\0bdflush\0brk\0capget\0"
++	"capset\0chdir\0chmod\0chown\0chroot\0clock_adjtime\0clock_getres\0clock_gettime\0clock_nanosleep\0clock_settime\0"
++	"clone\0close\0creat\0create_module\0delete_module\0dup\0dup2\0dup3\0epoll_create\0epoll_create1\0"
++	"epoll_ctl\0epoll_pwait\0epoll_wait\0eventfd\0eventfd2\0execve\0exit\0exit_group\0faccessat\0fadvise64\0"
++	"fallocate\0fanotify_init\0fanotify_mark\0fchdir\0fchmod\0fchmodat\0fchown\0fchownat\0fcntl\0fdatasync\0"
++	"fgetxattr\0finit_module\0flistxattr\0flock\0fork\0fremovexattr\0fsetxattr\0fstat\0fstatfs\0fstatfs64\0"
++	"fsync\0ftruncate\0futex\0futimesat\0get_kernel_syms\0get_robust_list\0getcpu\0getcwd\0getdents\0getegid\0"
++	"geteuid\0getgid\0getgroups\0getitimer\0getpgid\0getpgrp\0getpid\0getpmsg\0getppid\0getpriority\0"
++	"getresgid\0getresuid\0getrlimit\0getrusage\0getsid\0gettid\0gettimeofday\0getuid\0getxattr\0idle\0"
++	"init_module\0inotify_add_watch\0inotify_init\0inotify_init1\0inotify_rm_watch\0io_cancel\0io_destroy\0io_getevents\0io_setup\0io_submit\0"
++	"ioctl\0ioprio_get\0ioprio_set\0ipc\0kcmp\0kexec_load\0keyctl\0kill\0lchown\0lgetxattr\0"
++	"link\0linkat\0listxattr\0llistxattr\0lremovexattr\0lseek\0lsetxattr\0lstat\0madvise\0mincore\0"
++	"mkdir\0mkdirat\0mknod\0mknodat\0mlock\0mlockall\0mmap\0mount\0mprotect\0mq_getsetattr\0"
++	"mq_notify\0mq_open\0mq_timedreceive\0mq_timedsend\0mq_unlink\0mremap\0msync\0munlock\0munlockall\0munmap\0"
++	"name_to_handle_at\0nanosleep\0newfstatat\0nfsservctl\0nice\0open\0open_by_handle_at\0openat\0pause\0perf_event_open\0"
++	"personality\0pipe\0pipe2\0pivot_root\0poll\0ppoll\0prctl\0pread\0preadv\0prlimit64\0"
++	"process_vm_readv\0process_vm_writev\0pselect6\0ptrace\0putpmsg\0pwrite\0pwritev\0query_module\0quotactl\0read\0"
++	"readahead\0readdir\0readlink\0readlinkat\0readv\0reboot\0remap_file_pages\0removexattr\0rename\0renameat\0"
++	"request_key\0rmdir\0rt_sigaction\0rt_sigpending\0rt_sigprocmask\0rt_sigqueueinfo\0rt_sigreturn\0rt_sigsuspend\0rt_sigtimedwait\0rt_tgsigqueueinfo\0"
++	"s390_runtime_instr\0sched_get_priority_max\0sched_get_priority_min\0sched_getaffinity\0sched_getparam\0sched_getscheduler\0sched_rr_get_interval\0sched_setaffinity\0sched_setparam\0sched_setscheduler\0"
++	"sched_yield\0select\0sendfile\0set_robust_list\0set_tid_address\0setdomainname\0setfsgid\0setfsuid\0setgid\0setgroups\0"
++	"sethostname\0setitimer\0setns\0setpgid\0setpriority\0setregid\0setresgid\0setresuid\0setreuid\0setrlimit\0"
++	"setsid\0settimeofday\0setuid\0setxattr\0sigaction\0sigaltstack\0signal\0signalfd\0signalfd4\0sigpending\0"
++	"sigprocmask\0sigreturn\0sigsuspend\0socketcall\0splice\0stat\0statfs\0statfs64\0swapoff\0swapon\0"
++	"symlink\0symlinkat\0sync\0sync_file_range\0syncfs\0sysfs\0sysinfo\0syslog\0tee\0tgkill\0"
++	"timer_create\0timer_delete\0timer_getoverrun\0timer_gettime\0timer_settime\0timerfd\0timerfd_create\0timerfd_gettime\0timerfd_settime\0times\0"
++	"tkill\0truncate\0umask\0umount\0umount2\0uname\0unlink\0unlinkat\0unshare\0uselib\0"
++	"ustat\0utime\0utimensat\0utimes\0vfork\0vhangup\0vmsplice\0wait4\0waitid\0write\0"
++	"writev";
++static const unsigned s390x_syscall_s2i_s[] = {
++	0,8,15,20,28,37,49,55,63,67,
++	74,81,87,93,99,106,120,133,147,163,
++	177,183,189,195,209,223,227,232,237,250,
++	264,274,286,297,305,314,321,326,337,347,
++	357,367,381,395,402,409,418,425,434,440,
++	450,460,473,484,490,495,508,518,524,532,
++	542,548,558,564,574,590,606,613,620,629,
++	637,645,652,662,672,680,688,695,703,711,
++	723,733,743,753,763,770,777,790,797,806,
++	811,823,841,854,868,885,895,906,919,928,
++	938,944,955,966,970,975,986,993,998,1005,
++	1015,1020,1027,1037,1048,1061,1067,1077,1083,1091,
++	1099,1105,1113,1119,1127,1133,1142,1147,1153,1162,
++	1176,1186,1194,1210,1223,1233,1240,1246,1254,1265,
++	1272,1290,1300,1311,1322,1327,1332,1350,1357,1363,
++	1379,1391,1396,1402,1413,1418,1424,1430,1436,1443,
++	1453,1470,1488,1497,1504,1512,1519,1527,1540,1549,
++	1554,1564,1572,1581,1592,1598,1605,1622,1634,1641,
++	1650,1662,1668,1681,1695,1710,1726,1739,1753,1769,
++	1787,1806,1829,1852,1870,1885,1904,1926,1944,1959,
++	1978,1990,1997,2006,2022,2038,2052,2061,2070,2077,
++	2087,2099,2109,2115,2123,2135,2144,2154,2164,2173,
++	2183,2190,2203,2210,2219,2229,2241,2248,2257,2267,
++	2278,2290,2300,2311,2322,2329,2334,2341,2350,2358,
++	2365,2373,2383,2388,2404,2411,2417,2425,2432,2436,
++	2443,2456,2469,2486,2500,2514,2522,2537,2553,2569,
++	2575,2581,2590,2596,2603,2611,2617,2624,2633,2641,
++	2648,2654,2660,2670,2677,2683,2691,2700,2706,2713,
++	2719,
++};
++static const int s390x_syscall_s2i_i[] = {
++	149,33,51,278,124,137,27,134,45,184,
++	185,12,15,212,61,337,261,260,262,259,
++	120,6,8,127,129,41,63,326,249,327,
++	250,312,251,318,323,11,1,248,300,253,
++	314,332,333,133,94,299,207,291,55,148,
++	229,344,232,143,2,235,226,108,100,266,
++	118,93,238,292,130,305,311,183,141,202,
++	201,200,205,105,132,65,20,188,64,96,
++	211,209,191,77,147,236,78,199,227,112,
++	128,285,284,324,286,247,244,245,243,246,
++	54,283,282,117,343,277,280,37,198,228,
++	9,296,230,231,234,19,225,107,219,218,
++	39,289,14,290,150,152,90,21,125,276,
++	275,271,274,273,272,163,144,151,153,91,
++	335,162,293,169,34,5,336,288,29,331,
++	136,42,325,217,168,302,172,180,328,334,
++	340,341,301,26,189,181,329,167,131,3,
++	222,89,85,298,145,88,267,233,38,295,
++	279,40,174,176,175,178,173,179,177,330,
++	342,159,160,240,155,157,161,239,154,156,
++	158,142,187,304,252,121,216,215,214,206,
++	74,104,339,57,97,204,210,208,203,75,
++	66,79,213,224,67,186,48,316,322,73,
++	126,119,72,102,306,106,99,265,115,87,
++	83,297,36,307,338,135,116,103,308,241,
++	254,258,257,256,255,317,319,321,320,43,
++	237,92,60,22,52,122,10,294,303,86,
++	62,30,315,313,190,111,309,114,281,4,
++	146,
++};
++static int s390x_syscall_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISUPPER(c) ? c - 'A' + 'a' : c;
++	}
++	copy[i] = 0;
++	return s2i__(s390x_syscall_strings, s390x_syscall_s2i_s, s390x_syscall_s2i_i, 281, copy, value);
++	}
++}
++static const unsigned s390x_syscall_i2s_direct[] = {
++	321,490,1549,2713,1327,183,-1u,189,1015,2617,
++	314,81,-1u,1113,87,-1u,-1u,-1u,1061,688,
++	1147,2596,-1u,-1u,-1u,1497,49,-1u,1357,2654,
++	-1u,-1u,8,1322,-1u,2383,993,1634,1099,1662,
++	223,1391,2569,-1u,63,-1u,-1u,2241,-1u,-1u,
++	15,2603,-1u,938,434,-1u,2115,-1u,-1u,2590,
++	99,2648,227,703,680,2183,2219,-1u,-1u,-1u,
++	-1u,2300,2267,2087,2173,-1u,753,777,2190,-1u,
++	-1u,-1u,2365,-1u,1572,2641,2358,1598,1564,1142,
++	1265,2581,548,402,-1u,711,2123,-1u,2334,524,
++	-1u,2311,2425,2099,662,2329,1077,518,-1u,-1u,
++	2683,806,-1u,2700,2350,2417,966,542,2290,177,
++	2038,2611,-1u,28,1153,2278,195,811,209,574,
++	1540,672,395,55,2411,1379,37,-1u,-1u,-1u,
++	620,1990,484,1240,1592,2719,763,440,0,1127,
++	1246,1133,1254,1944,1870,1959,1885,1978,1806,1829,
++	1904,1290,1233,-1u,-1u,-1u,1527,1413,1311,-1u,
++	-1u,1424,1726,1668,1695,1681,1753,1710,1739,1430,
++	1512,-1u,613,67,74,2229,1997,695,1504,2677,
++	743,-1u,-1u,-1u,-1u,-1u,-1u,998,790,645,
++	637,629,2164,2135,652,2077,418,2154,733,2144,
++	723,93,2203,2070,2061,2052,1402,1091,1083,-1u,
++	-1u,1554,-1u,2210,1067,508,797,1005,450,1027,
++	1037,473,1622,1048,495,770,2575,558,1926,1852,
++	2436,-1u,919,895,906,928,885,326,237,264,
++	286,2022,347,2443,2500,2486,2469,2456,163,133,
++	120,147,-1u,-1u,2341,532,1605,-1u,-1u,-1u,
++	1186,1223,1210,1194,1176,1162,975,20,1650,986,
++	2706,955,944,841,823,868,-1u,1350,1105,1119,
++	425,564,1300,2624,1641,1020,2373,1581,409,337,
++	1488,1418,2633,2006,590,2322,2388,2432,2691,-1u,
++	606,274,2670,357,2660,2248,2514,297,2522,2553,
++	2537,2257,305,854,1396,232,250,1436,1519,1769,
++	1363,367,381,1443,1272,1332,106,2404,2109,1453,
++	1470,1787,970,460,
++};
++static const char *s390x_syscall_i2s(int v) {
++	return i2s_direct__(s390x_syscall_strings, s390x_syscall_i2s_direct, 1, 344, v);
++}
+diff --git a/lib/x86_64_tables.h b/lib/x86_64_tables.h
+new file mode 100644
+index 0000000..d2a5673
+--- /dev/null
++++ b/lib/x86_64_tables.h
+@@ -0,0 +1,150 @@
++/* This is a generated file, see Makefile.am for its inputs. */
++static const char x86_64_syscall_strings[] = "_sysctl\0accept\0accept4\0access\0acct\0add_key\0adjtimex\0afs_syscall\0alarm\0arch_prctl\0"
++	"bind\0brk\0capget\0capset\0chdir\0chmod\0chown\0chroot\0clock_adjtime\0clock_getres\0"
++	"clock_gettime\0clock_nanosleep\0clock_settime\0clone\0close\0connect\0creat\0create_module\0delete_module\0dup\0"
++	"dup2\0dup3\0epoll_create\0epoll_create1\0epoll_ctl\0epoll_ctl_old\0epoll_pwait\0epoll_wait\0epoll_wait_old\0eventfd\0"
++	"eventfd2\0execve\0exit\0exit_group\0faccessat\0fadvise64\0fallocate\0fanotify_init\0fanotify_mark\0fchdir\0"
++	"fchmod\0fchmodat\0fchown\0fchownat\0fcntl\0fdatasync\0fgetxattr\0finit_module\0flistxattr\0flock\0"
++	"fork\0fremovexattr\0fsetxattr\0fstat\0fstatfs\0fsync\0ftruncate\0futex\0futimesat\0get_kernel_syms\0"
++	"get_mempolicy\0get_robust_list\0get_thread_area\0getcpu\0getcwd\0getdents\0getdents64\0getegid\0geteuid\0getgid\0"
++	"getgroups\0getitimer\0getpeername\0getpgid\0getpgrp\0getpid\0getpmsg\0getppid\0getpriority\0getresgid\0"
++	"getresuid\0getrlimit\0getrusage\0getsid\0getsockname\0getsockopt\0gettid\0gettimeofday\0getuid\0getxattr\0"
++	"init_module\0inotify_add_watch\0inotify_init\0inotify_init1\0inotify_rm_watch\0io_cancel\0io_destroy\0io_getevents\0io_setup\0io_submit\0"
++	"ioctl\0ioperm\0iopl\0ioprio_get\0ioprio_set\0kcmp\0kexec_load\0keyctl\0kill\0lchown\0"
++	"lgetxattr\0link\0linkat\0listen\0listxattr\0llistxattr\0lookup_dcookie\0lremovexattr\0lseek\0lsetxattr\0"
++	"lstat\0madvise\0mbind\0migrate_pages\0mincore\0mkdir\0mkdirat\0mknod\0mknodat\0mlock\0"
++	"mlockall\0mmap\0modify_ldt\0mount\0move_pages\0mprotect\0mq_getsetattr\0mq_notify\0mq_open\0mq_timedreceive\0"
++	"mq_timedsend\0mq_unlink\0mremap\0msgctl\0msgget\0msgrcv\0msgsnd\0msync\0munlock\0munlockall\0"
++	"munmap\0name_to_handle_at\0nanosleep\0newfstatat\0nfsservctl\0open\0open_by_handle_at\0openat\0pause\0perf_event_open\0"
++	"personality\0pipe\0pipe2\0pivot_root\0poll\0ppoll\0prctl\0pread\0preadv\0prlimit64\0"
++	"process_vm_readv\0process_vm_writev\0pselect6\0ptrace\0putpmsg\0pwrite\0pwritev\0query_module\0quotactl\0read\0"
++	"readahead\0readlink\0readlinkat\0readv\0reboot\0recvfrom\0recvmmsg\0recvmsg\0remap_file_pages\0removexattr\0"
++	"rename\0renameat\0request_key\0restart_syscall\0rmdir\0rt_sigaction\0rt_sigpending\0rt_sigprocmask\0rt_sigqueueinfo\0rt_sigreturn\0"
++	"rt_sigsuspend\0rt_sigtimedwait\0rt_tgsigqueueinfo\0sched_get_priority_max\0sched_get_priority_min\0sched_getaffinity\0sched_getparam\0sched_getscheduler\0sched_rr_get_interval\0sched_setaffinity\0"
++	"sched_setparam\0sched_setscheduler\0sched_yield\0security\0select\0semctl\0semget\0semop\0semtimedop\0sendfile\0"
++	"sendmmsg\0sendmsg\0sendto\0set_mempolicy\0set_robust_list\0set_thread_area\0set_tid_address\0setdomainname\0setfsgid\0setfsuid\0"
++	"setgid\0setgroups\0sethostname\0setitimer\0setns\0setpgid\0setpriority\0setregid\0setresgid\0setresuid\0"
++	"setreuid\0setrlimit\0setsid\0setsockopt\0settimeofday\0setuid\0setxattr\0shmat\0shmctl\0shmdt\0"
++	"shmget\0shutdown\0sigaltstack\0signalfd\0signalfd4\0socket\0socketpair\0splice\0stat\0statfs\0"
++	"swapoff\0swapon\0symlink\0symlinkat\0sync\0sync_file_range\0syncfs\0sysfs\0sysinfo\0syslog\0"
++	"tee\0tgkill\0time\0timer_create\0timer_delete\0timer_getoverrun\0timer_gettime\0timer_settime\0timerfd\0timerfd_gettime\0"
++	"timerfd_settime\0times\0tkill\0truncate\0tuxcall\0umask\0umount2\0uname\0unlink\0unlinkat\0"
++	"unshare\0uselib\0ustat\0utime\0utimensat\0utimes\0vfork\0vhangup\0vmsplice\0vserver\0"
++	"wait4\0waitid\0write\0writev";
++static const unsigned x86_64_syscall_s2i_s[] = {
++	0,8,15,23,30,35,43,52,64,70,
++	81,86,90,97,104,110,116,122,129,143,
++	156,170,186,200,206,212,220,226,240,254,
++	258,263,268,281,295,305,319,331,342,357,
++	365,374,381,386,397,407,417,427,441,455,
++	462,469,478,485,494,500,510,520,533,544,
++	550,555,568,578,584,592,598,608,614,624,
++	640,654,670,686,693,700,709,720,728,736,
++	743,753,763,775,783,791,798,806,814,826,
++	836,846,856,866,873,885,896,903,916,923,
++	932,944,962,975,989,1006,1016,1027,1040,1049,
++	1059,1065,1072,1077,1088,1099,1104,1115,1122,1127,
++	1134,1144,1149,1156,1163,1173,1184,1199,1212,1218,
++	1228,1234,1242,1248,1262,1270,1276,1284,1290,1298,
++	1304,1313,1318,1329,1335,1346,1355,1369,1379,1387,
++	1403,1416,1426,1433,1440,1447,1454,1461,1467,1475,
++	1486,1493,1511,1521,1532,1543,1548,1566,1573,1579,
++	1595,1607,1612,1618,1629,1634,1640,1646,1652,1659,
++	1669,1686,1704,1713,1720,1728,1735,1743,1756,1765,
++	1770,1780,1789,1800,1806,1813,1822,1831,1839,1856,
++	1868,1875,1884,1896,1912,1918,1931,1945,1960,1976,
++	1989,2003,2019,2037,2060,2083,2101,2116,2135,2157,
++	2175,2190,2209,2221,2230,2237,2244,2251,2257,2268,
++	2277,2286,2294,2301,2315,2331,2347,2363,2377,2386,
++	2395,2402,2412,2424,2434,2440,2448,2460,2469,2479,
++	2489,2498,2508,2515,2526,2539,2546,2555,2561,2568,
++	2574,2581,2590,2602,2611,2621,2628,2639,2646,2651,
++	2658,2666,2673,2681,2691,2696,2712,2719,2725,2733,
++	2740,2744,2751,2756,2769,2782,2799,2813,2827,2835,
++	2851,2867,2873,2879,2888,2896,2902,2910,2916,2923,
++	2932,2940,2947,2953,2959,2969,2976,2982,2990,2999,
++	3007,3013,3020,3026,
++};
++static const int x86_64_syscall_s2i_i[] = {
++	156,43,288,21,163,248,159,183,37,158,
++	49,12,125,126,80,90,92,161,305,229,
++	228,230,227,56,3,42,85,174,176,32,
++	33,292,213,291,233,214,281,232,215,284,
++	290,59,60,231,269,221,285,300,301,81,
++	91,268,93,260,72,75,193,313,196,73,
++	57,199,190,5,138,74,77,202,261,177,
++	239,274,211,309,79,78,217,108,107,104,
++	115,36,52,121,111,39,181,110,140,120,
++	118,97,98,124,51,55,186,96,102,191,
++	175,254,253,294,255,210,207,208,206,209,
++	16,173,172,252,251,312,246,250,62,94,
++	192,86,265,50,194,195,212,198,8,189,
++	6,28,237,256,27,83,258,133,259,149,
++	151,9,154,165,279,10,245,244,240,243,
++	242,241,25,71,68,70,69,26,150,152,
++	11,303,35,262,180,2,304,257,34,298,
++	135,22,293,155,7,271,157,17,295,302,
++	310,311,270,101,182,18,296,178,179,0,
++	187,89,267,19,169,45,299,47,216,197,
++	82,264,249,219,84,13,127,14,129,15,
++	130,128,297,146,147,204,143,145,148,203,
++	142,144,24,185,23,66,64,65,220,40,
++	307,46,44,238,273,205,218,171,123,122,
++	106,116,170,38,308,109,141,114,119,117,
++	113,160,112,54,164,105,188,30,31,67,
++	29,48,131,282,289,41,53,275,4,137,
++	168,167,88,266,162,277,306,139,99,103,
++	276,234,201,222,226,225,224,223,283,287,
++	286,100,200,76,184,95,166,63,87,263,
++	272,134,136,132,280,235,58,153,278,236,
++	61,247,1,20,
++};
++static int x86_64_syscall_s2i(const char *s, int *value) {
++	size_t len, i;
++	len = strlen(s);
++	{ char copy[len + 1];
++	for (i = 0; i < len; i++) {
++		char c = s[i];
++		copy[i] = GT_ISUPPER(c) ? c - 'A' + 'a' : c;
++	}
++	copy[i] = 0;
++	return s2i__(x86_64_syscall_strings, x86_64_syscall_s2i_s, x86_64_syscall_s2i_i, 314, copy, value);
++	}
++}
++static const unsigned x86_64_syscall_i2s_direct[] = {
++	1765,3020,1543,206,2646,578,1228,1629,1212,1313,
++	1346,1486,86,1918,1945,1976,1059,1646,1728,1800,
++	3026,23,1607,2230,2209,1426,1461,1262,1234,2574,
++	2555,2561,254,258,1573,1511,753,64,2424,791,
++	2268,2621,212,8,2294,1813,2286,1831,2581,81,
++	1156,873,763,2628,2515,885,200,550,2976,374,
++	381,3007,1122,2910,2244,2251,2237,2568,1440,1454,
++	1447,1433,494,544,592,500,2879,598,700,693,
++	104,455,1868,1270,1912,220,1144,2916,2673,1780,
++	110,462,116,478,1127,2896,903,846,856,2725,
++	2867,1713,916,2733,736,2539,2395,728,720,2440,
++	806,783,2508,2489,2460,743,2402,2479,836,2469,
++	826,775,2386,2377,866,90,97,1931,2003,1960,
++	1989,2590,2953,1284,2940,1595,2947,2651,584,2719,
++	814,2448,2175,2101,2190,2116,2037,2060,2135,1298,
++	1467,1304,1475,2982,1318,1618,0,1640,70,43,
++	2498,122,2691,30,2526,1329,2902,2666,2658,1806,
++	2412,2363,1072,1065,226,932,240,624,1743,1756,
++	1532,798,1720,52,2888,2221,896,1770,2546,1218,
++	568,923,1134,510,1163,1173,533,1856,1199,555,
++	2873,2751,608,2157,2083,2331,1040,1016,1027,1049,
++	1006,670,1184,268,305,342,1839,709,2347,1896,
++	2257,407,2756,2813,2799,2782,2769,186,156,143,
++	170,386,331,295,2744,2969,2999,1242,2301,640,
++	1379,1416,1403,1387,1369,1355,1104,3013,35,1884,
++	1115,1088,1077,962,944,989,1248,1566,1276,1290,
++	485,614,1521,2923,1875,1149,2681,1789,469,397,
++	1704,1634,2932,2315,654,2639,2740,2696,2990,1335,
++	2959,319,2602,2827,357,417,2851,2835,15,2611,
++	365,281,263,1612,975,1652,1735,2019,1579,1822,
++	427,441,1659,1493,1548,129,2712,2277,2434,686,
++	1669,1686,1099,520,
++};
++static const char *x86_64_syscall_i2s(int v) {
++	return i2s_direct__(x86_64_syscall_strings, x86_64_syscall_i2s_direct, 0, 313, v);
++}
+-- 
+1.7.9.5
+
