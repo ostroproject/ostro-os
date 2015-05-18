@@ -81,6 +81,19 @@ Smack security, add the following entries to local.conf:
     # Having Smack utilities is useful.
     CORE_IMAGE_EXTRA_INSTALL += "smack-userspace"
 
+By default, enabling Smack as described above will also make Smack
+the default LSM when compiling the kernel, overriding the choice
+that may or may not have been made in the BSP kernel config.
+
+If that is not desired, a distro conf can use:
+    # Do not override default LSM configuration.
+    SMACK_DEFAULT_SECURITY ?= ""
+
+Using the weaker "?=" assignment allows a user to revert that
+choice once more in a local.conf with:
+    # Make Smack the default LSM.
+    SMACK_DEFAULT_SECURITY = "${SMACK_DEFAULT_SECURITY_CFG}"
+
 II. Misc
 ========
 
