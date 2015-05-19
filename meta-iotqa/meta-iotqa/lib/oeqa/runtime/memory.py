@@ -26,6 +26,7 @@ class MemTest(oeRuntimeTest):
         filename=os.path.basename(__file__)
         casename=os.path.splitext(filename)[0]
         (status,output) = self.target.run("free | grep 'Mem' | awk '{print $3}'")
+        output=output + "KB"
         collect_pnp_log(casename, output)        
         print "\n%s:%s\n" %(casename, output)
         self.assertEqual(status, 0, output)
