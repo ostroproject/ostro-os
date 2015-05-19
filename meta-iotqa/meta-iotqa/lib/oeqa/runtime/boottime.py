@@ -9,7 +9,7 @@ from oeqa.runtime.helper import collect_pnp_log
 class BootTimeTest(oeRuntimeTest):
 
     def _setup(self):
-        (status,output) = self.target.copy_to(os.path.join(oeRuntimeTest.tc.filesdir,'systemd-analyze'),"/tmp/systemd-analyze")
+        (status,output) = self.target.copy_to(os.path.join(os.path.dirname(__file__), 'files','systemd-analyze'),"/tmp/systemd-analyze")
         self.assertEqual(status, 0, msg="systemd-analyze could not be copied. Output: %s" % output)
         (status,output) = self.target.run(" ls -la /tmp/systemd-analyze")
         self.assertEqual(status, 0, msg="Failed to find systemd-analyze command")
