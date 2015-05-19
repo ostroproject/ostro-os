@@ -10,11 +10,11 @@ class IOtvtServer(oeRuntimeTest):
         (status, output) = self.target.run('mkdir -p /opt/iotivity-test/apps/iotivity-test/')
         (status, output) = self.target.run('ls /opt/iotivity-test/apps/iotivity-test/servertest')
         if status != 0:
-            (status,output) = self.target.copy_to(os.path.join(oeRuntimeTest.tc.filesdir,
+            (status,output) = self.target.copy_to(os.path.join(os.path.dirname(__file__),'files',
                           'servertest'), "/opt/iotivity-test/apps/iotivity-test/")
         (status, output) = self.target.run('ls /opt/iotivity-test/apps/iotivity-test/clienttest')
         if status != 0:
-            (status,output) = self.target.copy_to(os.path.join(oeRuntimeTest.tc.filesdir,
+            (status,output) = self.target.copy_to(os.path.join(os.path.dirname(__file__),'files',
                           'clienttest'), "/opt/iotivity-test/apps/iotivity-test/")
 
         '''start iotivity server to register a new resource'''
