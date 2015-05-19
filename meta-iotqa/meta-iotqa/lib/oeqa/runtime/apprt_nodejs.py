@@ -11,7 +11,7 @@ class SanityTestNodejs(oeRuntimeTest):
     
     @classmethod
     def setUpClass(cls):
-        oeRuntimeTest.tc.target.copy_to(os.path.join(oeRuntimeTest.tc.filesdir, SanityTestNodejs.apprt_test_node_helloworld),
+        oeRuntimeTest.tc.target.copy_to(os.path.join(os.path.dirname(__file__), 'files', SanityTestNodejs.apprt_test_node_helloworld),
         												SanityTestNodejs.apprt_test_node_helloworld_target)
 
     

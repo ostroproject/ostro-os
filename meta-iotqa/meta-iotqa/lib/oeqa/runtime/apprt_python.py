@@ -18,13 +18,13 @@ class SanityTestPython(oeRuntimeTest):
     
     @classmethod
     def setUpClass(cls):
-        oeRuntimeTest.tc.target.copy_to(os.path.join(oeRuntimeTest.tc.filesdir, SanityTestPython.apprt_test_python_helloworld), 
+        oeRuntimeTest.tc.target.copy_to(os.path.join(os.path.dirname(__file__), 'files', SanityTestPython.apprt_test_python_helloworld), 
         												SanityTestPython.apprt_test_python_helloworld_target
         												)
-        oeRuntimeTest.tc.target.copy_to(os.path.join(oeRuntimeTest.tc.filesdir, SanityTestPython.apprt_test_python_file), 
+        oeRuntimeTest.tc.target.copy_to(os.path.join(os.path.dirname(__file__), 'files', SanityTestPython.apprt_test_python_file), 
         												SanityTestPython.apprt_test_python_file_target
         												)
-        oeRuntimeTest.tc.target.copy_to(os.path.join(oeRuntimeTest.tc.filesdir, SanityTestPython.apprt_test_python_stdout), 
+        oeRuntimeTest.tc.target.copy_to(os.path.join(os.path.dirname(__file__), 'files', SanityTestPython.apprt_test_python_stdout), 
         												SanityTestPython.apprt_test_python_stdout_target
         												)
 
