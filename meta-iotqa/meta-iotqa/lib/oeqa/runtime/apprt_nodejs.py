@@ -1,7 +1,6 @@
 import unittest
 import os
-from oeqa.oetest import oeRuntimeTest, skipModule
-from oeqa.utils.decorators import *
+from oeqa.oetest import oeRuntimeTest
 
 
 class SanityTestNodejs(oeRuntimeTest):
@@ -9,9 +8,8 @@ class SanityTestNodejs(oeRuntimeTest):
     apprt_test_node_helloworld = 'apprt_test_nodejs_helloworld.js'
     apprt_test_node_helloworld_target = '/tmp/%s' % apprt_test_node_helloworld
     
-    @classmethod
-    def setUpClass(cls):
-        oeRuntimeTest.tc.target.copy_to(os.path.join(os.path.dirname(__file__), 'files', SanityTestNodejs.apprt_test_node_helloworld),
+    def setUp(self):
+        self.target.copy_to(os.path.join(os.path.dirname(__file__), 'files', SanityTestNodejs.apprt_test_node_helloworld),
         												SanityTestNodejs.apprt_test_node_helloworld_target)
 
     
@@ -53,8 +51,7 @@ class SanityTestNodejs(oeRuntimeTest):
         self.assertEqual(output, 'Hello World!', msg = 'Incorrect output: %s' % output)
 
 
-    @classmethod
-    def tearDownClass(cls):
-        oeRuntimeTest.tc.target.run('rm -f %s' % SanityTestNodejs.apprt_test_node_helloworld_target)
+    def tearDown(self):
+        self.target.run('rm -f %s' % SanityTestNodejs.apprt_test_node_helloworld_target)
 
 

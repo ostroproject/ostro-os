@@ -1,8 +1,8 @@
 import unittest
 import os
 import re
-from oeqa.oetest import oeRuntimeTest, skipModule
-from oeqa.utils.decorators import *
+from oeqa.oetest import oeRuntimeTest
+
 
 
 class SanityTestPython(oeRuntimeTest):
@@ -16,15 +16,14 @@ class SanityTestPython(oeRuntimeTest):
     apprt_test_python_stdout_target =  '/tmp/%s' % apprt_test_python_stdout
     apprt_apprt_test_python_file_gen = '/tmp/apprt_test_python_file.python'
     
-    @classmethod
-    def setUpClass(cls):
-        oeRuntimeTest.tc.target.copy_to(os.path.join(os.path.dirname(__file__), 'files', SanityTestPython.apprt_test_python_helloworld), 
+    def setUp(self):
+        self.target.copy_to(os.path.join(os.path.dirname(__file__), 'files', SanityTestPython.apprt_test_python_helloworld), 
         												SanityTestPython.apprt_test_python_helloworld_target
         												)
-        oeRuntimeTest.tc.target.copy_to(os.path.join(os.path.dirname(__file__), 'files', SanityTestPython.apprt_test_python_file), 
+        self.target.copy_to(os.path.join(os.path.dirname(__file__), 'files', SanityTestPython.apprt_test_python_file), 
         												SanityTestPython.apprt_test_python_file_target
         												)
-        oeRuntimeTest.tc.target.copy_to(os.path.join(os.path.dirname(__file__), 'files', SanityTestPython.apprt_test_python_stdout), 
+        self.target.copy_to(os.path.join(os.path.dirname(__file__), 'files', SanityTestPython.apprt_test_python_stdout), 
         												SanityTestPython.apprt_test_python_stdout_target
         												)
 
@@ -60,9 +59,8 @@ class SanityTestPython(oeRuntimeTest):
         self.assertEqual(output, 'Hello World!', msg = 'Incorrect output: %s' % output)
         
 
-    @classmethod
-    def tearDownClass(cls):
-        oeRuntimeTest.tc.target.run('rm -f %s %s %s %s' % (SanityTestPython.apprt_test_python_helloworld_target, 
+    def tearDown(self):
+        self.target.run('rm -f %s %s %s %s' % (SanityTestPython.apprt_test_python_helloworld_target, 
         																		SanityTestPython.apprt_test_python_file_target, 
         																		SanityTestPython.apprt_test_python_stdout_target,
         																		SanityTestPython.apprt_apprt_test_python_file_gen))
