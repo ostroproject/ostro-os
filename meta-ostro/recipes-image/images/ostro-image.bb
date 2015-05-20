@@ -9,6 +9,7 @@ IMAGE_INSTALL = " \
                 ${OSTRO_IMAGE_SECURITY_INSTALL} \
                 iotivity iotivity-simple-client \
                 iotivity-resource iotivity-resource-samples \
+                packagegroup-core-connectivity \
                 nodejs hid-api iotkit-agent upm tempered mraa linuxptp \
 		"
 
