@@ -23,13 +23,18 @@ Patches
 Please submit any patches against the security-smack layer via Github
 pull requests.
 
+For discussion or patch submission via email, use the
+yocto@yoctoproject.org mailing list. When submitting patches that way,
+make sure to copy the maintainer and add a "[meta-intel-iot-security]"
+prefix to the subject of the mails.
+
 Maintainer: Patrick Ohly <patrick.ohly@intel.com>
 
 
 Table of Contents
 =================
 
-  I. Adding the security-framework layer to your build
+  I. Adding the security-smack layer to your build
  II. Misc
 
 
@@ -41,14 +46,14 @@ it.
 
 Assuming the security repository exists at the top-level of your
 yocto build tree, you can add it to the build system by adding the
-location of the security-framework layer to bblayers.conf, along with any
+location of the security-smack layer to bblayers.conf, along with any
 other layers needed. e.g.:
 
   BBLAYERS ?= " \
     /path/to/yocto/meta \
     /path/to/yocto/meta-yocto \
     /path/to/yocto/meta-yocto-bsp \
-    /path/to/yocto/meta-security-smack/meta-security-smack \
+    /path/to/yocto/meta-intel-iot-security/meta-security-smack \
     "
 
 It has some dependencies on a suitable BSP; in particular the kernel

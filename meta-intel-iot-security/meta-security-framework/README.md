@@ -16,7 +16,7 @@ This layer depends on:
   layers: meta
   branch: master
 
-  URI: git://github.com/01org/meta-security-smack
+  URI: git://github.com/01org/meta-intel-iot-security
   layers: security-smack
   branch: master
 
@@ -26,6 +26,11 @@ Patches
 
 Please submit any patches against the security-framework layer via
 Github pull requests.
+
+For discussion or patch submission via email, use the
+yocto@yoctoproject.org mailing list. When submitting patches that way,
+make sure to copy the maintainer and add a "[meta-intel-iot-security]"
+prefix to the subject of the mails.
 
 Maintainer: Patrick Ohly <patrick.ohly@intel.com>
 
@@ -52,8 +57,8 @@ other layers needed. e.g.:
     /path/to/yocto/meta \
     /path/to/yocto/meta-yocto \
     /path/to/yocto/meta-yocto-bsp \
-    /path/to/yocto/meta-security-smack/meta-security-smack \
-    /path/to/yocto/meta-security-smack/meta-security-framework \
+    /path/to/yocto/meta-intel-iot-security/meta-security-smack \
+    /path/to/yocto/meta-intel-iot-security/meta-security-framework \
     "
 
 
@@ -62,7 +67,7 @@ II. Misc
 
 Conceptually, the components in this layer are optional in a
 Smack-based security architecture and thus sit on top of the
-meta-framework-smack layer. This layer here is meant for Cynara,
+security-smack layer. This layer here is meant for Cynara,
 security-manager and the Cynara-aware D-Bus.
 
 In practice, Cynara itself is independent of Smack and only needs to
