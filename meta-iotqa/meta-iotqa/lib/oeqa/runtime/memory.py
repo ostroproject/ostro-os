@@ -17,7 +17,7 @@ class MemTest(oeRuntimeTest):
 
     def _setup(self):
         """First set sleep time to 180s (default 300s)"""
-        (status,output) = self.target.run("sleep 180 && sync && echo 1 >/proc/sys/vm/drop_caches")
+        (status,output) = self.target.run("sleep 180")
         self.assertEqual(status, 0, output)
 
     def test_mem(self):
@@ -25,7 +25,7 @@ class MemTest(oeRuntimeTest):
         self._setup()
         filename=os.path.basename(__file__)
         casename=os.path.splitext(filename)[0]
-        (status,output) = self.target.run("free | grep 'Mem' | awk '{print $3}'")
+        (status,output) = self.target.run("cat /proc/meminfo | grep 'MemAvailable' | awk '{print $2}'")
         output=output + "KB"
         collect_pnp_log(casename, output)        
         print "\n%s:%s\n" %(casename, output)
