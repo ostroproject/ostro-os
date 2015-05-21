@@ -1,0 +1,10 @@
+[
+    {
+     "testcase" : "ping2",
+     "type"     : "sanity",
+     "platform" : "nuc"
+    },
+    {
+     "testcase" : "ping"
+    }
+]
