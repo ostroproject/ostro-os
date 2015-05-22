@@ -35,7 +35,7 @@ def get_layer_dir(d, layer):
         return ""
     return p
 
-# get QA layer
+# get QA layer dir
 def get_qa_layer(d):
     return get_layer_dir(d, "meta-iotqa")
      
@@ -85,9 +85,9 @@ def export_testsuite(d, exportdir):
     shutil.copytree(oeqadir, os.path.join(exportdir, "oeqa"))
     
     qalayer = get_qa_layer(d)
-    srcdir = os.path.join(qalayer, "lib", "oeqa")
-    dstdir = os.path.join(exportdir, "oeqa")
-    recursive_overwrite(srcdir, dstdir)
+    recursive_overwrite(src=os.path.join(qalayer, "lib"),
+                        dest=os.path.join(exportdir))
+    
     bb.plain("Exported tests to: %s" % exportdir)
 
 # dump build data to external file
@@ -137,5 +137,3 @@ python do_test_iot_export() {
 addtask test_iot_export
 do_test_iot_export[depends] += "${TESTIMAGEDEPENDS}"
 do_test_io_export[lockfiles] += "${TESTIMAGELOCK}"
-
-
