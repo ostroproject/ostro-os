@@ -21,10 +21,13 @@ IMAGE_FEATURES_append = " \
 # Use gummiboot as the EFI bootloader.
 EFI_PROVIDER = "gummiboot"
 
+# Install Cynara and security-manager by default if (and only if)
+# Smack is enabled.
+#
 # Cynara does not have a hard dependency on Smack security,
-# but is meant to be used with it. security-manager even
-# links against smack-userspace. So only install them by
-# default when Smack is enabled.
+# but is meant to be used with it. security-manager instead
+# links against smack-userspace and expects Smack to be active,
+# so we do not have any choice.
 OSTRO_IMAGE_SECURITY_INSTALL_append_smack = "cynara security-manager"
 OSTRO_IMAGE_SECURITY_INSTALL ?= ""
 
