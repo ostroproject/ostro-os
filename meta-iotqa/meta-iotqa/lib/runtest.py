@@ -86,16 +86,16 @@ def main():
             specified in the json if that directory actually exists or it will error out.")
     parser.add_option("-l", "--log-dir", dest="log_dir", help="This sets the path for TEST_LOG_DIR. If not specified \
             the current dir is used. This is used for usually creating a ssh log file and a scp test file.")
-    parser.add_option("-f", "--test-file", dest="tests_list", help="The test list file. If not specified.")
-
+    parser.add_option("-f", "--test-manifest", dest="tests_list", help="The test list file. If not specified \
+            the test list come from test description file.")
+    parser.add_option("-b", "--build-data", dest="build_data", help="The build data file.")
 
     (options, args) = parser.parse_args()
-    if len(args) != 1:
-        parser.error("Incorrect number of arguments. The one and only argument should be a json file exported by the build system")
 
-    with open(args[0], "r") as f:
-        loaded = json.load(f)
-
+    loaded = {"d": {"DEPLOY_DIR" : "tmp/deploy"}}
+    if options.build_data:
+        with open(options.build_data, "r") as f:
+            loaded = json.load(f)
     if options.ip:
         loaded["target"]["ip"] = options.ip
     if options.server_ip:
@@ -126,13 +126,20 @@ def main():
     for key in loaded.keys():
         if key not in ["d", "target", "pkgmanifest"]:
             setattr(tc, key, loaded[key])
+
+    tclist = []
     if options.tests_list:
         with open(options.tests_list, "r") as f:
             tclist = ["oeqa.runtime.%s" % tname for tname in f.readlines()]
-            setattr(tc, "testslist", tclist)
     else:
-        if not hasattr(tc, "testslist"):
-            tc.testslist = []
+        if len(args) != 1:
+            parser.error("Incorrect number of arguments. The one and only argument should be \
+                           a json file which describe test suite")
+        with open(args[0], "r") as f:
+            tcloaded = json.load(f)
+            print tcloaded
+            tclist = ["oeqa.runtime.%s" % item["testcase"] for item in tcloaded]
+    tc.testslist = tclist
     print tc.testslist
     target.exportStart()
     runTests(tc)
