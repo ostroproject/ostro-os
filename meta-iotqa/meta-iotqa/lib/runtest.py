@@ -41,7 +41,7 @@ class FakeTarget(object):
         self.connection = None
         self.ip = None
         self.server_ip = None
-        self.datetime = time.strftime('%Y%m%d%H%M%S',time.gmtime())
+        self.datetime = time.strftime('%Y%m%d%H%M%S', time.gmtime())
         self.testdir = d.getVar("TEST_LOG_DIR", True)
         self.pn = d.getVar("PN", True)
 
@@ -86,6 +86,8 @@ def main():
             specified in the json if that directory actually exists or it will error out.")
     parser.add_option("-l", "--log-dir", dest="log_dir", help="This sets the path for TEST_LOG_DIR. If not specified \
             the current dir is used. This is used for usually creating a ssh log file and a scp test file.")
+    parser.add_option("-f", "--test-file", dest="tests_list", help="The test list file. If not specified.")
+
 
     (options, args) = parser.parse_args()
     if len(args) != 1:
@@ -113,18 +115,25 @@ def main():
         if not os.path.isdir(d["DEPLOY_DIR"]):
             raise Exception("The path to DEPLOY_DIR does not exists: %s" % d["DEPLOY_DIR"])
 
-
     target = FakeTarget(d)
     for key in loaded["target"].keys():
         setattr(target, key, loaded["target"][key])
-
+    
     tc = TestContext()
     setattr(tc, "d", d)
-    setattr(tc, "target", target)
+    setattr(tc, "pkgmanifest", " ".join(loaded["pkgmanifest"]))
+        
     for key in loaded.keys():
-        if key != "d" and key != "target":
+        if key not in ["d", "target", "pkgmanifest"]:
             setattr(tc, key, loaded[key])
-
+    if options.tests_list:
+        with open(options.tests_list, "r") as f:
+            tclist = ["oeqa.runtime.%s" % tname for tname in f.readlines()]
+            setattr(tc, "testslist", tclist)
+    else:
+        if not hasattr(tc, "testslist"):
+            tc.testslist = []
+    print tc.testslist
     target.exportStart()
     runTests(tc)
 
