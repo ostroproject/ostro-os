@@ -1,10 +1,11 @@
 [
     {
      "testcase" : "ping2",
-     "type"     : "sanity",
+     "tags"     : ["sanity"]
      "platform" : "nuc"
     },
     {
      "testcase" : "ping"
+     "tags"     : ["pnp", "connectivity"]
     }
 ]
