@@ -1,22 +1,10 @@
 #!/usr/bin/env python
 
 
-# Copyright (C) 2013 Intel Corporation
+# Copyright (C) 2015 Intel Corporation
 #
 # Released under the MIT license (see COPYING.MIT)
-
-# This script should be used outside of the build system to run image tests.
-# It needs a json file as input as exported by the build.
-# E.g for an already built image:
-#- export the tests:
-#   TEST_EXPORT_ONLY = "1"
-#   TEST_TARGET  = "simpleremote"
-#   TEST_TARGET_IP = "192.168.7.2"
-#   TEST_SERVER_IP = "192.168.7.1"
-# bitbake core-image-sato -c testimage
-# Setup your target, e.g for qemu: runqemu core-image-sato
-# cd build/tmp/testimage/core-image-sato
-# ./runexported.py testdata.json
+# ./runtest.py -b build_data.json testdata.json
 
 import sys
 import os
@@ -63,7 +51,6 @@ class FakeTarget(object):
     def copy_from(self, remotepath, localpath):
         return self.connection.copy_from(remotepath, localpath)
 
-
 class MyDataDict(dict):
     def getVar(self, key, unused = None):
         return self.get(key, "")
@@ -92,15 +79,36 @@ def main():
 
     (options, args) = parser.parse_args()
 
-    loaded = {"d": {"DEPLOY_DIR" : "tmp/deploy"}}
+    tc = TestContext()
+
+    #inject testcase list
+    tclist = []
+    if options.tests_list:
+        with open(options.tests_list, "r") as f:
+            tclist = [tname.strip() for tname in f.readlines()]
+    else:
+        if len(args) != 1:
+            parser.error("Incorrect number of arguments. The one and only argument should be \
+                           a json file which describe test suite")
+        with open(args[0], "r") as f:
+            tcloaded = json.load(f)
+            print tcloaded
+            tclist = [item["testcase"] for item in tcloaded]
+    tc.testslist = tclist
+
+    #get build data from file
     if options.build_data:
         with open(options.build_data, "r") as f:
             loaded = json.load(f)
-    if options.ip:
-        loaded["target"]["ip"] = options.ip
-    if options.server_ip:
-        loaded["target"]["server_ip"] = options.server_ip
+    else:
+        loaded = {
+              "d": {"DEPLOY_DIR" : "/tmp"},
+              "pkgmanifest":[],
+              "filesdir": "oeqa/runtime/files",
+              "imagefeatures": []
+        }
 
+    #inject build datastore
     d = MyDataDict()
     for key in loaded["d"].keys():
         d[key] = loaded["d"][key]
@@ -114,32 +122,23 @@ def main():
     else:
         if not os.path.isdir(d["DEPLOY_DIR"]):
             raise Exception("The path to DEPLOY_DIR does not exists: %s" % d["DEPLOY_DIR"])
-
-    target = FakeTarget(d)
-    for key in loaded["target"].keys():
-        setattr(target, key, loaded["target"][key])
-    
-    tc = TestContext()
     setattr(tc, "d", d)
-    setattr(tc, "pkgmanifest", " ".join(loaded["pkgmanifest"]))
-        
+
+    #inject build package manifest
+    pkgs = [ pname.strip() for pname in loaded["pkgmanifest"] ]
+    setattr(tc, "pkgmanifest", " ".join(pkgs))
+
+    #inject target information
+    target = FakeTarget(d)
+    target.ip = options.ip if options.ip else "192.168.7.2"
+    target.server_ip = options.server_ip if options.server_ip else "192.168.7.1"
+    setattr(tc, "target", target)
+
+    #inject others
     for key in loaded.keys():
-        if key not in ["d", "target", "pkgmanifest"]:
+        if key not in ["testslist", "d", "target", "pkgmanifest"]:
             setattr(tc, key, loaded[key])
 
-    tclist = []
-    if options.tests_list:
-        with open(options.tests_list, "r") as f:
-            tclist = ["oeqa.runtime.%s" % tname for tname in f.readlines()]
-    else:
-        if len(args) != 1:
-            parser.error("Incorrect number of arguments. The one and only argument should be \
-                           a json file which describe test suite")
-        with open(args[0], "r") as f:
-            tcloaded = json.load(f)
-            print tcloaded
-            tclist = ["oeqa.runtime.%s" % item["testcase"] for item in tcloaded]
-    tc.testslist = tclist
     print tc.testslist
     target.exportStart()
     runTests(tc)
