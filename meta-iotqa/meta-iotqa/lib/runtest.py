@@ -103,6 +103,8 @@ def main():
             tests = filter(lambda x: options.tag in x["tags"], tcloaded)
             nlist = [ t["testcase"].strip() for t in tests ]
             tclist = filter(lambda x: x in nlist, tclist) if tclist else nlist
+        else:
+            tclist = [t["testcase"].strip() for t in tcloaded] 
     tc.testslist = tclist
 
     #get build data from file
