@@ -7,7 +7,8 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=e8db6501ed294e65418a933925d12058"
 
 DEPENDS = "nodejs swig-native mraa"
 
-SRC_URI = "git://github.com/intel-iot-devkit/upm.git;protocol=git;rev=78182278ccc0c268864ec7e14b6b58f02b3ee668"
+SRC_URI = "git://github.com/intel-iot-devkit/upm.git;protocol=git;rev=78182278ccc0c268864ec7e14b6b58f02b3ee668 \
+           file://0001-adafruitms1438-CMakeLists.txt-stop-RPATH-being-added.patch"
 
 S = "${WORKDIR}/git"
 
