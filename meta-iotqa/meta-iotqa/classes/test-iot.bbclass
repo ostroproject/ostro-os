@@ -8,8 +8,8 @@
 # To use it add testimage to global inherit and call your target image with -c testimage
 # You can try it out like this:
 # - first build a qemu core-image-sato
-# - add INHERIT += "testimage" in local.conf
-# - then bitbake core-image-sato -c testimage. That will run a standard suite of tests.
+# - add INHERIT += "test-iot" in local.conf
+# - then bitbake core-image-sato -c test_iot. That will run a standard suite of tests.
 
 # You can set (or append to) TEST_SUITES in local.conf to select the tests
 # which you want to run for your target.
@@ -25,7 +25,7 @@
 
 inherit testimage
 
-# get layer dir
+#get layer dir
 def get_layer_dir(d, layer):
     bbpath = d.getVar("BBPATH", True).split(':')
     for p in bbpath:
@@ -35,24 +35,41 @@ def get_layer_dir(d, layer):
         return ""
     return p
 
-# get QA layer dir
+#get QA layer dir
 def get_qa_layer(d):
     return get_layer_dir(d, "meta-iotqa")
-     
-# get testcase list from specified layer
+
+#override the function in testimage.bbclass
+def get_tests_list(d, type="runtime"):
+    manif_name = d.getVar("TEST_SUITES_MANIFEST", True)
+    if not manif_name:
+        manif_name = "iottest.manifest" 
+    testsuites = get_tclist(d, manif_name)
+    bbpath = d.getVar("BBPATH", True).split(':')
+
+    testslist = []
+    for testname in testsuites:
+        found = False
+        for p in bbpath:
+            testslist.append(testname)
+            found = True
+            break
+        if not found:
+            bb.fatal('Test %s specified in TEST_SUITES could not be found in lib/oeqa/runtime under BBPATH' % testname)
+    return testslist
+    
+#get testcase list from specified layer
 def get_tclist(d, fname):
     p = get_qa_layer(d)
     manif_path = os.path.join(p, 'conf', 'test', fname)
     if not os.path.exists(manif_path):
         return ""
-    return " ".join(open(manif_path).readlines())
- 
-# bitbake task - run iot test suite
+    tcs = open(manif_path).readlines()
+    return [ item.strip() for item in tcs ]
+
+#bitbake task - run iot test suite
 python do_test_iot() {
-    manif_name = d.getVar("TEST_SUITES_MANIFEST", True)
-    if not manif_name:
-        manif_name = "iottest.manifest" 
-    d.setVar("TEST_SUITES", get_tclist(d, manif_name))
+
     testimage_main(d)
 }
 
@@ -60,7 +77,7 @@ addtask test_iot
 do_test_iot[depends] += "${TESTIMAGEDEPENDS}"
 do_test_iot[lockfiles] += "${TESTIMAGELOCK}"
 
-# overwrite copy src dir to dest
+#overwrite copy src dir to dest
 def recursive_overwrite(src, dest, ignore=['__init__.py']):
     import shutil
     if os.path.isdir(src):
@@ -76,7 +93,7 @@ def recursive_overwrite(src, dest, ignore=['__init__.py']):
     else:
         shutil.copyfile(src, dest)
    
-# export test asset
+#export test asset
 def export_testsuite(d, exportdir):
     import pkgutil
     import shutil
@@ -90,7 +107,7 @@ def export_testsuite(d, exportdir):
     
     bb.plain("Exported tests to: %s" % exportdir)
 
-# dump build data to external file
+#dump build data to external file
 def dump_builddata(d, tdir):
     import json
 
@@ -102,7 +119,8 @@ def dump_builddata(d, tdir):
                               d.getVar("IMAGE_LINK_NAME", True) + ".manifest")
     try:
         with open(manifest) as f:
-            savedata["pkgmanifest"] = f.readlines()
+            pkgs = f.readlines()
+            savedata["pkgmanifest"] = [ pkg.strip() for pkg in pkgs ]
     except IOError as e:
         bb.fatal("No package manifest file found: %s" % e)
 
@@ -110,7 +128,7 @@ def dump_builddata(d, tdir):
     with open(bdpath, "w+") as f:
         json.dump(savedata, f, skipkeys=True, indent=4, sort_keys=True)
 
-# copy test description file
+#copy test description file
 def copy_testdesc(d, tdir):
     import shutil
     
@@ -121,7 +139,14 @@ def copy_testdesc(d, tdir):
     shutil.copy2(srcpath, tdir)
     bb.plain("copy %s to: %s" % (descfile, tdir))
 
-# bitbake task - export iot test suite
+#package test suite as tarball
+def pack_testsuite(d, tdir):
+    import tarfile
+    tar = tarfile.open("/tmp/iot-testsuite.tar.gz", "w:gz")
+    tar.add(tdir, arcname=os.path.basename(tdir))
+    tar.close()
+
+#bitbake task - export iot test suite
 python do_test_iot_export() {
     exportdir = d.getVar("TEST_EXPORT_DIR", True)
     if not exportdir:
@@ -132,6 +157,7 @@ python do_test_iot_export() {
     export_testsuite(d, exportdir)
     dump_builddata(d, exportdir)
     copy_testdesc(d, exportdir)
+    pack_testsuite(d, exportdir)
 }
 
 addtask test_iot_export
