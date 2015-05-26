@@ -1,11 +1,11 @@
 [
     {
-     "testcase" : "ping2",
-     "tags"     : ["sanity"]
+     "testcase" : "oeqa.sanity.ping_dev",
+     "tags"     : ["connectivity"],
      "platform" : "nuc"
     },
     {
-     "testcase" : "ping"
-     "tags"     : ["pnp", "connectivity"]
+     "testcase" : "oeqa.sanity.baseos",
+     "tags"     : ["sanity"]
     }
 ]
