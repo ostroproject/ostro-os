@@ -52,7 +52,7 @@ class FakeTarget(object):
         return self.connection.copy_from(remotepath, localpath)
 
 class MyDataDict(dict):
-    def getVar(self, key, unused = None):
+    def getVar(self, key, unused=None):
         return self.get(key, "")
 
 class TestContext(object):
@@ -64,18 +64,28 @@ def main():
 
     usage = "usage: %prog [options] <json file>"
     parser = OptionParser(usage=usage)
-    parser.add_option("-t", "--target-ip", dest="ip", help="The IP address of the target machine. Use this to \
+    parser.add_option("-t", "--target-ip", dest="ip",
+            help="The IP address of the target machine. Use this to \
             overwrite the value determined from TEST_TARGET_IP at build time")
-    parser.add_option("-s", "--server-ip", dest="server_ip", help="The IP address of this machine. Use this to \
+    parser.add_option("-s", "--server-ip", dest="server_ip",
+            help="The IP address of this machine. Use this to \
             overwrite the value determined from TEST_SERVER_IP at build time.")
-    parser.add_option("-d", "--deploy-dir", dest="deploy_dir", help="Full path to the package feeds, that this \
-            the contents of what used to be DEPLOY_DIR on the build machine. If not specified it will use the value \
-            specified in the json if that directory actually exists or it will error out.")
-    parser.add_option("-l", "--log-dir", dest="log_dir", help="This sets the path for TEST_LOG_DIR. If not specified \
-            the current dir is used. This is used for usually creating a ssh log file and a scp test file.")
-    parser.add_option("-f", "--test-manifest", dest="tests_list", help="The test list file. If not specified \
+    parser.add_option("-d", "--deploy-dir", dest="deploy_dir",
+            help="Full path to the package feeds, that this \
+            the contents of what used to be DEPLOY_DIR on the build machine. \
+            If not specified it will use the value specified in the json if \
+            that directory actually exists or it will error out.")
+    parser.add_option("-l", "--log-dir", dest="log_dir",
+            help="This sets the path for TEST_LOG_DIR. If not specified \
+            the current dir is used. This is used for usually creating a \
+            ssh log file and a scp test file.")
+    parser.add_option("-f", "--test-manifest", dest="tests_list",
+            help="The test list file. If not specified \
             the test list come from test description file.")
-    parser.add_option("-b", "--build-data", dest="build_data", help="The build data file.")
+    parser.add_option("-b", "--build-data", dest="build_data",
+            help="The build data file.")
+    parser.add_option("-a", "--tag", dest="tag",
+            help="The tag to filter test case")
 
     (options, args) = parser.parse_args()
 
@@ -85,15 +95,14 @@ def main():
     tclist = []
     if options.tests_list:
         with open(options.tests_list, "r") as f:
-            tclist = [tname.strip() for tname in f.readlines()]
-    else:
-        if len(args) != 1:
-            parser.error("Incorrect number of arguments. The one and only argument should be \
-                           a json file which describe test suite")
+            tclist = [n.strip() for n in f.readlines()]
+    if len(args) == 1:
         with open(args[0], "r") as f:
             tcloaded = json.load(f)
-            print tcloaded
-            tclist = [item["testcase"] for item in tcloaded]
+        if options.tag:
+            tests = filter(lambda x: options.tag in x["tags"], tcloaded)
+            nlist = [ t["testcase"].strip() for t in tests ]
+            tclist = filter(lambda x: x in nlist, tclist) if tclist else nlist
     tc.testslist = tclist
 
     #get build data from file
@@ -125,7 +134,7 @@ def main():
     setattr(tc, "d", d)
 
     #inject build package manifest
-    pkgs = [ pname.strip() for pname in loaded["pkgmanifest"] ]
+    pkgs = [pname.strip() for pname in loaded["pkgmanifest"]]
     setattr(tc, "pkgmanifest", " ".join(pkgs))
 
     #inject target information
