@@ -14,6 +14,7 @@ import inspect
 from optparse import OptionParser
 from oeqa.oetest import oeTest
 from oeqa.oetest import oeRuntimeTest
+from oeqa.oetest import runTests
 from oeqa.utils.sshcontrol import SSHControl
 
 try:
@@ -42,7 +43,7 @@ def check_tag_class(tcase, tag):
         return True
     return False
 
-def runTests(tc, tag=None):
+def runTests_tag(tc, tag):
     """ run whole test suite according to tclist"""
     # set the context object passed from the test class
     setattr(oeTest, "tc", tc)
@@ -192,7 +193,10 @@ def main():
 
     print tc.testslist
     target.exportStart()
-    runTests(tc, options.tag)
+    if options.tag:
+        runTests_tag(tc, options.tag)
+    else:
+        runTests(tc)
 
     return 0
 
