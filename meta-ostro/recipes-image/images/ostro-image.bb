@@ -32,7 +32,7 @@ IMAGE_LINGUAS = " "
 
 LICENSE = "MIT"
 
-inherit core-image extrausers
+inherit core-image extrausers image-buildinfo
 
 IMAGE_ROOTFS_SIZE ?= "8192"
 
@@ -55,3 +55,6 @@ usermod -p '${@crypt_pass(d)}' root; \
 
 # Do not create ISO images by default, only HDDIMG will be created
 NOISO = "1"
+
+BUILD_ID ?= "${DATETIME}"
+IMAGE_BUILDINFO_VARS_append = " BUILD_ID"
