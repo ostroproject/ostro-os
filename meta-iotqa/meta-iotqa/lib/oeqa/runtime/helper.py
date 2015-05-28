@@ -3,8 +3,19 @@
 #\Author: Wang, Jing <jing.j.wang@intel.com>
 
 import time
-import os
 import subprocess
+
+def attr(*args, **kwargs):
+    """Decorator that adds attributes to classes or functions
+    for use with the Attribute (-a) plugin.
+    """
+    def wrap_ob(ob):
+        for name in args:
+            setattr(ob, name, True)
+        for name, value in kwargs.iteritems():
+            setattr(ob, name, value)
+        return ob
+    return wrap_ob
 
 def shell_cmd(cmd):
     """Execute shell command till it return"""
@@ -34,17 +45,3 @@ def shell_cmd_timeout(cmd, timeout=0):
             ret = -99999
             break
     return ret, output
-
-def collect_pnp_log(casename,log):
-    """collect the result log for pnp part"""
-    curpath=os.getcwd()
-    logname=casename+".log"
-    
-    if not os.path.exists(casename):
-        os.makedirs(casename)
-
-    logpath=curpath+"/"+casename+"/"+logname
-        
-    with open(logpath, "w") as text_file:
-        text_file.write("%s:%s\n" %(casename, log))
- 

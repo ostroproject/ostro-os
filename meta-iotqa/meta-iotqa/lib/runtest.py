@@ -4,12 +4,18 @@
 # Copyright (C) 2015 Intel Corporation
 #
 # Released under the MIT license (see COPYING.MIT)
-# ./runtest.py -b build_data.json testdata.json
+# ./runtest.py -b build_data.json -a tag -f test.manifest
 
 import sys
 import os
 import time
+import unittest
+import inspect
 from optparse import OptionParser
+from oeqa.oetest import oeTest
+from oeqa.oetest import oeRuntimeTest
+from oeqa.oetest import runTests
+from oeqa.utils.sshcontrol import SSHControl
 
 try:
     import simplejson as json
@@ -18,8 +24,53 @@ except ImportError:
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "oeqa")))
 
-from oeqa.oetest import runTests
-from oeqa.utils.sshcontrol import SSHControl
+def check_tag(tcase, tag):
+    """ check if test method has specified tag enabled """
+    if not tag or not hasattr(tcase, "_testMethodName"):
+        return False
+    tc_method = getattr(tcase, tcase._testMethodName)
+    if hasattr(tc_method, tag):
+        return True
+    if check_tag_class(tcase, tag):
+        return True
+    return False
+
+def check_tag_class(tcase, tag):
+    """ check if test class has specified tag enabled """
+    tc_method = getattr(tcase, tcase._testMethodName)
+    tc_class = tc_method.__self__.__class__
+    if hasattr(tc_class, tag):
+        return True
+    return False
+
+def runTests_tag(tc, tag):
+    """ run whole test suite according to tclist"""
+    # set the context object passed from the test class
+    setattr(oeTest, "tc", tc)
+    # set ps command to use
+    setattr(oeRuntimeTest, "pscmd", "ps -ef" if oeTest.hasPackage("procps") else "ps")
+    # prepare test suite, loader and runner
+    suite = unittest.TestSuite()
+    testloader = unittest.TestLoader()
+    testloader.sortTestMethodsUsing = None
+    for tname in tc.testslist:
+        tsuite = testloader.loadTestsFromName(tname)
+        for ts in tsuite:
+            if hasattr(ts, "_tests"):
+                if ts._tests and check_tag_class(ts._tests[0], tag):
+                    suite.addTest(ts)
+                else:
+                    for x in ts._tests:
+                        if check_tag(x, tag):
+                            suite.addTest(x)
+            else:
+                if check_tag(ts, tag):
+                    suite.addTest(ts)
+    print("Test modules  %s" % tc.testslist)
+    print("Found %s tests" % suite.countTestCases())
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
+    return result
 
 # this isn't pretty but we need a fake target object
 # for running the tests externally as we don't care
@@ -62,7 +113,7 @@ class TestContext(object):
 
 def main():
 
-    usage = "usage: %prog [options] <json file>"
+    usage = "usage: %prog [options]"
     parser = OptionParser(usage=usage)
     parser.add_option("-t", "--target-ip", dest="ip",
             help="The IP address of the target machine. Use this to \
@@ -80,8 +131,7 @@ def main():
             the current dir is used. This is used for usually creating a \
             ssh log file and a scp test file.")
     parser.add_option("-f", "--test-manifest", dest="tests_list",
-            help="The test list file. If not specified \
-            the test list come from test description file.")
+            help="The test list file")
     parser.add_option("-b", "--build-data", dest="build_data",
             help="The build data file.")
     parser.add_option("-a", "--tag", dest="tag",
@@ -96,15 +146,6 @@ def main():
     if options.tests_list:
         with open(options.tests_list, "r") as f:
             tclist = [n.strip() for n in f.readlines()]
-    if len(args) == 1:
-        with open(args[0], "r") as f:
-            tcloaded = json.load(f)
-        if options.tag:
-            tests = filter(lambda x: options.tag in x["tags"], tcloaded)
-            nlist = [ t["testcase"].strip() for t in tests ]
-            tclist = filter(lambda x: x in nlist, tclist) if tclist else nlist
-        else:
-            tclist = [t["testcase"].strip() for t in tcloaded] 
     tc.testslist = tclist
 
     #get build data from file
@@ -152,7 +193,10 @@ def main():
 
     print tc.testslist
     target.exportStart()
-    runTests(tc)
+    if options.tag:
+        runTests_tag(tc, options.tag)
+    else:
+        runTests(tc)
 
     return 0
 
