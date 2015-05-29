@@ -24,26 +24,28 @@ except ImportError:
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "oeqa")))
 
-def check_tag(tcase, tag):
+def check_tag(tcase, taglist):
     """ check if test method has specified tag enabled """
-    if not tag or not hasattr(tcase, "_testMethodName"):
+    if not hasattr(tcase, "_testMethodName"):
         return False
     tc_method = getattr(tcase, tcase._testMethodName)
-    if hasattr(tc_method, tag):
-        return True
-    if check_tag_class(tcase, tag):
-        return True
-    return False
+    for tag in taglist:
+        if hasattr(tc_method, tag):
+            return True
+    return check_tag_class(tcase, taglist)
 
-def check_tag_class(tcase, tag):
+def check_tag_class(tcase, taglist):
     """ check if test class has specified tag enabled """
+    if not hasattr(tcase, "_testMethodName"):
+        return False
     tc_method = getattr(tcase, tcase._testMethodName)
     tc_class = tc_method.__self__.__class__
-    if hasattr(tc_class, tag):
-        return True
+    for tag in taglist:
+        if hasattr(tc_class, tag):
+            return True
     return False
 
-def runTests_tag(tc, tag):
+def runTests_tag(tc, taglist):
     """ run whole test suite according to tclist"""
     # set the context object passed from the test class
     setattr(oeTest, "tc", tc)
@@ -56,15 +58,18 @@ def runTests_tag(tc, tag):
     for tname in tc.testslist:
         tsuite = testloader.loadTestsFromName(tname)
         for ts in tsuite:
+            # it is test suite
             if hasattr(ts, "_tests"):
-                if ts._tests and check_tag_class(ts._tests[0], tag):
+                if ts._tests and check_tag_class(ts._tests[0], taglist):
+                    print "add suite"
                     suite.addTest(ts)
                 else:
                     for x in ts._tests:
-                        if check_tag(x, tag):
+                        if check_tag(x, taglist):
                             suite.addTest(x)
+            # it is test case
             else:
-                if check_tag(ts, tag):
+                if check_tag(ts, taglist):
                     suite.addTest(ts)
     print("Test modules  %s" % tc.testslist)
     print("Found %s tests" % suite.countTestCases())
@@ -135,7 +140,7 @@ def main():
     parser.add_option("-b", "--build-data", dest="build_data",
             help="The build data file.")
     parser.add_option("-a", "--tag", dest="tag",
-            help="The tag to filter test case")
+            help="The tags to filter test case")
 
     (options, args) = parser.parse_args()
 
@@ -147,6 +152,7 @@ def main():
         with open(options.tests_list, "r") as f:
             tclist = [n.strip() for n in f.readlines()]
     tc.testslist = tclist
+    print tc.testslist
 
     #get build data from file
     if options.build_data:
@@ -191,10 +197,10 @@ def main():
         if key not in ["testslist", "d", "target", "pkgmanifest"]:
             setattr(tc, key, loaded[key])
 
-    print tc.testslist
     target.exportStart()
     if options.tag:
-        runTests_tag(tc, options.tag)
+        taglist = options.tag.split(',')
+        runTests_tag(tc, taglist)
     else:
         runTests(tc)
 
