@@ -1,0 +1,46 @@
+From 52ff74be2f01182ed9d4fcc3da059512fad63d72 Mon Sep 17 00:00:00 2001
+From: Han Chao <chan@windriver.com>
+Date: Thu, 27 Feb 2014 14:58:57 +0800
+Subject: [PATCH] add system call table for ARM.
+
+This change enable audit system call on ARM.
+Add arm System call table on machinetabs.h.
+Audit system call need enable kernel config CONFIG_AUDITSYSCALL.
+
+Signed-off-by: Han Chao <chan@windriver.com>
+---
+ lib/machinetabs.h |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/lib/machinetabs.h b/lib/machinetabs.h
+index ec2d033..1c2e284 100644
+--- a/lib/machinetabs.h
++++ b/lib/machinetabs.h
+@@ -1,10 +1,11 @@
+-/* This is a generated file, see Makefile.am for its inputs. */
+-static const char machine_strings[] = "i386\0i486\0i586\0i686\0ia64\0ppc\0ppc64\0s390\0s390x\0x86_64";
++/* Such is aways generated file, see Makefile.am for its inputs.
++ * But this version is not generated file, which is for ARM. */
++static const char machine_strings[] = "armeb\0armv5tejl\0armv5tel\0armv6l\0armv7l";
+ static const unsigned machine_s2i_s[] = {
+-	0,5,10,15,20,25,29,35,40,46,
++	0,6,16,25,32,
+ };
+ static const int machine_s2i_i[] = {
+-	0,0,0,0,2,4,3,6,5,1,
++	8,8,8,8,8,
+ };
+ static int machine_s2i(const char *s, int *value) {
+ 	size_t len, i;
+@@ -19,7 +20,7 @@ static int machine_s2i(const char *s, int *value) {
+ 	}
+ }
+ static const unsigned machine_i2s_direct[] = {
+-	0,46,20,29,25,40,35,
++    39,85,59,68,64,
+ };
+ static const char *machine_i2s(int v) {
+ 	return i2s_direct__(machine_strings, machine_i2s_direct, 0, 6, v);
+-- 
+1.7.9.5
+

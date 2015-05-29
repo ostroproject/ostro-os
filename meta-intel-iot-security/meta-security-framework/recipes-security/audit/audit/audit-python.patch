@@ -1,0 +1,31 @@
+Remove hard coded python include directory
+
+Signed-off-by: Mark Hatle <mark.hatle@windriver.com>
+
+diff -ur audit-2.1.3.orig/bindings/python/Makefile.am audit-2.1.3/bindings/python/Makefile.am
+--- audit-2.1.3.orig/bindings/python/Makefile.am	2011-08-15 12:31:01.000000000 -0500
++++ audit-2.1.3/bindings/python/Makefile.am	2012-01-30 12:19:54.533959225 -0600
+@@ -25,7 +25,9 @@
+ 
+ pyexec_LTLIBRARIES = auparse.la
+ 
++PYINC ?= /usr/include/python$(PYTHON_VERSION)
++
+ auparse_la_SOURCES = auparse_python.c
+-auparse_la_CPPFLAGS = -I$(top_srcdir)/auparse $(AM_CPPFLAGS) -I/usr/include/python$(PYTHON_VERSION) -fno-strict-aliasing
++auparse_la_CPPFLAGS = -I$(top_srcdir)/auparse $(AM_CPPFLAGS) -I$(PYINC) -fno-strict-aliasing
+ auparse_la_LDFLAGS = -module -avoid-version -Wl,-z,relro
+ auparse_la_LIBADD = ../../auparse/libauparse.la ../../lib/libaudit.la
+diff -ur audit-2.1.3.orig/swig/Makefile.am audit-2.1.3/swig/Makefile.am
+--- audit-2.1.3.orig/swig/Makefile.am	2011-08-15 12:31:03.000000000 -0500
++++ audit-2.1.3/swig/Makefile.am	2012-01-30 12:28:09.574834697 -0600
+@@ -23,7 +23,8 @@
+ CONFIG_CLEAN_FILES = *.loT *.rej *.orig
+ AM_CFLAGS = -fPIC -DPIC -fno-strict-aliasing
+ PYLIBVER ?= python$(PYTHON_VERSION)
+-INCLUDES = -I. -I$(top_builddir) -I${top_srcdir}/lib -I/usr/include/$(PYLIBVER)
++PYINC ?= /usr/include/$(PYLIBVER)
++INCLUDES = -I. -I$(top_builddir) -I${top_srcdir}/lib -I$(PYINC)
+ LIBS = $(top_builddir)/lib/libaudit.la
+ pyexec_PYTHON = audit.py
+ pyexec_LTLIBRARIES = _audit.la

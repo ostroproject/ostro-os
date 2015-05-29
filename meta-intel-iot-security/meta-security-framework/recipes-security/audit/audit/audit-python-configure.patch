@@ -1,0 +1,27 @@
+From cace630b0eb42418dea4f3d98c69d0d777bfc1be Mon Sep 17 00:00:00 2001
+From: Xin Ouyang <Xin.Ouyang@windriver.com>
+Date: Wed, 20 Jun 2012 16:34:19 +0800
+Subject: [PATCH] audit: python cross-compile
+
+Signed-off-by: Xin Ouyang <Xin.Ouyang@windriver.com>
+---
+ configure.ac |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 3db7d45..9a07db6 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -90,7 +90,8 @@ if test x$use_python = xno ; then
+ else
+ AC_MSG_RESULT(testing)
+ AM_PATH_PYTHON
+-if test -f /usr/include/python${am_cv_python_version}/Python.h ; then
++PY_PREFIX=`$PYTHON -c 'import sys ; print sys.prefix'`
++if test -f $PY_PREFIX/include/python${am_cv_python_version}/Python.h ; then
+ 	python_found="yes"
+ 	AC_MSG_NOTICE(Python bindings will be built)
+ else
+-- 
+1.7.7
+
