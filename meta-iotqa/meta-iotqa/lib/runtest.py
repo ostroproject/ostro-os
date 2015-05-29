@@ -15,6 +15,9 @@ from optparse import OptionParser
 from oeqa.oetest import oeTest
 from oeqa.oetest import oeRuntimeTest
 from oeqa.oetest import runTests
+from oeqa.runexported import FakeTarget
+from oeqa.runexported import MyDataDict
+from oeqa.runexported import TestContext
 from oeqa.utils.sshcontrol import SSHControl
 
 try:
@@ -76,45 +79,6 @@ def runTests_tag(tc, taglist):
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
     return result
-
-# this isn't pretty but we need a fake target object
-# for running the tests externally as we don't care
-# about deploy/start we only care about the connection methods (run, copy)
-class FakeTarget(object):
-    def __init__(self, d):
-        self.connection = None
-        self.ip = None
-        self.server_ip = None
-        self.datetime = time.strftime('%Y%m%d%H%M%S', time.gmtime())
-        self.testdir = d.getVar("TEST_LOG_DIR", True)
-        self.pn = d.getVar("PN", True)
-
-    def exportStart(self):
-        self.sshlog = os.path.join(self.testdir, "ssh_target_log.%s" % self.datetime)
-        sshloglink = os.path.join(self.testdir, "ssh_target_log")
-        if os.path.islink(sshloglink):
-            os.unlink(sshloglink)
-        os.symlink(self.sshlog, sshloglink)
-        print("SSH log file: %s" %  self.sshlog)
-        self.connection = SSHControl(self.ip, logfile=self.sshlog)
-
-    def run(self, cmd, timeout=None):
-        return self.connection.run(cmd, timeout)
-
-    def copy_to(self, localpath, remotepath):
-        return self.connection.copy_to(localpath, remotepath)
-
-    def copy_from(self, remotepath, localpath):
-        return self.connection.copy_from(remotepath, localpath)
-
-class MyDataDict(dict):
-    def getVar(self, key, unused=None):
-        return self.get(key, "")
-
-class TestContext(object):
-    def __init__(self):
-        self.d = None
-        self.target = None
 
 def main():
 
