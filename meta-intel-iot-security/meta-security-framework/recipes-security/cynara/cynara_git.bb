@@ -10,4 +10,6 @@ file://systemd-stop-using-compat-libs.patch \
 file://systemd-configurable-unit-dir.patch \
 file://cynara-db-migration-abort-on-errors.patch \
 file://cynara-db-migration-sysroot-support.patch \
+file://PolicyKeyFeature-avoid-complex-global-constants.patch \
+file://globals-avoid-copying-other-globals.patch \
 "

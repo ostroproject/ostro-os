@@ -23,10 +23,33 @@ CXXFLAGS_append = " \
 
 EXTRA_OECMAKE += " \
 -DCMAKE_VERBOSE_MAKEFILE=ON \
--DBUILD_TESTS:BOOL=OFF \
 -DCMAKE_BUILD_TYPE=RELEASE \
 -DSYSTEMD_SYSTEM_UNITDIR=${systemd_unitdir}/system \
 "
+
+# Testing depends on gmock and gtest. They can be found in meta-oe
+# and are not necessarily available, so this feature is off by default.
+# If gmock from meta-oe is used, then a workaround is needed to avoid
+# a link error (libgmock.a calls pthread functions without libpthread
+# being listed in the .pc file).
+PACKAGECONFIG[tests] = "-DBUILD_TESTS:BOOL=ON,-DBUILD_TESTS:BOOL=OFF,gmock gtest,"
+SRC_URI_append = "${@bb.utils.contains('PACKAGECONFIG', 'tests', ' file://gmock-pthread-linking.patch file://run-ptest', '', d)}"
+
+# Will be empty if no tests were built.
+inherit ptest
+FILES_${PN}-ptest += "${bindir}/cynara-tests ${bindir}/cynara-db-migration-tests ${localstatedir}/cynara/tests"
+do_install_ptest () {
+    if ${@bb.utils.contains('PACKAGECONFIG', 'tests', 'true', 'false', d)}; then
+        mkdir -p ${D}/${localstatedir}/cynara/tests
+        cp -r ${S}/test/db/* ${D}/${localstatedir}/cynara/tests
+    fi
+}
+
+do_compile_prepend () {
+    # en_US.UTF8 is not available, causing cynara-tests parser.getKeyAndValue to fail.
+    # Submitted upstream: https://github.com/Samsung/cynara/issues/10
+    sed -i -e 's/std::locale("en_US.UTF8")/std::locale("C")/g' ${S}/test/credsCommons/parser/Parser.cpp
+}
 
 inherit useradd
 USERADD_PACKAGES = "${PN}"
