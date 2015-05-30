@@ -4,6 +4,7 @@
 
 import time
 import subprocess
+import os
 
 def attr(*args, **kwargs):
     """Decorator that adds attributes to classes or functions
@@ -45,3 +46,14 @@ def shell_cmd_timeout(cmd, timeout=0):
             ret = -99999
             break
     return ret, output
+
+def collect_pnp_log(casename, log):
+    """collect the result log for pnp part"""
+    curpath = os.getcwd()
+    logname = casename + ".log"
+    if not os.path.exists(casename):
+        os.makedirs(casename)
+
+    logpath = os.path.join(curpath, casename, logname)
+    with open(logpath, "w") as text_file:
+        text_file.write("%s:%s\n" %(casename, log))
