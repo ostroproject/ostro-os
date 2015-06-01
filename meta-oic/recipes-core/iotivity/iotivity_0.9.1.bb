@@ -6,10 +6,10 @@ EXTRANATIVEPATH += "chrpath-native"
 SECTION = "libs"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://../git/resource/include/OCApi.h;beginline=1;endline=19;md5=fc5a615cf1dc3880967127bc853b3e0c"
-SRC_URI = "git://gerrit.iotivity.org/gerrit/iotivity;protocol=https;name=iotivity \
+SRC_URI = "git://gerrit.iotivity.org/gerrit/iotivity;protocol=https;branch=0.9.1-dev;name=iotivity \
           "
 
-SRCREV_iotivity = "52fb76cbadc8c85daf5611271d5aa99756b97dfc"
+SRCREV_iotivity = "240655278f95148cc0a585d7155a9a5f81b78873"
 
 S = "${WORKDIR}/git"
 
@@ -24,6 +24,11 @@ python () {
 
 IOTIVITY_BIN_DIR = "/opt/iotivity"
 IOTIVITY_BIN_DIR_D = "${D}${IOTIVITY_BIN_DIR}"
+
+do_compile_prepend() {
+    #Proxy settings go here below.
+    export https_proxy=
+}
 
 do_install() {
     install -d ${D}${libdir}  

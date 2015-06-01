@@ -5,12 +5,26 @@ successfully tested on the Intel Edison and MinnowBoard MAX platforms.
 	
 Contents
 ========
+- Working behind a proxy
 - Recipes
 - Building IoTivity for a Yocto target
 - IoTivity packages built by the meta-oic layer
 - Building Yocto cross-toolchain with IoTivity for your target
 - Preset locations of IoTivity headers, runtimes and samples 
 - Building IoTivity applications for a Yocto target
+
+Working behind a proxy
+======================
+The IoTivity build process fetches external libraries that it 
+uses internally. If you're running a build from behind a network proxy,
+set https_proxy in the do_compile_prepend step of the recipe:
+
+do_compile_prepend() {
+    #Proxy settings go here below.
+    export https_proxy=
+}
+
+It will be then picked up by the IoTivity build process.
 
 Recipes
 =======
