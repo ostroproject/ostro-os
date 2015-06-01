@@ -69,7 +69,11 @@ def get_tclist(d, fname):
 
 #bitbake task - run iot test suite
 python do_test_iot() {
-
+    deploy_files = os.path.join(d.getVar("DEPLOY_DIR", True), "files")
+    d.setVar("DEPLOY_DIR_FILES", deploy_files)
+#    bb.utils.remove(exportdir, recurse=True)
+    bb.utils.mkdirhier(deploy_files)
+    copy_support_files(d, deploy_files)
     testimage_main(d)
 }
 
@@ -135,9 +139,34 @@ def copy_testdesc(d, tdir):
     descfile = "testdesc.json"
     layerdir = get_qa_layer(d)
     srcpath = os.path.join(layerdir, "conf", "test", descfile)
-    bb.plain("%s -- %s" % (layerdir, srcpath))
     shutil.copy2(srcpath, tdir)
     bb.plain("copy %s to: %s" % (descfile, tdir))
+
+#copy support files to test suite
+def copy_support_files(d, depdir):
+    import shutil
+    def full_path(rpath):
+        return os.path.join(d.getVar("BASE_WORKDIR", True),
+                            d.getVar("TARGET_SYS", True),
+                            rpath) 
+    fname = "files.manifest"
+    layerdir = get_qa_layer(d)
+    tfile = os.path.join(layerdir, "lib", fname)
+    if not os.path.exists(tfile):
+        bb.plain("Not found files manifest: %s" % tfile)
+        return
+
+    with open(tfile, "r") as f:
+        file_list = f.readlines()
+        for fl in file_list:
+            ffile = full_path(fl.strip())
+            if os.path.exists(ffile):
+                shutil.copy2(ffile, depdir)
+                bb.plain("Copy file: %s" % ffile)
+            else:
+                bb.plain("Support file: %s missing" % ffile)
+                 
+    bb.plain("Copy support files done")
 
 #package test suite as tarball
 def pack_testsuite(d, tdir):
@@ -157,6 +186,9 @@ python do_test_iot_export() {
     export_testsuite(d, exportdir)
     dump_builddata(d, exportdir)
     copy_testdesc(d, exportdir)
+    deploy_files = os.path.join(exportdir, "files")
+    bb.utils.mkdirhier(deploy_files)
+    copy_support_files(d, deploy_files)
     pack_testsuite(d, exportdir)
 }
 

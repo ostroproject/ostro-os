@@ -136,11 +136,12 @@ def main():
         d[key] = loaded["d"][key]
 
     if options.log_dir:
-        d["TEST_LOG_DIR"] = options.log_dir
+        d["TEST_LOG_DIR"] = os.path.abspath(options.log_dir)
     else:
         d["TEST_LOG_DIR"] = os.path.abspath(os.path.dirname(__file__))
     if options.deploy_dir:
-        d["DEPLOY_DIR"] = options.deploy_dir
+        d["DEPLOY_DIR"] = os.path.abspath(options.deploy_dir)
+        d["DEPLOY_DIR_FILES"] = os.pat.join(d["DEPLOY_DIR", "files"])
     else:
         if not os.path.isdir(d["DEPLOY_DIR"]):
             raise Exception("The path to DEPLOY_DIR does not exists: %s" % d["DEPLOY_DIR"])
