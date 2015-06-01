@@ -5,6 +5,7 @@
 import time
 import subprocess
 import os
+from oeqa.oetest import oeRuntimeTest
 
 def attr(*args, **kwargs):
     """Decorator that adds attributes to classes or functions
@@ -57,3 +58,7 @@ def collect_pnp_log(casename, log):
     logpath = os.path.join(curpath, casename, logname)
     with open(logpath, "w") as text_file:
         text_file.write("%s:%s\n" %(casename, log))
+
+def get_files_dir():
+    """Get directory of supporting files"""
+    return oeRuntimeTest.tc.d.getVar('DEPLOY_DIR_FILES', True)

@@ -124,7 +124,7 @@ def main():
             loaded = json.load(f)
     else:
         loaded = {
-              "d": {"DEPLOY_DIR" : "/tmp"},
+              "d": {"DEPLOY_DIR" : "."},
               "pkgmanifest":[],
               "filesdir": "oeqa/runtime/files",
               "imagefeatures": []
