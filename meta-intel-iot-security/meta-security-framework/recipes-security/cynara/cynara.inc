@@ -37,11 +37,11 @@ SRC_URI_append = "${@bb.utils.contains('PACKAGECONFIG', 'tests', ' file://gmock-
 
 # Will be empty if no tests were built.
 inherit ptest
-FILES_${PN}-ptest += "${bindir}/cynara-tests ${bindir}/cynara-db-migration-tests ${localstatedir}/cynara/tests"
+FILES_${PN}-ptest += "${bindir}/cynara-tests ${bindir}/cynara-db-migration-tests ${datadir}/cynara/tests"
 do_install_ptest () {
     if ${@bb.utils.contains('PACKAGECONFIG', 'tests', 'true', 'false', d)}; then
-        mkdir -p ${D}/${localstatedir}/cynara/tests
-        cp -r ${S}/test/db/* ${D}/${localstatedir}/cynara/tests
+        mkdir -p ${D}/${datadir}/cynara/tests
+        cp -r ${S}/test/db/* ${D}/${datadir}/cynara/tests
     fi
 }
 
