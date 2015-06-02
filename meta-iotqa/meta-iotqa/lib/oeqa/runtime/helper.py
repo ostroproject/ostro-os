@@ -61,4 +61,6 @@ def collect_pnp_log(casename, log):
 
 def get_files_dir():
     """Get directory of supporting files"""
-    return oeRuntimeTest.tc.d.getVar('DEPLOY_DIR_FILES', True)
+    pkgarch = oeRuntimeTest.tc.d.getVar('TUNE_PKGARCH', True)
+    deploydir = oeRuntimeTest.tc.d.getVar('DEPLOY_DIR_FILES', True)
+    return os.path.join(deploydir, "files", pkgarch)
