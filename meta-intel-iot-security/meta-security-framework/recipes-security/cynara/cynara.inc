@@ -48,7 +48,7 @@ do_install_ptest () {
 do_compile_prepend () {
     # en_US.UTF8 is not available, causing cynara-tests parser.getKeyAndValue to fail.
     # Submitted upstream: https://github.com/Samsung/cynara/issues/10
-    sed -i -e 's/std::locale("en_US.UTF8")/std::locale("C")/g' ${S}/test/credsCommons/parser/Parser.cpp
+    sed -i -e 's/std::locale("en_US.UTF8")/std::locale::classic()/g' ${S}/test/credsCommons/parser/Parser.cpp
 }
 
 inherit useradd
