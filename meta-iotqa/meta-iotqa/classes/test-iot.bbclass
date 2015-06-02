@@ -177,19 +177,20 @@ def pack_tarball(d, tdir, fname):
 
 #bitbake task - export iot test suite
 python do_test_iot_export() {
+    deploydir = "deploy"
     exportdir = d.getVar("TEST_EXPORT_DIR", True)
     if not exportdir:
         exportdir = "iottest"
         d.setVar("TEST_EXPORT_DIR", exportdir)
     bb.utils.remove(exportdir, recurse=True)
     bb.utils.mkdirhier(exportdir)
+    bb.utils.mkdirhier(os.path.join(exportdir, deploydir))
     export_testsuite(d, exportdir)
     dump_builddata(d, exportdir)
     copy_testdesc(d, exportdir)
     fname = "/tmp/iot-testsuite.tar.gz"
     pack_tarball(d, exportdir, fname)
 
-    deploydir = "deploy"
     pkgarch = d.getVar("TUNE_PKGARCH", True)
     filesdir = os.path.join(deploydir, "files", pkgarch)
     bb.utils.mkdirhier(filesdir)
