@@ -105,6 +105,9 @@ def main():
             help="The build data file.")
     parser.add_option("-a", "--tag", dest="tag",
             help="The tags to filter test case")
+    parser.add_option("-r", "--pkgarch", dest="pkgarch",
+            help="The package arch")
+
 
     (options, args) = parser.parse_args()
 
@@ -124,8 +127,8 @@ def main():
             loaded = json.load(f)
     else:
         loaded = {
-              "d": {"DEPLOY_DIR" : "/tmp"},
-              "pkgmanifest":[],
+              "d": {"DEPLOY_DIR": "./deploy", "TUNE_PKGARCH": "i586"},
+              "pkgmanifest": [],
               "filesdir": "oeqa/runtime/files",
               "imagefeatures": []
         }
@@ -136,14 +139,16 @@ def main():
         d[key] = loaded["d"][key]
 
     if options.log_dir:
-        d["TEST_LOG_DIR"] = options.log_dir
+        d["TEST_LOG_DIR"] = os.path.abspath(options.log_dir)
     else:
         d["TEST_LOG_DIR"] = os.path.abspath(os.path.dirname(__file__))
     if options.deploy_dir:
-        d["DEPLOY_DIR"] = options.deploy_dir
+        d["DEPLOY_DIR"] = os.path.abspath(options.deploy_dir)
     else:
         if not os.path.isdir(d["DEPLOY_DIR"]):
             raise Exception("The path to DEPLOY_DIR does not exists: %s" % d["DEPLOY_DIR"])
+    if options.pkgarch:
+        d["TUNE_PKGARCH"] = options.pkgarch
     setattr(tc, "d", d)
 
     #inject build package manifest

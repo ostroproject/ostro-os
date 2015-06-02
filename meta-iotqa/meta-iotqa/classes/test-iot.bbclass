@@ -69,7 +69,11 @@ def get_tclist(d, fname):
 
 #bitbake task - run iot test suite
 python do_test_iot() {
-
+    pkgarch = d.getVar("TUNE_PKGARCH", True)
+    filesdir = os.path.join(d.getVar("DEPLOY_DIR", True), "files", pkgarch)
+    bb.utils.remove(filesdir, recurse=True)
+    bb.utils.mkdirhier(filesdir)
+    copy_support_files(d, filesdir)
     testimage_main(d)
 }
 
@@ -135,29 +139,64 @@ def copy_testdesc(d, tdir):
     descfile = "testdesc.json"
     layerdir = get_qa_layer(d)
     srcpath = os.path.join(layerdir, "conf", "test", descfile)
-    bb.plain("%s -- %s" % (layerdir, srcpath))
     shutil.copy2(srcpath, tdir)
     bb.plain("copy %s to: %s" % (descfile, tdir))
 
+#copy support files to test suite
+def copy_support_files(d, depdir):
+    import shutil
+    def full_path(rpath):
+        return os.path.join(d.getVar("BASE_WORKDIR", True),
+                            d.getVar("TARGET_SYS", True),
+                            rpath) 
+    fname = "files.manifest"
+    layerdir = get_qa_layer(d)
+    tfile = os.path.join(layerdir, "lib", fname)
+    if not os.path.exists(tfile):
+        bb.plain("Not found files manifest: %s" % tfile)
+        return
+
+    with open(tfile, "r") as f:
+        file_list = f.readlines()
+        for fl in file_list:
+            ffile = full_path(fl.strip())
+            if os.path.exists(ffile):
+                shutil.copy2(ffile, depdir)
+                bb.plain("Copy file: %s" % ffile)
+            else:
+                bb.plain("Support file: %s missing" % ffile)
+                 
+    bb.plain("Copy support files done")
+
 #package test suite as tarball
-def pack_testsuite(d, tdir):
+def pack_tarball(d, tdir, fname):
     import tarfile
-    tar = tarfile.open("/tmp/iot-testsuite.tar.gz", "w:gz")
+    tar = tarfile.open(fname, "w:gz")
     tar.add(tdir, arcname=os.path.basename(tdir))
     tar.close()
 
 #bitbake task - export iot test suite
 python do_test_iot_export() {
+    deploydir = "deploy"
     exportdir = d.getVar("TEST_EXPORT_DIR", True)
     if not exportdir:
         exportdir = "iottest"
         d.setVar("TEST_EXPORT_DIR", exportdir)
     bb.utils.remove(exportdir, recurse=True)
     bb.utils.mkdirhier(exportdir)
+    bb.utils.mkdirhier(os.path.join(exportdir, deploydir))
     export_testsuite(d, exportdir)
     dump_builddata(d, exportdir)
     copy_testdesc(d, exportdir)
-    pack_testsuite(d, exportdir)
+    fname = "/tmp/iot-testsuite.tar.gz"
+    pack_tarball(d, exportdir, fname)
+
+    pkgarch = d.getVar("TUNE_PKGARCH", True)
+    filesdir = os.path.join(deploydir, "files", pkgarch)
+    bb.utils.mkdirhier(filesdir)
+    copy_support_files(d, filesdir)
+    fname = "/tmp/iot-testfiles.%s.tar.gz" % pkgarch
+    pack_tarball(d, deploydir, fname)
 }
 
 addtask test_iot_export
