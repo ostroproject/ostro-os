@@ -37,18 +37,18 @@ SRC_URI_append = "${@bb.utils.contains('PACKAGECONFIG', 'tests', ' file://gmock-
 
 # Will be empty if no tests were built.
 inherit ptest
-FILES_${PN}-ptest += "${bindir}/cynara-tests ${bindir}/cynara-db-migration-tests ${localstatedir}/cynara/tests"
+FILES_${PN}-ptest += "${bindir}/cynara-tests ${bindir}/cynara-db-migration-tests ${datadir}/cynara/tests"
 do_install_ptest () {
     if ${@bb.utils.contains('PACKAGECONFIG', 'tests', 'true', 'false', d)}; then
-        mkdir -p ${D}/${localstatedir}/cynara/tests
-        cp -r ${S}/test/db/* ${D}/${localstatedir}/cynara/tests
+        mkdir -p ${D}/${datadir}/cynara/tests
+        cp -r ${S}/test/db/* ${D}/${datadir}/cynara/tests
     fi
 }
 
 do_compile_prepend () {
     # en_US.UTF8 is not available, causing cynara-tests parser.getKeyAndValue to fail.
     # Submitted upstream: https://github.com/Samsung/cynara/issues/10
-    sed -i -e 's/std::locale("en_US.UTF8")/std::locale("C")/g' ${S}/test/credsCommons/parser/Parser.cpp
+    sed -i -e 's/std::locale("en_US.UTF8")/std::locale::classic()/g' ${S}/test/credsCommons/parser/Parser.cpp
 }
 
 inherit useradd
