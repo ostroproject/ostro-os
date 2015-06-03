@@ -49,13 +49,9 @@ def get_tests_list(d, type="runtime"):
 
     testslist = []
     for testname in testsuites:
-        found = False
-        for p in bbpath:
-            testslist.append(testname)
-            found = True
-            break
-        if not found:
-            bb.fatal('Test %s specified in TEST_SUITES could not be found in lib/oeqa/runtime under BBPATH' % testname)
+        if testname.startswith('#'):
+            continue
+        testslist.append(testname)
     return testslist
     
 #get testcase list from specified layer
@@ -159,6 +155,8 @@ def copy_support_files(d, depdir):
     with open(tfile, "r") as f:
         file_list = f.readlines()
         for fl in file_list:
+            if fl.startswith('#'):
+                continue
             ffile = full_path(fl.strip())
             if os.path.exists(ffile):
                 shutil.copy2(ffile, depdir)

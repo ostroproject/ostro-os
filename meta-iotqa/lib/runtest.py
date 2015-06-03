@@ -117,7 +117,8 @@ def main():
     tclist = []
     if options.tests_list:
         with open(options.tests_list, "r") as f:
-            tclist = [n.strip() for n in f.readlines()]
+            tclist = filter(lambda x: not x.startswith('#'),
+                              [n.strip() for n in f.readlines()])
     tc.testslist = tclist
     print tc.testslist
 
