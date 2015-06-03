@@ -63,3 +63,16 @@ BUILD_ID ?= "${DATETIME}"
 IMAGE_BUILDINFO_VARS_append = " BUILD_ID"
 
 IMAGE_NAME = "${IMAGE_BASENAME}-${MACHINE}-${BUILD_ID}"
+
+# Activate IMA signing of rootfs, using the default (and insecure,
+# because publicly available) keys shipped with the integrity
+# layer. Actual products are expected to use their own, secret keys.
+# See meta-integrity/README.md for the relevant configuration options.
+#
+# No IMA policy gets loaded, so in practice the resulting image runs
+# without IMA.
+inherit ima-evm-rootfs
+
+# "evmctl ima_verify <file>" can be used to check that a file is
+# really unmodified.
+IMAGE_INSTALL += "ima-evm-utils"
