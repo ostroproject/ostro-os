@@ -1,2 +1,7 @@
 #hello/1.0-r0/temp/log.do_compile
-#hello-native/1.0-r0/temp/log.task_order
+#host:hello-native/1.0-r0/temp/log.task_order
+
+mraa-test/1.0-r0/hello_mraa
+iotivity-test/1.0.0-r0/image/opt/iotivity-test/apps/iotivity-test/servertest
+iotivity-test/1.0.0-r0/image/opt/iotivity-test/apps/iotivity-test/clienttest
+systemd/1_219-stable+gitAUTOINC+85a6fabdd3-r0/image/usr/bin/systemd-analyze
