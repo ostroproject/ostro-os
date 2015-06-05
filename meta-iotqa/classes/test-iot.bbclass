@@ -155,9 +155,10 @@ def copy_support_files(d, depdir):
     with open(tfile, "r") as f:
         file_list = f.readlines()
         for fl in file_list:
-            if fl.startswith('#'):
-                continue
-            ffile = full_path(fl.strip())
+            fl = fl.strip()
+            if fl.startswith('#') or not fl:
+                continue 
+            ffile = full_path(fl)
             if os.path.exists(ffile):
                 shutil.copy2(ffile, depdir)
                 bb.plain("Copy file: %s" % ffile)
