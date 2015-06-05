@@ -1,2 +1,16 @@
 #oeqa.runtime.ping
 #oeqa.runtime.ping2
+oeqa.runtime.apprt_nodejs
+oeqa.runtime.apprt_python
+oeqa.runtime.baseos
+oeqa.runtime.comm_btcheck
+oeqa.runtime.comm_managerdaemon
+oeqa.runtime.comm_ssh
+oeqa.runtime.mraa_hello
+oeqa.runtime.iotvt_getstate
+oeqa.runtime.iotvt_observer
+oeqa.runtime.iotvt_findresource
+oeqa.runtime.iotvt_regresource
+oeqa.runtime.iotvt_setstate
+oeqa.runtime.memory
+oeqa.runtime.boottime
