@@ -27,15 +27,23 @@ except ImportError:
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "oeqa")))
 
-def check_tag(tcase, taglist):
+def _check(obj, taglist):
+    """ match tag inside obj """
+    for tag in taglist:
+        tkeyval = tag.split("=")
+        tkey = tkeyval[0]
+        if hasattr(obj, tkey):
+            tval = True if len(tkeyval) == 1 else tkeyval[1]
+            if tval == getattr(obj, tkey):
+                return True
+    return False
+
+def check_tag_method(tcase, taglist):
     """ check if test method has specified tag enabled """
     if not hasattr(tcase, "_testMethodName"):
         return False
     tc_method = getattr(tcase, tcase._testMethodName)
-    for tag in taglist:
-        if hasattr(tc_method, tag):
-            return True
-    return check_tag_class(tcase, taglist)
+    return _check(tc_method, taglist)
 
 def check_tag_class(tcase, taglist):
     """ check if test class has specified tag enabled """
@@ -43,10 +51,7 @@ def check_tag_class(tcase, taglist):
         return False
     tc_method = getattr(tcase, tcase._testMethodName)
     tc_class = tc_method.__self__.__class__
-    for tag in taglist:
-        if hasattr(tc_class, tag):
-            return True
-    return False
+    return _check(tc_class, taglist)
 
 def runTests_tag(tc, taglist):
     """ run whole test suite according to tclist"""
@@ -62,17 +67,19 @@ def runTests_tag(tc, taglist):
         tsuite = testloader.loadTestsFromName(tname)
         for ts in tsuite:
             # it is test suite
-            if hasattr(ts, "_tests"):
-                if ts._tests and check_tag_class(ts._tests[0], taglist):
+            if hasattr(ts, "_tests") and ts._tests != []:
+                if check_tag_class(ts._tests[0], taglist):
                     print "add suite"
                     suite.addTest(ts)
                 else:
                     for x in ts._tests:
-                        if check_tag(x, taglist):
+                        if check_tag_class(x, taglist) or\
+                               check_tag_method(x, taglist):
                             suite.addTest(x)
             # it is test case
             else:
-                if check_tag(ts, taglist):
+                if check_tag_class(ts, taglist) or\
+                       check_tag_method(ts, taglist):
                     suite.addTest(ts)
     print("Test modules  %s" % tc.testslist)
     print("Found %s tests" % suite.countTestCases())
