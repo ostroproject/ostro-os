@@ -69,5 +69,5 @@ def get_native_dir():
     """Get directory of native files"""
     arch = oeRuntimeTest.tc.d.getVar('TUNE_NATIVE_ARCH', True)
     deploydir = oeRuntimeTest.tc.d.getVar('DEPLOY_DIR', True)
-    return os.path.join(deploydir, "native", arch)
+    return os.path.join(deploydir, "files", "native", arch)
 

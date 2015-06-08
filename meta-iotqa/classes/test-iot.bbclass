@@ -69,7 +69,8 @@ python do_test_iot() {
     filesdir = os.path.join(d.getVar("DEPLOY_DIR", True), "files", pkgarch)
     re_creat_dir(filesdir)
     nativearch = d.getVar("SDK_ARCH", True)
-    nativedir = os.path.join(d.getVar("DEPLOY_DIR", True), "native", nativearch)
+    nativedir = os.path.join(d.getVar("DEPLOY_DIR", True), "files", "native",
+                             nativearch)
     re_creat_dir(nativedir)
     copy_support_files(d, filesdir, nativedir)
     testimage_main(d)
@@ -206,7 +207,7 @@ python do_test_iot_export() {
     filesdir = os.path.join(deploydir, "files", pkgarch)
     bb.utils.mkdirhier(filesdir)
     nativearch = d.getVar("SDK_ARCH", True)
-    nativedir = os.path.join(deploydir, "native", nativearch)
+    nativedir = os.path.join(deploydir, "files", "native", nativearch)
     bb.utils.mkdirhier(nativedir)
     copy_support_files(d, filesdir, nativedir)
     fname = "/tmp/iot-testfiles.%s.tar.gz" % pkgarch
