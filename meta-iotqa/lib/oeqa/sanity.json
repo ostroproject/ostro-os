@@ -15,7 +15,7 @@
 	"oeqa.runtime.apprt_python",
 	"oeqa.runtime.baseos",
 	"oeqa.runtime.comm_btcheck",
-	"oeqa.runtime.comm_daemon",
+	"oeqa.runtime.comm_managerdaemon",
 	"oeqa.runtime.comm_ssh",
 	"oeqa.runtime.mraa_hello",
 	"oeqa.runtime.iotvt_getstate",

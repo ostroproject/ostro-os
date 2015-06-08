@@ -114,6 +114,8 @@ def main():
             help="The tags to filter test case")
     parser.add_option("-r", "--pkgarch", dest="pkgarch",
             help="The package arch")
+    parser.add_option("-n", "--nativearch", dest="nativearch",
+            help="The native arch")
 
 
     (options, args) = parser.parse_args()
@@ -135,7 +137,8 @@ def main():
             loaded = json.load(f)
     else:
         loaded = {
-              "d": {"DEPLOY_DIR": "./deploy", "TUNE_PKGARCH": "i586"},
+              "d": {"DEPLOY_DIR": "./deploy",
+                    "TUNE_PKGARCH": "i586"},
               "pkgmanifest": [],
               "filesdir": "oeqa/runtime/files",
               "imagefeatures": []
@@ -157,6 +160,10 @@ def main():
             raise Exception("The path to DEPLOY_DIR does not exists: %s" % d["DEPLOY_DIR"])
     if options.pkgarch:
         d["TUNE_PKGARCH"] = options.pkgarch
+    navarch = os.popen("uname -m").read().strip()
+    d["TUNE_NATIVE_ARCH"] = "x86_64" if not navarch else navarch
+    if options.nativearch:
+        d["TUNE_NATIVE_ARCH"] = options.nativearch
     setattr(tc, "d", d)
 
     #inject build package manifest

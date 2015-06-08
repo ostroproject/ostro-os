@@ -2,6 +2,7 @@ import os
 import string
 import time
 from oeqa.oetest import oeRuntimeTest
+from oeqa.runtime.helper import get_files_dir
 
 class IOtvtServer(oeRuntimeTest):
     '''Iotivity server registers a new resource'''
@@ -9,9 +10,9 @@ class IOtvtServer(oeRuntimeTest):
         '''Prepare test binaries to image'''
         (status, output) = self.target.run('mkdir -p /opt/iotivity-test/apps/iotivity-test/')
         (status, output) = self.target.run("ps | grep servertest | awk '{print $1}' | xargs kill -9")
-        (status, output) = self.target.copy_to(os.path.join(os.path.dirname(__file__),'files',
+        (status, output) = self.target.copy_to(os.path.join(get_files_dir(),
                           'servertest'), "/opt/iotivity-test/apps/iotivity-test/")
-        (status, output) = self.target.copy_to(os.path.join(os.path.dirname(__file__),'files',
+        (status, output) = self.target.copy_to(os.path.join(get_files_dir(),
                           'clienttest'), "/opt/iotivity-test/apps/iotivity-test/")
 
         '''start iotivity server to register a new resource'''
