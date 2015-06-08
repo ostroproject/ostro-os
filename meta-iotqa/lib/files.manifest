@@ -1,5 +1,5 @@
 #hello/1.0-r0/temp/log.do_compile
-#host:hello-native/1.0-r0/temp/log.task_order
+#native:hello-native/1.0-r0/temp/log.task_order
 
 mraa-test/1.0-r0/hello_mraa
 iotivity-test/1.0.0-r0/image/opt/iotivity-test/apps/iotivity-test/servertest
