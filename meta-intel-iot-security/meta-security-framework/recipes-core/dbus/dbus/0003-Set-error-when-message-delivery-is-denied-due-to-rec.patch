@@ -1,0 +1,37 @@
+From ee7f8d394ec4266198a264070b62b248b057712a Mon Sep 17 00:00:00 2001
+From: Jacek Bukarewicz <j.bukarewicz@samsung.com>
+Date: Fri, 14 Nov 2014 18:39:38 +0000
+Subject: [PATCH 03/13] Set error when message delivery is denied due to
+ receive rule
+
+This makes bus_context_check_security_policy follow convention of
+setting errors if function indicates failure and has error parameter.
+Notable implication is that AccessDenied error will be sent if sending message
+to addressed recipient is denied due to receive rule. Previously, message
+was silently dropped.
+
+This also fixes assertion failure when message is denied at addressed recipient
+while sending pending auto activation messages.
+
+Bug: https://bugs.freedesktop.org/show_bug.cgi?id=86194
+Change-Id: Ib60b9b5cc2e64fe5c412534afb44f5d702b26b23
+---
+ bus/bus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/bus/bus.c b/bus/bus.c
+index 47cc345..f0d980e 100644
+--- a/bus/bus.c
++++ b/bus/bus.c
+@@ -1660,7 +1660,7 @@ bus_context_check_security_policy (BusContext     *context,
+       complain_about_message (context, DBUS_ERROR_ACCESS_DENIED,
+           "Rejected receive message", toggles,
+           message, sender, proposed_recipient, requested_reply,
+-          (addressed_recipient == proposed_recipient), NULL);
++          (addressed_recipient == proposed_recipient), error);
+       _dbus_verbose ("security policy disallowing message due to recipient policy\n");
+       return FALSE;
+     }
+-- 
+2.1.4
+

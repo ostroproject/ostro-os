@@ -1,0 +1,69 @@
+From 22cbd5ebaf3fbb86ff1ff8a0cc934d2181453e1b Mon Sep 17 00:00:00 2001
+From: Patrick Ohly <patrick.ohly@intel.com>
+Date: Tue, 2 Jun 2015 14:58:48 +0200
+Subject: [PATCH 13/13] various compile fixes
+
+Some of these should be squashed into the commits introducing the offending code.
+For now keep them separate, because the entire rebasing should be redone in a cleaner
+way (see https://bugs.tizen.org/jira/browse/TC-2520).
+
+Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
+---
+ bus/activation.c | 5 ++++-
+ bus/check.c      | 2 ++
+ bus/driver.c     | 1 +
+ 3 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/bus/activation.c b/bus/activation.c
+index be2bc40..73990fc 100644
+--- a/bus/activation.c
++++ b/bus/activation.c
+@@ -1240,8 +1240,10 @@ bus_activation_send_pending_auto_activation_messages (BusActivation  *activation
+                     if (putback_message->connection == entry->connection)
+                       {
+                         if (!_dbus_connection_putback_message (putback_message->connection, last_inserted_message,
+-                              putback_message->activation_message, error))
++                              putback_message->activation_message, &error)) {
++                          /* Can only fail due to OOM, in which case error was set to the OOM error. Ignore that... */
+                           goto error;
++                        }
+                         last_inserted_message = putback_message->activation_message;
+                         putback_message->is_put_back = TRUE;
+                       }
+@@ -2076,6 +2078,7 @@ bus_activation_activate_service (BusActivation  *activation,
+                   retval = TRUE;
+                   break;
+                 case BUS_RESULT_FALSE:
++                default: // needed to silence "‘retval’ may be used uninitialized in this function" warnings
+                   retval = FALSE;
+                   break;
+                 case BUS_RESULT_LATER:
+diff --git a/bus/check.c b/bus/check.c
+index 0d5994e..c464276 100644
+--- a/bus/check.c
++++ b/bus/check.c
+@@ -276,7 +276,9 @@ bus_check_privilege (BusCheck *check,
+ {
+   BusDeferredMessage *previous_deferred_message;
+   BusResult result = BUS_RESULT_FALSE;
++#ifdef DBUS_ENABLE_CYNARA
+   BusCynara *cynara;
++#endif
+   DBusConnection *connection;
+ 
+   connection = check_type == BUS_DEFERRED_MESSAGE_CHECK_RECEIVE ? proposed_recipient : sender;
+diff --git a/bus/driver.c b/bus/driver.c
+index 9eb0ae2..f6314b9 100644
+--- a/bus/driver.c
++++ b/bus/driver.c
+@@ -135,6 +135,7 @@ bus_driver_send_service_owner_changed (const char     *service_name,
+       retval = TRUE;
+       break;
+     case BUS_RESULT_FALSE:
++    default: /* needed to silence "‘retval’ may be used uninitialized in this function" warning */
+       retval = FALSE;
+       break;
+     case BUS_RESULT_LATER:
+-- 
+2.1.4
+
