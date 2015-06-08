@@ -138,8 +138,7 @@ def main():
     else:
         loaded = {
               "d": {"DEPLOY_DIR": "./deploy",
-                    "TUNE_PKGARCH": "i586",
-                    "TUNE_NATIVE_ARCH": "x86_64"},
+                    "TUNE_PKGARCH": "i586"},
               "pkgmanifest": [],
               "filesdir": "oeqa/runtime/files",
               "imagefeatures": []
@@ -161,6 +160,8 @@ def main():
             raise Exception("The path to DEPLOY_DIR does not exists: %s" % d["DEPLOY_DIR"])
     if options.pkgarch:
         d["TUNE_PKGARCH"] = options.pkgarch
+    navarch = os.popen("uname -m").read().strip()
+    d["TUNE_NATIVE_ARCH"] = "x86_64" if not navarch else navarch
     if options.nativearch:
         d["TUNE_NATIVE_ARCH"] = options.nativearch
     setattr(tc, "d", d)
