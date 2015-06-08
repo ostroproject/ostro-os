@@ -32,7 +32,7 @@ class RebootTest(oeRuntimeTest):
         '''reboot target device for several times'''
         for cnt in range(3):
             print "Reboot %d time" % cnt
-            ret = self.target.run('reboot')[0]
+            ret = self.target.run('reboot &')[0]
 #            self.assertEqual(ret, 0, msg="Fail to trigger reboot command")
             time.sleep(4)
             status = self._wait_offline()
