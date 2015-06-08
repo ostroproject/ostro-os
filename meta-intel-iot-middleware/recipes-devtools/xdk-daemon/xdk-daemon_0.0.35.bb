@@ -4,16 +4,16 @@ LICENSE = "Proprietary"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=121fc3cd97e5c1db39627399a7d72288"
 
 DEPENDS = "nodejs-native mdns"
-RDEPENDS_${PN} = "libarchive-bin mdns nodejs"
+RDEPENDS_${PN} = "libarchive-bin nodejs bash"
 
 PR = "r0"
 
 # needed to unset no_proxy for internal development
 export no_proxy = ""
 
-SRC_URI = "http://download.xdk.intel.com/iot/xdk-daemon-0.0.31.tar.bz2"
-SRC_URI[md5sum] = "3c0cd1d643e880358c805798eaa69e9e"
-SRC_URI[sha256sum] = "1117680926a3cbcdd6254edc2b74af4d0d28c78875c6acf604b1881783405c3c"
+SRC_URI = "http://download.xdk.intel.com/iot/xdk-daemon-0.0.35.tar.bz2"
+SRC_URI[md5sum] = "6fb760111d3caf0ab3189e267f0d2cd0"
+SRC_URI[sha256sum] = "6bfba58acf144cb0bf3329f6341990917724ee54d8d3e3cd527219918aeba03a"
 
 # we don't care about debug for the few binary node modules
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
@@ -43,9 +43,15 @@ do_compile () {
     # clear local cache prior to each compile
     npm cache clear
 
-    npm install --arch=${TARGET_ARCH}
+    # NPM is picky about arch names
+    if [ "${TARGET_ARCH}" == "i586" ]; then
+        npm config set target_arch ia32
+        export TARGET_ARCH=ia32
+    fi
+    # npm is dumb, it needs to get given --arch but not in npm config
+    npm install
     cd current/ && npm install --arch=${TARGET_ARCH}
-    cd node-inspector-server && npm install --arch=${TARGET_ARCH}
+    cd node-inspector-server && npm install --build-from-source --arch=${TARGET_ARCH}
 
     sed -i '/TM/d' ${S}/xdk-daemon
 }
