@@ -7,7 +7,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 # Override COMPATIBLE_MACHINE to include your machine in a bbappend
 # file. Leaving it empty here ensures an early explicit build failure.
-COMPATIBLE_MACHINE = "quark"
+COMPATIBLE_MACHINE = "quark|atom|atomup"
 
 SRCREV = "a0ce889438e8204b87d1f30f941646636e26837e"
 
@@ -19,6 +19,10 @@ SRC_URI_append_quark = " \
 	file://quark/v4-2-2-efi-an-sysfs-interface-for-user-to-update-efi-firmware.patch \
 	file://quark/defconfig \
 	"
+SRC_URI_append_atom = " \
+	file://atom/defconfig"
+SRC_URI_append_atomup = " \
+	file://atomup/defconfig"
 
 LINUX_VERSION ?= "4.0.6"
 
