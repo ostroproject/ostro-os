@@ -1,8 +1,8 @@
 require security-manager.inc
 
-PV = "1.0.1+git${SRCPV}"
-SRCREV = "6eb825a3876061b2e152d42974e117dcbedf7c70"
-SRC_URI += "git://review.tizen.org/platform/core/security/security-manager;nobranch=1"
+PV = "1.0.2+git${SRCPV}"
+SRCREV = "860305a595d681d650024ad07b3b0977e1fcb0a6"
+SRC_URI += "git://github.com/Samsung/security-manager.git"
 S = "${WORKDIR}/git"
 
 SRC_URI += "file://systemd-stop-using-compat-libs.patch"
