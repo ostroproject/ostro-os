@@ -48,8 +48,7 @@ do_install_append () {
 
 RDEPENDS_${PN} += "smack"
 pkg_postinst_${PN} () {
-#!/bin/sh -e
-
+   set -e
    chsmack -a System $D${TZ_SYS_DB}/.security-manager.db
    chsmack -a System $D${TZ_SYS_DB}/.security-manager.db-journal
 }
