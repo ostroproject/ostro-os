@@ -32,7 +32,7 @@ EXTRA_OECMAKE = " \
 -DBIN_INSTALL_DIR=${bindir} \
 -DDB_INSTALL_DIR=${TZ_SYS_DB} \
 -DLIB_INSTALL_DIR=${libdir} \
--DSHARE_INSTALL_PREFIX=${localstatedir} \
+-DSHARE_INSTALL_PREFIX=${datadir} \
 -DINCLUDE_INSTALL_DIR=${includedir} \
 "
 
