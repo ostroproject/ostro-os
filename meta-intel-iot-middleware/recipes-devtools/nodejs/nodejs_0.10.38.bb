@@ -9,8 +9,8 @@ DEPENDS_append_class-target = " nodejs-native"
 
 SRC_URI = "http://nodejs.org/dist/v${PV}/node-v${PV}.tar.gz"
 
-SRC_URI[md5sum] = "2c00d8cf243753996eecdc4f6e2a2d11"
-SRC_URI[sha256sum] = "0043656bb1724cb09dbdc960a2fd6ee37d3badb2f9c75562b2d11235daa40a03"
+SRC_URI[md5sum] = "3f45f994f1f02736576bf7bff1870897"
+SRC_URI[sha256sum] = "513da8ed5e48abefdfab664f1cabc160238d314a0481148804aff8fc6552b78b"
 
 S = "${WORKDIR}/node-v${PV}"
 
