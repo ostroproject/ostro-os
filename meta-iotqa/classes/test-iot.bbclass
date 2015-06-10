@@ -142,11 +142,6 @@ def copy_qa_layer_file_to(d, src_file, tdir):
     else:
         bb.plain("missing file: %s" % srcpath)
 
-#copy test description file
-def copy_testdesc(d, tdir):
-    srcpath = os.path.join("conf", "test", "testdesc.json")
-    copy_qa_layer_file_to(d, srcpath, tdir)
-
 # copy manifest file
 def copy_manifest(d, tdir):
     srcpath = os.path.join("conf", "test", "iottest.manifest")
