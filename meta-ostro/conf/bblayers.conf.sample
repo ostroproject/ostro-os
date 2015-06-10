@@ -18,6 +18,7 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-ostro-bsp \
   ##OEROOT##/meta-yocto-bsp \
   ##OEROOT##/meta-iotqa \
+  ##OEROOT##/meta-user-management \
   "
 
 BBLAYERS_NON_REMOVABLE ?= " \

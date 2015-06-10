@@ -11,6 +11,7 @@ IMAGE_INSTALL = " \
                 iotivity-resource iotivity-resource-samples \
                 packagegroup-core-connectivity \
                 nodejs hid-api iotkit-agent upm tempered mraa linuxptp \
+                packagegroup-user-management \
 		"
 
 IMAGE_FEATURES_append = " \
