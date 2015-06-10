@@ -17,7 +17,7 @@ SRC_URI_append_quark = " \
 	file://quark/PATCHv6-1-1-thermal-intel-Quark-SoC-X1000-DTS-thermal-driver.patch \
 	file://quark/v4-1-2-firmware_loader-introduce-new-API---request_firmware_direct_full_path.patch \
 	file://quark/v4-2-2-efi-an-sysfs-interface-for-user-to-update-efi-firmware.patch \
-	file://defconfig \
+	file://quark/defconfig \
 	"
 
 LINUX_VERSION ?= "4.0.6"
