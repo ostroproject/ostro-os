@@ -131,15 +131,26 @@ def dump_builddata(d, tdir):
     with open(bdpath, "w+") as f:
         json.dump(savedata, f, skipkeys=True, indent=4, sort_keys=True)
 
+# copy src_file(relative of layerdir) to tdir
+def copy_qa_layer_file_to(d, src_file, tdir):
+    import shutil, os
+    layerdir = get_qa_layer(d)
+    srcpath = os.path.join(layerdir, src_file)
+    if os.path.isfile(srcpath):
+        shutil.copy2(srcpath, tdir)
+        bb.plain("copy %s to: %s" % (srcpath, tdir))
+    else:
+        bb.plain("missing file: %s" % srcpath)
+
 #copy test description file
 def copy_testdesc(d, tdir):
-    import shutil
-    
-    descfile = "testdesc.json"
-    layerdir = get_qa_layer(d)
-    srcpath = os.path.join(layerdir, "conf", "test", descfile)
-    shutil.copy2(srcpath, tdir)
-    bb.plain("copy %s to: %s" % (descfile, tdir))
+    srcpath = os.path.join("conf", "test", "testdesc.json")
+    copy_qa_layer_file_to(d, srcpath, tdir)
+
+# copy manifest file
+def copy_manifest(d, tdir):
+    srcpath = os.path.join("conf", "test", "iottest.manifest")
+    copy_qa_layer_file_to(d, srcpath, tdir)
 
 def re_creat_dir(path):
     bb.utils.remove(path, recurse=True)
@@ -199,7 +210,7 @@ python do_test_iot_export() {
     bb.utils.mkdirhier(os.path.join(exportdir, deploydir))
     export_testsuite(d, exportdir)
     dump_builddata(d, exportdir)
-    copy_testdesc(d, exportdir)
+    copy_manifest(d, exportdir)
     fname = "/tmp/iot-testsuite.tar.gz"
     pack_tarball(d, exportdir, fname)
 
