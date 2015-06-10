@@ -144,8 +144,9 @@ def copy_qa_layer_file_to(d, src_file, tdir):
 
 # copy manifest file
 def copy_manifest(d, tdir):
-    srcpath = os.path.join("conf", "test", "iottest.manifest")
-    copy_qa_layer_file_to(d, srcpath, tdir)
+    srcpath = os.path.join(get_qa_layer(d), "conf", "test")
+    import shutil
+    shutil.copytree(srcpath, tdir)
 
 def re_creat_dir(path):
     bb.utils.remove(path, recurse=True)
@@ -205,7 +206,8 @@ python do_test_iot_export() {
     bb.utils.mkdirhier(os.path.join(exportdir, deploydir))
     export_testsuite(d, exportdir)
     dump_builddata(d, exportdir)
-    copy_manifest(d, exportdir)
+    plandir = os.path.join(exportdir, "testplan")
+    copy_manifest(d, plandir)
     fname = "/tmp/iot-testsuite.tar.gz"
     pack_tarball(d, exportdir, fname)
 
