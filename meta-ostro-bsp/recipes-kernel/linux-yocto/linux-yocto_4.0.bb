@@ -1,4 +1,4 @@
-KBRANCH ?= "master"
+KBRANCH ?= "linux-4.0.y"
 
 require recipes-kernel/linux/linux-yocto.inc
 
@@ -9,12 +9,12 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 # file. Leaving it empty here ensures an early explicit build failure.
 COMPATIBLE_MACHINE = "quark"
 
-SRCREV = "db4fd9c5d072a20ea6b7e40276a9822e04732610"
+SRCREV = "be4cb235441a691ee63ba5e00843a9c210be5b8a"
 
-SRC_URI = " \
+SRC_URI_quark = " \
 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git;bareclone=1;branch=${KBRANCH} \
 	file://defconfig \
 	"
 
-LINUX_VERSION ?= "4.0.0"
+LINUX_VERSION ?= "4.0.5"
 
