@@ -4,7 +4,7 @@
 
 '''ping device test module'''
 from oeqa.oetest import oeRuntimeTest
-from oeqa.runtime.helper import shell_cmd_timeout
+from oeqa.utils.helper import shell_cmd_timeout
 
 class PingDevTest(oeRuntimeTest):
     '''Ping target device'''

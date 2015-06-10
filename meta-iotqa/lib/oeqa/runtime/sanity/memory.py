@@ -4,7 +4,7 @@
 import os
 import time
 from oeqa.oetest import oeRuntimeTest
-from oeqa.runtime.helper import collect_pnp_log
+from oeqa.utils.helper import collect_pnp_log
 
 
 class MemTest(oeRuntimeTest):
