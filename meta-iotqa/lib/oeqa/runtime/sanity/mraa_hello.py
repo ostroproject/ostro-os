@@ -1,6 +1,6 @@
 import os
 from oeqa.oetest import oeRuntimeTest
-from oeqa.runtime.helper import get_files_dir
+from oeqa.utils.helper import get_files_dir
 
 class Mraa_hello(oeRuntimeTest):
     '''Say hello to mraa library and get platform name through it'''

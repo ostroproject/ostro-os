@@ -4,7 +4,7 @@
 """System boot time"""
 import os
 from oeqa.oetest import oeRuntimeTest
-from oeqa.runtime.helper import collect_pnp_log, get_files_dir
+from oeqa.utils.helper import collect_pnp_log, get_files_dir
 
 
 class BootTimeTest(oeRuntimeTest):

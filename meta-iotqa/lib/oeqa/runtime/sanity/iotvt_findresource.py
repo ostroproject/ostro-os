@@ -1,12 +1,10 @@
 import os
-import string
-import time
 from oeqa.oetest import oeRuntimeTest
-from oeqa.runtime.helper import get_files_dir
+from oeqa.utils.helper import get_files_dir
 
-class IOtvtServer(oeRuntimeTest):
-    '''Iotivity server registers a new resource'''
-    def test_iotvt_regresource(self):
+class IOtvtClient(oeRuntimeTest):
+    '''Iotivity client finds resource'''
+    def test_iotvt_findresource(self):
         '''Prepare test binaries to image'''
         (status, output) = self.target.run('mkdir -p /opt/iotivity-test/apps/iotivity-test/')
         (status, output) = self.target.run("ps | grep servertest | awk '{print $1}' | xargs kill -9")
@@ -19,9 +17,8 @@ class IOtvtServer(oeRuntimeTest):
         reg_cmd = "/opt/iotivity-test/apps/iotivity-test/servertest > /dev/null 2>&1 &"
         (status, output) = self.target.run(reg_cmd)
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
-
-        ''' after several seconds, the daemon should not crash'''
-        time.sleep(5)
-        (status, output) = self.target.run('ps | grep servertest -c')
-        number = string.atoi(output)
-        self.assertEqual(number, 3, msg="Error messages: %s" % output)
+        
+        '''client starts to find resource'''
+        client_cmd = "/opt/iotivity-test/apps/iotivity-test/clienttest FindResource"
+        (status, output) = self.target.run(client_cmd)
+        self.assertEqual(status, 0, msg="Error messages: %s" % output)
