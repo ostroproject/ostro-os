@@ -18,7 +18,7 @@ do_install() {
     cd ${S}/include/cereal && find . -type f -exec install -c -m 444 "{}" ${D}${includedir}/cereal/"{}" \;
 }
 
-FILES_cereal = "${includedir}/include/cereal"
+FILES_${PN} += "${includedir}/cereal"
 
 ALLOW_EMPTY_${PN} = "1"
 PACKAGES = "${PN}"
