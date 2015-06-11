@@ -1,0 +1,6 @@
+[Unit]
+Description=Start the session for example corp.
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/tlm-client -l --seat seat_placeholder --username example-corp --password automatic_login
