@@ -8,7 +8,12 @@ single repository:
 - meta-intel
 - meta-ostro
 - meta-oic
+- meta-intel-iot-middleware
+- meta-intel-iot-security
+- meta-ostro-fixes
+- meta-ostro-bsp
 - meta-yocto-bsp (from the meta-yocto git repository)
+- meta-iotqa
 
 The top-level directory comes from openembedded-core, everything else
 is in its own sub-directory. This repository gets updated by importing
