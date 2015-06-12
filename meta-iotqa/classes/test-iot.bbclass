@@ -44,7 +44,7 @@ def get_tests_list(d, type="runtime"):
     manif_name = d.getVar("TEST_SUITES_MANIFEST", True)
     if not manif_name:
         manif_name = "iottest.manifest"
-    mainfestList = manif_name.strip().split()
+    mainfestList = manif_name.split()
     testsuites = reduce(lambda x,y:x+y, map(lambda x: get_tclist(d,x), mainfestList))
     bbpath = d.getVar("BBPATH", True).split(':')
 
