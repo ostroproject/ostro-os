@@ -124,10 +124,12 @@ def main():
 
     #inject testcase list
     tclist = []
-    if options.tests_list:
-        with open(options.tests_list, "r") as f:
-            tclist = filter(lambda x: not x.startswith('#'),
+    for each_manifest in options.tests_list.split():
+        with open(each_manifest, "r") as f:
+            map(lambda y:tclist.append(y) if y not in tclist else None, 
+                filter(lambda x: not x.startswith('#'),
                               [n.strip() for n in f.readlines()])
+                )
     tc.testslist = tclist
     print tc.testslist
 

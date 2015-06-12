@@ -43,13 +43,14 @@ def get_qa_layer(d):
 def get_tests_list(d, type="runtime"):
     manif_name = d.getVar("TEST_SUITES_MANIFEST", True)
     if not manif_name:
-        manif_name = "iottest.manifest" 
-    testsuites = get_tclist(d, manif_name)
+        manif_name = "iottest.manifest"
+    mainfestList = manif_name.split()
+    testsuites = reduce(lambda x,y:x+y, map(lambda x: get_tclist(d,x), mainfestList))
     bbpath = d.getVar("BBPATH", True).split(':')
 
     testslist = []
     for testname in testsuites:
-        if testname.startswith('#'):
+        if testname.startswith('#') or testname in testslist:
             continue
         testslist.append(testname)
     return testslist
