@@ -221,6 +221,7 @@ class NodejsRuntimeTest(oeRuntimeTest):
         self.nodejs_dir = os.path.join(self.files_dir, 'node')
         self.config_path = os.path.join(
             self.files_dir,
+            'noderuntime',
             'apprt_nodejs_runtime_config')
 
         # Clean the wokrspace directory to avoid error when setUp fails, 
