@@ -74,18 +74,28 @@ do_install_append() {
     # TODO: seed package database, if present.
 }
 
-update_config() {
-    # the following commands make sense only in the context of session
-    # packages, so guard them with checking the environment variables
+pkg_postinst_${PN} () {
+#!/bin/sh -e
 
-    if [ -n ${IOTAPP_TLM_SESSION_FILE_PATH} ]; then
-        # use tlm-seatconf to add a new configuration into the tlm.conf file
-        SEAT=$(${STAGING_DIR_HOST}/usr/bin/tlm-seatconf add -c ${IMAGE_ROOTFS}/etc/tlm.conf "tlm-laucher -f ${IOTAPP_TLM_SESSION_FILE_PATH} -s %s")
+    # TODO: if a package already has postinst script defined, just
+    # append to that
 
-        if [ -n ${IOTAPP_SERVICE_FILE_PATH} ] && [ -n ${SEAT} ]; then
-            sed s/seat_placeholder/${SEAT}/ ${IMAGE_ROOTFS}${IOTAPP_SERVICE_FILE_PATH}
+    if [ x"$D" = "x" ]; then
+        # no need to run anything on the device
+        exit 1
+    else
+        # the following commands make sense only in the context of session
+        # packages, so guard them with checking the environment variables
+
+        if [ -n "${IOTAPP_TLM_SESSION_FILE_PATH}" ]; then
+            # use tlm-seatconf to add a new configuration into the tlm.conf file
+            SEAT=$(tlm-seatconf add -c $D/etc/tlm.conf "tlm-launcher -f ${IOTAPP_TLM_SESSION_FILE_PATH} -s %s")
+
+            if [ -n "${IOTAPP_SERVICE_FILE_PATH}" ] && [ -n "${SEAT}" ]; then
+                # in-place modify the systemd service file
+                sed -i s/seat_placeholder/${SEAT}/ $D/${IOTAPP_SERVICE_FILE_PATH}
+            fi
         fi
     fi
 }
 
-ROOTFS_POSTPROCESS_COMMAND += "update_config; "
