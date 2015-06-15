@@ -61,6 +61,16 @@ other layers needed. e.g.:
     /path/to/yocto/meta-intel-iot-security/meta-security-framework \
     "
 
+The Cynara-aware D-Bus daemon needs to be enabled explicitly by adding
+"dbus-cynara" to DISTRO_FEATURES, to allow using the layer without
+also changing the D-Bus behavior. When enabled, the regular "dbus"
+package gets replaced with an empty one that pulls in a separate
+"dbus-cynara" package automatically.
+
+The necessary Cyanara rules granting "System" and "User" process the
+http://tizen.org/privilege/internal/dbus privilege can be created
+by installing the "security-manager-policy" package.
+
 
 II. Misc
 ========

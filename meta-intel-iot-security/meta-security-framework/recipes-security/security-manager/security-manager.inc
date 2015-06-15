@@ -32,7 +32,7 @@ EXTRA_OECMAKE = " \
 -DBIN_INSTALL_DIR=${bindir} \
 -DDB_INSTALL_DIR=${TZ_SYS_DB} \
 -DLIB_INSTALL_DIR=${libdir} \
--DSHARE_INSTALL_PREFIX=${localstatedir} \
+-DSHARE_INSTALL_PREFIX=${datadir} \
 -DINCLUDE_INSTALL_DIR=${includedir} \
 "
 
@@ -48,8 +48,7 @@ do_install_append () {
 
 RDEPENDS_${PN} += "smack"
 pkg_postinst_${PN} () {
-#!/bin/sh -e
-
+   set -e
    chsmack -a System $D${TZ_SYS_DB}/.security-manager.db
    chsmack -a System $D${TZ_SYS_DB}/.security-manager.db-journal
 }
@@ -58,3 +57,17 @@ FILES_${PN} += " \
 ${systemd_unitdir} \
 ${TZ_SYS_DB} \
 "
+
+PACKAGES =+ "${PN}-policy"
+FILES_${PN}-policy = " \
+   ${datadir}/${PN} \
+   ${bindir}/security-manager-policy-reload \
+"
+RDEPENDS_${PN}-policy += "sqlite3 cynara"
+pkg_postinst_${PN}-policy () {
+   if [ x"$D" != "x" ] && ${bindir}/security-manager-policy-reload; then
+       exit 0
+   else
+       exit 1
+   fi
+}
