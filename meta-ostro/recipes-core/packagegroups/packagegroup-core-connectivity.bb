@@ -10,5 +10,4 @@ RDEPENDS_${PN} = "\
     bluez5-obex \
     connman \
     connman-client \
-    neard \
     "
