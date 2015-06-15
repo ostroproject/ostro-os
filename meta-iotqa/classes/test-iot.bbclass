@@ -158,7 +158,7 @@ def copy_support_files(d, depdir, navdir):
     import shutil
     def full_path(rpath):
         return os.path.join(d.getVar("BASE_WORKDIR", True),
-                            d.getVar("TARGET_SYS", True),
+                            d.getVar("REAL_MULTIMACH_TARGET_SYS", True),
                             rpath) 
     fname = "files.manifest"
     layerdir = get_qa_layer(d)
