@@ -29,7 +29,7 @@
 #     should have the full root filesystem path of that file.
 
 # depending on tlm so that tlm-seatconf would work
-DEPENDS += "tlm-native tlm-config"
+DEPENDS += "tlm-native tlm"
 
 IOTAPP_DIR ??= "/home"
 
