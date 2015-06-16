@@ -1,7 +1,13 @@
 [Unit]
-Description=Start the session for example corp.
+Description=Example session
 Requires=tlm.service iot-launch.socket
+After=tlm.service
+
+[Install]
+WantedBy=multi-user.target
 
 [Service]
-Type=simple
+Type=oneshot
+RemainAfterExit=yes
 ExecStart=/usr/bin/tlm-client -l --seat seat_placeholder --username example-corp --password automatic_login
+ExecStop=/usr/bin/tlm-client -o --seat seat_placeholder
