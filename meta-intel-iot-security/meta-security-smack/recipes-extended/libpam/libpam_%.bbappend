@@ -1,7 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 # Enable Smack support.
-DEPEND_append_smack = " smack"
+DEPENDS_append_smack = " smack"
 SRC_URI_append_smack = " file://pam-smack-so.patch"
 
 # Tizen has to patch several pam files in different packages (ssh, shadow).
