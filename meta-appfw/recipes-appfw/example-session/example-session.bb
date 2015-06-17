@@ -12,6 +12,9 @@ IOTAPP_PROVIDER = "example-corp"
 IOTAPP_SERVICE_FILE_PATH = "${systemd_unitdir}/system/example-corp.service"
 IOTAPP_TLM_SESSION_FILE_PATH = "/etc/session.d/example-corp.ini"
 
+# automatically start the service during boot
+SYSTEMD_SERVICE_${PN} = "example-corp.service"
+
 inherit iotapp systemd
 
 RDEPENDS_${PN} = "example-app"
