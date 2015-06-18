@@ -38,6 +38,9 @@ DESTDIR=${D}"
 
 do_install() {
     cd ${S} && oe_runmake ${INSTALL_FLAGS} install
+
+    # Debugging script of unknown value, not packaged.
+    rm -f "${D}${datadir}/request-key-debug.sh"
 }
 
 BBCLASSEXTEND = "native"
