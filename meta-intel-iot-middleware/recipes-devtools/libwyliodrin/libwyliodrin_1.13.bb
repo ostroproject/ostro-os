@@ -8,7 +8,8 @@ PR = "r0"
 
 LIC_FILES_CHKSUM = "file://LICENSE;md5=e8c1458438ead3c34974bc0be3a03ed6"
 
-SRC_URI = "git://github.com/Wyliodrin/libwyliodrin.git;protocol=git;rev=7ea3b5344d683b93240d40ef03959632279b1cac"
+SRC_URI = "git://github.com/Wyliodrin/libwyliodrin.git;protocol=git;rev=7ea3b5344d683b93240d40ef03959632279b1cac \
+           file://0001-LiquidCrystal.cpp-inline-functions-need-to-be-inline.patch"
 
 S = "${WORKDIR}/git"
 
