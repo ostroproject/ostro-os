@@ -48,16 +48,16 @@ def shell_cmd_timeout(cmd, timeout=0):
             break
     return ret, output
 
-def collect_pnp_log(casename, log):
+def collect_pnp_log(casename, logname, log):
     """collect the result log for pnp part"""
     curpath = os.getcwd()
-    logname = casename + ".log"
     if not os.path.exists(casename):
         os.makedirs(casename)
 
     logpath = os.path.join(curpath, casename, logname)
-    with open(logpath, "w") as text_file:
-        text_file.write("%s:%s\n" %(casename, log))
+    logtime = time.strftime("%Y-%m-%d %H:%M:%S")
+    with open(logpath, "a") as text_file:
+        text_file.write("%s %s:%s\n" %(logtime, casename, log))
 
 def get_files_dir():
     """Get directory of supporting files"""
