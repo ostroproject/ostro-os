@@ -30,6 +30,9 @@ class BootTimeTest(oeRuntimeTest):
         casename = os.path.splitext(filename)[0]
         (status, output) = self.target.run("/tmp/systemd-analyze time"
                                            " | awk -F '=' '{print $2}'")
-        collect_pnp_log(casename, output)
+        collect_pnp_log(casename, casename, output)
         print "\n%s:%s\n" % (casename, output)
+        (status, output) = self.target.run("/tmp/systemd-analyze time")
+        logname = casename + "-systemd-analyze"
+        collect_pnp_log(casename, logname, output)
         self.assertEqual(status, 0, output)
