@@ -35,6 +35,11 @@ class MemTest(oeRuntimeTest):
             "cat /proc/meminfo" " | grep 'MemAvailable' | awk '{print $2}'")
         mem_available = int(output)
         mem_used = str(mem_total - mem_available) + "KB"
-        collect_pnp_log(casename, mem_used)
+        collect_pnp_log(casename, casename, mem_used)
         print "\n%s:%s\n" % (casename, mem_used)
         self.assertEqual(status, 0, mem_used)
+
+        (status, output) = self.target.run(
+            "cat /proc/meminfo")
+        logname = casename + "-meminfo"
+        collect_pnp_log(casename, logname, output)
