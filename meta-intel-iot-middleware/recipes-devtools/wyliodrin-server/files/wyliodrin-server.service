@@ -5,7 +5,8 @@ ConditionFileNotEmpty=/media/card/wyliodrin.json
 
 [Service]
 Type=simple
-ExecStart=/bin/sleep 5 && /usr/bin/wyliodrind
+ExecStartPre=/bin/sleep 5
+ExecStart=/usr/bin/wyliodrind
 Restart=always
 
 [Install]

@@ -4,6 +4,7 @@ After=network.target multi-user.target
 
 [Service]
 Type=forking
+ExecPre=/bin/sleep 1
 ExecStart=/usr/bin/redis-server /etc/redis/redis.conf
 ExecStop=/bin/kill -15 $MAINPID
 PIDFile=/var/run/redis.pid
