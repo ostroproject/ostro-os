@@ -105,11 +105,14 @@ def export_testsuite(d, exportdir):
     oeqadir = pkgutil.get_loader("oeqa").filename
     shutil.copytree(oeqadir, os.path.join(exportdir, "oeqa"))
     
-    qalayer = get_qa_layer(d)
-    recursive_overwrite(src=os.path.join(qalayer, "lib"),
+    bbpath = d.getVar("BBPATH", True).split(':')
+    for p in bbpath:
+        if os.path.exists(os.path.join(p, "lib", "oeqa")):
+            recursive_overwrite(src=os.path.join(p, "lib"),
                         dest=os.path.join(exportdir))
-    
-    bb.plain("Exported tests to: %s" % exportdir)
+            bb.plain("Exported tests from %s to: %s" % \
+                     (os.path.join(p, "lib"), exportdir) )
+
 
 #dump build data to external file
 def dump_builddata(d, tdir):
