@@ -20,6 +20,8 @@ PACKAGECONFIG ??= "python nodejs"
 PACKAGECONFIG[python] = "-DBUILDSWIGPYTHON=ON, -DBUILDSWIGPYTHON=OFF, swig-native python"
 PACKAGECONFIG[nodejs] = "-DBUILDSWIGNODE=ON, -DBUILDSWIGNODE=OFF, swig-native nodejs"
 
+EXTRA_OECMAKE_append = "-DINSTALLGPIOTOOL=ON"
+
 do_compile_prepend () {
   # when yocto builds in ${D} it does not have access to ../git/.git so git
   # describe --tags fails. In order not to tag our version as dirty we use this
