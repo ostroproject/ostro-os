@@ -8,8 +8,7 @@ DEPENDS = "jansson fuse libevent libstrophe hiredis curl"
 RDEPENDS_${PN} = "libwyliodrin redis"
 
 SRC_URI = "git://github.com/alexandruradovici/wyliodrin-server;branch=clean;protocol=git;rev=826957e380f886f5694dc00011feae09604ccbe7 \
-           file://wyliodrin-server.service \
-           file://redis.service"
+           file://wyliodrin-server.service"
 
 S = "${WORKDIR}/git"
 
@@ -17,12 +16,10 @@ inherit cmake systemd
 
 PARALLEL_MAKE=""
 
-SYSTEMD_SERVICE_${PN} = "redis.service \
-                         wyliodrin-server.service"
+SYSTEMD_SERVICE_${PN} = "wyliodrin-server.service"
 
 do_install_append () {
     install -d ${D}${systemd_unitdir}/system/
-    install -m 0644 ${WORKDIR}/redis.service ${D}${systemd_unitdir}/system/
     install -m 0644 ${WORKDIR}/wyliodrin-server.service ${D}${systemd_unitdir}/system/
 }
 
