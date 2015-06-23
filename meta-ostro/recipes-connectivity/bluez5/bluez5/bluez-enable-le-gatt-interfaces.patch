@@ -1,0 +1,13 @@
+Upstream-Status: Inappropriate [configuration]
+
+--- bluez-5.30-origin/src/bluetooth.service.in
++++ bluez-5.30/src/bluetooth.service.in
+@@ -5,7 +5,7 @@
+ [Service]
+ Type=dbus
+ BusName=org.bluez
+-ExecStart=@libexecdir@/bluetoothd
++ExecStart=@libexecdir@/bluetoothd -E
+ NotifyAccess=main
+ #WatchdogSec=10
+ #Restart=on-failure
