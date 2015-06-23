@@ -4,7 +4,7 @@ LICENSE = "BSD-3-Clause"
 
 LIC_FILES_CHKSUM = "file://LICENSE-BSD;md5=f9f435c1bd3a753365e799edf375fc42"
 
-DEPENDS = "json-c"
+DEPENDS = "json-c systemd"
 
 SRC_URI = " \
     git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh \
