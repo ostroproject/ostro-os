@@ -13,6 +13,7 @@ IMAGE_INSTALL = " \
                 nodejs hid-api iotkit-agent upm tempered mraa linuxptp \
                 packagegroup-user-management \
                 iot-app-fw iot-app-fw-launcher \
+                sensord \
 		"
 
 IMAGE_FEATURES_append = " \
