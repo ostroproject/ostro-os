@@ -24,7 +24,19 @@
 #MACHINE ?= "qemux86"
 #MACHINE ?= "qemux86-64"
 #
-# This sets the default machine to be qemux86 if no other machine is selected:
+# In addition, several real hardware platforms are supported.
+#
+# For MinnowBoard MAX and Intel NUC DE3815TYKHE (aka Thin Canyon):
+#MACHINE ?= "intel-corei7-64"
+#MACHINE ?= "intel-core2-32"
+#
+# For Intel Galileo Gen 2:
+#MACHINE ?= "quark"
+#
+# For BeagleBone Black:
+#MACHINE ?= "beaglebone"
+#
+# This sets the default machine to be "intel-corei7-64" if no other machine is selected:
 MACHINE ??= "intel-corei7-64"
 
 #
