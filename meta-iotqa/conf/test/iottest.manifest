@@ -13,5 +13,6 @@ oeqa.runtime.sanity.iotvt_findresource
 oeqa.runtime.sanity.iotvt_regresource
 oeqa.runtime.sanity.iotvt_setstate
 oeqa.runtime.sanity.memory
-oeqa.runtime.sanity.boottime
+oeqa.runtime.sanity.comm_wifi_connect
 oeqa.runtime.sanity.reboot
+oeqa.runtime.sanity.boottime
