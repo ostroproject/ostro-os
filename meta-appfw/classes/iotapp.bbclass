@@ -29,8 +29,7 @@
 #     should have the full root filesystem path of that file.
 
 # depending on tlm so that tlm-seatconf would work
-DEPENDS += "tlm-native tlm"
-
+DEPENDS += "tlm-native"
 IOTAPP_DIR ??= "/home"
 
 export IOTAPP_INSTALLATION_PATH = "${IOTAPP_DIR}/${IOTAPP_PROVIDER}/${PN}"
@@ -73,6 +72,20 @@ do_install_append() {
 
     # TODO: seed package database, if present.
 }
+
+def get_rdepends(d):
+    if d.getVar('IOTAPP_SERVICE_FILE_PATH') != None:
+        if d.getVar('IOTAPP_TLM_SESSION_FILE_PATH') != None:
+            # this is a TLM-based session
+            return "iot-app-fw-launcher tlm"
+    else:
+        return ""
+
+RDEPENDS_${PN} += "${@get_rdepends(d)}"
+
+# TODO: generate the whole systemd service file automatically based on
+# the chosen isolation mechanism instead of just changing the TLM
+# configuration options.
 
 pkg_postinst_${PN} () {
 #!/bin/sh -e

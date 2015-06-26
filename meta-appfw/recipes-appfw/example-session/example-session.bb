@@ -15,9 +15,9 @@ IOTAPP_TLM_SESSION_FILE_PATH = "/etc/session.d/example-corp.ini"
 # automatically start the service during boot
 SYSTEMD_SERVICE_${PN} = "example-corp.service"
 
-inherit iotapp systemd
+RDEPENDS_${PN} += "example-app"
 
-RDEPENDS_${PN} = "example-app"
+inherit iotapp systemd
 
 S = "${WORKDIR}"
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
