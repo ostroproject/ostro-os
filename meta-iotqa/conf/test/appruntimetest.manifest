@@ -1,1 +1,2 @@
 oeqa.runtime.app_runtime.apprt_nodejs_runtime
+oeqa.runtime.app_runtime.preinstalled_node_modules
