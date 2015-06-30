@@ -15,6 +15,7 @@ single repository:
 - meta-yocto-bsp (from the meta-yocto git repository)
 - meta-iotqa
 - meta-user-management
+- meta-sensor-framework
 
 The top-level directory comes from openembedded-core, everything else
 is in its own sub-directory. This repository gets updated by importing
