@@ -31,7 +31,11 @@ EFI_PROVIDER = "gummiboot"
 # but is meant to be used with it. security-manager instead
 # links against smack-userspace and expects Smack to be active,
 # so we do not have any choice.
-OSTRO_IMAGE_SECURITY_INSTALL_append_smack = "cynara security-manager"
+#
+# Without configuration, security-manager is not usable. We use
+# the policy packaged from the upstream source code here. Adapting
+# it for the distro can be done by patching that source.
+OSTRO_IMAGE_SECURITY_INSTALL_append_smack = "cynara security-manager security-manager-policy"
 OSTRO_IMAGE_SECURITY_INSTALL ?= ""
 
 IMAGE_LINGUAS = " "
