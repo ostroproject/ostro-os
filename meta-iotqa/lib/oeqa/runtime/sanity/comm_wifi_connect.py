@@ -36,3 +36,7 @@ class CommWiFiTest(oeRuntimeTest):
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
         
 
+    def tearDown(self):
+        ''' disable wifi after testing '''
+ 
+        self.target.run('connmanctl disable wifi')
