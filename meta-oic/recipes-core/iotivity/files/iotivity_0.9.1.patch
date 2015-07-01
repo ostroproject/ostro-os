@@ -1,0 +1,261 @@
+diff -rupN iotivity-0.9.1-original/build_common/SConscript iotivity-0.9.1-change/build_common/SConscript
+--- iotivity-0.9.1-original/build_common/SConscript	2015-05-27 03:08:43.000000000 -0700
++++ iotivity-0.9.1-change/build_common/SConscript	2015-06-29 12:45:44.425152000 -0700
+@@ -260,7 +260,7 @@ if target_os == "yocto":
+     env.AppendUnique(CPPDEFINES = ['WITH_POSIX', '__linux__', '_GNU_SOURCE'])
+     env.AppendUnique(CFLAGS = ['-std=gnu99'])
+     env.AppendUnique(CCFLAGS = ['-Wall', '-fPIC'])
+-    env.AppendUnique(LINKFLAGS = ['-ldl', '-lpthread'])
++    env.AppendUnique(LINKFLAGS = ['-ldl', '-lpthread', '-luuid'])
+     Export('env')
+ else:
+     '''
+diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/client.cpp iotivity-0.9.1-change/examples/OICSensorBoard/client.cpp
+--- iotivity-0.9.1-original/examples/OICSensorBoard/client.cpp	2015-05-27 03:08:43.000000000 -0700
++++ iotivity-0.9.1-change/examples/OICSensorBoard/client.cpp	2015-06-30 09:40:05.886967000 -0700
+@@ -42,8 +42,8 @@ void IoTClient::initializePlatform()
+ 
+ void IoTClient::findResource()
+ {
+-    string coap_multicast_discovery = string(OC_WELL_KNOWN_QUERY "?if=" EDISON_RESOURCE_INTERFACE);
+-    OCPlatform::findResource("", coap_multicast_discovery.c_str(), m_resourceDiscoveryCallback,
++    string coap_multicast_discovery = string(OC_MULTICAST_DISCOVERY_URI "?if=" EDISON_RESOURCE_INTERFACE);
++    OCPlatform::findResource("", coap_multicast_discovery.c_str(),  OC_ALL, m_resourceDiscoveryCallback,
+                              OC::QualityOfService::LowQos);
+ }
+ 
+@@ -148,7 +148,7 @@ void TemperatureSensor::onObserve(const
+     {
+         double value;
+         rep.getValue(TEMPERATURE_RESOURCE_KEY, value);
+-        cout << "Observing TemperatureSensor: Current temperature reading is " << value << endl;
++        cout << "Observing TemperatureSensor: Current temperature reading in Celsius is " << value << endl;
+         cout << "Sequence number: " << sequenceNumber << endl;
+     }
+     else
+@@ -170,7 +170,7 @@ void TemperatureSensor::onGet(const Head
+     {
+         double value;
+         representation.getValue(TEMPERATURE_RESOURCE_KEY, value);
+-        cout << endl << endl << "Current temperature reading: " << value << endl;
++        cout << endl << endl << "Current temperature reading in Celsius: " << value << endl;
+     }
+     else {
+         cerr << endl << endl << "Error in GET response from temperature sensor resource" << endl;
+diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/Makefile iotivity-0.9.1-change/examples/OICSensorBoard/Makefile
+--- iotivity-0.9.1-original/examples/OICSensorBoard/Makefile	1969-12-31 16:00:00.000000000 -0800
++++ iotivity-0.9.1-change/examples/OICSensorBoard/Makefile	2015-06-22 10:47:33.050872000 -0700
+@@ -0,0 +1,34 @@
++#Set the two variables below for the client build. 
++CLIENTARCH=x86
++BUILDTYPE=release
++##
++
++YOCTOCXXFLAGS=-I$(SDKTARGETSYSROOT)/usr/include/iotivity/resource/ -I$(SDKTARGETSYSROOT)/usr/include/iotivity/resource/stack -I$(SDKTARGETSYSROOT)/usr/include/iotivity/resource/ocrandom -I$(SDKTARGETSYSROOT)/usr/include/iotivity/resource/logger -I$(SDKTARGETSYSROOT)/usr/include/iotivity/resource/oc_logger
++
++YOCTOLDFLAGS=-loc -loctbstack -loc_logger -lmraa
++
++CXXFLAGS=-I../../resource/include -I../../resource/csdk/stack/include -I../../resource/csdk/ocrandom/include -I../../resource/csdk/logger/include -I../../resource/oc_logger/include
++
++LDFLAGS=-L../../out/linux/$(CLIENTARCH)/$(BUILDTYPE) -loc -loctbstack -loc_logger
++
++client: client.o
++	g++ -o client client.o $(LDFLAGS)
++
++client.o: client.cpp
++	g++ -std=c++0x -c -o $@ $< $(CXXFLAGS)
++
++observer.o: observer.cpp
++	$(CXX) -std=c++0x -c -o $@ $< $(YOCTOCXXFLAGS)
++
++server.o: server.cpp
++ifeq ($(SDKTARGETSYSROOT),)
++	echo "Error: Yocto cross-toolchain environment not initialized"
++	exit 1 
++endif
++	$(CXX) -std=c++0x -c -o $@ $< $(YOCTOCXXFLAGS)
++
++server: server.o observer.o
++	$(CXX) -o server server.o observer.o $(YOCTOLDFLAGS)
++
++clean:
++	rm -rf server client *.o
+Binary files iotivity-0.9.1-original/examples/OICSensorBoard/OICSensorBoardREADME.pdf and iotivity-0.9.1-change/examples/OICSensorBoard/OICSensorBoardREADME.pdf differ
+diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/README iotivity-0.9.1-change/examples/OICSensorBoard/README
+--- iotivity-0.9.1-original/examples/OICSensorBoard/README	1969-12-31 16:00:00.000000000 -0800
++++ iotivity-0.9.1-change/examples/OICSensorBoard/README	2015-06-30 09:40:05.886967000 -0700
+@@ -0,0 +1,14 @@
++//******************************************************************
++//
++// This example includes
++// - Server application for Edison which demonstrates Iotivity server
++//   capabilities through the integration of an add-on breadboard that
++//   hosts temperature, ambient light and LED resources.
++// - Client application to test server functionality, discovering and
++//   communicating with these resources.
++//
++// See complete documentation at
++//        https://wiki.iotivity.org/_media/oicsensorboardreadme.pdf
++//
++//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
++
+diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/SConstruct iotivity-0.9.1-change/examples/OICSensorBoard/SConstruct
+--- iotivity-0.9.1-original/examples/OICSensorBoard/SConstruct	2015-05-27 03:08:43.000000000 -0700
++++ iotivity-0.9.1-change/examples/OICSensorBoard/SConstruct	1969-12-31 16:00:00.000000000 -0800
+@@ -1,84 +0,0 @@
+-#******************************************************************
+-#
+-# Copyright 2014 Intel Mobile Communications GmbH All Rights Reserved.
+-#
+-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#      http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-#
+-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-
+-#This script builds edisonclient for Ubuntu and edisonserver for Yocto.
+-
+-#Client build for Ubuntu
+-#Set IOTIVITY_ROOT to the root of oic-resource on Ubuntu.
+-IOTIVITY_ROOT = ''
+-#Set IOTIVITY_LIBS_PATH to path on Ubuntu that contains liboc.so, liboctbstack.so, liboc_logger.so and libcoap.so.
+-IOTIVITY_LIBS_PATH = ''
+-
+-env = DefaultEnvironment()
+-env.AppendUnique(CXXFLAGS = ['-std=c++0x', '-Wall'])
+-env.AppendUnique(LINKFLAGS = ['-pthread'])
+-env.AppendUnique(LIBS = ['oc', 'octbstack', 'oc_logger', 'coap'])
+-
+-envClient = env.Clone()
+-envClient.AppendUnique(CPPPATH = [
+-                IOTIVITY_ROOT + '/resource/include',
+-                IOTIVITY_ROOT + '/resource/csdk/stack/include',
+-                IOTIVITY_ROOT + '/resource/oc_logger/include',
+-                ])
+-envClient.AppendUnique(LIBPATH = [IOTIVITY_LIBS_PATH])
+-envClient.Program('edisonclient', 'client.cpp')
+-
+-#Server build
+-envServer = env.Clone()
+-'''
+-This code injects Yocto cross-compilation flags into scons' default environment
+-in order to invoke the relevant tools while performing a build.
+-'''
+-import os.path, re
+-sdk_root = ''
+-try:
+-    CC = os.environ['CC']
+-    sdk_root = re.search(r'--sysroot=\S+', CC).group().split('=')[1]
+-    target_prefix = CC.split()[0]
+-    target_prefix = target_prefix[:len(target_prefix)-3]
+-    tools = {"CC" : target_prefix+"gcc",
+-             "CXX" : target_prefix+"g++",
+-             "AS" : target_prefix+"as",
+-             "LD" : target_prefix+"ld",
+-             "GDB" : target_prefix+"gdb",
+-             "STRIP" : target_prefix+"strip",
+-             "RANLIB" : target_prefix+"ranlib",
+-             "OBJCOPY" : target_prefix+"objcopy",
+-             "OBJDUMP" : target_prefix+"objdump",
+-             "AR" : target_prefix+"ar",
+-             "NM" : target_prefix+"nm",
+-             "M4" : "m4",
+-             "STRINGS": target_prefix+"strings"}
+-    PATH = os.environ['PATH'].split(os.pathsep)
+-    for tool in tools:
+-        if tool in os.environ:
+-            for path in PATH:
+-	            if os.path.isfile(os.path.join(path, tools[tool])):
+-	                envServer[tool] = os.path.join(path, os.environ[tool])
+-    envServer.Program('edisonserver', ['server.cpp', 'observer.cpp'])
+-    envServer.AppendUnique(LIBS = ['mraa'])
+-    envServer.AppendUnique(CPPPATH = [
+-                sdk_root + '/usr/include/iotivity/',
+-                sdk_root + '/usr/include/iotivity/stack/',
+-                sdk_root + '/usr/include/iotivity/oc_logger/',
+-                ])
+-except:
+-    print "ERROR configuring Yocto cross-toolchain environment. This is required for building the server"
+-
+diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/sensors.h iotivity-0.9.1-change/examples/OICSensorBoard/sensors.h
+--- iotivity-0.9.1-original/examples/OICSensorBoard/sensors.h	2015-05-27 03:08:43.000000000 -0700
++++ iotivity-0.9.1-change/examples/OICSensorBoard/sensors.h	2015-06-30 09:40:05.886967000 -0700
+@@ -25,6 +25,7 @@
+ #define ONBOARD_LED_PIN 13
+ #define TEMPERATURE_AIO_PIN 0
+ #define LIGHT_SENSOR_AIO_PIN 2
++#define SAMPLE_NUM 5
+ 
+ namespace Sensors
+ {
+@@ -60,20 +61,40 @@ inline void SetOnboardLed(int on)
+         mraa_gpio_write(led_gpio, on); // Writes into GPIO
+ }
+ 
+-inline float GetTemperatureInC()
++inline float GetAverageTemperatureRaw()
+ {
+-    float ret = 0;
+     if (tmp_aio == NULL)
+     {
+         tmp_aio = mraa_aio_init(TEMPERATURE_AIO_PIN); // initialize pin 0
+     }
+-    if (tmp_aio != NULL)
+-    {
+-        uint16_t adc_value = mraa_aio_read(tmp_aio); // read the raw value
+-        //convert reading to temperature
+-        float beta = 4090.0; //the beta of the thermistor, magic number
+-        ret = beta / (log((4095.0 * 10 / adc_value - 10) / 10) + beta / 298.0) - 273.0;
+-    }
++    
++    uint16_t adc_value = 0;
++    for (int i=0; i< SAMPLE_NUM; i++)
++        adc_value += mraa_aio_read(tmp_aio);           // read the raw value
++    
++    float average = (float)adc_value/SAMPLE_NUM;
++    cout << "Temperature reading raw ..."  << average << endl;
++    
++    return average;
++}
++
++inline float GetTemperatureInC()
++{
++    // Temperature calculation using simpilfy Steinhart-Hart equation
++    //
++    //          1/T = 1/T0 + 1/beta*ln (R/R0)
++    //
++    // where T0 = 25C room temp, R0 = 10000 ohms
++    //
++    float beta = 4090.0;            //the beta of the thermistor, magic number
++    float t_raw = GetAverageTemperatureRaw();
++    float R = 1023.0/t_raw -1;      // 
++    R = 10000.0/R;                  // 10K resistor divider circuit
++        
++    float T1 = log(R/10000.0)/beta; // natural log 
++    float T2 = T1 + 1.0/298.15;     // room temp 25C= 298.15K
++    float ret = 1.0/T2 - 273.0;
++ 
+     return ret;
+ }
+ 
+diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/server.cpp iotivity-0.9.1-change/examples/OICSensorBoard/server.cpp
+--- iotivity-0.9.1-original/examples/OICSensorBoard/server.cpp	2015-05-27 03:08:43.000000000 -0700
++++ iotivity-0.9.1-change/examples/OICSensorBoard/server.cpp	2015-06-30 09:40:05.890967000 -0700
+@@ -20,6 +20,7 @@
+ #include <signal.h>
+ #include <thread>
+ #include <functional>
++
+ #include "server.h"
+ #include "sensors.h"
+ #include "namedefs.h"

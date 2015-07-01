@@ -1,17 +1,19 @@
 SUMMARY = "Iotivity framework and SDK by the Open Interconnect Consortium."
 DESCRIPTION = "IoTivity is an open source software framework enabling seamless device-to-device connectivity to address the emerging needs of the Internet of Things."
 HOMEPAGE = "https://www.iotivity.org/"
-DEPENDS = "boost virtual/gettext chrpath-replacement-native expat openssl"
+DEPENDS = "boost virtual/gettext chrpath-replacement-native expat openssl util-linux"
 EXTRANATIVEPATH += "chrpath-native"
 SECTION = "libs"
 LICENSE = "Apache-2.0"
-LIC_FILES_CHKSUM = "file://../git/resource/include/OCApi.h;beginline=1;endline=19;md5=fc5a615cf1dc3880967127bc853b3e0c"
-SRC_URI = "git://gerrit.iotivity.org/gerrit/iotivity;protocol=https;branch=0.9.1-dev;name=iotivity \
+LIC_FILES_CHKSUM = "file://resource/include/OCApi.h;beginline=1;endline=19;md5=fc5a615cf1dc3880967127bc853b3e0c"
+
+FILESEXTRAPATHS_prepend := "${THISDIR}/:files"
+
+SRC_URI = "http://downloads.iotivity.org/0.9.1/iotivity-0.9.1.tar.gz;name=iotivity \
+           file://iotivity_0.9.1.patch;patch=1 \
           "
-
-SRCREV_iotivity = "240655278f95148cc0a585d7155a9a5f81b78873"
-
-S = "${WORKDIR}/git"
+SRC_URI[iotivity.md5sum] = "36b8a625841e5306e1556a69e8ef47f2"
+SRC_URI[iotivity.sha256sum] = "37270cfddc3a66cf2260893faf579322982cd6762b5fb7ce6a4d8cb2ba2acd4d"
 
 inherit scons 
 
@@ -282,9 +284,9 @@ FILES_iotivity-resource = "\
                         ${libdir}/liboc_logger_core.so"
 
 FILES_iotivity-resource-dbg = "\
-                        ${prefix}/src/debug/${PN}/${EXTENDPE}${PV}-${PR}/git/resource \
-                        ${prefix}/src/debug/${PN}/${EXTENDPE}${PV}-${PR}/git/extlibs \
-                        ${prefix}/src/debug/${PN}/${EXTENDPE}${PV}-${PR}/git/examples \
+                        ${prefix}/src/debug/${PN}/${EXTENDPE}${PV}-${PR}/${PN}-${PV}/resource \
+                        ${prefix}/src/debug/${PN}/${EXTENDPE}${PV}-${PR}/${PN}-${PV}/extlibs \
+                        ${prefix}/src/debug/${PN}/${EXTENDPE}${PV}-${PR}/${PN}-${PV}/examples \
                         ${libdir}/.debug/liboc.so \
                         ${libdir}/.debug/liboctbstack.so \
                         ${libdir}/.debug/liboc_logger.so \
@@ -299,7 +301,7 @@ FILES_iotivity-resource-samples = "\
                       ${IOTIVITY_BIN_DIR}/examples/resource"
 
 FILES_iotivity-service-dbg = "\
-                        ${prefix}/src/debug/${PN}/${EXTENDPE}${PV}-${PR}/git/service \
+                        ${prefix}/src/debug/${PN}/${EXTENDPE}${PV}-${PR}/${PN}-${PV}/service \
                         ${libdir}/.debug"   
 
 FILES_iotivity-service-dev = "\
