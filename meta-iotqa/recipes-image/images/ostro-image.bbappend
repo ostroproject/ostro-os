@@ -1,1 +1,1 @@
-EXTRA_IMAGEDEPENDS += "mraa-test"
+EXTRA_IMAGEDEPENDS += "mraa-test iotivity-test"
