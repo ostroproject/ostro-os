@@ -10,7 +10,7 @@ SRC_URI = " \
     git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh \
   "
 
-SRCREV = "0e954664774ad33ec5718fd94ef35c8b551cb8be"
+SRCREV = "a1076f7c982997d8b8454e72dd923e02f81b060d"
 
 inherit autotools pkgconfig systemd
 
@@ -23,6 +23,7 @@ PACKAGECONFIG ??= ""
 PACKAGECONFIG[qt]         = "--enable-qt,--disable-qt,qt4-x11-free"
 PACKAGECONFIG[pulse]      = "--enable-pulse,--disable-pulse,pulseaudio"
 PACKAGECONFIG[glib-2.0]   = "--enable-glib,--disable-glib,glib-2.0"
+PACKAGECONFIG[node]       = "--enable-nodejs,--disable-nodejs,nodejs"
 PACKAGECONFIG[shave]      = "--enable-shave,--disable-shave"
 
 PACKAGES =+ "${PN}-launcher"
