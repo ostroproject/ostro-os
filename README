@@ -12,6 +12,7 @@ single repository:
 - meta-intel-iot-security
 - meta-ostro-fixes
 - meta-ostro-bsp
+- meta-iot-web
 - meta-yocto-bsp (from the meta-yocto git repository)
 - meta-iotqa
 - meta-user-management
