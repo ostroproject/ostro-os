@@ -24,10 +24,25 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-sensor-framework \
   "
 
+# toaster uses this hint to decide whether it let's the user
+# remove a layer from BBLAYERS. All layers which provide something
+# that is required to build ostro-image should be listed here.
+# We do not really track that, so add all layers also here.
 BBLAYERS_NON_REMOVABLE ?= " \
   ##OEROOT##/meta \
   ##OEROOT##/meta-intel \
   ##OEROOT##/meta-ostro \
   ##OEROOT##/meta-oic \
+  ##OEROOT##/meta-security-smack \
+  ##OEROOT##/meta-security-framework \
+  ##OEROOT##/meta-integrity \
   ##OEROOT##/meta-intel-iot-middleware \
+  ##OEROOT##/meta-ostro-fixes \
+  ##OEROOT##/meta-ostro-bsp \
+  ##OEROOT##/meta-iot-web \
+  ##OEROOT##/meta-yocto-bsp \
+  ##OEROOT##/meta-iotqa \
+  ##OEROOT##/meta-user-management \
+  ##OEROOT##/meta-appfw \
+  ##OEROOT##/meta-sensor-framework \
   "
