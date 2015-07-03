@@ -6,4 +6,5 @@ SRC_URI_append = "\
                 file://nfc.cfg \
                 file://usb-serial.cfg \
                 file://wireless.cfg \
+                file://can.cfg \
                 "
