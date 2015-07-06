@@ -7,7 +7,7 @@ SECTION = "libs"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://resource/include/OCApi.h;beginline=1;endline=19;md5=fc5a615cf1dc3880967127bc853b3e0c"
 
-FILESEXTRAPATHS_prepend := "${THISDIR}/:files"
+FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 SRC_URI = "http://downloads.iotivity.org/0.9.1/iotivity-0.9.1.tar.gz;name=iotivity \
            file://iotivity_0.9.1.patch;patch=1 \
