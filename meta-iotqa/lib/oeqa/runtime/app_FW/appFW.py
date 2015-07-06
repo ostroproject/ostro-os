@@ -51,7 +51,8 @@ class AppFwTest(oeRuntimeTest):
 
     @skipUnlessPassed('oeqa.runtime.app_FW.appFW.AppFwTest.test_appFW_install_pkg_during_img_creation')
     def test_appFW_start_app_ondemand(self):
-        
+        """ test start app ondemand """ 
+
         old_pid = self._getPID("example-app")
         if not old_pid:
             (status,output) = self.target.run("systemctl start example-corp")
