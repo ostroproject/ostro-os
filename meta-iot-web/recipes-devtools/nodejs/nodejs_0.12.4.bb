@@ -9,7 +9,7 @@ DEPENDS_append_class-target = " nodejs-native"
 SRC_URI = "http://nodejs.org/dist/v${PV}/node-v${PV}.tar.gz \
            file://enable-armv5e-build.patch \
 "
-SRC_URI_quark = "file://0001-nodejs-add-compile-flag-options-for-quark.patch"
+SRC_URI_append_quark = "file://0001-nodejs-add-compile-flag-options-for-quark.patch"
 SRC_URI[md5sum] = "c2b4deea212c0b7c2f86368c65fab312"
 SRC_URI[sha256sum] = "3298d0997613a04ac64343e8316da134d04588132554ae402eb344e3369ec912"
 
