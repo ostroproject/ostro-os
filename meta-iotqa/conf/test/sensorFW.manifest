@@ -1,0 +1,2 @@
+oeqa.runtime.sensor_FW.test_get_sensor_type_by_id
+oeqa.runtime.sensor_FW.test_get_sensor_type_by_invalid_id
