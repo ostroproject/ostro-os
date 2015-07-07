@@ -1,2 +1,3 @@
+oeqa.runtime.sensor_FW.test_connect_sensor_already_connected
 oeqa.runtime.sensor_FW.test_get_sensor_type_by_id
 oeqa.runtime.sensor_FW.test_get_sensor_type_by_invalid_id
