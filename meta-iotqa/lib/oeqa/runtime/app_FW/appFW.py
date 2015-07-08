@@ -51,7 +51,8 @@ class AppFwTest(oeRuntimeTest):
 
     @skipUnlessPassed('oeqa.runtime.app_FW.appFW.AppFwTest.test_appFW_install_pkg_during_img_creation')
     def test_appFW_start_app_ondemand(self):
-        
+        """ test start app ondemand """ 
+
         old_pid = self._getPID("example-app")
         if not old_pid:
             (status,output) = self.target.run("systemctl start example-corp")
@@ -66,6 +67,19 @@ class AppFwTest(oeRuntimeTest):
         new_pid = self._getPID("example-app") 
         self.assertTrue(old_pid != new_pid, "restart app failed")       
         
+    @skipUnlessPassed('oeqa.runtime.app_FW.appFW.AppFwTest.test_appFW_install_pkg_during_img_creation')
+    def test_appFW_app_event_TERM(self):
+        """ test basic app event SIGTERM """
+
+        pid = self._getPID("example-app")
+        if not pid:
+            (status,output) = self.target.run("systemctl start example-corp")
+            self.assertEqual(status,0,output)
+        else:
+            (status,output) = self.target.run("kill -TERM %s" % pid)
+             
+        self.assertTrue(self._getPID("example-app") == None , "App fail to respond TERM signal")
+
     def tearDown(self):
         self.target.run("systemctl start example-corp")
         time.sleep(3)
