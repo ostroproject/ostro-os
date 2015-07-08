@@ -25,6 +25,8 @@
 
 inherit testimage
 
+DEPLOY_DIR_TESTSUITE ?= "${DEPLOY_DIR}/testsuite"
+
 #get layer dir
 def get_layer_dir(d, layer):
     bbpath = d.getVar("BBPATH", True).split(':')
@@ -212,9 +214,11 @@ python do_test_iot_export() {
     dump_builddata(d, exportdir)
     plandir = os.path.join(exportdir, "testplan")
     copy_manifest(d, plandir)
-    fname = "/tmp/iot-testsuite.tar.gz"
+    outdir = d.getVar("DEPLOY_DIR_TESTSUITE", True)
+    bb.utils.mkdirhier(outdir)
+    fname = os.path.join(outdir, "iot-testsuite.tar.gz")
     pack_tarball(d, exportdir, fname)
-
+    bb.plain("export test suite to ", fname)
     pkgarch = d.getVar("TUNE_PKGARCH", True)
     filesdir = os.path.join(deploydir, "files", pkgarch)
     bb.utils.mkdirhier(filesdir)
@@ -222,8 +226,9 @@ python do_test_iot_export() {
     nativedir = os.path.join(deploydir, "files", "native", nativearch)
     bb.utils.mkdirhier(nativedir)
     copy_support_files(d, filesdir, nativedir)
-    fname = "/tmp/iot-testfiles.%s.tar.gz" % pkgarch
+    fname = os.path.join(outdir, "iot-testfiles.%s.tar.gz" % pkgarch)
     pack_tarball(d, deploydir, fname)
+    bb.plain("export test files to ", fname)
 }
 
 addtask test_iot_export
