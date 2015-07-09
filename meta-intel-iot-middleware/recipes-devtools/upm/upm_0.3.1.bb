@@ -8,7 +8,8 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=d1cc191275d6a8c5ce039c75b2b3dc29"
 DEPENDS = "nodejs swig-native mraa"
 
 SRC_URI = "git://github.com/intel-iot-devkit/upm.git;protocol=git;rev=3d453811fb7760e14da1a3461e05bfba1893c2bd \
-           file://0001-adafruitms1438-CMakeLists.txt-stop-RPATH-being-added.patch"
+           file://0001-adafruitms1438-CMakeLists.txt-stop-RPATH-being-added.patch \
+           file://0001-hcsr04-Fixed-compilation-error-after-MRAA-enum-renam.patch"
 
 S = "${WORKDIR}/git"
 
