@@ -124,6 +124,8 @@ def main():
 
     #inject testcase list
     tclist = []
+    if not options.tests_list:
+        options.tests_list = os.path.join(os.path.dirname(__file__), "testplan", "iottest.manifest")
     for each_manifest in options.tests_list.split():
         with open(each_manifest, "r") as f:
             map(lambda y:tclist.append(y) if y not in tclist else None, 
