@@ -1,0 +1,52 @@
+From aad2675c7bb635d8b7be47fa89a3ee87ba19d2e8 Mon Sep 17 00:00:00 2001
+From: Anuj Mittal <anujx.mittal@intel.com>
+Date: Thu, 18 Jun 2015 11:46:17 +0800
+Subject: [PATCH] zlib: Remove rpaths from makefile
+
+Upstream-Status: Inappropriate [configuration]
+
+This removes references to RPATHS that are no longer
+necesary when building using bitbake.
+
+Signed-off-by: Anuj Mittal <anujx.mittal@intel.com>
+---
+ Makefile.in                        |    4 ++--
+ contrib/qat/qat_zlib_test/Makefile |    3 ---
+ 2 files changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/Makefile.in b/Makefile.in
+index 94d8a80..cba5291 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -59,12 +59,12 @@ ICP_LAC_API_DIR=$(ICP_API_DIR)/lac/
+ ICP_DC_API_DIR=$(ICP_API_DIR)/dc/
+ CFLAGS+=-D_GNU_SOURCE -I$(ICP_API_DIR) -I$(ICP_DC_API_DIR) -I$(ICP_LAC_API_DIR) -I$(ICP_SAL_API_DIR)
+ SFLAGS+=-D_GNU_SOURCE -I$(ICP_API_DIR) -I$(ICP_DC_API_DIR) -I$(ICP_LAC_API_DIR) -I$(ICP_SAL_API_DIR)
+-ADDITIONAL_LDFLAGS+=-Wl,-rpath,$(ZLIB_ROOT) -lz  
++#ADDITIONAL_LDFLAGS+=-Wl,-rpath,$(ZLIB_ROOT) -lz
+ SHARED_APP_FLAGS=-Wl,-rpath,$(ZLIB_ROOT) -L$(ZLIB_ROOT) -lz  
+ 
+ ifdef ICP_BUILD_OUTPUT
+     TEST_LDFLAGS+=-L$(ICP_BUILD_OUTPUT)
+-    ADDITIONAL_LDFLAGS+=-Wl,-rpath,$(ICP_BUILD_OUTPUT) -L$(ICP_BUILD_OUTPUT)  
++#    ADDITIONAL_LDFLAGS+=-Wl,-rpath,$(ICP_BUILD_OUTPUT) -L$(ICP_BUILD_OUTPUT)
+ endif
+ 
+ ifdef ZLIB_DH895XCC 
+diff --git a/contrib/qat/qat_zlib_test/Makefile b/contrib/qat/qat_zlib_test/Makefile
+index 8a29a92..ca31dd2 100644
+--- a/contrib/qat/qat_zlib_test/Makefile
++++ b/contrib/qat/qat_zlib_test/Makefile
+@@ -84,9 +84,6 @@ OBJS = $(SRCS:%.c=%.o)
+ COVERAGE_OBJS =
+ EXE=
+ LIBQAT=
+-ifdef ICP_BUILD_OUTPUT
+-    LIBQAT+= -Wl,-rpath,$(ICP_BUILD_OUTPUT) -L$(ICP_BUILD_OUTPUT)
+-endif
+ 
+ DRIVER=icp_qa_al
+ ifdef WITH_CPA_MUX
+-- 
+1.7.9.5
+

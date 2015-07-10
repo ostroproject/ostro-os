@@ -20,6 +20,7 @@ SRC_URI = "http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz;name=zlib \
            https://01.org/sites/default/files/page/zlib_shim_0.4.7-002_withdocumentation.zip;name=zlibqat \
            file://zlib-qat-0.4.7-002-qat_mem-build-qat_mem-ko-against-yocto-kernel-src.patch \
            file://zlib-qat-0.4.7-002-zlib-qat-add-a-install-target-to-makefile.patch \
+           file://zlib-qat-0.4.7-002-zlib-Remove-rpaths-from-makefile.patch \
            "
 
 SRC_URI[zlib.md5sum] = "44d667c142d7cda120332623eab69f40"
@@ -33,24 +34,17 @@ ZLIB_QAT_VERSION = "0.4.7-002"
 
 S = "${WORKDIR}/zlib-${ZLIB_VERSION}"
 
-export ICP_ROOT = "${PKG_CONFIG_SYSROOT_DIR}"
+export ICP_ROOT = "${S}"
 export ZLIB_ROOT = "${S}"
-export ICP_ZLIBQAT = "${S}"
-export ICP_BUILD_OUTPUT = "${ICP_ROOT}/lib"
 export KERNEL_SOURCE_ROOT = "${STAGING_KERNEL_DIR}"
 export KERNEL_BUILDDIR = "${STAGING_KERNEL_BUILDDIR}"
-
-CFLAGS += "\
-		-I${ICP_ROOT}/usr/include \
-		-I${ICP_ROOT}/usr/include/dc \
-		-I${ZLIB_ROOT}/ \
-		-D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN -DUSE_QAT_MEM -I${ZLIB_ROOT}/contrib/qat/qat_mem -D_GNU_SOURCE \
-		-L${ZLIB_ROOT} -lz \
-		-L${ICP_ROOT}/usr/lib/ -lpthread -lcrypto -ldl -lrt \
-		-L${ICP_ROOT}/usr/lib/ -licp_qa_al -losal -ladf_proxy"
+export ICP_LAC_API_DIR = "${STAGING_DIR_TARGET}${includedir}/lac"
+export ICP_DC_API_DIR = "${STAGING_DIR_TARGET}${includedir}/dc"
+export ZLIB_DH895XCC = "1"
+export ZLIB_MEMORY_DRIVER = "qat_mem"
+export ICP_BUILD_OUTPUT = "${STAGING_DIR_TARGET}"
 
 inherit module
-MODULE_DIR = "${D}${base_libdir}/modules/${KERNEL_VERSION}/kernel/drivers"
 MEM_PATH = "${S}/contrib/qat"
 
 do_unpack2(){
@@ -68,25 +62,25 @@ do_patch() {
 	patch -p1  < ${WORKDIR}/zlib-1.2.8-qat.patch
 	patch -p1  < ${WORKDIR}/zlib-qat-0.4.7-002-qat_mem-build-qat_mem-ko-against-yocto-kernel-src.patch
         patch -p1  < ${WORKDIR}/zlib-qat-0.4.7-002-zlib-qat-add-a-install-target-to-makefile.patch
+        patch -p1  < ${WORKDIR}/zlib-qat-0.4.7-002-zlib-Remove-rpaths-from-makefile.patch        
 }
 
 do_configure() {
-	cd ${S}
-	./configure
+        ./configure --prefix=${prefix} --shared --libdir=${libdir}
 }
 
 do_compile() {
-	EXTRA_OEMAKE="'CFLAGS=${CFLAGS} -fPIC'"
-	cd ${MEM_PATH}/qat_mem/
+        unset CFLAGS CXXFLAGS
 	oe_runmake
-	cd ${S}/
+
+	cd ${S}/contrib/qat/qat_mem
 	oe_runmake
-	cd ${MEM_PATH}/qat_zlib_test/
+
+	cd ${S}/contrib/qat/qat_zlib_test 
 	oe_runmake
 }
 
 do_install() {
-	chrpath -d ${MEM_PATH}/qat_zlib_test/comptestapp
 	install -m 0755 -d		${D}${bindir}/
 	install -m 0755 -d		${D}${sysconfdir}/zlib_conf/
 
