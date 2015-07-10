@@ -1,11 +1,11 @@
 include dpdk.inc
 
 SRC_URI = "http://dpdk.org/browse/dpdk/snapshot/dpdk-${PV}.tar.gz;name=dpdk \
-	   file://dpdk-1.8.0-examples-add-config-variable-to-enable-disable-dpdk_.patch \
 	   file://dpdk-1.8.0-dpdk-enable-build-config-VHOST-in-common_linuxapp-config.patch \
-	   file://dpdk-1.8.0-add-RTE_KERNELDIR_OUT-to-split-kernel-bu.patch \
-	   file://dpdk-1.8.0-add-sysroot-option-within-app-makefile.patch \
-	   file://dpdk-1.8.0-dpdk-defconfig-select-RTE_MACHINE-type.patch \
+	   file://dpdk-1.8.0-and-2.0.0-examples-add-config-variable-to-enable-disable-dpdk.patch \
+	   file://dpdk-1.8.0-and-2.0.0-add-RTE_KERNELDIR_OUT-to-split-kernel-bu.patch \
+	   file://dpdk-1.8.0-and-2.0.0-add-sysroot-option-within-app-makefile.patch \
+	   file://dpdk-1.8.0-and-2.0.0-dpdk-defconfig-select-RTE_MACHINE-type.patch \
 	   "
 
 SRC_URI[dpdk.md5sum] = "11ad8785aaa869cc87265bcb8d828f22"
