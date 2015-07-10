@@ -1,0 +1,43 @@
+From c1a59d62f2aa7656060d8ebcc8e45e852d931ff1 Mon Sep 17 00:00:00 2001
+From: Ong Boon Leong <boon.leong.ong@intel.com>
+Date: Tue, 17 Feb 2015 00:23:12 +0800
+Subject: [PATCH] dpdk: enable VHOST build config in common_linuxapp config
+
+Introduce CONFIG_VHOST_ENABLED for package config selection purpose in
+building vhost feature.
+
+Upstream-Status: Inappropriate [configuration]
+
+Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+---
+ config/common_linuxapp |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/config/common_linuxapp b/config/common_linuxapp
+index 2f9643b..67f5edb 100644
+--- a/config/common_linuxapp
++++ b/config/common_linuxapp
+@@ -361,9 +361,9 @@ CONFIG_RTE_LIBRTE_PIPELINE=y
+ #
+ CONFIG_RTE_LIBRTE_KNI=y
+ CONFIG_RTE_KNI_KO_DEBUG=n
+-CONFIG_RTE_KNI_VHOST=n
++CONFIG_RTE_KNI_VHOST=$(CONFIG_VHOST_ENABLED)
+ CONFIG_RTE_KNI_VHOST_MAX_CACHE_SIZE=1024
+-CONFIG_RTE_KNI_VHOST_VNET_HDR_EN=n
++CONFIG_RTE_KNI_VHOST_VNET_HDR_EN=$(CONFIG_VHOST_ENABLED)
+ CONFIG_RTE_KNI_VHOST_DEBUG_RX=n
+ CONFIG_RTE_KNI_VHOST_DEBUG_TX=n
+ 
+@@ -372,7 +372,7 @@ CONFIG_RTE_KNI_VHOST_DEBUG_TX=n
+ # fuse-devel is needed to run vhost.
+ # fuse-devel enables user space char driver development
+ #
+-CONFIG_RTE_LIBRTE_VHOST=n
++CONFIG_RTE_LIBRTE_VHOST=$(CONFIG_VHOST_ENABLED)
+ CONFIG_RTE_LIBRTE_VHOST_DEBUG=n
+ 
+ #
+-- 
+1.7.9.5
+
