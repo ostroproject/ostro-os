@@ -71,7 +71,6 @@ do_install () {
 				${D}/${INSTALL_PATH}/tools \
 				${D}/${INSTALL_PATH}/${RTE_TARGET} \
 				${D}/${INSTALL_PATH}/${RTE_TARGET}/app \
-				${D}/${INSTALL_PATH}/${RTE_TARGET}/hostapp \
 				${D}${includedir} \
 				${D}${includedir}/${ARCHDIR} \
 				${D}${includedir}/exec-env \
@@ -90,7 +89,6 @@ do_install () {
 
 	# Install applications
 	install -m 0755 ${S}/${RTE_TARGET}/app/*	${D}/${INSTALL_PATH}/${RTE_TARGET}/app/
-	install -m 0755 ${S}/${RTE_TARGET}/hostapp/*	${D}/${INSTALL_PATH}/${RTE_TARGET}/hostapp/
 
 	# Install examples
 	for dirname in ${S}/examples/*

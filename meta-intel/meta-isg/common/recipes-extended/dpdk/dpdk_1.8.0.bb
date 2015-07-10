@@ -27,3 +27,9 @@ PACKAGECONFIG[libvirt] = ",,libvirt"
 export CONFIG_EXAMPLE_DPDK_QAT = "${@base_contains('PACKAGECONFIG', 'dpdk_qat', 'y', 'n', d)}"
 export CONFIG_EXAMPLE_VM_POWER_MANAGER = "${@base_contains('PACKAGECONFIG', 'libvirt', 'y', 'n', d)}"
 export CONFIG_VHOST_ENABLED = "${@base_contains('PACKAGECONFIG', 'vhost', 'y', 'n', d)}"
+
+do_install_append () {
+
+	install -m 0755 -d ${D}/${INSTALL_PATH}/${RTE_TARGET}/hostapp
+	install -m 0755 ${S}/${RTE_TARGET}/hostapp/*	${D}/${INSTALL_PATH}/${RTE_TARGET}/hostapp/
+}
