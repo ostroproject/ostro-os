@@ -1,0 +1,40 @@
+From 340701a0f44e70eafd9029e9186b74e8783f2afd Mon Sep 17 00:00:00 2001
+From: venkatasubramanian pattu <venkatasubramanianx.pattu@intel.com>
+Date: Mon, 6 Jul 2015 15:57:20 +0800
+Subject: [PATCH] qat: fix for cross-compilation issue
+
+Upstream-Status: Inappropriate [Configuration]
+
+Ensure that we are not using host compiler.
+
+Signed-off-by: venkatasubramanian pattu <venkatasubramanianx.pattu@intel.com>
+Signed-off-by: Anuj Mittal <anujx.mittal@intel.com>
+---
+ .../dc/stateless_multi_op_checksum_sample/Makefile |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/quickassist/lookaside/access_layer/src/sample_code/functional/dc/stateless_multi_op_checksum_sample/Makefile b/quickassist/lookaside/access_layer/src/sample_code/functional/dc/stateless_multi_op_checksum_sample/Makefile
+index 01590c3..315fca7 100644
+--- a/quickassist/lookaside/access_layer/src/sample_code/functional/dc/stateless_multi_op_checksum_sample/Makefile
++++ b/quickassist/lookaside/access_layer/src/sample_code/functional/dc/stateless_multi_op_checksum_sample/Makefile
+@@ -111,7 +111,7 @@ else
+         ADDITIONAL_OBJECTS += $(ICP_BUILD_OUTPUT)/libicp_qa_al_s.so
+ endif
+ 
+-ADDITIONAL_OBJECTS += -L/usr/Lib -lpthread -lcrypto
++ADDITIONAL_OBJECTS += -lpthread -lcrypto
+ 
+ USER_SOURCE_FILES = ../../common/cpa_sample_utils.c cpa_dc_stateless_multi_op_checksum_sample.c
+ USER_SOURCE_FILES += ../stateless_sample/cpa_dc_sample_user.c
+@@ -127,7 +127,7 @@ else
+ endif
+ 
+ default: clean
+-	gcc -Wall -O1 $(USER_INCLUDES)  -DUSER_SPACE $(EXTRA_CFLAGS) \
++	$(CC) -Wall -O1 $(USER_INCLUDES)  -DUSER_SPACE $(EXTRA_CFLAGS) \
+ 	$(USER_SOURCE_FILES) $(ADDITIONAL_OBJECTS) -o $(OUTPUT_NAME)
+ 
+ clean:
+-- 
+1.7.9.5
+

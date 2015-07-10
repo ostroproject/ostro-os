@@ -1,0 +1,31 @@
+From 5044a14a6b4192b771f16aa834f688c1fd1287dd Mon Sep 17 00:00:00 2001
+From: Anuj Mittal <anujx.mittal@intel.com>
+Date: Wed, 8 Jul 2015 11:11:32 +0800
+Subject: [PATCH] qat: remove local path from makefile
+
+Upstream-Status: Inappropriate [Configuration]
+
+Remove the host machine /usr/include path from makefile.
+
+Signed-off-by: Anuj Mittal <anujx.mittal@intel.com>
+---
+ .../build_files/env_files/linux_2.6_user_space.mk  |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/quickassist/build_system/build_files/env_files/linux_2.6_user_space.mk b/quickassist/build_system/build_files/env_files/linux_2.6_user_space.mk
+index 1451f4a..719d1bb 100755
+--- a/quickassist/build_system/build_files/env_files/linux_2.6_user_space.mk
++++ b/quickassist/build_system/build_files/env_files/linux_2.6_user_space.mk
+@@ -72,8 +72,7 @@
+ #
+ #-------------------------------------------------------------
+ 
+-INCLUDES+=-I/usr/include \
+-          -I$(API_DIR)   \
++INCLUDES+=-I$(API_DIR)   \
+           -I$(OSAL_DIR)/include \
+           -I$(OSAL_DIR)/src/linux/user_space/include
+ 
+-- 
+1.7.9.5
+
