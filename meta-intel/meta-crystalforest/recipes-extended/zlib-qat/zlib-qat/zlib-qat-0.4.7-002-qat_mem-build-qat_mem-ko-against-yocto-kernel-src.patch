@@ -1,0 +1,51 @@
+From aa65d69632142d24ec44ed4c2d66371e1a1be7b4 Mon Sep 17 00:00:00 2001
+From: Anuj Mittal <anujx.mittal@intel.com>
+Date: Thu, 18 Jun 2015 11:56:08 +0800
+Subject: [PATCH] qat_mem: build qat_mem ko against yocto kernel src
+
+Upstream-Status: Inappropriate [Configuration]
+
+This tweaks the kernel source and build path in the makefile
+to make sure the module is built against the right source.
+
+Signed-off-by: Anuj Mittal <anujx.mittal@intel.com>
+---
+ contrib/qat/qat_mem/Makefile |   13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/contrib/qat/qat_mem/Makefile b/contrib/qat/qat_mem/Makefile
+index ddf5b59..ad6d4a4 100644
+--- a/contrib/qat/qat_mem/Makefile
++++ b/contrib/qat/qat_mem/Makefile
+@@ -61,16 +61,10 @@
+ #########################################################################
+ 
+ MODULENAME 	:= qat_mem
+-KDIR		:= /lib/modules/$(shell uname -r)/build
++KDIR		:= $(KERNEL_SOURCE_ROOT)
+ PWD		:= $(shell pwd)
+ 
+-ifeq ($(shell uname -r|grep -c grsec-WR), 1)
+-AUTO_CONF=/lib/modules/$(shell uname -r)/build/include/generated/autoconf.h
+-else
+-AUTO_CONF=/usr/src/kernels/$(shell uname -r)/include/linux/autoconf.h
+-endif
+-
+-CC		:= gcc -Wall -imacros $(AUTO_CONF)
++CC             := ${CC} -Wall -imacros $(KERNEL_BUILDDIR)/include/generated/autoconf.h
+ 
+ ifeq ($(KERNELRELEASE),)
+ all:	$(MODULENAME)_test
+@@ -80,6 +74,9 @@ else
+   obj-m	:= $(MODULENAME).o
+ endif
+ 
++modules_install:
++	$(MAKE) -C $(KDIR) M=$(PWD) modules_install
++
+ $(MODULENAME)_test: $(MODULENAME)_test.c
+ 	$(CC) -g -o $(MODULENAME)_test $(MODULENAME)_test.c
+ 
+-- 
+1.7.9.5
+
