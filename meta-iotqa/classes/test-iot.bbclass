@@ -71,7 +71,7 @@ python do_test_iot() {
     pkgarch = d.getVar("TUNE_PKGARCH", True)
     filesdir = os.path.join(d.getVar("DEPLOY_DIR", True), "files", pkgarch)
     re_creat_dir(filesdir)
-    nativearch = d.getVar("SDK_ARCH", True)
+    nativearch = d.getVar("BUILD_ARCH", True)
     nativedir = os.path.join(d.getVar("DEPLOY_DIR", True), "files", "native",
                              nativearch)
     re_creat_dir(nativedir)
@@ -161,10 +161,10 @@ def re_creat_dir(path):
 #copy support files to test suite
 def copy_support_files(d, depdir, navdir):
     import shutil
-    def full_path(rpath):
-        return os.path.join(d.getVar("BASE_WORKDIR", True),
-                            d.getVar("REAL_MULTIMACH_TARGET_SYS", True),
-                            rpath) 
+    def full_path(rpath, isNative=False):
+        arch = d.getVar("REAL_MULTIMACH_TARGET_SYS", True) if not isNative else \
+               "-".join((d.getVar("BUILD_ARCH", True), d.getVar("BUILD_OS", True)))
+        return os.path.join(d.getVar("BASE_WORKDIR", True), arch, rpath) 
     fname = "files.manifest"
     layerdir = get_qa_layer(d)
     tfile = os.path.join(layerdir, "lib", fname)
@@ -180,17 +180,18 @@ def copy_support_files(d, depdir, navdir):
                 continue
             fl_tmp = fl.split(":")
             targetdir = depdir
+            isNative = False
             if len(fl_tmp) >=2:
                 fl = fl_tmp[1].strip()
                 if fl_tmp[0].strip() == "native":
                     targetdir = navdir
-            ffile = full_path(fl)
+                    isNative = True
+            ffile = full_path(fl, isNative)
             if os.path.exists(ffile):
                 shutil.copy2(ffile, targetdir)
                 bb.plain("Copy file: %s to %s" % (ffile, targetdir))
             else:
                 bb.plain("Support file: %s missing" % ffile)
-                 
     bb.plain("Copy support files done")
 
 #package test suite as tarball
@@ -222,7 +223,7 @@ python do_test_iot_export() {
     pkgarch = d.getVar("TUNE_PKGARCH", True)
     filesdir = os.path.join(deploydir, "files", pkgarch)
     bb.utils.mkdirhier(filesdir)
-    nativearch = d.getVar("SDK_ARCH", True)
+    nativearch = d.getVar("BUILD_ARCH", True)
     nativedir = os.path.join(deploydir, "files", "native", nativearch)
     bb.utils.mkdirhier(nativedir)
     copy_support_files(d, filesdir, nativedir)
