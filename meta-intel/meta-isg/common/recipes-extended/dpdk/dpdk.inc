@@ -4,6 +4,8 @@ LICENSE = "BSD & LGPLv2 & GPLv2"
 LIC_FILES_CHKSUM = "file://LICENSE.GPL;md5=751419260aa954499f7abaabaa882bbe"
 
 RDEPENDS_${PN} += "python-subprocess"
+DEPENDS = "virtual/kernel"
+do_configure[depends] += "virtual/kernel:do_shared_workdir"
 
 inherit module
 
@@ -14,6 +16,7 @@ export RTE_TARGET="${@bb.utils.contains("TUNE_FEATURES", "corei7", "x86_64-ivshm
 export ICP_ROOT = "${PKG_CONFIG_SYSROOT_DIR}/usr/include"
 export ICP_LIB_ROOT= "${PKG_CONFIG_SYSROOT_DIR}/usr/lib"
 export RTE_KERNELDIR = "${STAGING_KERNEL_DIR}"
+export RTE_KERNELDIR_OUT = "${STAGING_KERNEL_BUILDDIR}"
 export INSTALL_PATH = "${prefix}/dpdk"
 
 do_configure () {
