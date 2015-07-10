@@ -34,8 +34,8 @@ do_compile () {
 	unset LDFLAGS TARGET_LDFLAGS BUILD_LDFLAGS
 
 	cd ${S}/${RTE_TARGET}
-	oe_runmake EXTRA_LDFLAGS=" --sysroot=${STAGING_DIR_HOST}" \
-		   EXTRA_CFLAGS=" --sysroot=${STAGING_DIR_HOST}" \
+	oe_runmake EXTRA_LDFLAGS="-L${STAGING_LIBDIR}" \
+		   EXTRA_CFLAGS="--sysroot=${STAGING_DIR_HOST} -I${STAGING_INCDIR}" \
 		   CROSS="${TARGET_PREFIX}" \
 		   prefix=""  LDFLAGS=""  WERROR_FLAGS="-w" V=1
 }
