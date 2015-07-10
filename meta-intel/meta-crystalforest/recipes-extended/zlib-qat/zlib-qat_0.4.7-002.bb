@@ -19,6 +19,7 @@ DEPENDS += "cryptodev-linux pkgconfig qat16"
 SRC_URI = "http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz;name=zlib \
            https://01.org/sites/default/files/page/zlib_shim_0.4.7-002_withdocumentation.zip;name=zlibqat \
            file://zlib-qat-0.4.7-002-qat_mem-build-qat_mem-ko-against-yocto-kernel-src.patch \
+           file://zlib-qat-0.4.7-002-zlib-qat-add-a-install-target-to-makefile.patch \
            "
 
 SRC_URI[zlib.md5sum] = "44d667c142d7cda120332623eab69f40"
@@ -66,6 +67,7 @@ do_patch() {
 	cd ${S}
 	patch -p1  < ${WORKDIR}/zlib-1.2.8-qat.patch
 	patch -p1  < ${WORKDIR}/zlib-qat-0.4.7-002-qat_mem-build-qat_mem-ko-against-yocto-kernel-src.patch
+        patch -p1  < ${WORKDIR}/zlib-qat-0.4.7-002-zlib-qat-add-a-install-target-to-makefile.patch
 }
 
 do_configure() {
@@ -85,15 +87,19 @@ do_compile() {
 
 do_install() {
 	chrpath -d ${MEM_PATH}/qat_zlib_test/comptestapp
-	install -m 0755 -d		${MODULE_DIR}/
 	install -m 0755 -d		${D}${bindir}/
 	install -m 0755 -d		${D}${sysconfdir}/zlib_conf/
-	install -m 640  ${MEM_PATH}/qat_mem/qat_mem.ko		${MODULE_DIR}/
-	install -m 0755 ${WORKDIR}/zlib-${ZLIB_VERSION}/zpipe		${D}${bindir}/
-	install -m 0755 ${WORKDIR}/zlib-${ZLIB_VERSION}/minigzip	${D}${bindir}/
-	install -m 0755 ${MEM_PATH}/qat_zlib_test/comptestapp		${D}${bindir}/
+
+        install -m 0755 zpipe ${D}${bindir}
+        install -m 0755 minigzip ${D}${bindir}
+
+        cd ${MEM_PATH}/qat_mem
+        oe_runmake INSTALL_MOD_PATH=${D} INSTALL_MOD_DIR="kernel/drivers" install
+
+        cd ${S}/contrib/qat/qat_zlib_test
+        oe_runmake DESTDIR=${D} install
+
 	install -m 660  ${MEM_PATH}/config/dh895xcc/multi_thread_optimized/*	${D}${sysconfdir}/zlib_conf/
-	install -m 660  ${MEM_PATH}/config/dh89xxcc/multi_thread_optimized/*	${D}${sysconfdir}/zlib_conf/
 }
 
 PACKAGES += "${PN}-app"

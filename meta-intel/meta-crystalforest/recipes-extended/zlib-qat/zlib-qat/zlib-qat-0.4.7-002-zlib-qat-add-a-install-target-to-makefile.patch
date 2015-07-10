@@ -1,0 +1,46 @@
+From d78121d790c4a248bc47d1c662791fe57ac4af38 Mon Sep 17 00:00:00 2001
+From: Anuj Mittal <anujx.mittal@intel.com>
+Date: Thu, 18 Jun 2015 11:53:23 +0800
+Subject: [PATCH] zlib-qat: add a install target to makefile
+
+Upstream-Status: Inappropriate [Configuration]
+
+This adds an install target to qat_zlib_test and qat_mem makefiles
+to facilitate the installation of test binaries to {D}.
+
+Signed-off-by: Anuj Mittal <anujx.mittal@intel.com>
+---
+ contrib/qat/qat_mem/Makefile       |    3 +++
+ contrib/qat/qat_zlib_test/Makefile |    3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/contrib/qat/qat_mem/Makefile b/contrib/qat/qat_mem/Makefile
+index ad6d4a4..e4d77b6 100644
+--- a/contrib/qat/qat_mem/Makefile
++++ b/contrib/qat/qat_mem/Makefile
+@@ -74,6 +74,9 @@ else
+   obj-m	:= $(MODULENAME).o
+ endif
+ 
++install: modules_install
++	cp qat_mem_test $(INSTALL_MOD_PATH)$(bindir)
++
+ modules_install:
+ 	$(MAKE) -C $(KDIR) M=$(PWD) modules_install
+ 
+diff --git a/contrib/qat/qat_zlib_test/Makefile b/contrib/qat/qat_zlib_test/Makefile
+index ca31dd2..7da5ddd 100644
+--- a/contrib/qat/qat_zlib_test/Makefile
++++ b/contrib/qat/qat_zlib_test/Makefile
+@@ -112,5 +112,8 @@ comptestappsh$(EXE): $(OBJS) Makefile
+ 	$(CC) -o comptestappsh $(OBJS) $(COVERAGE) \
+ 	$(SHAREDLIBQAT)
+ 
++install:
++	cp comptestapp $(DESTDIR)$(bindir)
++
+ clean:
+ 	rm -f $(OBJS) $(COVERAGE_OBJS) comptestapp comptestappsh
+-- 
+1.7.9.5
+
