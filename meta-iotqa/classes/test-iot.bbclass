@@ -166,32 +166,30 @@ def copy_support_files(d, depdir, navdir):
                "-".join((d.getVar("BUILD_ARCH", True), d.getVar("BUILD_OS", True)))
         return os.path.join(d.getVar("BASE_WORKDIR", True), arch, rpath) 
     fname = "files.manifest"
-    layerdir = get_qa_layer(d)
-    tfile = os.path.join(layerdir, "lib", fname)
-    if not os.path.exists(tfile):
-        bb.plain("Not found files manifest: %s" % tfile)
-        return
-
-    with open(tfile, "r") as f:
-        file_list = f.readlines()
-        for fl in file_list:
-            fl = fl.strip()
-            if fl.startswith('#') or not fl:
-                continue
-            fl_tmp = fl.split(":")
-            targetdir = depdir
-            isNative = False
-            if len(fl_tmp) >=2:
-                fl = fl_tmp[1].strip()
-                if fl_tmp[0].strip() == "native":
-                    targetdir = navdir
-                    isNative = True
-            ffile = full_path(fl, isNative)
-            if os.path.exists(ffile):
-                shutil.copy2(ffile, targetdir)
-                bb.plain("Copy file: %s to %s" % (ffile, targetdir))
-            else:
-                bb.plain("Support file: %s missing" % ffile)
+    for layerdir in d.getVar("BBPATH", True).split(':'):
+        tfile = os.path.join(layerdir, "lib", fname)
+        if not os.path.exists(tfile):
+            continue
+        with open(tfile, "r") as f:
+            file_list = f.readlines()
+            for fl in file_list:
+                fl = fl.strip()
+                if fl.startswith('#') or not fl:
+                    continue
+                fl_tmp = fl.split(":")
+                targetdir = depdir
+                isNative = False
+                if len(fl_tmp) >=2:
+                    fl = fl_tmp[1].strip()
+                    if fl_tmp[0].strip() == "native":
+                        targetdir = navdir
+                        isNative = True
+                ffile = full_path(fl, isNative)
+                if os.path.exists(ffile):
+                    shutil.copy2(ffile, targetdir)
+                    bb.plain("Copy file: %s to %s" % (ffile, targetdir))
+                else:
+                    bb.plain("Support file: %s missing" % ffile)
     bb.plain("Copy support files done")
 
 #package test suite as tarball
