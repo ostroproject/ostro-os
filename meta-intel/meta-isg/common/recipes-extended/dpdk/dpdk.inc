@@ -46,7 +46,7 @@ do_install () {
 				${D}/${INSTALL_PATH}/${RTE_TARGET}/app \
 				${D}/${INSTALL_PATH}/${RTE_TARGET}/hostapp \
 				${D}${includedir} \
-				${D}${includedir}/arch \
+				${D}${includedir}/${ARCHDIR} \
 				${D}${includedir}/exec-env \
 				${D}${libdir} \
 				${D}${MODULE_DIR}
@@ -57,7 +57,7 @@ do_install () {
 
 	install -m 640 ${S}/${RTE_TARGET}/.config			${D}/${INSTALL_PATH}/${RTE_TARGET}/
 	install -m 640 ${S}/${RTE_TARGET}/include/*.h			${D}${includedir}/
-	install -m 640 ${S}/${RTE_TARGET}/include/arch/*.h		${D}${includedir}/arch/
+	install -m 640 ${S}/${RTE_TARGET}/include/${ARCHDIR}/*.h	${D}${includedir}/${ARCHDIR}/
 	install -m 640 ${S}/${RTE_TARGET}/include/exec-env/*.h		${D}${includedir}/exec-env/
 	install -m 0755 ${S}/tools/*.py					${D}/${INSTALL_PATH}/tools/
 
@@ -94,7 +94,7 @@ FILES_${PN}-doc += "\
 FILES_${PN}-dev += " \
 	${INSTALL_PATH}/${RTE_TARGET}/.config \
 	${includedir} \
-	${includedir}/arch \
+	${includedir}/${ARCHDIR} \
 	${includedir}/exec-env \
 	"
 
