@@ -18,6 +18,25 @@ export ICP_LIB_ROOT= "${PKG_CONFIG_SYSROOT_DIR}/usr/lib"
 export RTE_KERNELDIR = "${STAGING_KERNEL_DIR}"
 export RTE_KERNELDIR_OUT = "${STAGING_KERNEL_BUILDDIR}"
 export INSTALL_PATH = "${prefix}/dpdk"
+export SYSROOTPATH = "--sysroot=${STAGING_DIR_HOST}"
+export DPDK_TARGET_MACH = "${@get_dpdk_target_mach(bb,d)}"
+
+# The list of intel Comms platforms and their target machine
+# process mapping. The supported target machine is listed under
+# dpdk/mk/machine
+def get_dpdk_target_mach(bb, d):
+    target_arch = d.getVar('MACHINE_ARCH', True)
+    multiarch_options = {
+        "mohonpeak64":    "atm",
+        "mohonpeak32":    "atm",
+        "crystalforest":  "ivb",
+        "romley":         "snd",
+        "romley-ivb":     "ivb",
+    }
+
+    if target_arch in multiarch_options :
+            return multiarch_options[target_arch]
+    return ""
 
 do_configure () {
 	#############################################################
@@ -38,6 +57,11 @@ do_compile () {
 		   EXTRA_CFLAGS="--sysroot=${STAGING_DIR_HOST} -I${STAGING_INCDIR}" \
 		   CROSS="${TARGET_PREFIX}" \
 		   prefix=""  LDFLAGS=""  WERROR_FLAGS="-w" V=1
+
+	cd ${S}/examples/
+	oe_runmake EXTRA_LDFLAGS="-L${STAGING_LIBDIR}" \
+		   EXTRA_CFLAGS="--sysroot=${STAGING_DIR_HOST} -I${STAGING_INCDIR}" \
+		   CROSS="${TARGET_PREFIX}" O="${S}/examples/$@/"
 }
 
 do_install () {
