@@ -26,3 +26,8 @@ class BaseOsTest(oeRuntimeTest):
         '''check df command'''
         (status, output) = self.target.run('df')
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
+
+    def test_baseos_systemd_process(self):
+        '''check systemd process'''
+        (status, output) = self.target.run("ls -l /proc/1/exe | grep 'systemd'")
+        self.assertEqual(status, 0, msg="Error messages: %s" % output)
