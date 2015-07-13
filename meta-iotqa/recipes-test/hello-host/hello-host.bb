@@ -11,3 +11,4 @@ S = "${WORKDIR}"
 do_compile() {
     ${CC} hello.c -o hello
 }
+inherit native
