@@ -42,7 +42,7 @@ def get_qa_layer(d):
     return get_layer_dir(d, "meta-iotqa")
 
 #override the function in testimage.bbclass
-def get_tests_list(d, type="runtime"):
+def get_tests_list_iot(d, type="runtime"):
     manif_name = d.getVar("TEST_SUITES_MANIFEST", True)
     if not manif_name:
         manif_name = "iottest.manifest"
@@ -76,7 +76,11 @@ python do_test_iot() {
                              nativearch)
     re_creat_dir(nativedir)
     copy_support_files(d, filesdir, nativedir)
+    global get_tests_list
+    get_tests_list_old = get_tests_list
+    get_tests_list = get_tests_list_iot
     testimage_main(d)
+    get_tests_list = get_tests_list_old
 }
 
 addtask test_iot
