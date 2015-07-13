@@ -62,7 +62,7 @@ def get_tclist(d, fname):
     p = get_qa_layer(d)
     manif_path = os.path.join(p, 'conf', 'test', fname)
     if not os.path.exists(manif_path):
-        return ""
+        bb.fatal("No such manifest file: ", manif_path)
     tcs = open(manif_path).readlines()
     return [ item.strip() for item in tcs ]
 
