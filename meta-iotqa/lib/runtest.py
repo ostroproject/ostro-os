@@ -165,9 +165,9 @@ def main():
     if options.pkgarch:
         d["TUNE_PKGARCH"] = options.pkgarch
     navarch = os.popen("uname -m").read().strip()
-    d["TUNE_NATIVE_ARCH"] = "x86_64" if not navarch else navarch
+    d["BUILD_ARCH"] = "x86_64" if not navarch else navarch
     if options.nativearch:
-        d["TUNE_NATIVE_ARCH"] = options.nativearch
+        d["BUILD_ARCH"] = options.nativearch
     setattr(tc, "d", d)
 
     #inject build package manifest
