@@ -27,6 +27,8 @@ except ImportError:
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "oeqa")))
 
+BASEDIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+
 def _check(obj, taglist):
     """ match tag inside obj """
     for tag in taglist:
@@ -98,6 +100,7 @@ def main():
             help="The IP address of this machine. Use this to \
             overwrite the value determined from TEST_SERVER_IP at build time.")
     parser.add_option("-d", "--deploy-dir", dest="deploy_dir",
+            default=os.path.join(BASEDIR, "deploy"),
             help="Full path to the package feeds, that this \
             the contents of what used to be DEPLOY_DIR on the build machine. \
             If not specified it will use the value specified in the json if \
@@ -109,11 +112,12 @@ def main():
     parser.add_option("-f", "--test-manifest", dest="tests_list",
             help="The test list file")
     parser.add_option("-b", "--build-data", dest="build_data",
+            default=os.path.join(BASEDIR, "builddata.json"),
             help="The build data file.")
     parser.add_option("-a", "--tag", dest="tag",
             help="The tags to filter test case")
     parser.add_option("-r", "--pkgarch", dest="pkgarch",
-            help="The package arch")
+            help="""The package arch: i586 for quark, corei7-64 for intel-corei7-64, cortexa8hf-vfp-neon for beaglebone""")
     parser.add_option("-n", "--nativearch", dest="nativearch",
             help="The native arch")
 
@@ -136,34 +140,26 @@ def main():
     print tc.testslist
 
     #get build data from file
-    if options.build_data:
-        with open(options.build_data, "r") as f:
-            loaded = json.load(f)
-    else:
-        loaded = {
-              "d": {"DEPLOY_DIR": "./deploy",
-                    "TUNE_PKGARCH": "i586"},
-              "pkgmanifest": [],
-              "filesdir": "oeqa/runtime/files",
-              "imagefeatures": []
-        }
+    with open(options.build_data, "r") as f:
+        loaded = json.load(f)
 
     #inject build datastore
     d = MyDataDict()
-    for key in loaded["d"].keys():
-        d[key] = loaded["d"][key]
+    if loaded.has_key("d"):
+        for key in loaded["d"].keys():
+            d[key] = loaded["d"][key]
 
     if options.log_dir:
         d["TEST_LOG_DIR"] = os.path.abspath(options.log_dir)
     else:
         d["TEST_LOG_DIR"] = os.path.abspath(os.path.dirname(__file__))
-    if options.deploy_dir:
-        d["DEPLOY_DIR"] = os.path.abspath(options.deploy_dir)
-    else:
-        if not os.path.isdir(d["DEPLOY_DIR"]):
-            raise Exception("The path to DEPLOY_DIR does not exists: %s" % d["DEPLOY_DIR"])
+    d["DEPLOY_DIR"] = os.path.abspath(options.deploy_dir)
+    if not os.path.isdir(d["DEPLOY_DIR"]):
+        raise Exception("The path to DEPLOY_DIR does not exists: %s" % d["DEPLOY_DIR"])
     if options.pkgarch:
         d["TUNE_PKGARCH"] = options.pkgarch
+    else:
+        raise Exception("Please specify target arch by -r")
     navarch = os.popen("uname -m").read().strip()
     d["BUILD_ARCH"] = "x86_64" if not navarch else navarch
     if options.nativearch:
