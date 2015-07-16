@@ -125,7 +125,6 @@ def dump_builddata(d, tdir):
     import json
 
     savedata = {}
-    savedata["d"] = {"DEPLOY_DIR" : d.getVar("DEPLOY_DIR", True)}
     savedata["imagefeatures"] = d.getVar("IMAGE_FEATURES", True).split()
     savedata["distrofeatures"] = d.getVar("DISTRO_FEATURES", True).split()
     manifest = os.path.join(d.getVar("DEPLOY_DIR_IMAGE", True),
