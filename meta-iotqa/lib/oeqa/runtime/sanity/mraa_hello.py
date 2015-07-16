@@ -8,8 +8,7 @@ class Mraa_hello(oeRuntimeTest):
         '''Prepare test binaries to image'''
         (status, output) = self.target.run('mkdir -p /opt/mraa-test/apps/')
         (status, output) = self.target.run('ls /opt/mraa-test/apps/hello_mraa')
-        if status != 0:
-           (status,output) = self.target.copy_to(os.path.join(get_files_dir(),
+        (status,output) = self.target.copy_to(os.path.join(get_files_dir(),
                           'hello_mraa'), "/opt/mraa-test/apps/")
         '''run test mraa app to get the platform information'''
         client_cmd = "/opt/mraa-test/apps/hello_mraa"
