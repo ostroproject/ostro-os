@@ -1,5 +1,6 @@
 '''Verify error returns when try to get default sensor with invalid type trhough api sf_get_default_sensor()'''
 import os
+from oeqa.utils.helper import get_files_dir
 from oeqa.oetest import oeRuntimeTest
 import readConfigFile
 

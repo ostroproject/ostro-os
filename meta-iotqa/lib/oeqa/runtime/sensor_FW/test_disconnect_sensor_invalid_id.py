@@ -1,5 +1,6 @@
 '''Verify error happens if try to disconnect non-exist sensor'''
 import os
+from oeqa.utils.helper import get_files_dir
 from oeqa.oetest import oeRuntimeTest
 import readConfigFile
 
