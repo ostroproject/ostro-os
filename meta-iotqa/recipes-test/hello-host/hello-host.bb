@@ -1,11 +1,9 @@
 SUMMARY = "Hello world from OTC IoT QA"
 DESCRIPTION = "test application"
 HOMEPAGE = "http://ostroproject.org/"
-LICENSE = "GPLv2"
-LIC_FILES_CHKSUM = "file://COPYRIGHT;md5=349c872e0066155e1818b786938876a4"
- 
+LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 SRC_URI = "file://hello.c \
-           file://COPYRIGHT \
 "
 S = "${WORKDIR}"
 do_compile() {
