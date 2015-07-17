@@ -34,10 +34,10 @@ main(int argc, char* argv[])
 	if(result < 0){
 		sf_disconnect_sensor(sensor_id);
 		fprintf(stdout, "error: %d, failed to connect already connected sensor id %d \n", result, sensor_id);
-		return true;
+		return false;
 	}
 	sf_disconnect_sensor(sensor_id);
 	fprintf(stdout, "Connect to already connected sensor %d successfully. \n", sensor_id);
 
-	return false;
+	return true;
 }

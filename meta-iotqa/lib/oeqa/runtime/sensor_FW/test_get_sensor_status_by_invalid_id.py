@@ -1,5 +1,6 @@
 '''negatively verify api sf_get_sensor_status_by_id'''
 import os
+from oeqa.utils.helper import get_files_dir
 import readConfigFile
 from oeqa.oetest import oeRuntimeTest
 

@@ -1,5 +1,6 @@
 '''Verify sensor can't be connected twice'''
 import os
+from oeqa.utils.helper import get_files_dir
 import readConfigFile
 from oeqa.oetest import oeRuntimeTest
 

@@ -1,5 +1,6 @@
 '''positively verify sf_sensor_type_is_supported'''
 import os
+from oeqa.utils.helper import get_files_dir
 from oeqa.oetest import oeRuntimeTest
 import readConfigFile
 

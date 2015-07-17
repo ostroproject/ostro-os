@@ -1,5 +1,6 @@
 '''Verify to get sensors with specific type trhough api sf_get_sensor_list()'''
 import os
+from oeqa.utils.helper import get_files_dir
 from oeqa.oetest import oeRuntimeTest
 import readConfigFile
 

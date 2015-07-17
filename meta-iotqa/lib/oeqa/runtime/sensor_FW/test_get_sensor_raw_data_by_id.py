@@ -1,5 +1,6 @@
 '''Verify get sensor raw data'''
 import os
+from oeqa.utils.helper import get_files_dir
 import readConfigFile
 from oeqa.oetest import oeRuntimeTest
 

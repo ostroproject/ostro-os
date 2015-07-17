@@ -1,5 +1,6 @@
 '''Verify can't disconnect a sensow which haven't been connected'''
 import os
+from oeqa.utils.helper import get_files_dir
 from oeqa.oetest import oeRuntimeTest
 import readConfigFile
 

@@ -1,5 +1,6 @@
 '''Test case to verify get default sensor by type and manipulate it'''
 import os
+from oeqa.utils.helper import get_files_dir
 from oeqa.oetest import oeRuntimeTest
 import readConfigFile
 
