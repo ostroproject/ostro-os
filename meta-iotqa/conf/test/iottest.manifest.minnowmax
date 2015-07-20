@@ -7,6 +7,7 @@ oeqa.runtime.sanity.baseos
 oeqa.runtime.sanity.comm_managerdaemon
 oeqa.runtime.sanity.comm_ssh
 oeqa.runtime.sanity.mraa_hello
+oeqa.runtime.smack.SmackFileLabels.test_smack_labels
 oeqa.runtime.sanity.iotvt_getstate
 oeqa.runtime.sanity.iotvt_observer
 oeqa.runtime.sanity.iotvt_findresource
