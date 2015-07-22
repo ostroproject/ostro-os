@@ -116,8 +116,8 @@ def main():
             help="The build data file.")
     parser.add_option("-a", "--tag", dest="tag",
             help="The tags to filter test case")
-    parser.add_option("-r", "--pkgarch", dest="pkgarch",
-            help="""The package arch: i586 for quark, corei7-64 for intel-corei7-64, cortexa8hf-vfp-neon for beaglebone""")
+    parser.add_option("-m", "--machine", dest="machine", 
+            help="""The target machine:quark intel-corei7-64 beaglebone""")
     parser.add_option("-n", "--nativearch", dest="nativearch",
             help="The native arch")
 
@@ -156,10 +156,10 @@ def main():
     d["DEPLOY_DIR"] = os.path.abspath(options.deploy_dir)
     if not os.path.isdir(d["DEPLOY_DIR"]):
         raise Exception("The path to DEPLOY_DIR does not exists: %s" % d["DEPLOY_DIR"])
-    if options.pkgarch:
-        d["TUNE_PKGARCH"] = options.pkgarch
+    if options.machine:
+        d["MACHINE"] = options.machine
     else:
-        raise Exception("Please specify target arch by -r")
+        parser.error("Please specify target machine by -m")
     navarch = os.popen("uname -m").read().strip()
     d["BUILD_ARCH"] = "x86_64" if not navarch else navarch
     if options.nativearch:

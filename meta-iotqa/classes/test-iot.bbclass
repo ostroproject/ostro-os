@@ -68,8 +68,8 @@ def get_tclist(d, fname):
 
 #bitbake task - run iot test suite
 python do_test_iot() {
-    pkgarch = d.getVar("TUNE_PKGARCH", True)
-    filesdir = os.path.join(d.getVar("DEPLOY_DIR", True), "files", pkgarch)
+    machine = d.getVar("MACHINE", True)
+    filesdir = os.path.join(d.getVar("DEPLOY_DIR", True), "files", machine)
     re_creat_dir(filesdir)
     nativearch = d.getVar("BUILD_ARCH", True)
     nativedir = os.path.join(d.getVar("DEPLOY_DIR", True), "files", "native",
@@ -224,14 +224,14 @@ python do_test_iot_export() {
     fname = os.path.join(outdir, "iot-testsuite.tar.gz")
     pack_tarball(d, exportdir, fname)
     bb.plain("export test suite to ", fname)
-    pkgarch = d.getVar("TUNE_PKGARCH", True)
-    filesdir = os.path.join(deploydir, "files", pkgarch)
+    machine = d.getVar("MACHINE", True)
+    filesdir = os.path.join(deploydir, "files", machine)
     bb.utils.mkdirhier(filesdir)
     nativearch = d.getVar("BUILD_ARCH", True)
     nativedir = os.path.join(deploydir, "files", "native", nativearch)
     bb.utils.mkdirhier(nativedir)
     copy_support_files(d, filesdir, nativedir)
-    fname = os.path.join(outdir, "iot-testfiles.%s.tar.gz" % pkgarch)
+    fname = os.path.join(outdir, "iot-testfiles.%s.tar.gz" % machine)
     pack_tarball(d, deploydir, fname)
     bb.plain("export test files to ", fname)
 }
