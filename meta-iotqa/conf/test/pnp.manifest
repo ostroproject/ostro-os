@@ -1,6 +1,7 @@
 oeqa.runtime.pnp.disksize
 oeqa.runtime.sanity.memory
 oeqa.runtime.sanity.boottime
+oeqa.runtime.pnp.reboottime
 #oeqa.runtime.pnp.power
 #oeqa.runtime.pnp.poweroff
 oeqa.runtime.pnp.cpuusage
