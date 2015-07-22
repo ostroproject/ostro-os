@@ -112,7 +112,6 @@ def main():
     parser.add_option("-f", "--test-manifest", dest="tests_list",
             help="The test list file")
     parser.add_option("-b", "--build-data", dest="build_data",
-            default=os.path.join(BASEDIR, "builddata.json"),
             help="The build data file.")
     parser.add_option("-a", "--tag", dest="tag",
             help="The tags to filter test case")
@@ -139,27 +138,31 @@ def main():
     tc.testslist = tclist
     print tc.testslist
 
+    deployDir = os.path.abspath(options.deploy_dir)
+    if not os.path.isdir(deployDir):
+        raise Exception("The path to DEPLOY_DIR does not exists: %s" % deployDir)
+    if options.machine:
+        machine = options.machine
+    else:
+        parser.error("Please specify target machine by -m")
+    if options.build_data:
+        build_data = options.build_data
+    else:
+        build_data = os.path.join(deployDir, "files", machine, "builddata.json")
     #get build data from file
-    with open(options.build_data, "r") as f:
+    with open(build_data, "r") as f:
         loaded = json.load(f)
-
     #inject build datastore
     d = MyDataDict()
     if loaded.has_key("d"):
         for key in loaded["d"].keys():
             d[key] = loaded["d"][key]
-
+    d["DEPLOY_DIR"], d["MACHINE"] = deployDir, machine
     if options.log_dir:
         d["TEST_LOG_DIR"] = os.path.abspath(options.log_dir)
     else:
         d["TEST_LOG_DIR"] = os.path.abspath(os.path.dirname(__file__))
-    d["DEPLOY_DIR"] = os.path.abspath(options.deploy_dir)
-    if not os.path.isdir(d["DEPLOY_DIR"]):
-        raise Exception("The path to DEPLOY_DIR does not exists: %s" % d["DEPLOY_DIR"])
-    if options.machine:
-        d["MACHINE"] = options.machine
-    else:
-        parser.error("Please specify target machine by -m")
+
     navarch = os.popen("uname -m").read().strip()
     d["BUILD_ARCH"] = "x86_64" if not navarch else navarch
     if options.nativearch:
