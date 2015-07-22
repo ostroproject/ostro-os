@@ -88,8 +88,10 @@ do_test_iot[depends] += "${TESTIMAGEDEPENDS}"
 do_test_iot[lockfiles] += "${TESTIMAGELOCK}"
 
 #overwrite copy src dir to dest
-def recursive_overwrite(src, dest, ignore=['__init__.py']):
-    import shutil
+def recursive_overwrite(src, dest, notOverWrite=[r'__init__\.py'], ignores=[r".+\.pyc"]):
+    import shutil, re
+    notOverWrite = map(re.compile, notOverWrite)
+    ignores = map(re.compile, ignores)
     if os.path.isdir(src):
         if not os.path.isdir(dest):
             os.makedirs(dest)
@@ -97,7 +99,8 @@ def recursive_overwrite(src, dest, ignore=['__init__.py']):
         for f in files:
             fsrc = os.path.join(src, f)
             fdest = os.path.join(dest, f)
-            if f in ignore and os.path.exists(fdest):
+            if filter(lambda x:x.match(f), notOverWrite) and os.path.exists(fdest) or\
+               filter(lambda x:x.match(f), ignores):
                 continue
             recursive_overwrite(fsrc, fdest)
     else:
@@ -109,7 +112,7 @@ def export_testsuite(d, exportdir):
     import shutil
 
     oeqadir = pkgutil.get_loader("oeqa").filename
-    shutil.copytree(oeqadir, os.path.join(exportdir, "oeqa"))
+    recursive_overwrite(oeqadir, os.path.join(exportdir, "oeqa"))
     
     bbpath = d.getVar("BBPATH", True).split(':')
     for p in bbpath:
