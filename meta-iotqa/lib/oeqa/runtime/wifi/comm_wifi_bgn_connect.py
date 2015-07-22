@@ -1,15 +1,24 @@
 import time
+import os
+import ConfigParser
 from oeqa.oetest import oeRuntimeTest
+from oeqa.utils.helper import get_files_dir
+
+ssid_config = ConfigParser.ConfigParser()
+config_path = os.path.join(os.path.dirname(__file__), "config.ini")
+ssid_config.readfp(open(config_path))
 
 class CommWiFiBGNConect(oeRuntimeTest):
     def test_wifi_connect_80211b(self):
         '''connmanctl to connect a no-password 802.11b wifi AP'''
-        ssid="shz14f-ssgotcqalab-ap01-iot"
+        ssid = ssid_config.get("Connect","ssid_80211b")
+
         # un-block software rfkill lock
         self.target.run('rfkill unblock all')
         # Enable WiFi
         (status, output) = self.target.run('connmanctl enable wifi')
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
+        time.sleep(3)
 
         # Scan nearby to get service of Guest
         (status, output) = self.target.run('connmanctl scan wifi')
@@ -36,13 +45,15 @@ class CommWiFiBGNConect(oeRuntimeTest):
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
         
     def test_wifi_connect_80211g(self):
-        '''connmanctl to connect a no-password 802.11b wifi AP'''
-        ssid="shz14f-ssgotcqalab-ap02-iot"
+        '''connmanctl to connect a no-password 802.11g wifi AP'''
+        ssid = ssid_config.get("Connect","ssid_80211g")
+
         # un-block software rfkill lock
         self.target.run('rfkill unblock all')
         # Enable WiFi
         (status, output) = self.target.run('connmanctl enable wifi')
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
+        time.sleep(3)
 
         # Scan nearby to get service of Guest
         (status, output) = self.target.run('connmanctl scan wifi')
@@ -69,13 +80,15 @@ class CommWiFiBGNConect(oeRuntimeTest):
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
         
     def test_wifi_connect_80211n(self):
-        '''connmanctl to connect a no-password 802.11b wifi AP'''
-        ssid="shz13-otc-bsp-tests"
+        '''connmanctl to connect a no-password 802.11n wifi AP'''
+        ssid = ssid_config.get("Connect","ssid_80211n")
+
         # un-block software rfkill lock
         self.target.run('rfkill unblock all')
         # Enable WiFi
         (status, output) = self.target.run('connmanctl enable wifi')
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
+        time.sleep(3)
 
         # Scan nearby to get service of Guest
         (status, output) = self.target.run('connmanctl scan wifi')
@@ -100,4 +113,9 @@ class CommWiFiBGNConect(oeRuntimeTest):
         # Check ip address by ifconfig command
         (status, output) = self.target.run("ifconfig wlp2s0 | grep 'inet addr:'")
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
-        
+
+    def tearDown(self):
+        ''' disable wifi after testing '''
+
+        self.target.run('connmanctl disable wifi')
+ 
