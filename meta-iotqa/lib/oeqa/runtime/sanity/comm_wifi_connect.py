@@ -5,7 +5,7 @@ from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import get_files_dir
 
 ssid_config = ConfigParser.ConfigParser()
-config_path = os.path.join(get_files_dir(), "config.ini")
+config_path = os.path.join(os.path.dirname(__file__), "files/config.ini")
 ssid_config.readfp(open(config_path))
 
 class CommWiFiTest(oeRuntimeTest):
@@ -17,6 +17,7 @@ class CommWiFiTest(oeRuntimeTest):
         # Enable WiFi
         (status, output) = self.target.run('connmanctl enable wifi')
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
+        time.sleep(20)
 
         # Scan nearby to get service of none-encryption broadcasting ssid
         ssid = ssid_config.get("WiFi","nosecurity_ssid") 
@@ -24,7 +25,7 @@ class CommWiFiTest(oeRuntimeTest):
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
         (status, services) = self.target.run("connmanctl services | grep %s | awk '{print $NF}'" % ssid)
         # will do scan retry 1 time if needed
-        if (status != 0):
+        if (service.strip() == ''):
             (status, output) = self.target.run('connmanctl scan wifi')
             self.assertEqual(status, 0, msg="Error messages: %s" % output)
             (status, services) = self.target.run("connmanctl services | grep %s | awk '{print $NF}'" % ssid)
