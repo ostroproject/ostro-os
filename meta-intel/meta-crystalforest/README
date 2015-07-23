@@ -2,34 +2,38 @@ This README file contains information on building the meta-crystalforest
 BSP layer, and booting the images contained in the /binary directory.
 Please see the corresponding sections below for details.
 
-The 'Crystal Forest' platform consists of two versions.
-1. GLADDEN
-2. SERVER
+Overview of Intel Communication Product Offering
+------------------------------------------------
 
-The Gladden Platform consists of Intel Xeon E3-1125C/E3-1105C Processor,
-plus the Intel Communication Chipset 89xx for Smaller Form Factor
-Communication Infrastructure.
-(Gladden + Cave Creek) also known as CrystalForest-Gladden
+The following platforms are supported on meta-intel dizzy branch ONLY:
 
-The Server Platform consists of Intel Xeon E5-2600 and E5-2400 Processors,
-plus the Intel Communication Chipset 89xx for Large-Scale Communications
-Infrastructure.
-(Ivy Bridge-EP/EN + Coleto Creek) also known as HighlandForest
-(Sandy Bridge-EP/EN + Cave Creek) also known as CrystalForest-Server
+Crystal Forest/Server - Shumway reference platform configurations:
+processor: Intel Xeon E5-2600/E5-2400       (Sandy Bridge-based) or
+           Intel Xeon E5-2600v2/E5-2400v2   (Ivy Bridge-based)
+chipset:   Intel Communication Chipset 8900-8920 Series (Cave Creek)
+url: http://www.intel.com/p/en_US/embedded/hwsw/hardware/xeon-e5-89xx/overview
 
-Both Platforms use Matrox graphics Card.
+Crystal Forest/Gladden - Stargo reference platform configurations:
+processor: Intel Xeon E3-1125C/E3-1105C     (Sandy Bridge-based) or
+           Intel Xeon E3-1125v2/E3-1105v2   (Ivy Bridge-based)
+chipset:   Intel Communication Chipset 8900-8920 Series (Cave Creek)
+url: http://www.intel.com/p/en_US/embedded/hwsw/hardware/xeon-core-pentium-celeron-89xx/overview
 
-Further information about the Crystal Forest Gladden platform supported
-by this BSP can be found here:
+Highland Forest (Crystal Forest/Server Refresh) - Shumway reference platform configurations:
+processor: Intel Xeon E5-2600v2/E5-2400v2   (Ivy Bridge-based)
+chipset:   Intel Communication Chipset 8925-8955 Series (Coleto Creek)
+url: https://www-ssl.intel.com/content/www/us/en/intelligent-systems/crystal-forest-server/xeon-e5-v2-89xx-chipset-ibd.html
 
-  http://www.intel.com/p/en_US/embedded/hwsw/hardware/xeon-core-pentium-celeron-89xx/overview
+The following platform is supported on meta-intel fido branch and beyond.
 
-Further information about the Crystal Forest server platform supported
-by this BSP can be found here:
+River Forest - Long Brook reference platform configurations:
+processor: Intel Xeon E5-2600v3/E5-2400v3   (Haswell EP-based)
+chipset:   Intel Communication Chipset 8925-8955 Series (Coleto Creek)
+url: https://www-ssl.intel.com/content/www/my/en/embedded/products/river-forest/overview.html?wapkw=coleto
 
-  http://www.intel.com/p/en_US/embedded/hwsw/hardware/xeon-e5-89xx/overview
+All above four platforms use PCIe-based Matrox graphics card for display.
 
-Information on all Intel® embedded platforms can be found here:
+More Information on all Intel® embedded platforms can be found here:
 
   http://www.intel.com/p/en_US/embedded/hwsw/hardware
 
@@ -65,7 +69,7 @@ Patches
 Please submit any patches against this BSP to the meta-intel mailing
 list (meta-intel@yoctoproject.org) and cc: the maintainer:
 
-Maintainer: Chan Wei Sern <wei.sern.chan@intel.com>
+Maintainer: Wu Chia Chuan <chia.chuan.wu@intel.com>
 
 Please see the meta-intel/MAINTAINERS file for more details.
 
@@ -114,6 +118,8 @@ At the end of a successful build, you should have a live image that
 you can boot from a USB flash drive (see instructions on how to do
 that below, in the section 'Booting the images from /binary').
 
+The live image is located within build/tmp/deploy/images/<machine> folder.
+
 As an alternative to downloading the BSP tarball, you can also work
 directly from the meta-intel git repository.  For each BSP in the
 'meta-intel' repository, there are multiple branches, one
@@ -131,15 +137,26 @@ II. Booting the images in /binary
 This BSP contains bootable live images, which can be used to directly
 boot Yocto off of a USB flash drive.
 
-Under Linux, insert a USB flash drive.  Assuming the USB flash drive
-takes device /dev/sdf, use dd to copy the live image to it.  For
-example:
+You can deploy the hddimg image to a USB or SATA device. You will
+need to know the device name on your host as well as the device name on
+the target. Be careful with this step as using the wrong host device can
+result in overwriting data on your host machine.
 
-To boot on both Gladden and Server Platforms:
+Under Linux, USB and SATA devices typically appears as /dev/sdb,
+/dev/sdc, etc. Watching your system messages as you connect the device
+will tell you exactly which device name is assigned to the device.
+On the Valley Island platform, assuming only one storage device is
+attached at boot, a USB or SATA device will be /dev/sda.
 
-# dd if=core-image-sato-crystalforest.hddimg of=/dev/sdf
-# sync
-# eject /dev/sdf
+After inserting the boot media into your host machine and determining
+your host and target device, create the image using the mkefidisk.sh
+script, provided by poky under scripts/contrib/. Note that root
+privileges are required. For example, using an USB device which appears
+as /dev/sdc on the host:
+
+$ sudo ./mkefidisk.sh /dev/sdc core-image-sato-<machine>.hddimg /dev/sda
+
+Follow the prompts on the screen to confirm the action.
 
 This should give you a bootable USB flash device.  Insert the device
 into a bootable USB socket on the target, and power on.  This should
@@ -165,6 +182,9 @@ a. Boot Loader
 - Support BIOS version at Stargo board ( CrystalForest-Gladden ):
   CIVGCCK1.86C.0003.P00
 
+- Support BIOS version at Long Brook board (RiverForest)
+  GRNDCRB1.86B.0022.R01.i02.1405151000
+
 b. I/O drivers
 --------------
 -Support Matrox graphic card.
@@ -176,16 +196,20 @@ b. I/O drivers
 IV. Enabling Intel DPDK and QuickAssist Technology
 ===================================================
 
-There are recipes available for the 'Intel Data Plane Development Kit and
-Intel QuickAssist Technology components for use with this BSP.  Please
-contact your Intel Field Sales Representative or visit Intel Embedded Design
-Center (www.intel.com/p/en_US/embedded/designcenter) for instructions on how
-to locate and use these recipes.
+DPDK recipe: meta-intel/meta-isg/common/recipes-extended/dpdk
+QAT recipe:  meta-crystalforest/recipes-extended/qat
+QAT-enable zlib recipe: meta-crystalforest/recipes-extended/zlib-qat
 
-----
+Note:
+qat16 recipe is meant for platform with Coleto Creek  chipset.
+qat15 recipe is meant for platform with Cave Creek chipset.
 
-If you find you're getting corrupt images on the USB (it doesn't show
-the syslinux boot: prompt, or the boot: prompt contains strange
-characters), try doing this first:
+By default, the machine configuration does not assume that the above
+ingredients are pre-installed onto the BSP. Developers are required
+to either use smart tool to install those software packages or
+configure IMAGE_INSTALL under build/conf/local.conf, for example.
 
-# dd if=/dev/zero of=/dev/sdf bs=1M count=512
+IMAGE_INSTALL += "dpdk qat16 zlib-qat"
+
+The list of packages can be searched under tmp/deploy/<package-type>
+folder.
