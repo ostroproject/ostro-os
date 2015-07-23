@@ -36,7 +36,7 @@ M:	Saul Wold <sgw@linux.intel.com>
 F:	meta-crownbay/
 
 CRYSTALFOREST
-M:      Saul Wold <sgw@linux.intel.com>
+M:      Wu Chia Chuan <chia.chuan.wu@intel.com>
 F:      meta-crystalforest/
 
 EMENLOW
@@ -52,7 +52,7 @@ M:	Saul Wold <sgw@linux.intel.com>
 F:	meta-jasperforest/
 
 ROMLEY
-M:      Haw Foo Chien <foo.chien.haw@intel.com>
+M:      Wu Chia Chuan <chia.chuan.wu@intel.com>
 F:      meta-romley/
 
 SUGARBAY
