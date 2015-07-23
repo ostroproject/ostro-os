@@ -204,12 +204,37 @@ Note:
 qat16 recipe is meant for platform with Coleto Creek  chipset.
 qat15 recipe is meant for platform with Cave Creek chipset.
 
+conf/machine/crystalforest.conf is the common machine configuration
+to support Crystal Forest/server, Crystal Forest/gladden, Highland Forest and
+River Forest. In order to generate the right binary for these platforms which
+have different QAT technology, user could change the default config accordingly
+within crystalforest.conf as below:
+
+For Coleto Creek chipset:
+PREFERRED_PROVIDER_virtual/qat ?= "qat16"
+
+For Cave Creek chipset:
+PREFERRED_PROVIDER_virtual/qat ?= "qat15"
+
+Another option and preferred approach for above setting is to override
+configuration under build/conf/local.conf as follow:
+
+For Coleto Creek chipset:
+PREFERRED_PROVIDER_virtual/qat = "qat16"
+
+For Cave Creek chipset:
+PREFERRED_PROVIDER_virtual/qat = "qat15"
+
 By default, the machine configuration does not assume that the above
 ingredients are pre-installed onto the BSP. Developers are required
 to either use smart tool to install those software packages or
 configure IMAGE_INSTALL under build/conf/local.conf, for example.
 
+For Coleto Creek chipset:
 IMAGE_INSTALL += "dpdk qat16 zlib-qat"
+
+For Cavecreek Creek chipset:
+IMAGE_INSTALL += "dpdk qat15 zlib-qat"
 
 The list of packages can be searched under tmp/deploy/<package-type>
 folder.
