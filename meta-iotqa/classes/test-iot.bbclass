@@ -68,14 +68,6 @@ def get_tclist(d, fname):
 
 #bitbake task - run iot test suite
 python do_test_iot() {
-    machine = d.getVar("MACHINE", True)
-    filesdir = os.path.join(d.getVar("DEPLOY_DIR", True), "files", machine)
-    re_creat_dir(filesdir)
-    nativearch = d.getVar("BUILD_ARCH", True)
-    nativedir = os.path.join(d.getVar("DEPLOY_DIR", True), "files", "native",
-                             nativearch)
-    re_creat_dir(nativedir)
-    copy_support_files(d, filesdir, nativedir)
     global get_tests_list
     get_tests_list_old = get_tests_list
     get_tests_list = get_tests_list_iot
@@ -164,39 +156,6 @@ def re_creat_dir(path):
     bb.utils.remove(path, recurse=True)
     bb.utils.mkdirhier(path)
 
-#copy support files to test suite
-def copy_support_files(d, depdir, navdir):
-    import shutil
-    def full_path(rpath, isNative=False):
-        arch = d.getVar("REAL_MULTIMACH_TARGET_SYS", True) if not isNative else \
-               "-".join((d.getVar("BUILD_ARCH", True), d.getVar("BUILD_OS", True)))
-        return os.path.join(d.getVar("BASE_WORKDIR", True), arch, rpath) 
-    fname = "files.manifest"
-    for layerdir in d.getVar("BBPATH", True).split(':'):
-        tfile = os.path.join(layerdir, "lib", fname)
-        if not os.path.exists(tfile):
-            continue
-        with open(tfile, "r") as f:
-            file_list = f.readlines()
-            for fl in file_list:
-                fl = fl.strip()
-                if fl.startswith('#') or not fl:
-                    continue
-                fl_tmp = fl.split(":")
-                targetdir = depdir
-                isNative = False
-                if len(fl_tmp) >=2:
-                    fl = fl_tmp[1].strip()
-                    if fl_tmp[0].strip() == "native":
-                        targetdir = navdir
-                        isNative = True
-                ffile = full_path(fl, isNative)
-                if os.path.exists(ffile):
-                    shutil.copy2(ffile, targetdir)
-                    bb.plain("Copy file: %s to %s" % (ffile, targetdir))
-                else:
-                    bb.plain("Support file: %s missing" % ffile)
-    bb.plain("Copy support files done")
 
 #package test suite as tarball
 def pack_tarball(d, tdir, fname):
@@ -207,6 +166,7 @@ def pack_tarball(d, tdir, fname):
 
 #bitbake task - export iot test suite
 python do_test_iot_export() {
+    import shutil
     deploydir = "deploy"
     exportdir = d.getVar("TEST_EXPORT_DIR", True)
     if not exportdir:
@@ -223,6 +183,7 @@ python do_test_iot_export() {
     fname = os.path.join(outdir, "iot-testsuite.tar.gz")
     pack_tarball(d, exportdir, fname)
     bb.plain("export test suite to ", fname)
+    shutil.copytree(os.path.join(d.getVar("DEPLOY_DIR", True), "files"), os.path.join(deploydir,"files"))
     machine = d.getVar("MACHINE", True)
     filesdir = os.path.join(deploydir, "files", machine)
     bb.utils.mkdirhier(filesdir)
@@ -230,7 +191,6 @@ python do_test_iot_export() {
     nativearch = d.getVar("BUILD_ARCH", True)
     nativedir = os.path.join(deploydir, "files", "native", nativearch)
     bb.utils.mkdirhier(nativedir)
-    copy_support_files(d, filesdir, nativedir)
     fname = os.path.join(outdir, "iot-testfiles.%s.tar.gz" % machine)
     pack_tarball(d, deploydir, fname)
     bb.plain("export test files to ", fname)

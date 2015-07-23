@@ -17,3 +17,5 @@ do_install() {
     install -d ${D}${bindir}
     install -m 0755 hello_mraa ${D}${bindir}
 }
+inherit copybin
+TARGET_FILES += "${WORKDIR}/hello_mraa"

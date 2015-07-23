@@ -27,3 +27,5 @@ FILES_${PN}-dbg = "${IOTIVITY_BIN_DIR}/apps/iotivity-test/.debug"
 RDEPENDS_${PN} += "iotivity"
 BBCLASSEXTEND = "native nativesdk"
 
+inherit copybin
+TARGET_FILES += "${WORKDIR}/iotivity-test/output/clienttest ${WORKDIR}/iotivity-test/output/servertest"
