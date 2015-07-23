@@ -68,8 +68,8 @@ def get_tclist(d, fname):
 
 #bitbake task - run iot test suite
 python do_test_iot() {
-    pkgarch = d.getVar("TUNE_PKGARCH", True)
-    filesdir = os.path.join(d.getVar("DEPLOY_DIR", True), "files", pkgarch)
+    machine = d.getVar("MACHINE", True)
+    filesdir = os.path.join(d.getVar("DEPLOY_DIR", True), "files", machine)
     re_creat_dir(filesdir)
     nativearch = d.getVar("BUILD_ARCH", True)
     nativedir = os.path.join(d.getVar("DEPLOY_DIR", True), "files", "native",
@@ -88,8 +88,10 @@ do_test_iot[depends] += "${TESTIMAGEDEPENDS}"
 do_test_iot[lockfiles] += "${TESTIMAGELOCK}"
 
 #overwrite copy src dir to dest
-def recursive_overwrite(src, dest, ignore=['__init__.py']):
-    import shutil
+def recursive_overwrite(src, dest, notOverWrite=[r'__init__\.py'], ignores=[r".+\.pyc"]):
+    import shutil, re
+    notOverWrite = map(re.compile, notOverWrite)
+    ignores = map(re.compile, ignores)
     if os.path.isdir(src):
         if not os.path.isdir(dest):
             os.makedirs(dest)
@@ -97,7 +99,8 @@ def recursive_overwrite(src, dest, ignore=['__init__.py']):
         for f in files:
             fsrc = os.path.join(src, f)
             fdest = os.path.join(dest, f)
-            if f in ignore and os.path.exists(fdest):
+            if filter(lambda x:x.match(f), notOverWrite) and os.path.exists(fdest) or\
+               filter(lambda x:x.match(f), ignores):
                 continue
             recursive_overwrite(fsrc, fdest)
     else:
@@ -109,7 +112,7 @@ def export_testsuite(d, exportdir):
     import shutil
 
     oeqadir = pkgutil.get_loader("oeqa").filename
-    shutil.copytree(oeqadir, os.path.join(exportdir, "oeqa"))
+    recursive_overwrite(oeqadir, os.path.join(exportdir, "oeqa"))
     
     bbpath = d.getVar("BBPATH", True).split(':')
     for p in bbpath:
@@ -213,7 +216,6 @@ python do_test_iot_export() {
     bb.utils.mkdirhier(exportdir)
     bb.utils.mkdirhier(os.path.join(exportdir, deploydir))
     export_testsuite(d, exportdir)
-    dump_builddata(d, exportdir)
     plandir = os.path.join(exportdir, "testplan")
     copy_manifest(d, plandir)
     outdir = d.getVar("DEPLOY_DIR_TESTSUITE", True)
@@ -221,14 +223,15 @@ python do_test_iot_export() {
     fname = os.path.join(outdir, "iot-testsuite.tar.gz")
     pack_tarball(d, exportdir, fname)
     bb.plain("export test suite to ", fname)
-    pkgarch = d.getVar("TUNE_PKGARCH", True)
-    filesdir = os.path.join(deploydir, "files", pkgarch)
+    machine = d.getVar("MACHINE", True)
+    filesdir = os.path.join(deploydir, "files", machine)
     bb.utils.mkdirhier(filesdir)
+    dump_builddata(d, filesdir)
     nativearch = d.getVar("BUILD_ARCH", True)
     nativedir = os.path.join(deploydir, "files", "native", nativearch)
     bb.utils.mkdirhier(nativedir)
     copy_support_files(d, filesdir, nativedir)
-    fname = os.path.join(outdir, "iot-testfiles.%s.tar.gz" % pkgarch)
+    fname = os.path.join(outdir, "iot-testfiles.%s.tar.gz" % machine)
     pack_tarball(d, deploydir, fname)
     bb.plain("export test files to ", fname)
 }
