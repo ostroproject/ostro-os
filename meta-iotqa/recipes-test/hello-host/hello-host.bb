@@ -10,3 +10,6 @@ do_compile() {
     ${CC} hello.c -o hello
 }
 inherit native
+
+inherit copybin
+NATIVE_FILES += "${WORKDIR}/hello"
