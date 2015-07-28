@@ -7,6 +7,7 @@ SRC_URI = "http://dpdk.org/browse/dpdk/snapshot/dpdk-${PV}.tar.gz;name=dpdk \
 	   file://dpdk-1.8.0-and-2.0.0-examples-add-config-variable-to-enable-disable-dpdk.patch \
 	   file://dpdk-1.8.0-and-2.0.0-add-RTE_KERNELDIR_OUT-to-split-kernel-bu.patch \
 	   file://dpdk-1.8.0-and-2.0.0-add-sysroot-option-within-app-makefile.patch \
+	   file://dpdk-1.8.0-and-2.0.0-point-to-the-right-include-and-lib-path.patch \
 	  "
 
 # dpdk example apps dpdk_qat and vhost have dependancy on fuse and qat.
@@ -40,6 +41,7 @@ export RTE_KERNELDIR_OUT = "${STAGING_KERNEL_BUILDDIR}"
 export INSTALL_PATH = "${prefix}/dpdk"
 export SYSROOTPATH = "--sysroot=${STAGING_DIR_HOST}"
 export DPDK_TARGET_MACH = "${@get_dpdk_target_mach(bb,d)}"
+export ICP_LAC_API_DIR = "${STAGING_DIR_TARGET}${includedir}/lac"
 
 # The list of intel Comms platforms and their target machine
 # process mapping. The supported target machine is listed under

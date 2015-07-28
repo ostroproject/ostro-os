@@ -1,0 +1,43 @@
+From 928595c80ae28d19861d7e76ed898a8fb3f2c1dc Mon Sep 17 00:00:00 2001
+From: Anuj Mittal <anujx.mittal@intel.com>
+Date: Fri, 24 Jul 2015 23:57:17 +0800
+Subject: [PATCH] dpdk: point to the right include and lib path
+
+Upstream-Status: Inappropriate [Configuration]
+
+Make sure that we point to the right location of qat
+lac headers and library.
+
+Signed-off-by: Anuj Mittal <anujx.mittal@intel.com>
+---
+ examples/dpdk_qat/Makefile |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/examples/dpdk_qat/Makefile b/examples/dpdk_qat/Makefile
+index f1e06a1..5b906f7 100644
+--- a/examples/dpdk_qat/Makefile
++++ b/examples/dpdk_qat/Makefile
+@@ -66,18 +66,15 @@ SRCS-y := main.c crypto.c
+ 
+ CFLAGS += -O3
+ CFLAGS += $(WERROR_FLAGS)
+-CFLAGS += -I$(ICP_ROOT)/quickassist/include \
+-		-I$(ICP_ROOT)/quickassist/include/lac \
+-		-I$(ICP_ROOT)/quickassist/lookaside/access_layer/include
++CFLAGS += -I$(ICP_LAC_API_DIR)
+ 
+ # From CRF 1.2 driver, library was renamed to libicp_qa_al.a
+ ifneq ($(wildcard $(ICP_ROOT)/build/icp_qa_al.a),)
+ ICP_LIBRARY_PATH = $(ICP_ROOT)/build/icp_qa_al.a
+ else
+-ICP_LIBRARY_PATH = $(ICP_ROOT)/build/libicp_qa_al.a
++ICP_LIBRARY_PATH = $(ICP_LIB_ROOT)/libicp_qa_al.a
+ endif
+ 
+-LDLIBS += -L$(ICP_ROOT)/build
+ LDLIBS += $(ICP_LIBRARY_PATH) \
+                 -lz \
+                 -losal \
+-- 
+1.7.9.5
+
