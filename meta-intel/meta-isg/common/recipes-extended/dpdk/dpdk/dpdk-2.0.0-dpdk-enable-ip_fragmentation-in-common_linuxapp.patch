@@ -1,0 +1,31 @@
+From ebf07e9708c96aa1e655127175c39ad6ae3fc5ae Mon Sep 17 00:00:00 2001
+From: WU CHIA CHUAN <chia.chuan.wu@intel.com>
+Date: Tue, 28 Jul 2015 13:12:21 +0800
+Subject: [PATCH] dpdk enable ip_fragmentation in common_linuxapp config
+
+Upstream-Status: Inappropriate [Configuration]
+
+Signed-off-by: WU CHIA CHUAN <chia.chuan.wu@intel.com>
+---
+ config/common_linuxapp | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/config/common_linuxapp b/config/common_linuxapp
+index 0b25f34..8cd97d7 100644
+--- a/config/common_linuxapp
++++ b/config/common_linuxapp
+@@ -354,6 +354,11 @@ CONFIG_RTE_MAX_LCORE_FREQS=64
+ CONFIG_RTE_LIBRTE_NET=y
+ 
+ #
++# Compile ip_fragmentation
++#
++CONFIG_RTE_IP_FRAG=y
++
++#
+ # Compile librte_ip_frag
+ #
+ CONFIG_RTE_LIBRTE_IP_FRAG=y
+-- 
+1.9.1
+
