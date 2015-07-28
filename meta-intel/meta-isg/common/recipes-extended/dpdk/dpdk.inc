@@ -66,6 +66,15 @@ do_configure () {
 	#############################################################
 	unset prefix
 
+	# Fix-up CONFIG_RTE_MACHINE based on target machine
+	sed -e "s#CONFIG_RTE_MACHINE=\"native\"#CONFIG_RTE_MACHINE=\"${DPDK_TARGET_MACH}\"#" -i ${S}/config/defconfig_x86_64-native-linuxapp-gcc
+	sed -e "s#CONFIG_RTE_MACHINE=\"native\"#CONFIG_RTE_MACHINE=\"${DPDK_TARGET_MACH}\"#" -i ${S}/config/defconfig_i686-native-linuxapp-gcc
+
+	# Fix-up vhost configs based on package config
+	sed -e "s#CONFIG_RTE_KNI_VHOST=n#CONFIG_RTE_KNI_VHOST=${CONFIG_VHOST_ENABLED}#" -i ${S}/config/common_linuxapp
+	sed -e "s#CONFIG_RTE_KNI_VHOST_VNET_HDR_EN=n#CONFIG_RTE_KNI_VHOST_VNET_HDR_EN=${CONFIG_VHOST_ENABLED}#" -i ${S}/config/common_linuxapp
+	sed -e "s#CONFIG_RTE_LIBRTE_VHOST=n#CONFIG_RTE_LIBRTE_VHOST=${CONFIG_VHOST_ENABLED}#" -i ${S}/config/common_linuxapp
+
 	make O=$RTE_TARGET T=$RTE_TARGET config
 }
 
