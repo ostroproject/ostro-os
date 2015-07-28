@@ -16,7 +16,7 @@ SRC_URI = "http://dpdk.org/browse/dpdk/snapshot/dpdk-${PV}.tar.gz;name=dpdk \
 # To enable, uncomment the below line or include in .bbappend.
 # PACKAGECONFIG ?= " dpdk_qat vhost libvirt"
 
-PACKAGECONFIG[dpdk_qat] = ",,qat"
+PACKAGECONFIG[dpdk_qat] = ",,virtual/qat"
 PACKAGECONFIG[vhost] = ",,fuse"
 PACKAGECONFIG[libvirt] = ",,libvirt"
 
