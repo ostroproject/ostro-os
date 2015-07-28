@@ -9,6 +9,8 @@ LIC_FILES_CHKSUM = "\
                     "
 PV = "2.3.0-34"
 DEPENDS += "zlib openssl"
+PROVIDES += "virtual/qat"
+
 SRC_URI="https://01.org/sites/default/files/page/qatmux.l.${PV}.tgz;name=qat \
          file://qat16_2.3.0-34-qat-add-install-target-to-makefiles.patch \
          file://qat16_2.3.0-34-qat-fix-for-cross-compilation-issue.patch \
