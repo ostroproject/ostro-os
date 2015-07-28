@@ -14,7 +14,7 @@ LIC_FILES_CHKSUM = "file://${WORKDIR}/zlib-${ZLIB_VERSION}/zlib.h;beginline=4;en
 
 # For target side versions of openssl enable support for OCF Linux driver
 # if they are available.
-DEPENDS += "cryptodev-linux pkgconfig qat16"
+DEPENDS += "cryptodev-linux pkgconfig virtual/qat"
 
 SRC_URI = "http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz;name=zlib \
            https://01.org/sites/default/files/page/zlib_shim_0.4.7-002_withdocumentation.zip;name=zlibqat \
