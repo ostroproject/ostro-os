@@ -1,3 +1,37 @@
+From patchwork Tue Apr 14 09:44:55 2015
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [v4, 1/2] firmware_loader: introduce new API -
+	request_firmware_direct_full_path()
+From: Kweh Hock Leong <hock.leong.kweh@intel.com>
+X-Patchwork-Id: 6212461
+Message-Id: <1429004697-28320-2-git-send-email-hock.leong.kweh@intel.com>
+To: Ming Lei <ming.lei@canonical.com>, Matt Fleming <matt@console-pimps.org>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Ong Boon Leong <boon.leong.ong@intel.com>,
+	"Kweh, Hock Leong" <hock.leong.kweh@intel.com>,
+	LKML <linux-kernel@vger.kernel.org>, linux-efi@vger.kernel.org,
+	Sam Protsenko <semen.protsenko@linaro.org>,
+	Peter Jones <pjones@redhat.com>, Andy Lutomirski <luto@amacapital.net>, 
+	Roy Franz <roy.franz@linaro.org>, Borislav Petkov <bp@alien8.de>
+Date: Tue, 14 Apr 2015 17:44:55 +0800
+
+From: "Kweh, Hock Leong" <hock.leong.kweh@intel.com>
+
+Introduce this new API for loading firmware from a specific location
+instead of /lib/firmware/ by providing a full path to the firmware
+file.
+
+Cc: Ming Lei <ming.lei@canonical.com>
+Cc: Matt Fleming <matt.fleming@intel.com>
+Signed-off-by: Kweh, Hock Leong <hock.leong.kweh@intel.com>
+
+---
+drivers/base/firmware_class.c |   46 ++++++++++++++++++++++++++++++++++++-----
+ include/linux/firmware.h      |    9 ++++++++
+ 2 files changed, 50 insertions(+), 5 deletions(-)
+
 diff --git a/drivers/base/firmware_class.c b/drivers/base/firmware_class.c
 index 171841a..3ab7bb9 100644
 --- a/drivers/base/firmware_class.c
