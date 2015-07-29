@@ -1,6 +1,16 @@
-diff -rupN iotivity-0.9.1-original/build_common/SConscript iotivity-0.9.1-change/build_common/SConscript
---- iotivity-0.9.1-original/build_common/SConscript	2015-05-27 03:08:43.000000000 -0700
-+++ iotivity-0.9.1-change/build_common/SConscript	2015-06-29 12:45:44.425152000 -0700
+diff --git a/build_common/SConscript b/build_common/SConscript
+index 16a81f9..8173259 100644
+--- a/build_common/SConscript
++++ b/build_common/SConscript
+@@ -22,7 +22,7 @@ os_arch_map = {
+ 		'darwin': ['i386', 'x86_64'],
+ 		'ios': ['i386', 'x86_64', 'armv7', 'armv7s', 'arm64'],
+ 		'arduino': ['avr', 'arm'],
+-		'yocto': ['i586', 'x86_64', 'arm', 'powerpc', 'powerpc64', 'mips', 'mipsel'],
++		'yocto': ['i586', 'i686', 'x86_64', 'arm', 'powerpc', 'powerpc64', 'mips', 'mipsel'],
+ 		}
+ 
+ host = platform.system().lower()
 @@ -260,7 +260,7 @@ if target_os == "yocto":
      env.AppendUnique(CPPDEFINES = ['WITH_POSIX', '__linux__', '_GNU_SOURCE'])
      env.AppendUnique(CFLAGS = ['-std=gnu99'])
@@ -10,41 +20,11 @@ diff -rupN iotivity-0.9.1-original/build_common/SConscript iotivity-0.9.1-change
      Export('env')
  else:
      '''
-diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/client.cpp iotivity-0.9.1-change/examples/OICSensorBoard/client.cpp
---- iotivity-0.9.1-original/examples/OICSensorBoard/client.cpp	2015-05-27 03:08:43.000000000 -0700
-+++ iotivity-0.9.1-change/examples/OICSensorBoard/client.cpp	2015-06-30 09:40:05.886967000 -0700
-@@ -42,8 +42,8 @@ void IoTClient::initializePlatform()
- 
- void IoTClient::findResource()
- {
--    string coap_multicast_discovery = string(OC_WELL_KNOWN_QUERY "?if=" EDISON_RESOURCE_INTERFACE);
--    OCPlatform::findResource("", coap_multicast_discovery.c_str(), m_resourceDiscoveryCallback,
-+    string coap_multicast_discovery = string(OC_MULTICAST_DISCOVERY_URI "?if=" EDISON_RESOURCE_INTERFACE);
-+    OCPlatform::findResource("", coap_multicast_discovery.c_str(),  OC_ALL, m_resourceDiscoveryCallback,
-                              OC::QualityOfService::LowQos);
- }
- 
-@@ -148,7 +148,7 @@ void TemperatureSensor::onObserve(const
-     {
-         double value;
-         rep.getValue(TEMPERATURE_RESOURCE_KEY, value);
--        cout << "Observing TemperatureSensor: Current temperature reading is " << value << endl;
-+        cout << "Observing TemperatureSensor: Current temperature reading in Celsius is " << value << endl;
-         cout << "Sequence number: " << sequenceNumber << endl;
-     }
-     else
-@@ -170,7 +170,7 @@ void TemperatureSensor::onGet(const Head
-     {
-         double value;
-         representation.getValue(TEMPERATURE_RESOURCE_KEY, value);
--        cout << endl << endl << "Current temperature reading: " << value << endl;
-+        cout << endl << endl << "Current temperature reading in Celsius: " << value << endl;
-     }
-     else {
-         cerr << endl << endl << "Error in GET response from temperature sensor resource" << endl;
-diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/Makefile iotivity-0.9.1-change/examples/OICSensorBoard/Makefile
---- iotivity-0.9.1-original/examples/OICSensorBoard/Makefile	1969-12-31 16:00:00.000000000 -0800
-+++ iotivity-0.9.1-change/examples/OICSensorBoard/Makefile	2015-06-22 10:47:33.050872000 -0700
+diff --git a/examples/OICSensorBoard/Makefile b/examples/OICSensorBoard/Makefile
+new file mode 100644
+index 0000000..ce6b173
+--- /dev/null
++++ b/examples/OICSensorBoard/Makefile
 @@ -0,0 +1,34 @@
 +#Set the two variables below for the client build. 
 +CLIENTARCH=x86
@@ -80,10 +60,11 @@ diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/Makefile iotivity-0.9
 +
 +clean:
 +	rm -rf server client *.o
-Binary files iotivity-0.9.1-original/examples/OICSensorBoard/OICSensorBoardREADME.pdf and iotivity-0.9.1-change/examples/OICSensorBoard/OICSensorBoardREADME.pdf differ
-diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/README iotivity-0.9.1-change/examples/OICSensorBoard/README
---- iotivity-0.9.1-original/examples/OICSensorBoard/README	1969-12-31 16:00:00.000000000 -0800
-+++ iotivity-0.9.1-change/examples/OICSensorBoard/README	2015-06-30 09:40:05.886967000 -0700
+diff --git a/examples/OICSensorBoard/README b/examples/OICSensorBoard/README
+new file mode 100644
+index 0000000..c941e9a
+--- /dev/null
++++ b/examples/OICSensorBoard/README
 @@ -0,0 +1,14 @@
 +//******************************************************************
 +//
@@ -99,9 +80,11 @@ diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/README iotivity-0.9.1
 +//
 +//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 +
-diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/SConstruct iotivity-0.9.1-change/examples/OICSensorBoard/SConstruct
---- iotivity-0.9.1-original/examples/OICSensorBoard/SConstruct	2015-05-27 03:08:43.000000000 -0700
-+++ iotivity-0.9.1-change/examples/OICSensorBoard/SConstruct	1969-12-31 16:00:00.000000000 -0800
+diff --git a/examples/OICSensorBoard/SConstruct b/examples/OICSensorBoard/SConstruct
+deleted file mode 100644
+index 2a468aa..0000000
+--- a/examples/OICSensorBoard/SConstruct
++++ /dev/null
 @@ -1,84 +0,0 @@
 -#******************************************************************
 -#
@@ -187,9 +170,43 @@ diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/SConstruct iotivity-0
 -except:
 -    print "ERROR configuring Yocto cross-toolchain environment. This is required for building the server"
 -
-diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/sensors.h iotivity-0.9.1-change/examples/OICSensorBoard/sensors.h
---- iotivity-0.9.1-original/examples/OICSensorBoard/sensors.h	2015-05-27 03:08:43.000000000 -0700
-+++ iotivity-0.9.1-change/examples/OICSensorBoard/sensors.h	2015-06-30 09:40:05.886967000 -0700
+diff --git a/examples/OICSensorBoard/client.cpp b/examples/OICSensorBoard/client.cpp
+index 4b7fe85..47485b6 100644
+--- a/examples/OICSensorBoard/client.cpp
++++ b/examples/OICSensorBoard/client.cpp
+@@ -42,8 +42,8 @@ void IoTClient::initializePlatform()
+ 
+ void IoTClient::findResource()
+ {
+-    string coap_multicast_discovery = string(OC_WELL_KNOWN_QUERY "?if=" EDISON_RESOURCE_INTERFACE);
+-    OCPlatform::findResource("", coap_multicast_discovery.c_str(), m_resourceDiscoveryCallback,
++    string coap_multicast_discovery = string(OC_MULTICAST_DISCOVERY_URI "?if=" EDISON_RESOURCE_INTERFACE);
++    OCPlatform::findResource("", coap_multicast_discovery.c_str(),  OC_ALL, m_resourceDiscoveryCallback,
+                              OC::QualityOfService::LowQos);
+ }
+ 
+@@ -148,7 +148,7 @@ void TemperatureSensor::onObserve(const HeaderOptions headerOptions, const OCRep
+     {
+         double value;
+         rep.getValue(TEMPERATURE_RESOURCE_KEY, value);
+-        cout << "Observing TemperatureSensor: Current temperature reading is " << value << endl;
++        cout << "Observing TemperatureSensor: Current temperature reading in Celsius is " << value << endl;
+         cout << "Sequence number: " << sequenceNumber << endl;
+     }
+     else
+@@ -170,7 +170,7 @@ void TemperatureSensor::onGet(const HeaderOptions& headerOptions,
+     {
+         double value;
+         representation.getValue(TEMPERATURE_RESOURCE_KEY, value);
+-        cout << endl << endl << "Current temperature reading: " << value << endl;
++        cout << endl << endl << "Current temperature reading in Celsius: " << value << endl;
+     }
+     else {
+         cerr << endl << endl << "Error in GET response from temperature sensor resource" << endl;
+diff --git a/examples/OICSensorBoard/sensors.h b/examples/OICSensorBoard/sensors.h
+index 44ad441..aecbf4c 100644
+--- a/examples/OICSensorBoard/sensors.h
++++ b/examples/OICSensorBoard/sensors.h
 @@ -25,6 +25,7 @@
  #define ONBOARD_LED_PIN 13
  #define TEMPERATURE_AIO_PIN 0
@@ -248,9 +265,10 @@ diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/sensors.h iotivity-0.
      return ret;
  }
  
-diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/server.cpp iotivity-0.9.1-change/examples/OICSensorBoard/server.cpp
---- iotivity-0.9.1-original/examples/OICSensorBoard/server.cpp	2015-05-27 03:08:43.000000000 -0700
-+++ iotivity-0.9.1-change/examples/OICSensorBoard/server.cpp	2015-06-30 09:40:05.890967000 -0700
+diff --git a/examples/OICSensorBoard/server.cpp b/examples/OICSensorBoard/server.cpp
+index 598e370..a8b7a23 100644
+--- a/examples/OICSensorBoard/server.cpp
++++ b/examples/OICSensorBoard/server.cpp
 @@ -20,6 +20,7 @@
  #include <signal.h>
  #include <thread>
@@ -259,3 +277,16 @@ diff -rupN iotivity-0.9.1-original/examples/OICSensorBoard/server.cpp iotivity-0
  #include "server.h"
  #include "sensors.h"
  #include "namedefs.h"
+diff --git a/resource/csdk/connectivity/build/SConscript b/resource/csdk/connectivity/build/SConscript
+index b901f1a..95c177c 100644
+--- a/resource/csdk/connectivity/build/SConscript
++++ b/resource/csdk/connectivity/build/SConscript
+@@ -22,7 +22,7 @@ os_arch_map = {
+ 		'darwin': ['i386', 'x86_64'],
+ 		'ios': ['i386', 'x86_64', 'armv7', 'armv7s', 'arm64'],
+ 		'arduino': ['avr', 'arm'],
+-                'yocto': ['i586', 'x86_64', 'arm', 'powerpc', 'powerpc64', 'mips', 'mipsel'],
++                'yocto': ['i586', 'i686', 'x86_64', 'arm', 'powerpc', 'powerpc64', 'mips', 'mipsel'],
+ 		}
+ 
+ host = platform.system().lower()
