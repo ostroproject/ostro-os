@@ -6,7 +6,7 @@ import readConfigFile
 
 class TestGetDefaultSensorAndManipulation(oeRuntimeTest):
     '''Verify user can manipulate default sensor of a specific type'''
-    def test(self):
+    def testGetDefaultSensorAndManipulation(self):
         '''push binary file to target and run with argument'''
         #Prepare test binaries to image
         mkdir_path = 'mkdir -p /opt/sensor-test/apps/'

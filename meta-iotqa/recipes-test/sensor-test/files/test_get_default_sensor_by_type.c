@@ -57,10 +57,19 @@ main(int argc, char* argv[])
 		fprintf(stdout, "error: %d, failed to get sensor type count\n", result);
 		return false;
 	}
+	if(count == 0){
+		fprintf(stdout, "No sensor exists in system!\n");
+	}
 	fprintf(stdout, "sensor type count is %d\n", count);
         default_sensor_return = sf_get_default_sensor(sensor_type_t, &default_sensor);
-       	if (sensor_count < 0) {
-		fprintf(stdout, "error: %d, failed to get default sensor\n", default_sensor_return);
+       	if ( default_sensor_return < 0) {
+		fprintf(stdout, "error: %d, failed to get default sensor!!!\n", default_sensor_return);
+		return false;
+	}
+	//check the default sensor whether can be connected
+	result = sf_connect_sensor(default_sensor.sensor_id);
+        if(result < 0) {
+		fprintf(stdout, "error: returned default sensor is not correct, check whether it really exist!\n");
 		return false;
 	}
 	fprintf(stdout, "sf_get_default_sensor type=%s id=%d name=%s\n", sensor_type_t.sensor_type, default_sensor.sensor_id, default_sensor.sensor_name);

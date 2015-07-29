@@ -5,7 +5,7 @@ from oeqa.oetest import oeRuntimeTest
 
 class TestUnregisterUnregisteredSensor(oeRuntimeTest):
     '''Verify sensor can't be unregistered if it's not registered'''
-    def test(self):
+    def testUnregisterUnregisteredSensor(self):
         '''push binary to target and run it with argument'''
         #Prepare test binaries to image
         mkdir_path = "mkdir -p /opt/sensor-test/apps/"

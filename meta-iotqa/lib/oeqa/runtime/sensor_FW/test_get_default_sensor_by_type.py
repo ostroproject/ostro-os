@@ -6,7 +6,7 @@ import readConfigFile
 
 class TestGetDefaultSensorByType(oeRuntimeTest):
     '''Verify default sensor returned from sf_get_default_sensor()'''
-    def test(self):
+    def testGetDefaultSensorByType(self):
         '''push binary to target and run with argument'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)

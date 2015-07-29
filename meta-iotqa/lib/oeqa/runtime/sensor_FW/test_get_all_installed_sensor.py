@@ -5,7 +5,7 @@ from oeqa.oetest import oeRuntimeTest
 
 class TestGetAllInstalledSensor(oeRuntimeTest):
     '''Verify all sensors installed in system'''
-    def test(self):
+    def testGetAllInstalledSensor(self):
         '''push binary to target and run with argument'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)

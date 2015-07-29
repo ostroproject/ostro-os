@@ -6,7 +6,7 @@ from oeqa.oetest import oeRuntimeTest
 
 class TestGetSensorRawDataByInvalidID(oeRuntimeTest):
     '''Verify error returned if sensor id is invalid'''
-    def test(self):
+    def testGetSensorRawDataByInvalidID(self):
         '''push binary to target and run it with argument'''
         #Prepare test binaries to image        
         mkdir_path = "mkdir -p /opt/sensor-test/apps/"

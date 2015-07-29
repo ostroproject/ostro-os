@@ -6,7 +6,7 @@ from oeqa.oetest import oeRuntimeTest
 
 class TestGetSensorRawDataByID(oeRuntimeTest):
     '''Verify raw sensor data can be returned by sensor id'''
-    def test(self):
+    def testGetSensorRawDataByID(self):
         '''push binary to target and run it with argument'''
         #Prepare test binaries to image        
         mkdir_path = "mkdir -p /opt/sensor-test/apps/"

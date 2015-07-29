@@ -5,7 +5,7 @@ from oeqa.oetest import oeRuntimeTest
 
 class TestSensorRegisterDuplicated(oeRuntimeTest):
     '''Verify can register duplicated sensor in system'''
-    def test(self):
+    def testSensorRegisterDuplicated(self):
         '''push binary to target and run it with argument'''
         #Prepare test binaries to image
         mkdir_path = "mkdir -p /opt/sensor-test/apps/"

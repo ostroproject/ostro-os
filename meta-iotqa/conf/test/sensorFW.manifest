@@ -33,3 +33,8 @@ oeqa.runtime.sensor_FW.test_set_sensor_data_after_unregister
 oeqa.runtime.sensor_FW.test_sensor_register_duplicated
 oeqa.runtime.sensor_FW.test_get_sensor_raw_data_by_id
 oeqa.runtime.sensor_FW.test_get_sensor_raw_data_by_invalid_id
+oeqa.runtime.sensor_FW.test_sensor_framework_ready
+oeqa.runtime.sensor_FW.test_connect_sensor_maximum_times
+oeqa.runtime.sensor_FW.test_stress_connect_disconnect_sensor
+oeqa.runtime.sensor_FW.test_stress_set_get_data_of_sensor
+oeqa.runtime.sensor_FW.test_get_data_of_unconnected_sensor

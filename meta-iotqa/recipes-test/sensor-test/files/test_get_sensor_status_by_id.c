@@ -29,6 +29,9 @@ main(int argc, char* argv[])
 		fprintf(stdout, "error: %d, failed to get sensor type count\n", sensor_type_result);
 		return false;
 	}
+	if(count == 0){
+		fprintf(stdout, "No sensor exists in system!\n");
+	}
 	fprintf(stdout, "sensor type count is %d\n", count);
 	//connect to sensor firstly
 

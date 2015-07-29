@@ -22,6 +22,9 @@ main(int argc, char* argv[])
 		fprintf(stdout, "error: %d, failed to get sensor type count\n", sensor_type_result);
 		return false;
 	}
+	if(count == 0){
+		fprintf(stdout, "No sensor exists in system!\n");
+	}
 	fprintf(stdout, "sensor type count is %d\n", count);
 	sensor_type = (sf_sensor_type_t *)malloc(sizeof(sf_sensor_type_t));
 	int result = sf_get_type_of_sensor(sensor_id, sensor_type);

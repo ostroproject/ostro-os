@@ -6,7 +6,7 @@ import readConfigFile
 
 class TestGetSensorDataByInvalidId(oeRuntimeTest):
     '''Verify error returned if sensor id is not valid'''
-    def test(self):
+    def testGetSensorDataByInvalidId(self):
         '''push binary to target and run it with argument'''
         #Prepare test binaries to image
         mkdir_path = "mkdir -p /opt/sensor-test/apps/"

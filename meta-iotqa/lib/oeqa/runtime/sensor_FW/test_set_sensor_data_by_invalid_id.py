@@ -4,9 +4,9 @@ from oeqa.utils.helper import get_files_dir
 from oeqa.oetest import oeRuntimeTest
 import readConfigFile
 
-class TestGetSensorDataByInvalidId(oeRuntimeTest):
+class TestSetSensorDataByInvalidId(oeRuntimeTest):
     '''Verify error happens when set data using invalid sensor id'''
-    def test(self):
+    def testSetSensorDataByInvalidId(self):
         '''push binary to target and run it with argument'''
         #Prepare test binaries to image
         mkdir_path = "mkdir -p /opt/sensor-test/apps/"
