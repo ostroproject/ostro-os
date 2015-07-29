@@ -83,3 +83,8 @@ inherit ima-evm-rootfs
 # "evmctl ima_verify <file>" can be used to check that a file is
 # really unmodified.
 IMAGE_INSTALL += "ima-evm-utils"
+
+# parted-native is required by wic to build the final image but has no
+# explicit dependency set in recipes. Use EXTRA_IMAGEDEPENDS to ensure
+# parted-native gets built.
+EXTRA_IMAGEDEPENDS += "parted-native"
