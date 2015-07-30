@@ -11,7 +11,7 @@ COMPATIBLE_MACHINE = "quark|atom|atomup"
 
 SRCREV = "c8bde72f9af412de57f0ceae218d648640118b0b"
 
-SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git;bareclone=1;branch=${KBRANCH}"
+SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git;branch=${KBRANCH}"
 
 SRC_URI_append_quark = " \
 	file://quark/PATCHv6-1-1-thermal-intel-Quark-SoC-X1000-DTS-thermal-driver.patch \
