@@ -16,10 +16,10 @@ Change-Id: I5a72fee29519d89d6b8ea60cd970d0438a0cb7cd
 Signed-off-by: Michael Leibowitz <michael.leibowitz@intel.com>
 ---
 
-diff --git a/configure.in b/configure.in
+diff --git a/configure.ac b/configure.ac
 index ae762a2..2749f0c 100644
---- a/configure.in
-+++ b/configure.in
+--- a/configure.ac
++++ b/configure.ac
 @@ -498,6 +498,9 @@ if test ! -z "$LIBSELINUX" ; then
      LIBS=$BACKUP_LIBS
  fi
