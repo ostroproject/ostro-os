@@ -29,33 +29,36 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "oeqa"))
 
 BASEDIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
-def _check(obj, taglist):
-    """ match tag inside obj """
-    for tag in taglist:
-        tkeyval = tag.split("=")
-        tkey = tkeyval[0]
-        if hasattr(obj, tkey):
-            tval = True if len(tkeyval) == 1 else tkeyval[1]
-            if tval == getattr(obj, tkey):
-                return True
-    return False
+def getVar(obj):
+    #extend form dict, if a variable didn't exists, need find it in testcase
+    class VarDict(dict):
+        def __getitem__(self, key):
+            tc_method = getattr(obj, obj._testMethodName)
+            tc_class = tc_method.__self__.__class__
+            ret = getattr(tc_method, key, getattr(tc_class, key, getattr(obj, key, False)))
+            return ret
+    return VarDict()
 
-def check_tag_method(tcase, taglist):
-    """ check if test method has specified tag enabled """
-    if not hasattr(tcase, "_testMethodName"):
-        return False
-    tc_method = getattr(tcase, tcase._testMethodName)
-    return _check(tc_method, taglist)
+def checkTags(tc, tagexp):
+    ret = True
+    try:
+        ret = eval(tagexp, None, getVar(tc))
+    finally:
+        return ret
 
-def check_tag_class(tcase, taglist):
-    """ check if test class has specified tag enabled """
-    if not hasattr(tcase, "_testMethodName"):
-        return False
-    tc_method = getattr(tcase, tcase._testMethodName)
-    tc_class = tc_method.__self__.__class__
-    return _check(tc_class, taglist)
+def filterByTags(testsuite, tagexp):
+    if not tagexp:
+        return testsuite
+    caseList = []
+    for each in testsuite:
+        if not isinstance(each, unittest.BaseTestSuite):
+            if checkTags(each, tagexp):
+                caseList.append(each)
+        else:
+            caseList.append(filterByTags(each, tagexp))
+    return testsuite.__class__(caseList)
 
-def runTests_tag(tc, taglist):
+def runTests_tag(tc, tagexp):
     """ run whole test suite according to tclist"""
     # set the context object passed from the test class
     setattr(oeTest, "tc", tc)
@@ -65,24 +68,9 @@ def runTests_tag(tc, taglist):
     suite = unittest.TestSuite()
     testloader = unittest.TestLoader()
     testloader.sortTestMethodsUsing = None
-    for tname in tc.testslist:
-        tsuite = testloader.loadTestsFromName(tname)
-        for ts in tsuite:
-            # it is test suite
-            if hasattr(ts, "_tests") and ts._tests != []:
-                if check_tag_class(ts._tests[0], taglist):
-                    print "add suite"
-                    suite.addTest(ts)
-                else:
-                    for x in ts._tests:
-                        if check_tag_class(x, taglist) or\
-                               check_tag_method(x, taglist):
-                            suite.addTest(x)
-            # it is test case
-            else:
-                if check_tag_class(ts, taglist) or\
-                       check_tag_method(ts, taglist):
-                    suite.addTest(ts)
+    suite = testloader.loadTestsFromNames(tc.testslist)
+    tagexp = tagexp.strip()
+    suite = filterByTags(suite, tagexp)
     print("Test modules  %s" % tc.testslist)
     print("Found %s tests" % suite.countTestCases())
     runner = unittest.TextTestRunner(verbosity=2)
@@ -186,8 +174,7 @@ def main():
 
     target.exportStart()
     if options.tag:
-        taglist = options.tag.split(',')
-        runTests_tag(tc, taglist)
+        runTests_tag(tc, options.tag)
     else:
         runTests(tc)
 
