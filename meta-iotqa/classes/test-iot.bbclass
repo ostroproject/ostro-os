@@ -183,6 +183,7 @@ python do_test_iot_export() {
     fname = os.path.join(outdir, "iot-testsuite.tar.gz")
     pack_tarball(d, exportdir, fname)
     bb.plain("export test suite to ", fname)
+    re_creat_dir(deploydir)
     shutil.copytree(os.path.join(d.getVar("DEPLOY_DIR", True), "files"), os.path.join(deploydir,"files"))
     machine = d.getVar("MACHINE", True)
     filesdir = os.path.join(deploydir, "files", machine)
