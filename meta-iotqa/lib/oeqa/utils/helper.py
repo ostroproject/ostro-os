@@ -7,7 +7,7 @@ import subprocess
 import os
 from oeqa.oetest import oeRuntimeTest
 
-def attr(*args, **kwargs):
+def tag(*args, **kwargs):
     """Decorator that adds attributes to classes or functions
     for use with the Attribute (-a) plugin.
     """
