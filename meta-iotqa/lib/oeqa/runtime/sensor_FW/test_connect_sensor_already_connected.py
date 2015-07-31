@@ -5,9 +5,9 @@ import readConfigFile
 from oeqa.oetest import oeRuntimeTest
 
 class TestConnectSensorAlreadyConnected(oeRuntimeTest):
-    '''Fail to connect sensor if it's already connected'''
+    '''check connect sensor if it's already connected'''
     def testConnectSensorAlreadyConnected(self):
-        '''push binary to target and run it with argument'''
+        '''check connect sensor if it's already connected'''
         #Prepare test binaries to image        
         mkdir_path = "mkdir -p /opt/sensor-test/apps/"
         (status, output) = self.target.run(mkdir_path)

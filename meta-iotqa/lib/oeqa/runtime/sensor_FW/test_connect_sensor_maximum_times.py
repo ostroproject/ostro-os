@@ -7,7 +7,7 @@ from oeqa.oetest import oeRuntimeTest
 class TestConnectSensorMaximumTimes(oeRuntimeTest):
     '''Verify maximum connections allowed to sensor is 64'''
     def testConnectSensorMaximumTimes(self):
-        '''push binary to target and run it with argument'''
+        '''Verify maximum connections allowed to sensor is 64'''
         #Prepare test binaries to image        
         mkdir_path = "mkdir -p /opt/sensor-test/apps/"
         (status, output) = self.target.run(mkdir_path)

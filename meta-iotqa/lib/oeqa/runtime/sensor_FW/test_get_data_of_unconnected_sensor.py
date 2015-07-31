@@ -7,7 +7,7 @@ import readConfigFile
 class TestGetDataOfUnconnectedSensor(oeRuntimeTest):
     '''Verify need to connect sensor before get data from it'''
     def testGetDataOfUnconnectedSensor(self):
-        '''push binary to target and run it with argument'''
+        '''Verify need to connect sensor before get data from it'''
         #Prepare test binaries to image
         mkdir_path = "mkdir -p /opt/sensor-test/apps/"
         (status, output) = self.target.run(mkdir_path)

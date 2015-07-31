@@ -6,7 +6,7 @@ from oeqa.oetest import oeRuntimeTest
 class TestSensorFrameworkReady(oeRuntimeTest):
     '''Verify sensor framework works in target platform'''
     def testSensorFrameworkReady(self):
-        '''push binary to target and run with argument'''
+        '''Verify sensor framework works in target platform'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)
         copy_to_path = os.path.join(get_files_dir(), 'test_sensor_framework_ready')

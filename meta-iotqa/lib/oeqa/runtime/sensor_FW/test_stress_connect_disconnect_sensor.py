@@ -7,7 +7,7 @@ import readConfigFile
 class TestStressConnectDisconnectSensor(oeRuntimeTest):
     '''Verify sensor can connected and disconencted 100 times'''
     def testStressConnectDisconnectSensor(self):
-        '''push binary to target and run with argument'''
+        '''Verify sensor can connected and disconencted 100 times'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)
         copy_to_path = os.path.join(get_files_dir(), 'test_stress_connect_disconnect_sensor')

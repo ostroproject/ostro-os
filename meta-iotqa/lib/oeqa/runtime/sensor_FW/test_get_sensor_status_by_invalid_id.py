@@ -7,7 +7,7 @@ from oeqa.oetest import oeRuntimeTest
 class TestGetSensorStatusByInvalidId(oeRuntimeTest):
     '''Verify error returns from sf_get_sensor_status if id is invalid'''
     def testGetSensorStatusByInvalidId(self):
-        '''push binary to target and run with argument'''
+        '''Verify error returns from sf_get_sensor_status if id is invalid'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)
         copy_to_path = os.path.join(get_files_dir(), 'test_get_sensor_status_by_id')

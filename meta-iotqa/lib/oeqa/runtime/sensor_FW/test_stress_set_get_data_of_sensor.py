@@ -7,7 +7,7 @@ import readConfigFile
 class TestStreeSetGetDataOfSensor(oeRuntimeTest):
     '''Verify can set and get data on sensor for 100 times'''
     def testStreeSetGetDataOfSensor(self):
-        '''push binary to target and run with argument'''
+        '''Verify can set and get data on sensor for 100 times'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)
         copy_to_path = os.path.join(get_files_dir(), 'test_stress_set_get_data_of_sensor')

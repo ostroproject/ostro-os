@@ -7,7 +7,7 @@ import readConfigFile
 class TestConnectSensorInvalidId(oeRuntimeTest):
     '''Verify fail to connect sensor with invalid id'''
     def testConnectSensorInvalidId(self):
-        '''push binary to target and run with argument'''
+        '''Verify fail to connect sensor with invalid id'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)
         copy_to_path = os.path.join(get_files_dir(), 'test_get_sensor_status_by_id')

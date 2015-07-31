@@ -7,7 +7,7 @@ from oeqa.oetest import oeRuntimeTest
 class TestGetSensorByID(oeRuntimeTest):
     '''Verify sensor can be returned by sensor id'''
     def testGetSensorByID(self):
-        '''push binary to target and run it with argument'''
+        '''Verify sensor can be returned by sensor id'''
         #Prepare test binaries to image        
         mkdir_path = "mkdir -p /opt/sensor-test/apps/"
         (status, output) = self.target.run(mkdir_path)

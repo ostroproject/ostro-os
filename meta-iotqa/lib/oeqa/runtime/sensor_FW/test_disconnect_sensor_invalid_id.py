@@ -7,7 +7,7 @@ import readConfigFile
 class TestDisconnectSensorInvalidId(oeRuntimeTest):
     '''Verify fail to disconnect non exist sensor'''
     def testDisconnectSensorInvalidId(self):
-        '''push binary to target and run with argument'''
+        '''Verify fail to disconnect non exist sensor'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)
         copy_to_path = os.path.join(get_files_dir(), 'test_disconnect_sensor_invalid_id')

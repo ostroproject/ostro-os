@@ -7,7 +7,7 @@ import readConfigFile
 class TestGetSensorDataById(oeRuntimeTest):
     '''Verify sensor data can be returned based on sensor id'''
     def testGetSensorDataById(self):
-        '''push binary to target and run it with argument'''
+        '''Verify sensor data can be returned based on sensor id'''
         #Prepare test binaries to image
         mkdir_path = "mkdir -p /opt/sensor-test/apps/"
         (status, output) = self.target.run(mkdir_path)
