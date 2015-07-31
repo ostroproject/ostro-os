@@ -14,7 +14,6 @@ import inspect
 from optparse import OptionParser
 from oeqa.oetest import oeTest
 from oeqa.oetest import oeRuntimeTest
-from oeqa.oetest import runTests
 from oeqa.runexported import FakeTarget
 from oeqa.runexported import MyDataDict
 from oeqa.runexported import TestContext
@@ -58,7 +57,7 @@ def filterByTags(testsuite, tagexp):
             caseList.append(filterByTags(each, tagexp))
     return testsuite.__class__(caseList)
 
-def runTests_tag(tc, tagexp):
+def runTests_tag(tc, tagexp=None, runner=None):
     """ run whole test suite according to tclist"""
     # set the context object passed from the test class
     setattr(oeTest, "tc", tc)
@@ -69,11 +68,13 @@ def runTests_tag(tc, tagexp):
     testloader = unittest.TestLoader()
     testloader.sortTestMethodsUsing = None
     suite = testloader.loadTestsFromNames(tc.testslist)
-    tagexp = tagexp.strip()
-    suite = filterByTags(suite, tagexp)
+    if tagexp:
+        tagexp = tagexp.strip()
+        suite = filterByTags(suite, tagexp)
     print("Test modules  %s" % tc.testslist)
     print("Found %s tests" % suite.countTestCases())
-    runner = unittest.TextTestRunner(verbosity=2)
+    if not runner:
+        runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
     return result
 
@@ -103,10 +104,12 @@ def main():
             help="The build data file.")
     parser.add_option("-a", "--tag", dest="tag",
             help="The tags to filter test case")
-    parser.add_option("-m", "--machine", dest="machine", 
+    parser.add_option("-m", "--machine", dest="machine",
             help="""The target machine:quark intel-corei7-64 beaglebone""")
     parser.add_option("-n", "--nativearch", dest="nativearch",
             help="The native arch")
+    parser.add_option("-x", "--xunit", dest="xunit",
+            help="Output directory to put results in xUnit XML format")
 
 
     (options, args) = parser.parse_args()
@@ -133,6 +136,15 @@ def main():
         machine = options.machine
     else:
         parser.error("Please specify target machine by -m")
+    if options.xunit:
+        try:
+            import xmlrunner
+        except Exception:
+            raise Exception(
+              "xUnit output requested but unittest-xml-reporting not installed")
+            runner = xmlrunner.XMLTestRunner(verbosity=2, output=options.xunit)
+    else:
+        runner = unittest.TextTestRunner(verbosity=2)
     if options.build_data:
         build_data = options.build_data
     else:
@@ -173,10 +185,7 @@ def main():
             setattr(tc, key, loaded[key])
 
     target.exportStart()
-    if options.tag:
-        runTests_tag(tc, options.tag)
-    else:
-        runTests(tc)
+    runTests_tag(tc, options.tag, runner=runner)
 
     return 0
 
