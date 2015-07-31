@@ -1,3 +1,41 @@
+From patchwork Tue Apr 14 09:44:56 2015
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [v4,2/2] efi: an sysfs interface for user to update efi firmware
+From: Kweh Hock Leong <hock.leong.kweh@intel.com>
+X-Patchwork-Id: 6212471
+Message-Id: <1429004697-28320-3-git-send-email-hock.leong.kweh@intel.com>
+To: Ming Lei <ming.lei@canonical.com>, Matt Fleming <matt@console-pimps.org>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Ong Boon Leong <boon.leong.ong@intel.com>,
+	"Kweh, Hock Leong" <hock.leong.kweh@intel.com>,
+	LKML <linux-kernel@vger.kernel.org>, linux-efi@vger.kernel.org,
+	Sam Protsenko <semen.protsenko@linaro.org>,
+	Peter Jones <pjones@redhat.com>, Andy Lutomirski <luto@amacapital.net>, 
+	Roy Franz <roy.franz@linaro.org>, Borislav Petkov <bp@alien8.de>
+Date: Tue, 14 Apr 2015 17:44:56 +0800
+
+From: "Kweh, Hock Leong" <hock.leong.kweh@intel.com>
+
+Introducing a kernel module to expose capsule loader interface
+for user to upload capsule binaries. This module leverage the
+request_firmware_direct_full_path() to obtain the binary at a
+specific path input by user.
+
+Example method to load the capsule binary:
+echo -n "/path/to/capsule/binary" > /sys/devices/platform/efi_capsule_loader/capsule_loader
+
+Cc: Matt Fleming <matt.fleming@intel.com>
+Signed-off-by: Kweh, Hock Leong <hock.leong.kweh@intel.com>
+
+---
+drivers/firmware/efi/Kconfig              |   12 ++
+ drivers/firmware/efi/Makefile             |    1 +
+ drivers/firmware/efi/efi-capsule-loader.c |  169 +++++++++++++++++++++++++++++
+ 3 files changed, 182 insertions(+)
+ create mode 100644 drivers/firmware/efi/efi-capsule-loader.c
+
 diff --git a/drivers/firmware/efi/Kconfig b/drivers/firmware/efi/Kconfig
 index f712d47..3e84ec0 100644
 --- a/drivers/firmware/efi/Kconfig

@@ -1,4 +1,4 @@
-KBRANCH ?= "linux-4.0.y"
+KBRANCH ?= "linux-4.1.y"
 
 require recipes-kernel/linux/linux-yocto.inc
 
@@ -9,7 +9,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 # file. Leaving it empty here ensures an early explicit build failure.
 COMPATIBLE_MACHINE = "quark|atom|atomup"
 
-SRCREV = "391b01b08db659e3a4e873f95f63b848f945d257"
+SRCREV = "c8bde72f9af412de57f0ceae218d648640118b0b"
 
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git;branch=${KBRANCH}"
 
@@ -24,5 +24,5 @@ SRC_URI_append_atom = " \
 SRC_URI_append_atomup = " \
 	file://atomup/defconfig"
 
-LINUX_VERSION ?= "4.0.9"
+LINUX_VERSION ?= "4.1.3"
 
