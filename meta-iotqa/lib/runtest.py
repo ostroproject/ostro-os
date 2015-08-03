@@ -142,7 +142,7 @@ def main():
         except Exception:
             raise Exception(
               "xUnit output requested but unittest-xml-reporting not installed")
-            runner = xmlrunner.XMLTestRunner(verbosity=2, output=options.xunit)
+        runner = xmlrunner.XMLTestRunner(verbosity=2, output=options.xunit)
     else:
         runner = unittest.TextTestRunner(verbosity=2)
     if options.build_data:
