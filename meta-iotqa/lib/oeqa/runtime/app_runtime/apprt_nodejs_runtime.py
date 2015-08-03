@@ -188,6 +188,7 @@ def choose_test_files_and_tar(local_nodejs_path, node_version):
     return p.returncode
 
 
+@tag(TestType = 'Functional Positive', FeatureID = 'IOTOS-332')
 class NodejsRuntimeTest(oeRuntimeTest):
 
     target_node_version = None
@@ -375,6 +376,7 @@ class NodejsRuntimeTest(oeRuntimeTest):
                 'ln -fs %s /tmp/node_%s_test/out/Release/node DONE\n' %
                 (self.target_node_path, self.target_node_version))
             sys.stdout.flush()
+
 
     def test_apprt_nodejs_runtime(self):
         start = time.time()
