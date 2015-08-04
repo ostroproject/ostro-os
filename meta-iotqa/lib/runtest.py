@@ -11,6 +11,11 @@ import os
 import time
 import unittest
 import inspect
+
+BASEDIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+sys.path.append(os.path.join(BASEDIR, "oeqa"))
+sys.path.append(os.path.join(BASEDIR, "bitbake", "lib"))
+
 from optparse import OptionParser
 from oeqa.oetest import oeTest
 from oeqa.oetest import oeRuntimeTest
@@ -24,9 +29,6 @@ try:
 except ImportError:
     import json
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "oeqa")))
-
-BASEDIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 def getVar(obj):
     #extend form dict, if a variable didn't exists, need find it in testcase
