@@ -7,7 +7,8 @@ Subject: [PATCH 1/2] UI: Avoid memory leaks.
 * parted/ui.c(command_line_prompt_words): Don't leak _def string in
   opt script mode.
 
-Upstream-status: Pending  
+Upstream-status: Accepted.
+http://lists.alioth.debian.org/pipermail/parted-devel/2015-July/004687.html
 
 Signed-off-by: Amarnath Valluri <amarnath.valluri@intel.com>
 ---
