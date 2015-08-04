@@ -199,4 +199,4 @@ python do_test_iot_export() {
 
 addtask test_iot_export
 do_test_iot_export[depends] += "${TESTIMAGEDEPENDS}"
-do_test_io_export[lockfiles] += "${TESTIMAGELOCK}"
+do_test_iot_export[lockfiles] += "${TESTIMAGELOCK}"
