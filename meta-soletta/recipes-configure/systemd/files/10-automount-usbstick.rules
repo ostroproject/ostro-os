@@ -1,0 +1,2 @@
+ACTION=="add", KERNEL=="sd[a-z][0-9]", TAG+="systemd", ENV{SYSTEMD_WANTS}="automount-handler@%k"
+ACTION=="remove", KERNEL=="sd[a-z][0-9]", TAG+="systemd", ENV{SYSTEMD_WANTS}="umount-handler@%k"

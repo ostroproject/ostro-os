@@ -1,0 +1,11 @@
+[Unit]
+Description=Autogenerate hostname with MAC ADDRESS
+After=warn-boot.timer
+
+[Service]
+Type=oneshot
+ExecStart=/lib/systemd/system/hostname-set.sh
+
+[Install]
+WantedBy=multi-user.target
+

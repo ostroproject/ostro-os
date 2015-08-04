@@ -1,0 +1,10 @@
+[Unit]
+Description=Autogenerate avahi name service
+ConditionFirstBoot=yes
+
+[Service]
+Type=oneshot
+ExecStart=/lib/systemd/system/avahi_conf_gen.sh
+
+[Install]
+WantedBy=multi-user.target

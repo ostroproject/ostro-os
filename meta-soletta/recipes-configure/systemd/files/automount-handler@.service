@@ -1,0 +1,13 @@
+[Unit]
+Description=Automount USB Stick
+After=dev-%i.device
+BindsTo=dev-%i.device
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=/bin/mkdir -p /media/usb-%I
+ExecStart=/bin/mount /dev/%I /media/usb-%I
+
+[Install]
+WantedBy=multi-user.target
