@@ -10,8 +10,8 @@ SRC_URI = "http://nodejs.org/dist/v${PV}/node-v${PV}.tar.gz \
            file://enable-armv5e-build.patch \
 "
 SRC_URI_append_quark = "file://0001-nodejs-add-compile-flag-options-for-quark.patch"
-SRC_URI[md5sum] = "c2b4deea212c0b7c2f86368c65fab312"
-SRC_URI[sha256sum] = "3298d0997613a04ac64343e8316da134d04588132554ae402eb344e3369ec912"
+SRC_URI[md5sum] = "5523ec4347d7fe6b0f6dda1d1c7799d5"
+SRC_URI[sha256sum] = "b23d64df051c9c969b0c583f802d5d71de342e53067127a5061415be7e12f39d"
 
 S = "${WORKDIR}/node-v${PV}"
 
