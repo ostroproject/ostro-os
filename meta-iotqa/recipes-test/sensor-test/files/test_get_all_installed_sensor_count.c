@@ -24,7 +24,9 @@ main(int argc, char* argv[])
 		fprintf(stdout, "error: %d, failed to get sensor type count\n", result);
 		return false;
 	}
-	fprintf(stdout, "sensor type count is %d\n", count);
+	if(count == 0){
+		fprintf(stdout, "No sensor exists in system!\n");
+	}
 
 	total_types = count;
 

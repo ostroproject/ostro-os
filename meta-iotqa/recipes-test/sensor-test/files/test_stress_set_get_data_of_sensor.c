@@ -18,7 +18,7 @@ main(int argc, char* argv[])
 	sf_sensor_t sensor;
 	unsigned int count;
 	int result;
-	int i;
+	int i, j;
 	sf_sensor_data_t data, set_data;
 	sensor_id = atoi(argv[1]);
 	//initialize sensor environment
@@ -42,24 +42,27 @@ main(int argc, char* argv[])
 	for (i = 0; i < set_data.value_count; i++) {
 		set_data.values[i] = i*i;
 	}
-	result = sf_set_sensor_data(sensor_id, set_data);
-	if (result < 0) {
-		sf_disconnect_sensor(sensor_id);
-		fprintf(stdout, "Sensor[%d], failed at sf_set_sensor_data ret=%d\n", sensor_id, result);
-		return false;
+	for(j = 0; j <100; j++)
+	{
+		result = sf_set_sensor_data(sensor_id, set_data);
+		if (result < 0) {
+			sf_disconnect_sensor(sensor_id);
+			fprintf(stdout, "failed to set data to sensor[%d], at time %d\n", sensor_id, j);
+			return false;
+		}
+		fprintf(stdout, "sf_set_sensor_data successfully value_count=%d\n", set_data.value_count);
+		result = sf_get_sensor_data(sensor_id, &data);
+		if (result < 0) {
+			sf_disconnect_sensor(sensor_id);
+			fprintf(stdout, "failed to get data from sensor %d, at time %d\n",sensor_id, j);
+			return false;
+		}
+		fprintf(stdout, "sf_get_sensor_data count=%d timestamp=%llu\n", data.value_count, data.time_stamp);
+/*		for (i = 0; i < data.value_count; i++) {
+			fprintf(stdout, "value %d: %f\n", i, data.values[i]);
+		} */
 	}
-	fprintf(stdout, "sf_set_sensor_data successfully value_count=%d\n", set_data.value_count);
-
-	result = sf_get_sensor_data(sensor_id, &data);
-	if (result < 0) {
-		sf_disconnect_sensor(sensor_id);
-		fprintf(stdout, "Sensor - %d, failed at sf_get_sensor_data after set data.\n",sensor_id);
-		return false;
-	}
-	fprintf(stdout, "sf_get_sensor_data count=%d timestamp=%llu\n", data.value_count, data.time_stamp);
-	for (i = 0; i < data.value_count; i++) {
-		fprintf(stdout, "value %d: %f\n", i, data.values[i]);
-	}
+	
 	sf_disconnect_sensor(sensor_id);
 	return true;
 }

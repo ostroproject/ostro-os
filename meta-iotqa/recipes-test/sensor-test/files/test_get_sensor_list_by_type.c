@@ -50,6 +50,9 @@ main(int argc, char* argv[])
 		fprintf(stdout, "error: %d, failed to get sensor type count\n", result);
 		return false;
 	}
+	if(count == 0){
+		fprintf(stdout, "No sensor exists in system!\n");
+	}
 	fprintf(stdout, "sensor type count is %d\n", count);
         sensor_count_return = sf_get_sensor_count(sensor_type_t, &sensor_count);
         fprintf(stdout, "sensor count:%d \n", sensor_count);
@@ -60,6 +63,10 @@ main(int argc, char* argv[])
 	if (sensor_count == 0) {
 		fprintf(stdout, "There is no sensor exist with such type in system\n");
 		return true;
+	}
+        if (count == 0 && sensor_count !=0) {
+		fprintf(stdout, "count of sensor is non-zero even it doesn't exist in system");
+		return false;
 	}
 	fprintf(stdout, "sf_get_sensor_count type=%s count=%d\n", sensor_type_t.sensor_type, sensor_count);
 	sensor_list = (sf_sensor_t *)malloc(sensor_count * sizeof(sf_sensor_t));

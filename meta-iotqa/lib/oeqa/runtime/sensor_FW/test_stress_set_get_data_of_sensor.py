@@ -1,20 +1,20 @@
-'''positively verify api sf_get_sensor_status_by_id'''
+'''Verify can repeatly set and get data on target sensor'''
 import os
 from oeqa.utils.helper import get_files_dir
 from oeqa.oetest import oeRuntimeTest
 import readConfigFile
 
-class TestGetSensorStatusById(oeRuntimeTest):
-    '''Verify sensor status can be returned based on sensor id'''
-    def testGetSensorStatusById(self):
-        '''Verify sensor status can be returned based on sensor id'''
+class TestStreeSetGetDataOfSensor(oeRuntimeTest):
+    '''Verify can set and get data on sensor for 100 times'''
+    def testStreeSetGetDataOfSensor(self):
+        '''Verify can set and get data on sensor for 100 times'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)
-        copy_to_path = os.path.join(get_files_dir(), 'test_get_sensor_status_by_id')
+        copy_to_path = os.path.join(get_files_dir(), 'test_stress_set_get_data_of_sensor')
         (status, output) = self.target.copy_to(copy_to_path, \
 "/opt/sensor-test/apps/")
-        #run test get sensor status by id and show it's information
-        client_cmd = "/opt/sensor-test/apps/test_get_sensor_status_by_id "\
+        #run test stress set get data of sensor and show it's information
+        client_cmd = "/opt/sensor-test/apps/test_stress_set_get_data_of_sensor " \
                      + readConfigFile.ReadConfFile.getSectionValue( 'sensors','valid-id')
         (status, output) = self.target.run(client_cmd)
         print output

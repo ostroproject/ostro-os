@@ -4,9 +4,9 @@ from oeqa.utils.helper import get_files_dir
 from oeqa.oetest import oeRuntimeTest
 
 class TestGetAllInstalledSensor(oeRuntimeTest):
-    '''Verify all sensors installed in system'''
-    def test(self):
-        '''push binary to target and run with argument'''
+    '''Verify get all sensors installed in system'''
+    def testGetAllInstalledSensor(self):
+        '''Verify get all sensors installed in system'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)
         copy_to_path = os.path.join(get_files_dir(), 'test_get_all_installed_sensor')

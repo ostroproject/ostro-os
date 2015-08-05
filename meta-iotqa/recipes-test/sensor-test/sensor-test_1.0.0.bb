@@ -28,7 +28,12 @@ file://test_get_sensor_type_list_incorrect_count.c \
 file://test_unregister_unregistered_sensor.c \
 file://test_get_sensor_data_by_id.c \
 file://test_set_sensor_data_by_id.c \
-file://test_get_sensor_raw_data_by_id.c "
+file://test_get_sensor_raw_data_by_id.c \
+file://test_sensor_framework_ready.c \
+file://test_connect_sensor_maximum_times.c \
+file://test_stress_connect_disconnect_sensor.c \
+file://test_stress_set_get_data_of_sensor.c \
+file://test_get_data_of_unconnected_sensor.c "
 
 S = "${WORKDIR}"
 
@@ -56,6 +61,11 @@ do_compile() {
     ${CC} test_get_sensor_data_by_id.c -o test_get_sensor_data_by_id -I${STAGING_INCDIR}/sensor -lsensor
     ${CC} test_set_sensor_data_by_id.c -o test_set_sensor_data_by_id -I${STAGING_INCDIR}/sensor -lsensor
     ${CC} test_get_sensor_raw_data_by_id.c -o test_get_sensor_raw_data_by_id -I${STAGING_INCDIR}/sensor -lsensor 
+    ${CC} test_sensor_framework_ready.c -o test_sensor_framework_ready -I${STAGING_INCDIR}/sensor -lsensor
+    ${CC} test_connect_sensor_maximum_times.c -o test_connect_sensor_maximum_times -I${STAGING_INCDIR}/sensor -lsensor
+    ${CC} test_stress_connect_disconnect_sensor.c -o test_stress_connect_disconnect_sensor -I${STAGING_INCDIR}/sensor -lsensor
+    ${CC} test_stress_set_get_data_of_sensor.c -o test_stress_set_get_data_of_sensor -I${STAGING_INCDIR}/sensor -lsensor 
+    ${CC} test_get_data_of_unconnected_sensor.c -o test_get_data_of_unconnected_sensor -I${STAGING_INCDIR}/sensor -lsensor
 }
 
 do_install() {
@@ -82,8 +92,13 @@ do_install() {
     install -m 0755 test_get_sensor_data_by_id ${D}${bindir}
     install -m 0755 test_set_sensor_data_by_id ${D}${bindir}
     install -m 0755 test_get_sensor_raw_data_by_id ${D}${bindir}
+    install -m 0755 test_sensor_framework_ready ${D}${bindir}
+    install -m 0755 test_connect_sensor_maximum_times ${D}${bindir}
+    install -m 0755 test_stress_connect_disconnect_sensor ${D}${bindir}
+    install -m 0755 test_stress_set_get_data_of_sensor ${D}${bindir}
+    install -m 0755 test_get_data_of_unconnected_sensor ${D}${bindir}
 
 }
 
 inherit copybin
-TARGET_FILES += "${WORKDIR}/test_get_sensor_type_by_id ${WORKDIR}/test_connect_sensor_already_connected ${WORKDIR}/test_get_all_installed_sensor_count ${WORKDIR}/test_get_sensor_count_by_type ${WORKDIR}/test_get_all_installed_sensor ${WORKDIR}/test_get_sensor_list_by_type ${WORKDIR}/test_get_sensor_by_id ${WORKDIR}/test_get_default_sensor_by_type ${WORKDIR}/test_get_sensor_status_by_id ${WORKDIR}/test_disconnect_sensor_invalid_id ${WORKDIR}/test_disconnect_unconnected_sensor ${WORKDIR}/test_get_sensor_name_by_id ${WORKDIR}/test_get_sensor_type_list ${WORKDIR}/test_get_sensor_type_list_incorrect_count ${WORKDIR}/test_unregister_unregistered_sensor ${WORKDIR}/test_sensor_register_unregister_misc ${WORKDIR}/test_get_sensor_data_by_id ${WORKDIR}/test_set_sensor_data_by_id ${WORKDIR}/test_sensor_type_is_supported ${WORKDIR}/test_get_default_sensor_and_manipulation ${WORKDIR}/test_set_sensor_data_after_unregister ${WORKDIR}/test_sensor_register_duplicated ${WORKDIR}/test_get_sensor_raw_data_by_id"
+TARGET_FILES += "${WORKDIR}/test_get_sensor_type_by_id ${WORKDIR}/test_connect_sensor_already_connected ${WORKDIR}/test_get_all_installed_sensor_count ${WORKDIR}/test_get_sensor_count_by_type ${WORKDIR}/test_get_all_installed_sensor ${WORKDIR}/test_get_sensor_list_by_type ${WORKDIR}/test_get_sensor_by_id ${WORKDIR}/test_get_default_sensor_by_type ${WORKDIR}/test_get_sensor_status_by_id ${WORKDIR}/test_disconnect_sensor_invalid_id ${WORKDIR}/test_disconnect_unconnected_sensor ${WORKDIR}/test_get_sensor_name_by_id ${WORKDIR}/test_get_sensor_type_list ${WORKDIR}/test_get_sensor_type_list_incorrect_count ${WORKDIR}/test_unregister_unregistered_sensor ${WORKDIR}/test_sensor_register_unregister_misc ${WORKDIR}/test_get_sensor_data_by_id ${WORKDIR}/test_set_sensor_data_by_id ${WORKDIR}/test_sensor_type_is_supported ${WORKDIR}/test_get_default_sensor_and_manipulation ${WORKDIR}/test_set_sensor_data_after_unregister ${WORKDIR}/test_sensor_register_duplicated ${WORKDIR}/test_get_sensor_raw_data_by_id ${WORKDIR}/test_sensor_framework_ready ${WORKDIR}/test_connect_sensor_maximum_times ${WORKDIR}/test_stress_connect_disconnect_sensor ${WORKDIR}/test_stress_set_get_data_of_sensor ${WORKDIR}/test_get_data_of_unconnected_sensor"

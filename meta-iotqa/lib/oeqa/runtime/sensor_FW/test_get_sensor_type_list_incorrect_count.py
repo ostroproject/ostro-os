@@ -6,9 +6,8 @@ from oeqa.oetest import oeRuntimeTest
 
 class TestGetSensorTypeListIncorrectCount(oeRuntimeTest):
     '''Verify error code return if input paramter 'count' is not correct'''
-    def test(self):
-        '''push binary to target and run it with argument'''
-        #Prepare test binaries to image        
+    def testGetSensorTypeListIncorrectCount(self):
+        '''Verify error code return if input paramter 'count' is not correct'''     
         mkdir_path = "mkdir -p /opt/sensor-test/apps/"
         (status, output) = self.target.run(mkdir_path)
         copy_path = os.path.join(get_files_dir(), \

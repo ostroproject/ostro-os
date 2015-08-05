@@ -6,8 +6,8 @@ import readConfigFile
 
 class TestSensorTypeIsSupported(oeRuntimeTest):
     '''Verify sensor type is supported in sensor framework of Ostro OS'''
-    def test(self):
-        '''push binary to target and run with argument'''
+    def testSensorTypeIsSupported(self):
+        '''Verify sensor type is supported in sensor framework of Ostro OS'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps/"
         (status, output) = self.target.run(mkdir_path)
         copy_to_path = os.path.join(get_files_dir(), 'test_sensor_type_is_supported')

@@ -48,12 +48,19 @@ main(int argc, char* argv[])
 		fprintf(stdout, "error: %d, failed to get sensor type count\n", result);
 		return false;
 	}
+	if(count == 0){
+		fprintf(stdout, "No sensor exists in system!\n");
+	}
 	fprintf(stdout, "sensor type count is %d\n", count);
         sensor_count_return = sf_get_sensor_count(sensor_type_t, &sensor_count);
         
 	if (sensor_count_return < 0) {
 		fprintf(stdout, "error: %d, failed to get sensor count\n", sensor_count_return);
 		return false;
+	}
+	if(count == 0 && sensor_count != 0){
+		fprintf(stdout, "error: count of sensor should be zero if no sensor exists in system. \n");
+		return false;	
 	}
 	fprintf(stdout, "sensor count is %d\n", sensor_count);
 	return true;

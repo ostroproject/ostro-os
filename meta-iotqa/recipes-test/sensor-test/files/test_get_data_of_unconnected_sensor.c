@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include <sf_sensor.h>
 #include <sf_sensor_data.h>
-#include <sf_sensor_type.h>
 #include <sensor_common.h>
 #include <unistd.h>
 #include <string.h>
@@ -13,10 +12,12 @@ int
 main(int argc, char* argv[])
 {
 	sf_sensor_id_t sensor_id;
-	const char *sensor_name;
+	sf_sensor_data_t data;
 	unsigned int count;
+	int result;
+	int i;
 	sensor_id = atoi(argv[1]);
-	//initialize sensor data
+	//initialize sensor environment
 	int sensor_type_result = sf_get_sensor_type_count(&count);
 	if (sensor_type_result < 0) {
 		fprintf(stdout, "error: %d, failed to get sensor type count\n", sensor_type_result);
@@ -25,17 +26,15 @@ main(int argc, char* argv[])
 	if(count == 0){
 		fprintf(stdout, "No sensor exists in system!\n");
 	}
-	fprintf(stdout, "sensor type count is %d\n", count);
-	int result = sf_get_sensor_name(sensor_id, &sensor_name);
-	if (result < 0) {
-		fprintf(stdout, "Invalid sensor id %d.\n", sensor_id);
-		return false;
-	} else {
-		fprintf(stdout, "sf_get_sensor_name_by_id [%d] sensor:\n", sensor_id);
-		fprintf(stdout, "\tid is %d\n", sensor_id);
-		fprintf(stdout, "\tname is %s\n", sensor_name);
+	result = sf_get_sensor_data(sensor_id, &data);
+	if(result < 0)
+	{
+		fprintf(stdout, "error: %d, failed to get sensor data with id %d. Probably because it's not connected.", result, sensor_id);
 		return true;
 	}
-
+        for(i = 0; i < data.value_count; i++) {
+		fprintf(stdout, "value %d: %f\n", i, data.values[i]);
+	}
+	return false;
 }
 

@@ -6,8 +6,8 @@ import readConfigFile
 
 class TestGetSensorCountByInvalidType(oeRuntimeTest):
     '''Verify error will return if try to get sensor count with invalid type id'''
-    def test(self):
-        '''push binary to target and run with argument'''
+    def testGetSensorCountByInvalidType(self):
+        '''Verify error will return if try to get sensor count with invalid type id'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)
         copy_to_path = os.path.join(get_files_dir(), 'test_get_sensor_count_by_type')

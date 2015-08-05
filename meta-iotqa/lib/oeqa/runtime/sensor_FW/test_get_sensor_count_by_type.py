@@ -6,8 +6,8 @@ import readConfigFile
 
 class TestGetSensorCountByType(oeRuntimeTest):
     '''Verify sensor count of input type returned from sf_get_sensor_count'''
-    def test(self):
-        '''push binary to target and run with argument'''
+    def testGetSensorCountByType(self):
+        '''Verify sensor count of input type returned from sf_get_sensor_count'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)
         copy_to_path = os.path.join(get_files_dir(), 'test_get_sensor_count_by_type')

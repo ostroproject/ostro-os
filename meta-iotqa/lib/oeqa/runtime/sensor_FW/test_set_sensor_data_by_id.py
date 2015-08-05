@@ -4,11 +4,10 @@ from oeqa.utils.helper import get_files_dir
 from oeqa.oetest import oeRuntimeTest
 import readConfigFile
 
-class TestGetSensorDataById(oeRuntimeTest):
+class TestSetSensorDataById(oeRuntimeTest):
     '''Verify sensor data can be returned based on sensor id'''
-    def test(self):
-        '''push binary to target and run it with argument'''
-        #Prepare test binaries to image
+    def testSetSensorDataById(self):
+        '''Verify sensor data can be returned based on sensor id'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps/"
         (status, output) = self.target.run(mkdir_path)
         copy_to_path = os.path.join(get_files_dir(), 'test_set_sensor_data_by_id')

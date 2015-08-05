@@ -5,8 +5,8 @@ from oeqa.oetest import oeRuntimeTest
 
 class TestSetSensorDataAfterUnregister(oeRuntimeTest):
     '''Verify can't set data to sensor after it's unregistered'''
-    def test(self):
-        '''push binary to target and run with argument'''
+    def testSetSensorDataAfterUnregister(self):
+        '''Verify can't set data to sensor after it's unregistered'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)
         copy_to_path = os.path.join(get_files_dir(), 'test_set_sensor_data_after_unregister')

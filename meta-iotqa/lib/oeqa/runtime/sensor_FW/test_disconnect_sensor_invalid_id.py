@@ -4,10 +4,10 @@ from oeqa.utils.helper import get_files_dir
 from oeqa.oetest import oeRuntimeTest
 import readConfigFile
 
-class TestGetSensorStatusById(oeRuntimeTest):
+class TestDisconnectSensorInvalidId(oeRuntimeTest):
     '''Verify fail to disconnect non exist sensor'''
-    def test(self):
-        '''push binary to target and run with argument'''
+    def testDisconnectSensorInvalidId(self):
+        '''Verify fail to disconnect non exist sensor'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)
         copy_to_path = os.path.join(get_files_dir(), 'test_disconnect_sensor_invalid_id')
