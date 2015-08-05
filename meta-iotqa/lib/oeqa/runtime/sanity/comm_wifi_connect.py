@@ -25,7 +25,7 @@ class CommWiFiTest(oeRuntimeTest):
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
         (status, services) = self.target.run("connmanctl services | grep %s | awk '{print $NF}'" % ssid)
         # will do scan retry 1 time if needed
-        if (service.strip() == ''):
+        if (services.strip() == ''):
             (status, output) = self.target.run('connmanctl scan wifi')
             self.assertEqual(status, 0, msg="Error messages: %s" % output)
             (status, services) = self.target.run("connmanctl services | grep %s | awk '{print $NF}'" % ssid)
