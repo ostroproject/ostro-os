@@ -39,6 +39,29 @@ EXTRA_OECMAKE = " \
 inherit systemd
 SYSTEMD_SERVICE_${PN} = "security-manager.service"
 
+# The upstream source code contains the Tizen-specific policy configuration files.
+# To replace them, create a security-manager.bbappend and set the following variable to a
+# space-separated list of policy file names (not URIs!), for example:
+# SECURITY_MANAGER_POLICY = "privilege-group.list usertype-system.profile"
+#
+# Leave it empty to use the upstream Tizen policy.
+SECURITY_MANAGER_POLICY ?= ""
+SRC_URI_append = " ${@' '.join(['file://' + x for x in d.getVar('SECURITY_MANAGER_POLICY', True).split()])}"
+python do_patch_append () {
+    import os
+    import shutil
+    import glob
+    files = d.getVar('SECURITY_MANAGER_POLICY').split()
+    if files:
+        s = d.getVar('S', True)
+        workdir = d.getVar('WORKDIR', True)
+        for pattern in ['*.profile', '*.list']:
+            for old_file in glob.glob(s + '/policy/' + pattern):
+                os.unlink(old_file)
+        for file in files:
+            shutil.copy(file, s + '/policy')
+}
+
 do_install_append () {
    install -d ${D}/${systemd_unitdir}/system/multi-user.target.wants
    ln -s ../security-manager.service ${D}/${systemd_unitdir}/system/multi-user.target.wants/security-manager.service
