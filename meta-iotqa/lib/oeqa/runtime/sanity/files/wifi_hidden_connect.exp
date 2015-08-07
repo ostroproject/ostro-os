@@ -1,0 +1,39 @@
+#!/usr/bin/expect
+set timeout 100
+set login 0
+set ip       [lindex $argv 0]
+set cmd      [lindex $argv 1]
+set service  [lindex $argv 2]
+set ssid     [lindex $argv 3]
+set password [lindex $argv 4]
+
+spawn ssh root@$ip "$cmd"
+ expect {
+ "Agent registered"
+   {
+    send "connect $service\n"; exp_continue
+   }
+ "Operation timeout"
+   {
+    send "connect $service\n"; exp_continue
+   }
+ "Hidden SSID name?"
+   {
+    send "$ssid\n"; exp_continue
+   }
+ "Passphrase?"
+   {
+    send "$password\n"; exp_continue
+   }
+ "Connected wifi*"
+   {
+    send "exit\n"
+   }
+ "connmanctl*"
+   {
+    if {$login==0} {set login 1;send "agent on\n"; exp_continue} else {exp_continue}
+   }
+ eof
+   {}
+ }
+

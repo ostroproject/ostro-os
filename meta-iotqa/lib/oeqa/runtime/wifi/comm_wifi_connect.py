@@ -50,7 +50,8 @@ class CommWiFiConect(oeRuntimeTest):
         cmd = "%s %s %s %s %s %s" % (exp, target_ip, "connmanctl", self.hidden_service, ssid, pwd) 
         status, output = shell_cmd_timeout(cmd, timeout=60)
         # Check ip address by ifconfig command
-        (status, output) = self.target.run("ifconfig wlp2s0 | grep 'inet addr:'")
+        (status, wifi_interface) = self.target.run("ifconfig | grep '^wlp' | awk '{print $1}'")
+        (status, output) = self.target.run("ifconfig %s | grep 'inet addr:'" % wifi_interface)
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
 
     @tag(FeatureID="IOTOS-457")
@@ -65,7 +66,8 @@ class CommWiFiConect(oeRuntimeTest):
         cmd = "%s %s %s %s %s %s" % (exp, target_ip, "connmanctl", self.hidden_service, ssid, pwd) 
         status, output = shell_cmd_timeout(cmd, timeout=60)
         # Check ip address by ifconfig command
-        (status, output) = self.target.run("ifconfig wlp2s0 | grep 'inet addr:'")
+        (status, wifi_interface) = self.target.run("ifconfig | grep '^wlp' | awk '{print $1}'")
+        (status, output) = self.target.run("ifconfig %s | grep 'inet addr:'" % wifi_interface)
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
 
     @tag(FeatureID="IOTOS-457")
@@ -80,7 +82,8 @@ class CommWiFiConect(oeRuntimeTest):
         cmd = "%s %s %s %s %s %s" % (exp, target_ip, "connmanctl", self.hidden_service, ssid, pwd) 
         status, output = shell_cmd_timeout(cmd, timeout=60)
         # Check ip address by ifconfig command
-        (status, output) = self.target.run("ifconfig wlp2s0 | grep 'inet addr:'")
+        (status, wifi_interface) = self.target.run("ifconfig | grep '^wlp' | awk '{print $1}'")
+        (status, output) = self.target.run("ifconfig %s | grep 'inet addr:'" % wifi_interface)
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
 
     @tag(FeatureID="IOTOS-458")
@@ -95,7 +98,8 @@ class CommWiFiConect(oeRuntimeTest):
         cmd = "%s %s %s %s %s %s" % (exp, target_ip, "connmanctl", self.hidden_service, ssid, pwd) 
         status, output = shell_cmd_timeout(cmd, timeout=60)
         # Check ip address by ifconfig command
-        (status, output) = self.target.run("ifconfig wlp2s0 | grep 'inet addr:'")
+        (status, wifi_interface) = self.target.run("ifconfig | grep '^wlp' | awk '{print $1}'")
+        (status, output) = self.target.run("ifconfig %s | grep 'inet addr:'" % wifi_interface)
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
 
     @tag(FeatureID="IOTOS-458")
@@ -110,5 +114,6 @@ class CommWiFiConect(oeRuntimeTest):
         cmd = "%s %s %s %s %s %s" % (exp, target_ip, "connmanctl", self.hidden_service, ssid, pwd) 
         status, output = shell_cmd_timeout(cmd, timeout=60)
         # Check ip address by ifconfig command
-        (status, output) = self.target.run("ifconfig wlp2s0 | grep 'inet addr:'")
+        (status, wifi_interface) = self.target.run("ifconfig | grep '^wlp' | awk '{print $1}'")
+        (status, output) = self.target.run("ifconfig %s | grep 'inet addr:'" % wifi_interface)
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
