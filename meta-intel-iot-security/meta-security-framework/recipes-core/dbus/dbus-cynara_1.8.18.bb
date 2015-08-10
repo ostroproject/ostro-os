@@ -26,7 +26,7 @@ file://0007-Add-own-rule-result-unavailability-handling.patch \
 SRC_URI += "file://0008-Add-GetConnectionSmackContext-D-Bus-daemon-method.patch"
 
 # Depends on special Cynara rules which get installed in the
-# security-manager-policy package. From patch set 4 in:
+# security-manager-policy package. From patch set 5 in:
 # https://review.tizen.org/gerrit/#/c/31310/ 
 SRC_URI += "file://Perform-Cynara-runtime-policy-checks-by-default.patch"
 

@@ -1,28 +1,30 @@
-From 9e77cdf01b73de313b360290ca0987410e04c082 Mon Sep 17 00:00:00 2001
+From e8610297cf7031e94eb314a2e8c11246f4405403 Mon Sep 17 00:00:00 2001
 From: Jacek Bukarewicz <j.bukarewicz@samsung.com>
-Date: Wed, 3 Dec 2014 16:33:40 +0100
+Date: Tue, 23 Jun 2015 11:08:48 +0200
 Subject: [PATCH] Perform Cynara runtime policy checks by default
 
-By default clients are checked for http://tizen.org/privilege/internal/dbus
-privilege for method calls, sending and receiving signals.
-Services are supposed to override these defaults if certain resources
-are going to be exposed to applications.
-Method replies and errors are allowed by default.
+This change introduces http://tizen.org/privilege/internal/dbus privilege
+which is supposed to be available only to trusted system resources.
+Checks for this privilege are used in place of certain allow rules to
+make security policy more strict.
 
-Note that previously every message sent via session bus was allowed by
-default. This has changed and session policy is now basically the same as
-system configuration with 2 exceptions:
- - session bus only allows connections from the same user the session bus
-   is running while system bus permits all users
- - requesting names is denied by default for system bus while session bus
-   requires http://tizen.org/privilege/internal/dbus privilege
+For system bus sending and receiving signals now requires
+http://tizen.org/privilege/internal/dbus privilege. Requesting name
+ownership and sending methods is still denied by default.
+
+For session bus http://tizen.org/privilege/internal/dbus privilege
+is now required for requesting name, calling methods, sending and receiving
+signals.
+
+Services are supposed to override these default settings to implement their
+own security policy.
 
 Change-Id: Ifb4a160bf6e0638404e0295a2e4fa3077efd881c
 Signed-off-by: Jacek Bukarewicz <j.bukarewicz@samsung.com>
 ---
  bus/session.conf.in | 32 ++++++++++++++++++++++++++------
- bus/system.conf.in  | 29 ++++++++++++++++++++---------
- 2 files changed, 46 insertions(+), 15 deletions(-)
+ bus/system.conf.in  | 22 ++++++++++++++++------
+ 2 files changed, 42 insertions(+), 12 deletions(-)
 
 diff --git a/bus/session.conf.in b/bus/session.conf.in
 index 74d9d1f..fa5c232 100644
@@ -68,24 +70,16 @@ index 74d9d1f..fa5c232 100644
  
    <!-- Config files are placed here that among other things, 
 diff --git a/bus/system.conf.in b/bus/system.conf.in
-index 92f4cc4..f3fd974 100644
+index 92f4cc4..dd16947 100644
 --- a/bus/system.conf.in
 +++ b/bus/system.conf.in
-@@ -46,25 +46,36 @@
-     <allow user="*"/>
- 
-     <!-- Holes must be punched in service configuration files for
--         name ownership and sending method calls -->
--    <deny own="*"/>
--    <deny send_type="method_call"/>
-+         name ownership -->
-+    <deny own="*" />
+@@ -50,21 +50,31 @@
+     <deny own="*"/>
+     <deny send_type="method_call"/>
  
 -    <!-- Signals and reply messages (method returns, errors) are allowed
-+    <!-- By default clients require internal/dbus privilege to communicate
-+         with D-Bus services. This is internal privilege that is only accessible
-+         to trusted system services -->
-+    <check send_type="method_call"  privilege="http://tizen.org/privilege/internal/dbus" />
++    <!-- By default clients require internal/dbus privilege to send and receive signaks.
++         This is internal privilege that is only accessible to trusted system services -->
 +    <check send_type="signal"       privilege="http://tizen.org/privilege/internal/dbus" />
 +    <check receive_type="signal"    privilege="http://tizen.org/privilege/internal/dbus" />
 +
