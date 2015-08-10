@@ -1,7 +1,7 @@
-From 9cd5f5e09e3e19e80d9527259a94fecd9b20cb66 Mon Sep 17 00:00:00 2001
+From 9e77cdf01b73de313b360290ca0987410e04c082 Mon Sep 17 00:00:00 2001
 From: Jacek Bukarewicz <j.bukarewicz@samsung.com>
 Date: Wed, 3 Dec 2014 16:33:40 +0100
-Subject: [PATCH 12/13] Perform Cynara runtime policy checks by default
+Subject: [PATCH] Perform Cynara runtime policy checks by default
 
 By default clients are checked for http://tizen.org/privilege/internal/dbus
 privilege for method calls, sending and receiving signals.
@@ -25,7 +25,7 @@ Signed-off-by: Jacek Bukarewicz <j.bukarewicz@samsung.com>
  2 files changed, 46 insertions(+), 15 deletions(-)
 
 diff --git a/bus/session.conf.in b/bus/session.conf.in
-index cfe9544..7963c70 100644
+index 74d9d1f..fa5c232 100644
 --- a/bus/session.conf.in
 +++ b/bus/session.conf.in
 @@ -17,12 +17,32 @@

@@ -1,8 +1,8 @@
-From b3b24719abfbde772516fed12d148f3e483f19d7 Mon Sep 17 00:00:00 2001
+From 1e231194610892dd4360224998d91336097b05a1 Mon Sep 17 00:00:00 2001
 From: Jacek Bukarewicz <j.bukarewicz@samsung.com>
 Date: Fri, 28 Nov 2014 12:39:33 +0100
-Subject: [PATCH 08/13] Handle receive rule result unavailability and message
- broadcasts
+Subject: [PATCH 6/8] Handle unavailability of policy results for broadcasts
+ and receive rules
 
 When message is sent to the addressed recipient and receive rule
 result is unavailable we don't want to block the sender
@@ -19,46 +19,46 @@ that it is not full dispatch meaning message is sent to a single recipient.
 Change-Id: Iecd5395f75a4c7811fa97247a37d8fc4d42e8814
 ---
  bus/activation.c |   4 +-
- bus/bus.c        |  51 +++++++--
+ bus/bus.c        |  50 +++++++--
  bus/bus.h        |  19 ++++
- bus/check.c      | 311 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ bus/check.c      | 307 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
  bus/check.h      |  25 +++++
- bus/connection.c | 167 +++++++++++++++++++++++++++--
+ bus/connection.c | 166 ++++++++++++++++++++++++++++--
  bus/connection.h |  19 +++-
- bus/dispatch.c   | 158 +++++++++++++++++++++-------
+ bus/dispatch.c   | 122 ++++++++++++++++++----
  bus/dispatch.h   |  11 +-
  bus/driver.c     |   2 +-
  bus/policy.c     |   6 ++
- 11 files changed, 709 insertions(+), 64 deletions(-)
+ 11 files changed, 685 insertions(+), 46 deletions(-)
 
 diff --git a/bus/activation.c b/bus/activation.c
-index 0722384..be2bc40 100644
+index 8c43941..308bf41 100644
 --- a/bus/activation.c
 +++ b/bus/activation.c
-@@ -1197,7 +1197,7 @@ bus_activation_send_pending_auto_activation_messages (BusActivation  *activation
-           switch (bus_dispatch_matches (transaction,
-                                         entry->connection,
-                                         addressed_recipient,
--                                        entry->activation_message, &error))
-+                                        entry->activation_message, NULL, &error))
+@@ -1198,7 +1198,7 @@ bus_activation_send_pending_auto_activation_messages (BusActivation  *activation
+           res = bus_dispatch_matches (transaction,
+                                       entry->connection,
+                                       addressed_recipient,
+-                                      entry->activation_message, &error);
++                                      entry->activation_message, NULL, &error);
+           if (res == BUS_RESULT_FALSE)
              {
-             case BUS_RESULT_TRUE:
-               break;
-@@ -2070,7 +2070,7 @@ bus_activation_activate_service (BusActivation  *activation,
+               /* If permission is denied, we just want to return the error
+@@ -2066,7 +2066,7 @@ bus_activation_activate_service (BusActivation  *activation,
                                 entry->systemd_service);
                /* Wonderful, systemd is connected, let's just send the msg */
-               switch (bus_dispatch_matches (activation_transaction, NULL, bus_service_get_primary_owners_connection (service),
--                                            message, error))
-+                                            message, NULL, error))
-                 {
-                 case BUS_RESULT_TRUE:
-                   retval = TRUE;
+               res = bus_dispatch_matches (activation_transaction, NULL, bus_service_get_primary_owners_connection (service),
+-                                            message, error);
++                                          message, NULL, error);
+ 
+               if (res == BUS_RESULT_TRUE)
+                 retval = TRUE;
 diff --git a/bus/bus.c b/bus/bus.c
-index 1fc9238..6d51b0b 100644
+index ac9ea8d..b478b8e 100644
 --- a/bus/bus.c
 +++ b/bus/bus.c
-@@ -1708,17 +1708,9 @@ bus_context_check_security_policy (BusContext          *context,
-   }
+@@ -1704,17 +1704,9 @@ bus_context_check_security_policy (BusContext          *context,
+     }
  
    /* See if limits on size have been exceeded */
 -  if (proposed_recipient &&
@@ -77,7 +77,7 @@ index 1fc9238..6d51b0b 100644
  
    /* Record that we will allow a reply here in the future (don't
     * bother if the recipient is the bus or this is an eavesdropping
-@@ -1773,3 +1765,42 @@ bus_context_check_all_watches (BusContext *context)
+@@ -1769,3 +1761,41 @@ bus_context_check_all_watches (BusContext *context)
        _dbus_server_toggle_all_watches (server, enabled);
      }
  }
@@ -99,13 +99,12 @@ index 1fc9238..6d51b0b 100644
 +      proposed_recipient, requested_reply, log, privilege, error);
 +}
 +
-+dbus_bool_t   bus_context_check_recipient_message_limits (BusContext *context,
-+                                                          DBusConnection *recipient,
-+                                                          DBusConnection *sender,
-+                                                          DBusMessage *message,
-+                                                          dbus_bool_t requested_reply,
-+                                                          DBusError *error)
-+
++dbus_bool_t bus_context_check_recipient_message_limits (BusContext *context,
++                                                        DBusConnection *recipient,
++                                                        DBusConnection *sender,
++                                                        DBusMessage *message,
++                                                        dbus_bool_t requested_reply,
++                                                        DBusError *error)
 +{
 +  if (recipient &&
 +       ((dbus_connection_get_outgoing_size (recipient) > context->limits.max_outgoing_bytes) ||
@@ -121,12 +120,12 @@ index 1fc9238..6d51b0b 100644
 +  return TRUE;
 +}
 diff --git a/bus/bus.h b/bus/bus.h
-index 040e3c7..54de1af 100644
+index 78084dd..27a5e49 100644
 --- a/bus/bus.h
 +++ b/bus/bus.h
-@@ -151,4 +151,23 @@ BusResult         bus_context_check_security_policy              (BusContext
+@@ -148,4 +148,23 @@ BusResult         bus_context_check_security_policy              (BusContext
+                                                                   DBusError           *error,
                                                                    BusDeferredMessage **deferred_message);
- void              bus_context_check_all_watches                  (BusContext       *context);
  
 +dbus_bool_t       bus_context_check_recipient_message_limits     (BusContext *context,
 +                                                                  DBusConnection *recipient,
@@ -149,7 +148,7 @@ index 040e3c7..54de1af 100644
 +
  #endif /* BUS_BUS_H */
 diff --git a/bus/check.c b/bus/check.c
-index a5dbaff..baff981 100644
+index cd6a74b..733763a 100644
 --- a/bus/check.c
 +++ b/bus/check.c
 @@ -49,6 +49,9 @@ typedef struct BusDeferredMessage
@@ -162,11 +161,10 @@ index a5dbaff..baff981 100644
    dbus_bool_t full_dispatch;
    BusDeferredMessageStatus status;
    BusResult response;
-@@ -122,6 +125,89 @@ bus_check_enable_dispatch_callback (BusDeferredMessage *deferred_message,
-   _dbus_connection_enable_dispatch(deferred_message->sender);
+@@ -136,6 +139,89 @@ bus_check_enable_dispatch_callback (BusDeferredMessage *deferred_message,
  }
  
-+static void
+ static void
 +bus_check_queued_message_reply_callback (BusDeferredMessage *deferred_message,
 +                                         BusResult result)
 +{
@@ -249,10 +247,11 @@ index a5dbaff..baff981 100644
 +  return TRUE;
 +}
 +
- void
- bus_deferred_message_disable_sender (BusDeferredMessage *deferred_message)
++static void
+ deferred_message_free_function(void *data)
  {
-@@ -132,6 +218,20 @@ bus_deferred_message_disable_sender (BusDeferredMessage *deferred_message)
+   BusDeferredMessage *deferred_message = (BusDeferredMessage *)data;
+@@ -159,6 +245,20 @@ bus_deferred_message_disable_sender (BusDeferredMessage *deferred_message)
    deferred_message->response_callback = bus_check_enable_dispatch_callback;
  }
  
@@ -273,7 +272,7 @@ index a5dbaff..baff981 100644
  #ifdef DBUS_ENABLE_EMBEDDED_TESTS
  dbus_bool_t (*bus_check_test_override) (DBusConnection *connection,
                                          const char *privilege);
-@@ -196,6 +296,9 @@ BusDeferredMessage *bus_deferred_message_new (DBusMessage *message,
+@@ -257,6 +357,9 @@ BusDeferredMessage *bus_deferred_message_new (DBusMessage *message,
    deferred_message->addressed_recipient = addressed_recipient != NULL ? dbus_connection_ref(addressed_recipient) : NULL;
    deferred_message->proposed_recipient = proposed_recipient != NULL ? dbus_connection_ref(proposed_recipient) : NULL;
    deferred_message->message = dbus_message_ref(message);
@@ -283,7 +282,7 @@ index a5dbaff..baff981 100644
    deferred_message->response = response;
    deferred_message->status = 0;
    deferred_message->full_dispatch = FALSE;
-@@ -232,12 +335,219 @@ bus_deferred_message_unref (BusDeferredMessage *deferred_message)
+@@ -293,12 +396,215 @@ bus_deferred_message_unref (BusDeferredMessage *deferred_message)
       }
  }
  
@@ -351,33 +350,29 @@ index a5dbaff..baff981 100644
 +  if (!deferred_message->full_dispatch)
 +    {
 +      result = deferred_message->response;
-+      switch (result)
++      if (result == BUS_RESULT_TRUE)
 +        {
-+        case BUS_RESULT_TRUE:
 +          if (!bus_context_check_recipient_message_limits(context, deferred_message->proposed_recipient,
 +               deferred_message->sender, deferred_message->message, deferred_message->requested_reply, &error))
 +              result = BUS_RESULT_FALSE;
-+          break;
-+        case BUS_RESULT_FALSE:
-+          break;
-+        case BUS_RESULT_LATER:
-+          {
-+            BusDeferredMessage *deferred_message2;
-+            result = bus_context_check_security_policy (context, transaction,
-+                                                        deferred_message->sender,
-+                                                        deferred_message->addressed_recipient,
-+                                                        deferred_message->proposed_recipient,
-+                                                        deferred_message->message, NULL,
-+                                                        &deferred_message2);
++        }
++      else if (result == BUS_RESULT_LATER)
++        {
++          BusDeferredMessage *deferred_message2;
++          result = bus_context_check_security_policy (context, transaction,
++                                                      deferred_message->sender,
++                                                      deferred_message->addressed_recipient,
++                                                      deferred_message->proposed_recipient,
++                                                      deferred_message->message, NULL,
++                                                      &deferred_message2);
 +
-+            if (result == BUS_RESULT_LATER)
-+              {
-+                /* prepend at recipient */
-+                if (!bus_deferred_message_queue_at_recipient(deferred_message2, transaction,
-+                    FALSE, TRUE))
-+                  result = BUS_RESULT_FALSE;
-+              }
-+          }
++          if (result == BUS_RESULT_LATER)
++            {
++              /* prepend at recipient */
++              if (!bus_deferred_message_queue_at_recipient(deferred_message2, transaction,
++                  FALSE, TRUE))
++                result = BUS_RESULT_FALSE;
++            }
 +        }
 +
 +      /* silently drop messages on access denial */
@@ -503,7 +498,7 @@ index a5dbaff..baff981 100644
  void
  bus_deferred_message_response_received (BusDeferredMessage *deferred_message,
                                          BusResult result)
-@@ -247,3 +557,4 @@ bus_deferred_message_response_received (BusDeferredMessage *deferred_message,
+@@ -308,3 +614,4 @@ bus_deferred_message_response_received (BusDeferredMessage *deferred_message,
        deferred_message->response_callback(deferred_message, result);
      }
  }
@@ -551,7 +546,7 @@ index f381789..3c6b2a1 100644
  extern dbus_bool_t (*bus_check_test_override) (DBusConnection *connection,
                                                 const char *privilege);
 diff --git a/bus/connection.c b/bus/connection.c
-index 12d8147..3f50e90 100644
+index a6d87e5..d2ebe82 100644
 --- a/bus/connection.c
 +++ b/bus/connection.c
 @@ -30,10 +30,12 @@
@@ -584,32 +579,29 @@ index 12d8147..3f50e90 100644
    bus_dispatch_remove_connection (connection);
    
    /* no more watching */
-@@ -2123,6 +2128,7 @@ bus_transaction_send_from_driver (BusTransaction *transaction,
-                                   DBusConnection *connection,
+@@ -2132,6 +2137,7 @@ bus_transaction_send_from_driver (BusTransaction *transaction,
                                    DBusMessage    *message)
  {
+   BusResult res;
 +  BusDeferredMessage *deferred_message;
    /* We have to set the sender to the driver, and have
     * to check security policy since it was not done in
     * dispatch.c
-@@ -2154,7 +2160,7 @@ bus_transaction_send_from_driver (BusTransaction *transaction,
-   switch (bus_context_check_security_policy (bus_transaction_get_context (transaction),
-                                              transaction,
-                                              NULL, connection, connection, message, NULL,
--                                             NULL))
-+                                             &deferred_message))
+@@ -2163,23 +2169,25 @@ bus_transaction_send_from_driver (BusTransaction *transaction,
+   res = bus_context_check_security_policy (bus_transaction_get_context (transaction),
+                                            transaction,
+                                            NULL, connection, connection, message, NULL,
+-                                           NULL);
++                                           &deferred_message);
+ 
+   if (res == BUS_RESULT_FALSE)
+     return TRUE;
+   else if (res == BUS_RESULT_LATER)
      {
-     case BUS_RESULT_TRUE:
-       break;
-@@ -2162,18 +2168,19 @@ bus_transaction_send_from_driver (BusTransaction *transaction,
-       return TRUE;
-       break;
-     case BUS_RESULT_LATER:
 -      _dbus_verbose ("Cannot delay sending message from bus driver, dropping it\n");
 -      return TRUE;
--      break;
 +      if (!bus_deferred_message_queue_at_recipient(deferred_message, transaction, FALSE, FALSE))
-+          return FALSE;
++        return FALSE;
 +      return TRUE; /* pretend to have sent it */
      }
  
@@ -626,7 +618,7 @@ index 12d8147..3f50e90 100644
  {
    MessageToSend *to_send;
    BusConnectionData *d;
-@@ -2199,7 +2206,28 @@ bus_transaction_send (BusTransaction *transaction,
+@@ -2205,7 +2213,28 @@ bus_transaction_send (BusTransaction *transaction,
    
    d = BUS_CONNECTION_DATA (connection);
    _dbus_assert (d != NULL);
@@ -656,7 +648,7 @@ index 12d8147..3f50e90 100644
    to_send = dbus_new (MessageToSend, 1);
    if (to_send == NULL)
      {
-@@ -2451,6 +2479,131 @@ bus_transaction_add_cancel_hook (BusTransaction               *transaction,
+@@ -2457,6 +2486,131 @@ bus_transaction_add_cancel_hook (BusTransaction               *transaction,
    return TRUE;
  }
  
@@ -826,7 +818,7 @@ index 7433746..8d49b25 100644
                                                    DBusConnection               *connection,
                                                    DBusMessage                  *message);
 diff --git a/bus/dispatch.c b/bus/dispatch.c
-index bb81cc0..143ff3f 100644
+index 6b0eadc..9972e76 100644
 --- a/bus/dispatch.c
 +++ b/bus/dispatch.c
 @@ -33,8 +33,10 @@
@@ -887,54 +879,32 @@ index bb81cc0..143ff3f 100644
  {
    DBusError tmp_error;
    BusConnections *connections;
-@@ -110,39 +123,107 @@ bus_dispatch_matches (BusTransaction *transaction,
+@@ -110,17 +123,78 @@ bus_dispatch_matches (BusTransaction *transaction,
    /* First, send the message to the addressed_recipient, if there is one. */
    if (addressed_recipient != NULL)
      {
--      switch (bus_context_check_security_policy (context, transaction,
--                                                 sender, addressed_recipient,
--                                                 addressed_recipient,
--                                                 message, error,
--                                                 &deferred_message))
+-      BusResult res;
+-      res = bus_context_check_security_policy (context, transaction,
+-                                               sender, addressed_recipient,
+-                                               addressed_recipient,
+-                                               message, error,
+-                                               &deferred_message);
+-      if (res == BUS_RESULT_FALSE)
 +      BusResult result;
 +      /* To maintain message order message needs to be appended at the recipient if there are already
 +       *  deferred messages and we are not doing deferred dispatch
 +       */
 +      if (dispatched_deferred_message == NULL && bus_connection_has_deferred_messages(addressed_recipient))
-         {
--          case BUS_RESULT_TRUE:
--            break;
--          case BUS_RESULT_FALSE:
--            return BUS_RESULT_FALSE;
--          case BUS_RESULT_LATER:
++        {
 +          deferred_message = bus_deferred_message_new(message, sender,
 +              addressed_recipient, addressed_recipient, BUS_RESULT_LATER);
 +
 +          if (deferred_message == NULL)
-             {
--              BusDeferredMessageStatus status;
--              status = bus_deferred_message_get_status(deferred_message);
++            {
 +              BUS_SET_OOM(error);
 +              return BUS_RESULT_FALSE;
 +            }
- 
--              if (status & BUS_DEFERRED_MESSAGE_CHECK_SEND)
--                {
--                  /* send rule result not available - disable dispatching messages from the sender */
--                  bus_deferred_message_disable_sender(deferred_message);
--                  return BUS_RESULT_LATER;
--                }
--              else if (status & BUS_DEFERRED_MESSAGE_CHECK_RECEIVE)
--                {
--                   dbus_set_error (error, DBUS_ERROR_ACCESS_DENIED,
--                              "Rejecting message because time is needed to check security policy");
--                   return BUS_RESULT_FALSE;
--                }
--              else
--                {
--                  _dbus_verbose("deferred message has no status field set to send or receive unexpectedly\n");
--                  return BUS_RESULT_FALSE;
--                }
++
 +          if (!bus_deferred_message_queue_at_recipient(deferred_message, transaction, TRUE, FALSE))
 +            {
 +              bus_deferred_message_unref(deferred_message);
@@ -975,56 +945,51 @@ index bb81cc0..143ff3f 100644
 +            sender, addressed_recipient, addressed_recipient, message, error,
 +            &deferred_message);
 +
-+      switch (result)
-+        {
-+        case BUS_RESULT_TRUE:
-+          break;
-+        case BUS_RESULT_FALSE:
-+          return BUS_RESULT_FALSE;
-+        case BUS_RESULT_LATER:
-+          {
-+            BusDeferredMessageStatus status;
++      if (result == BUS_RESULT_FALSE)
+         return BUS_RESULT_FALSE;
+-      else if (res == BUS_RESULT_LATER)
++      else if (result == BUS_RESULT_LATER)
+         {
+           BusDeferredMessageStatus status;
 +
-+            if (dispatched_deferred_message != NULL)
-+              {
-+                /* for deferred dispatch prepend message at the recipient */
-+                if (!bus_deferred_message_queue_at_recipient(deferred_message, transaction, TRUE, TRUE))
-+                  {
-+                    BUS_SET_OOM(error);
-+                    return BUS_RESULT_FALSE;
-+                  }
-+                return BUS_RESULT_TRUE; /* pretend to have sent it */
-+              }
-+
-+            status = bus_deferred_message_get_status(deferred_message);
-+
-+            if (status & BUS_DEFERRED_MESSAGE_CHECK_SEND)
-+              {
-+                /* send rule result not available - disable dispatching messages from the sender */
-+                bus_deferred_message_disable_sender(deferred_message);
-+                return BUS_RESULT_LATER;
-+              }
-+            else if (status & BUS_DEFERRED_MESSAGE_CHECK_RECEIVE)
-+              {
-+                /* receive rule result not available - queue message at the recipient */
-+                if (!bus_deferred_message_queue_at_recipient(deferred_message, transaction, TRUE, FALSE))
-+                  {
-+                    BUS_SET_OOM(error);
-+                    return BUS_RESULT_FALSE;
-+                  }
-+
-+                return BUS_RESULT_TRUE; /* pretend to have sent it */
-+              }
-+            else
++          if (dispatched_deferred_message != NULL)
 +            {
-+                _dbus_verbose("deferred message has no status field set unexpectedly\n");
-+                return BUS_RESULT_FALSE;
-             }
-+          }
-         }
++              /* for deferred dispatch prepend message at the recipient */
++              if (!bus_deferred_message_queue_at_recipient(deferred_message, transaction, TRUE, TRUE))
++                {
++                  BUS_SET_OOM(error);
++                  return BUS_RESULT_FALSE;
++                }
++              return BUS_RESULT_TRUE; /* pretend to have sent it */
++            }
++
+           status = bus_deferred_message_get_status(deferred_message);
  
-       if (dbus_message_contains_unix_fds (message) &&
-@@ -157,7 +238,8 @@ bus_dispatch_matches (BusTransaction *transaction,
+           if (status & BUS_DEFERRED_MESSAGE_CHECK_SEND)
+@@ -131,13 +205,18 @@ bus_dispatch_matches (BusTransaction *transaction,
+             }
+           else if (status & BUS_DEFERRED_MESSAGE_CHECK_RECEIVE)
+             {
+-              dbus_set_error (error, DBUS_ERROR_ACCESS_DENIED,
+-                              "Rejecting message because time is needed to check security policy");
+-              return BUS_RESULT_FALSE;
++              /* receive rule result not available - queue message at the recipient */
++              if (!bus_deferred_message_queue_at_recipient(deferred_message, transaction, TRUE, FALSE))
++                {
++                  BUS_SET_OOM(error);
++                  return BUS_RESULT_FALSE;
++                }
++
++              return BUS_RESULT_TRUE; /* pretend to have sent it */
+             }
+           else
+             {
+-              _dbus_verbose("deferred message has no status field set to send or receive unexpectedly\n");
++              _dbus_verbose("deferred message has no status field set unexpectedly\n");
+               return BUS_RESULT_FALSE;
+             }
+         }
+@@ -154,7 +233,8 @@ bus_dispatch_matches (BusTransaction *transaction,
          }
  
        /* Dispatch the message */
@@ -1034,15 +999,15 @@ index bb81cc0..143ff3f 100644
          {
            BUS_SET_OOM (error);
            return BUS_RESULT_FALSE;
-@@ -386,7 +468,7 @@ bus_dispatch (DBusConnection *connection,
-    * addressed_recipient == NULL), and match it against other connections'
+@@ -385,7 +465,7 @@ bus_dispatch (DBusConnection *connection,
     * match rules.
     */
--  switch (bus_dispatch_matches (transaction, connection, addressed_recipient, message, &error))
-+  switch (bus_dispatch_matches (transaction, connection, addressed_recipient, message, NULL, &error))
+   if (BUS_RESULT_LATER == bus_dispatch_matches (transaction, connection, addressed_recipient,
+-                                                message, &error))
++                                                message, NULL, &error))
      {
-     case BUS_RESULT_TRUE:
-     case BUS_RESULT_FALSE:
+       /* Roll back and dispatch the message once the policy result is available */
+       bus_transaction_cancel_and_free (transaction);
 diff --git a/bus/dispatch.h b/bus/dispatch.h
 index afba6a2..f6102e8 100644
 --- a/bus/dispatch.h
@@ -1065,23 +1030,23 @@ index afba6a2..f6102e8 100644
  
  #endif /* BUS_DISPATCH_H */
 diff --git a/bus/driver.c b/bus/driver.c
-index a9e670e..914c681 100644
+index 4dbce3d..2fb1385 100644
 --- a/bus/driver.c
 +++ b/bus/driver.c
-@@ -129,7 +129,7 @@ bus_driver_send_service_owner_changed (const char     *service_name,
+@@ -130,7 +130,7 @@ bus_driver_send_service_owner_changed (const char     *service_name,
  
    _dbus_assert (dbus_message_has_signature (message, "sss"));
  
--  switch (bus_dispatch_matches (transaction, NULL, NULL, message, error))
-+  switch (bus_dispatch_matches (transaction, NULL, NULL, message, NULL, error))
-     {
-     case BUS_RESULT_TRUE:
-       retval = TRUE;
+-  res = bus_dispatch_matches (transaction, NULL, NULL, message, error);
++  res = bus_dispatch_matches (transaction, NULL, NULL, message, NULL, error);
+   if (res == BUS_RESULT_TRUE)
+     retval = TRUE;
+   else if (res == BUS_RESULT_FALSE)
 diff --git a/bus/policy.c b/bus/policy.c
-index 825d754..914b588 100644
+index ec888df..448147f 100644
 --- a/bus/policy.c
 +++ b/bus/policy.c
-@@ -1196,6 +1196,9 @@ bus_client_policy_check_can_send (DBusConnection      *sender,
+@@ -1071,6 +1071,9 @@ bus_client_policy_check_can_send (DBusConnection      *sender,
  
        result = bus_check_privilege(check, message, sender, addressed_recipient, receiver,
            privilege, BUS_DEFERRED_MESSAGE_CHECK_SEND, deferred_message);
@@ -1091,7 +1056,7 @@ index 825d754..914b588 100644
      }
    else
      privilege = NULL;
-@@ -1430,6 +1433,9 @@ bus_client_policy_check_can_receive (BusClientPolicy     *policy,
+@@ -1305,6 +1308,9 @@ bus_client_policy_check_can_receive (BusClientPolicy     *policy,
  
        result = bus_check_privilege(check, message, sender, addressed_recipient, proposed_recipient,
                   privilege, BUS_DEFERRED_MESSAGE_CHECK_RECEIVE, deferred_message);
