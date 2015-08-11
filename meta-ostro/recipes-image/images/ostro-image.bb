@@ -90,3 +90,6 @@ IMAGE_INSTALL += "ima-evm-utils"
 # explicit dependency set in recipes. Use EXTRA_IMAGEDEPENDS to ensure
 # parted-native gets built.
 EXTRA_IMAGEDEPENDS += "parted-native"
+
+# Ensure that images preserve Smack labels and IMA/EVM.
+inherit xattr-images
