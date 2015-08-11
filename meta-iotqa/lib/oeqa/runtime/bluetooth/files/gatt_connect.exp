@@ -1,0 +1,18 @@
+#!/usr/bin/expect
+set timeout 200
+set login   0
+set mac     [lindex $argv 0]
+spawn gatttool -b $mac -I
+ expect {
+ "CON"
+   {
+    send "exit\n"; exp_continue
+   }
+ "$mac"
+   {
+    if {$login==0} {set login 1;send "connect\n"; exp_continue} else {send "exit\n"; exp_continue}
+   }
+ eof
+   {}
+ }
+

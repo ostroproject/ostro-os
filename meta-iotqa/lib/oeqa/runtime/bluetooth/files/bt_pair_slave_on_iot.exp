@@ -1,0 +1,28 @@
+#!/usr/bin/expect
+set timeout 200
+set ip    [lindex $argv 0] 
+spawn ssh root@$ip bluetoothctl
+ expect {
+ "NEW* Controller"
+   {
+    send "power on\n"; 
+    send "discoverable on\n";
+    send "pairable on\n";
+    send "agent on\n"; exp_continue
+   }
+ "Agent registered"
+   {
+    send "default-agent\n"; exp_continue
+   }
+ "agent* Confirm passkey"
+   {
+    send "yes\n"; exp_continue
+   }
+ "CHG* Connected: no"
+   {
+    send "exit\n"; exp_continue
+   }
+ eof
+   {}
+ }
+
