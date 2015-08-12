@@ -22,12 +22,11 @@ S = "${WORKDIR}"
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 INSANE_SKIP_${PN} = "staticdev"
 
-do_compile () {
-    npm install --ignore-scripts --arch=${TARGET_ARCH} --production
-}
+# manual install before npm-install.bbclass lands
 
 do_install () {
-    npm install -g --arch=${TARGET_ARCH} --prefix ${D}${IOTAPP_INSTALLATION_PATH}
+    mkdir -p ${D}${IOTAPP_INSTALLATION_PATH}/lib/node_modules/${PN}
+    cp example.js package.json COPYING.MIT ${D}${IOTAPP_INSTALLATION_PATH}/lib/node_modules/${PN}/
 }
 
 FILES_${PN} = "${IOTAPP_INSTALLATION_PATH}/lib/node_modules/example-app"
