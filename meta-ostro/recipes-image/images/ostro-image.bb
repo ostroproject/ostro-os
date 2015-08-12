@@ -14,6 +14,7 @@ IMAGE_INSTALL = " \
                 packagegroup-user-management \
                 iot-app-fw iot-app-fw-launcher \
                 sensord \
+                iproute2 \
 		"
 
 IMAGE_FEATURES_append = " \
