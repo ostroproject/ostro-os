@@ -47,9 +47,11 @@ class CommWiFiConect(oeRuntimeTest):
 
         # Do connection
         exp = os.path.join(os.path.dirname(__file__), "files/wifi_hidden_connect.exp")
-        cmd = "%s %s %s %s %s %s" % (exp, target_ip, "connmanctl", self.hidden_service, ssid, pwd) 
+        cmd = "expect %s %s %s %s %s %s" % (exp, target_ip, "connmanctl", self.hidden_service, ssid, pwd) 
         status, output = shell_cmd_timeout(cmd, timeout=60)
+        self.assertEqual(status, 2, msg="Error messages: %s" % output)
         # Check ip address by ifconfig command
+        time.sleep(3)
         (status, wifi_interface) = self.target.run("ifconfig | grep '^wlp' | awk '{print $1}'")
         (status, output) = self.target.run("ifconfig %s | grep 'inet addr:'" % wifi_interface)
         self.assertEqual(status, 0, msg="Error messages: %s" % output)

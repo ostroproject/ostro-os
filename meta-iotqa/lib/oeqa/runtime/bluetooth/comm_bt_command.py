@@ -26,7 +26,7 @@ class CommBTTest(oeRuntimeTest):
         # On Host, get to know target BT mac and perform pair_master
         master_exp = os.path.join(os.path.dirname(__file__), "files/bt_pair_master.exp")
         (status, target_btmac) = self.target.run("hciconfig | grep 'BD Address' | awk '{print $3}'")
-        cmd = "%s %s" % (master_exp, target_btmac)
+        cmd = "expect %s %s" % (master_exp, target_btmac)
         status, output = shell_cmd_timeout(cmd, timeout=200)
 
         # On Host, check paired devices to see if IoT is in
@@ -75,7 +75,7 @@ class CommBTTest(oeRuntimeTest):
         # Host does gatttool commands
         (status, target_btmac) = self.target.run("hciconfig | grep 'BD Address' | awk '{print $3}'")
         connect_exp = os.path.join(os.path.dirname(__file__), "files/gatt_connect.exp")
-        cmd = "%s %s" % (connect_exp, target_btmac)
+        cmd = "expect %s %s" % (connect_exp, target_btmac)
         status, output = shell_cmd_timeout(cmd, timeout=200)
         if ("CON" in output):
             print "connect succeeds"

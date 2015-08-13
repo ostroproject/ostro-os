@@ -1,7 +1,7 @@
 #!/usr/bin/expect
 set timeout 200
 set ip    [lindex $argv 0] 
-spawn ssh root@$ip bluetoothctl
+spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR bluetoothctl
  expect {
  "NEW* Controller"
    {
