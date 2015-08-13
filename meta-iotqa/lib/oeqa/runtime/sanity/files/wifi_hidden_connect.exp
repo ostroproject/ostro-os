@@ -7,7 +7,7 @@ set service  [lindex $argv 2]
 set ssid     [lindex $argv 3]
 set password [lindex $argv 4]
 
-spawn ssh root@$ip "$cmd"
+spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR "$cmd" 
  expect {
  "Agent registered"
    {
@@ -27,7 +27,7 @@ spawn ssh root@$ip "$cmd"
    }
  "Connected wifi*"
    {
-    send "exit\n"
+    send "exit\n"; exit 2
    }
  "connmanctl*"
    {
