@@ -1,1 +1,2 @@
 oeqa.runtime.bluetooth.comm_bt_hcitest
+oeqa.runtime.bluetooth.comm_bt_command
