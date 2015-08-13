@@ -7,7 +7,5 @@ After=tlm.service
 WantedBy=multi-user.target
 
 [Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStart=/usr/bin/tlm-client -l --seat seat_placeholder --username example-corp --password automatic_login
-ExecStop=/usr/bin/tlm-client -o --seat seat_placeholder
+Type=simple
+ExecStart=/usr/bin/tlm-client -k -l --seat seat_placeholder --username example-corp --password automatic_login
