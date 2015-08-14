@@ -1,0 +1,17 @@
+#!/usr/bin/expect
+set timeout 100
+set ip      [lindex $argv 0]
+spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR bluetoothctl
+ expect {
+ "NEW* Controller"
+   {
+    send "power on\n"; exp_continue
+   }
+ "Changing power on succeeded"
+   {
+    send "exit \n"; exit 2
+   }
+ eof
+   {}
+ }
+

@@ -14,9 +14,13 @@ spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -
    {
     send "default-agent\n"; exp_continue
    }
- "agent* Confirm passkey"
+ "Accept pairing"
    {
     send "yes\n"; exp_continue
+   }
+ "agent* Confirm passkey"
+   {
+    send "yes\n"; sleep 5; exit 2
    }
  "CHG* Connected: no"
    {

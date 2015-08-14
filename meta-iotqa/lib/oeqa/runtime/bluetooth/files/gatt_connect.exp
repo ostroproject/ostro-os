@@ -6,7 +6,7 @@ spawn gatttool -b $mac -I
  expect {
  "CON"
    {
-    send "exit\n"; exp_continue
+    exit 2
    }
  "$mac"
    {
