@@ -1,0 +1,26 @@
+diff --git a/build_common/SConscript b/build_common/SConscript
+index 575288c..373b2a5 100644
+--- a/build_common/SConscript
++++ b/build_common/SConscript
+@@ -22,7 +22,7 @@ os_arch_map = {
+ 		'darwin': ['i386', 'x86_64'],
+ 		'ios': ['i386', 'x86_64', 'armv7', 'armv7s', 'arm64'],
+ 		'arduino': ['avr', 'arm'],
+-		'yocto': ['i586', 'x86_64', 'arm', 'powerpc', 'powerpc64', 'mips', 'mipsel'],
++		'yocto': ['i586', 'i686', 'x86_64', 'arm', 'powerpc', 'powerpc64', 'mips', 'mipsel'],
+ 		}
+ 
+ host = platform.system().lower()
+diff --git a/resource/csdk/connectivity/build/SConscript b/resource/csdk/connectivity/build/SConscript
+index 8117205..aebd2bf 100644
+--- a/resource/csdk/connectivity/build/SConscript
++++ b/resource/csdk/connectivity/build/SConscript
+@@ -22,7 +22,7 @@ os_arch_map = {
+ 		'darwin': ['i386', 'x86_64'],
+ 		'ios': ['i386', 'x86_64', 'armv7', 'armv7s', 'arm64'],
+ 		'arduino': ['avr', 'arm'],
+-                'yocto': ['i586', 'x86_64', 'arm', 'powerpc', 'powerpc64', 'mips', 'mipsel'],
++                'yocto': ['i586', 'i686', 'x86_64', 'arm', 'powerpc', 'powerpc64', 'mips', 'mipsel'],
+ 		}
+ 
+ host = platform.system().lower()

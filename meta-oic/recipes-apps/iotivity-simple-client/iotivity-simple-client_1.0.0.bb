@@ -1,5 +1,3 @@
-inherit scons
-
 SUMMARY = "Iotivity Simple Client"
 DESCRIPTION = "Iotivity Simple Client example which talks to the Simple Server example."
 HOMEPAGE = "https://www.iotivity.org/"
@@ -18,11 +16,13 @@ IOTIVITY_BIN_DIR_D = "${D}${IOTIVITY_BIN_DIR}"
 
 do_install() {
     install -d ${IOTIVITY_BIN_DIR_D}/apps/iotivity-simple-client
-    install -c -m 555 ${S}/output/simpleclient ${IOTIVITY_BIN_DIR_D}/apps/iotivity-simple-client
+    install -c -m 555 ${S}/simpleclient ${IOTIVITY_BIN_DIR_D}/apps/iotivity-simple-client
+    install -c -m 444 ${S}/oic_svr_db_client.json ${IOTIVITY_BIN_DIR_D}/apps/iotivity-simple-client
 }
 
-FILES_${PN} = "${IOTIVITY_BIN_DIR}/apps/iotivity-simple-client/simpleclient"
+FILES_${PN} = "${IOTIVITY_BIN_DIR}/apps/iotivity-simple-client/simpleclient \
+               ${IOTIVITY_BIN_DIR}/apps/iotivity-simple-client/oic_svr_db_client.json"
 FILES_${PN}-dbg = "${IOTIVITY_BIN_DIR}/apps/iotivity-simple-client/.debug"
-RDEPENDS_${PN} += "iotivity"
+RDEPENDS_${PN} += "iotivity-resource"
 BBCLASSEXTEND = "native nativesdk"
 
