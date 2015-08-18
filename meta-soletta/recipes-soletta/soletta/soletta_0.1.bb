@@ -7,10 +7,9 @@ SECTION = "examples"
 DEPENDS = "glib-2.0 libpcre python3-jsonschema"
 LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://COPYING;md5=53eeaddf328b23e2355816e257450eaa"
-PV = "0.0+git${SRCPV}"
-SRCREV = "${AUTOREV}"
+PV = "1_beta2"
 
-SRC_URI = "git://github.com/solettaproject/soletta.git;protocol=git;branch=master"
+SRC_URI = "git://github.com/solettaproject/soletta.git;protocol=git;tag=v${PV}"
 
 #Kbuild config file
 SRC_URI += " file://config"
@@ -72,6 +71,8 @@ INHIBIT_DEFAULT_DEPS = "1"
 B = "${WORKDIR}/git"
 
 do_configure_prepend() {
+   export TARGETCC="${CC}"
+   export TARGETAR="${AR}"
    #Depending in what features are enabled, We must change some configurations.
    if [ "${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'systemd', '', d)}" = "systemd" ]; then
       echo "HAVE_SYSTEMD=y" >> ${WORKDIR}/config
