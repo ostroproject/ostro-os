@@ -14,7 +14,8 @@ S = "${WORKDIR}/git"
 INSANE_SKIP_${PN} += "ldflags staticdev"
 
 do_compile_prepend() {
-    export OCTBSTACK_CFLAGS="-I${STAGING_DIR_TARGET}${includedir}/iotivity/resource/stack"
+    OCTBDIR="${STAGING_DIR_TARGET}${includedir}/iotivity/resource"
+    export OCTBSTACK_CFLAGS="-I${OCTBDIR}/stack -I${OCTBDIR}/logger -I${OCTBDIR}/oc_logger -I${OCTBDIR}/ocrandom"
     export OCTBSTACK_LIBS="-loctbstack"
     export CFLAGS="$CFLAGS -fPIC"
     export CXXFLAGS="$CXXFLAGS -fPIC"
