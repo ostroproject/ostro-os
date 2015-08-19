@@ -40,28 +40,6 @@ class SanityTestNodejs(oeRuntimeTest):
             version_num >= 1035,
             msg='node version must not be less than 0.10.35!')
 
-    def test_npm_exists(self):
-        (status, _) = self.target.run('which npm')
-        self.assertEqual(
-            status,
-            0,
-            msg='npm package not in PATH or on target.')
-
-    def test_npm_version(self):
-        (status, output) = self.target.run('npm -v')
-        self.assertEqual(
-            status,
-            0,
-            msg='v option for npm is invalid or npm does not work.')
-        target_version = output.strip()
-        (major, minor, patch) = target_version.split('.')
-        self.assertTrue(
-            major.isdigit() and minor.isdigit() and patch.isdigit(),
-            msg='The node version number is invalid!')
-        version_num = int(major) * 10000 + int(minor) * 100 + int(patch)
-        self.assertTrue(
-            version_num >= 10428,
-            msg='npm version must not be less than 1.4.28!')
 
     def test_node_helloworld(self):
         (status, output) = self.target.run('node %s' %
