@@ -15,6 +15,7 @@ IMAGE_INSTALL = " \
                 iot-app-fw iot-app-fw-launcher \
                 sensord \
                 iproute2 \
+                python-modules \
 		"
 
 IMAGE_FEATURES_append = " \
