@@ -12,10 +12,14 @@ SRCREV = "e2cf6cb7235c5bfbaf5cdaaa86b2eb96d104f2f6"
 
 S = "${WORKDIR}/git"
 
+INSANE_SKIP_${PN} += "ldflags staticdev"
+
 do_compile_prepend() {
     OCTBDIR="${STAGING_DIR_TARGET}${includedir}/iotivity/resource"
     export OCTBSTACK_CFLAGS="-I${OCTBDIR}/stack -I${OCTBDIR}/logger -I${OCTBDIR}/oc_logger -I${OCTBDIR}/ocrandom"
     export OCTBSTACK_LIBS="-loctbstack"
+    export CFLAGS="$CFLAGS -fPIC"
+    export CXXFLAGS="$CXXFLAGS -fPIC"
 }
 
 do_compile () {
