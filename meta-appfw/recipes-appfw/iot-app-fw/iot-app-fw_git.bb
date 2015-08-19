@@ -40,6 +40,10 @@ FILES_${PN}-launcher += "${systemd_unitdir}/system"
 PACKAGES =+ "${PN}-test"
 FILES_${PN}-test = "${bindir}/iot-event-test"
 
+# The following would enable iot-launch socket-activation by default on the image
+# SYSTEMD_PACKAGES = "${PN}-launcher"
+# SYSTEMD_SERVICE_${PN}-launcher = "iot-launch.socket"
+
 python set_python_env () {
     # Provide the build environment to distutils during Python
     # extension build and installation only when 'python' is enabled.
