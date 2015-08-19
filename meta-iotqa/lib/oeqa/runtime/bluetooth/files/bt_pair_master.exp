@@ -1,6 +1,6 @@
 #!/usr/bin/expect
 set timeout 200
-set mac    [lindex $argv 0]
+set mac     [lindex $argv 0]
 spawn bluetoothctl
  expect {
  "NEW* Controller"
@@ -40,11 +40,11 @@ spawn bluetoothctl
    }
  "agent* Confirm passkey"
    {
-    send "yes\n"; exp_continue
+    send "yes\n"; sleep 5; exit 2
    }
  "Pairing successful"
    {
-    sleep 1; send "exit\n"; exp_continue
+    sleep 1; send "exit\n"; exit 2
    }
  eof
    {}
