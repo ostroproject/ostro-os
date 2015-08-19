@@ -225,13 +225,13 @@ else
 	dfu-wait no-prompt
 
 	echo "Flashing boot partition (kernel)"
-	flash-command --alt boot -D "${ESC_BASE_DIR}/edison-image-edison.hddimg"
+	flash-command --alt boot -D "${ESC_BASE_DIR}/ostro-image-edison.hddimg"
 
 	echo "Flashing update partition"
-	flash-command --alt update -D "${ESC_BASE_DIR}/edison-image-edison.update.hddimg"
+	flash-command --alt update -D "${ESC_BASE_DIR}/ostro-image-edison.update.hddimg"
 
 	echo "Flashing rootfs, (it can take up to 5 minutes... Please be patient)"
-	flash-command --alt rootfs -D "${ESC_BASE_DIR}/edison-image-edison.ext4" -R
+	flash-command --alt rootfs -D "${ESC_BASE_DIR}/ostro-image-edison.ext4" -R
 
 	echo "Rebooting"
 	echo "U-boot & Kernel System Flash Success..."
