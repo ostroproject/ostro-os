@@ -12,6 +12,12 @@ SRCREV = "e2cf6cb7235c5bfbaf5cdaaa86b2eb96d104f2f6"
 
 S = "${WORKDIR}/git"
 
+do_compile_prepend() {
+    OCTBDIR="${STAGING_DIR_TARGET}${includedir}/iotivity/resource"
+    export OCTBSTACK_CFLAGS="-I${OCTBDIR}/stack -I${OCTBDIR}/logger -I${OCTBDIR}/oc_logger -I${OCTBDIR}/ocrandom"
+    export OCTBSTACK_LIBS="-loctbstack"
+}
+
 do_compile () {
     # changing the home directory to the working directory, the .npmrc will be created in this directory
     export HOME=${WORKDIR}
