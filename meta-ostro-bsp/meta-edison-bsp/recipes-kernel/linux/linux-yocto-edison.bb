@@ -4,6 +4,7 @@ LINUX_VERSION = "3.10.17"
 
 SRC_URI = "git://github.com/01org/edison-linux.git;protocol=git;branch=edison-${LINUX_VERSION};nocheckout=1;name=machine"
 SRC_URI += "file://defconfig"
+#SRC_URI += "file://4.1to3.10-hack.patch"
 
 SRCREV_machine = "503e182c70be3309fa2cdfee390f545d0a8dfe2a"
 
