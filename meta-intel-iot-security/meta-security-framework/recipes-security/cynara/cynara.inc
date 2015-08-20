@@ -27,6 +27,14 @@ EXTRA_OECMAKE += " \
 -DSYSTEMD_SYSTEM_UNITDIR=${systemd_unitdir}/system \
 "
 
+# Explicitly package empty directory. Otherwise Cynara prints warnings
+# at runtime:
+# cyad[198]: Couldn't scan for plugins in </usr/lib/cynara/plugin/service/> : <No such file or directory>
+FILES_${PN}_append = " \
+${libdir}/cynara/plugin/service \
+${libdir}/cynara/plugin/client \
+"
+
 # Testing depends on gmock and gtest. They can be found in meta-oe
 # and are not necessarily available, so this feature is off by default.
 # If gmock from meta-oe is used, then a workaround is needed to avoid
@@ -70,11 +78,12 @@ do_install_append () {
    install -d ${D}${sysconfdir}/cynara/
    install ${S}/conf/creds.conf ${D}/${sysconfdir}/cynara/creds.conf
 
-   # No need to create empty directories...
+   # No need to create empty directories except for those which
+   # Cynara expects to find.
    # install -d ${D}${localstatedir}/cynara/
    # install -d ${D}${prefix}/share/cynara/tests/empty_db
-   # install -d ${D}${prefix}/lib/cynara/plugin/client
-   # install -d ${D}${prefix}/lib/cynara/plugin/service
+   install -d ${D}${libdir}/cynara/plugin/client
+   install -d ${D}${libdir}/cynara/plugin/service
 
    # install db* ${D}${prefix}/share/cynara/tests/
 
