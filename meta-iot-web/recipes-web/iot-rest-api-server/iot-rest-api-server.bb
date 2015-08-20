@@ -8,7 +8,7 @@ DEPENDS = "nodejs-native"
 RDEPENDS_${PN} += "bash"
 
 SRC_URI = "git://github.com/01org/iot-rest-api-server.git;protocol=https"
-SRCREV = "9bc1981a13b6101d0b8954e1035370c6e41ee4c5"
+SRCREV = "e2cf6cb7235c5bfbaf5cdaaa86b2eb96d104f2f6"
 
 S = "${WORKDIR}/git"
 
