@@ -88,7 +88,7 @@ FILES_${PN}-policy = " \
 "
 RDEPENDS_${PN}-policy += "sqlite3 cynara"
 pkg_postinst_${PN}-policy () {
-   if [ x"$D" != "x" ] && ${bindir}/security-manager-policy-reload; then
+   if [ x"$D" = "x" ] && ${bindir}/security-manager-policy-reload; then
        exit 0
    else
        exit 1
