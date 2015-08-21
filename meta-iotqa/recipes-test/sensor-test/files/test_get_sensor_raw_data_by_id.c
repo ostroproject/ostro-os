@@ -37,8 +37,8 @@ main(int argc, char* argv[])
 		return false;
 	}
 	hw_info.bus_num = 8;
-	hw_info.sensor_address = 0x1e;
-	hw_info.sensor_register =0x0a;
+	hw_info.sensor_address = 0x77;
+	hw_info.sensor_register =0x00;
         result = sf_set_sensor_data_read_method(sensor_id, hw_info);
 	if (result <0) {
 		fprintf(stdout, "error: %d, failed to set sensor data read method\n", result);

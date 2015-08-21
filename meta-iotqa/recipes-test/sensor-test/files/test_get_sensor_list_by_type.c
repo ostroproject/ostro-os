@@ -33,12 +33,31 @@ main(int argc, char* argv[])
 		break;
 	case 0: 
 		strcpy(sensor_type_t.sensor_type, "UNKNOWN_SENSOR");
-		break; */
+		break;
+*/ 
 	case 1: 
 		strcpy(sensor_type_t.sensor_type, "ACCELEROMETER_SENSOR");
 		break;
 	case 2: 
 		strcpy(sensor_type_t.sensor_type, "GEOMAGNETIC_SENSOR");
+		break;
+        case 3:
+		strcpy(sensor_type_t.sensor_type, "LIGHT_SENSOR");
+		break;
+	case 4:
+		strcpy(sensor_type_t.sensor_type, "PROXIMITY_SENSOR");
+		break;
+	case 5:
+		strcpy(sensor_type_t.sensor_type, "THERMOMETER_SENSOR");
+		break;
+	case 6:
+		strcpy(sensor_type_t.sensor_type, "GYROSCOPE_SENSOR");
+		break;
+        case 7:
+		strcpy(sensor_type_t.sensor_type, "PRESSURE_SENSOR");
+		break;
+	case 24:
+		strcpy(sensor_type_t.sensor_type, "TEMPRERATURE_SENSOR");
 		break;
 	default: 
 		fprintf(stdout, "error: Unknown sensor");
@@ -70,6 +89,8 @@ main(int argc, char* argv[])
 	}
 	fprintf(stdout, "sf_get_sensor_count type=%s count=%d\n", sensor_type_t.sensor_type, sensor_count);
 	sensor_list = (sf_sensor_t *)malloc(sensor_count * sizeof(sf_sensor_t));
+        if(sensor_count < 0 || sensor_count > 5)
+		return false;
 	sensor_list_return = sf_get_sensor_list(sensor_type_t, sensor_count, sensor_list);
 
 	for (i = 0; i <sensor_count; i++) {

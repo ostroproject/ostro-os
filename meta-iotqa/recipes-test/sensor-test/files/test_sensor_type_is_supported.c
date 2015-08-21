@@ -24,15 +24,40 @@ main(int argc, char* argv[])
 	unsigned int count;
 	sf_sensor_type_id_t sensor_type_int = atoi(argv[1]);
 	sensor_type_t = (sf_sensor_type_t *)malloc(sizeof(sf_sensor_type_t));	
-	//sensor_type_t->sensor_type_id = sensor_type_int;
+	sensor_type_t->sensor_type_id = sensor_type_int;
         fprintf(stdout, "input type id: %d\n", sensor_type_t->sensor_type_id);//sensor_type_int);
 	switch(sensor_type_int)
 	{
+/*	case -1: 
+		strcpy(sensor_type_t.sensor_type, "ALL_SENSOR");
+		break;
 	case 0: 
-		strcpy(sensor_type_t->sensor_type, "SENSOR");
+		strcpy(sensor_type_t.sensor_type, "UNKNOWN_SENSOR");
+		break;
+*/ 
+	case 1: 
+		strcpy(sensor_type_t->sensor_type, "ACCELEROMETER_SENSOR");
 		break;
 	case 2: 
 		strcpy(sensor_type_t->sensor_type, "GEOMAGNETIC_SENSOR");
+		break;
+        case 3:
+		strcpy(sensor_type_t->sensor_type, "LIGHT_SENSOR");
+		break;
+	case 4:
+		strcpy(sensor_type_t->sensor_type, "PROXIMITY_SENSOR");
+		break;
+	case 5:
+		strcpy(sensor_type_t->sensor_type, "THERMOMETER_SENSOR");
+		break;
+	case 6:
+		strcpy(sensor_type_t->sensor_type, "GYROSCOPE_SENSOR");
+		break;
+        case 7:
+		strcpy(sensor_type_t->sensor_type, "PRESSURE_SENSOR");
+		break;
+	case 24:
+		strcpy(sensor_type_t->sensor_type, "TEMPERATURE_SENSOR");
 		break;
 	default: 
 		fprintf(stdout, "error: Unknown sensor");

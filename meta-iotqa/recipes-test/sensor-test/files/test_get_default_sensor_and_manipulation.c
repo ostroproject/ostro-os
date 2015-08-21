@@ -38,13 +38,31 @@ main(int argc, char* argv[])
 		break;
 	case 0: 
 		strcpy(sensor_type_t.sensor_type, "UNKNOWN_SENSOR");
-		break; 
+		break;
+*/ 
 	case 1: 
 		strcpy(sensor_type_t.sensor_type, "ACCELEROMETER_SENSOR");
 		break;
-*/
 	case 2: 
 		strcpy(sensor_type_t.sensor_type, "GEOMAGNETIC_SENSOR");
+		break;
+        case 3:
+		strcpy(sensor_type_t.sensor_type, "LIGHT_SENSOR");
+		break;
+	case 4:
+		strcpy(sensor_type_t.sensor_type, "PROXIMITY_SENSOR");
+		break;
+	case 5:
+		strcpy(sensor_type_t.sensor_type, "THERMOMETER_SENSOR");
+		break;
+	case 6:
+		strcpy(sensor_type_t.sensor_type, "GYROSCOPE_SENSOR");
+		break;
+        case 7:
+		strcpy(sensor_type_t.sensor_type, "PRESSURE_SENSOR");
+		break;
+	case 24:
+		strcpy(sensor_type_t.sensor_type, "TEMPRERATURE_SENSOR");
 		break;
 	default: 
 		fprintf(stdout, "error: Unknown sensor");
