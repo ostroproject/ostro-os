@@ -2,11 +2,12 @@
 import os
 from oeqa.utils.helper import get_files_dir
 from oeqa.oetest import oeRuntimeTest
-import readConfigFile
-
+from oeqa.utils.ddt import ddt, file_data
+@ddt
 class TestGetDefaultSensorByInvalidType(oeRuntimeTest):
     '''Verify error returns when give invalid type'''
-    def testGetDefaultSensorByInvalidType(self):
+    @file_data('invalid_sensor_type.json')
+    def testGetDefaultSensorByInvalidType(self, value):
         '''Verify error returns when give invalid type'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)
@@ -15,7 +16,7 @@ class TestGetDefaultSensorByInvalidType(oeRuntimeTest):
 "/opt/sensor-test/apps/")
         #run test get error and show it's information
         client_cmd = "/opt/sensor-test/apps/test_get_default_sensor_by_type "\
-                     + readConfigFile.ReadConfFile.getSectionValue( 'sensors','invalid-sensor-type-id')
+                     + str(value)
         (status, output) = self.target.run(client_cmd)
         print output
         self.assertEqual(status, 0, msg="Error messages: %s" % output)

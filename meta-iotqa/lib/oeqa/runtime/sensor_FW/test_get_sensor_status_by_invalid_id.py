@@ -1,12 +1,13 @@
 '''negatively verify api sf_get_sensor_status_by_id'''
 import os
 from oeqa.utils.helper import get_files_dir
-import readConfigFile
 from oeqa.oetest import oeRuntimeTest
-
+from oeqa.utils.ddt import ddt, file_data
+@ddt
 class TestGetSensorStatusByInvalidId(oeRuntimeTest):
     '''Verify error returns from sf_get_sensor_status if id is invalid'''
-    def testGetSensorStatusByInvalidId(self):
+    @file_data('invalid_sensor_id.json')
+    def testGetSensorStatusByInvalidId(self, value):
         '''Verify error returns from sf_get_sensor_status if id is invalid'''
         mkdir_path = "mkdir -p /opt/sensor-test/apps"
         (status, output) = self.target.run(mkdir_path)
@@ -15,7 +16,7 @@ class TestGetSensorStatusByInvalidId(oeRuntimeTest):
 "/opt/sensor-test/apps/")
         #run test get sensor status by invalid id and show it's information
         client_cmd = "/opt/sensor-test/apps/test_get_sensor_status_by_id "\
-                     + readConfigFile.ReadConfFile.getSectionValue( 'sensors','invalid-id')
+                     + str(value)
         (status, output) = self.target.run(client_cmd)
         print output
         self.assertEqual(status, 2, msg="Error messages: %s" % output)
