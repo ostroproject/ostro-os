@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS_prepend := "${THISDIR}/linux-yocto-3.14:"
 
 # This is the only Smack-related patch from Tizen IVI 3.0.
 SRC_URI_append_smack = " \
