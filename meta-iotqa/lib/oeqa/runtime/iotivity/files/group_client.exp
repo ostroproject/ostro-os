@@ -1,0 +1,17 @@
+#!/usr/bin/expect
+set timeout 10
+set ip      [lindex $argv 0] 
+spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR /opt/iotivity/examples/resource/cpp/groupclient
+ expect {
+ "FOUND Resource"
+   {
+    send "1\n"; exp_continue
+   }
+ "ActionSet :: allbulboff"
+   {
+    exit 2
+   }
+ eof
+   {}
+ }
+
