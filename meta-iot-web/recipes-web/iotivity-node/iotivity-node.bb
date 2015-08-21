@@ -8,13 +8,14 @@ DEPENDS = "nodejs-native glib-2.0 iotivity"
 RDEPENDS_${PN} += "bash iotivity-resource"
 
 SRC_URI = "git://github.com/otcshare/iotivity-node.git;protocol=https"
-SRCREV = "ff9e665ab44ce55f74c64e2671356316fbe407b0"
+SRCREV = "ef92cb1ca43ae4d597ed61964ab025cc176ef76e"
 
 S = "${WORKDIR}/git"
 INSANE_SKIP_${PN} += "ldflags staticdev"
 
 do_compile_prepend() {
-    export OCTBSTACK_CFLAGS="-I${STAGING_DIR_TARGET}${includedir}/iotivity/resource/stack"
+    OCTBDIR="${STAGING_DIR_TARGET}${includedir}/iotivity/resource"
+    export OCTBSTACK_CFLAGS="-I${OCTBDIR}/stack -I${OCTBDIR}/logger -I${OCTBDIR}/oc_logger -I${OCTBDIR}/ocrandom"
     export OCTBSTACK_LIBS="-loctbstack"
     export CFLAGS="$CFLAGS -fPIC"
     export CXXFLAGS="$CXXFLAGS -fPIC"

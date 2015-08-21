@@ -4,13 +4,23 @@ LICENSE = "Apache-2.0"
 
 LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSE;md5=fa818a259cbed7ce8bc2a22d35a464fc"
 
-DEPENDS = "nodejs-native"
+DEPENDS = "nodejs-native iotivity iotivity-node"
 RDEPENDS_${PN} += "bash"
 
 SRC_URI = "git://github.com/01org/iot-rest-api-server.git;protocol=https"
-SRCREV = "9bc1981a13b6101d0b8954e1035370c6e41ee4c5"
+SRCREV = "e2cf6cb7235c5bfbaf5cdaaa86b2eb96d104f2f6"
 
 S = "${WORKDIR}/git"
+
+INSANE_SKIP_${PN} += "ldflags staticdev"
+
+do_compile_prepend() {
+    OCTBDIR="${STAGING_DIR_TARGET}${includedir}/iotivity/resource"
+    export OCTBSTACK_CFLAGS="-I${OCTBDIR}/stack -I${OCTBDIR}/logger -I${OCTBDIR}/oc_logger -I${OCTBDIR}/ocrandom"
+    export OCTBSTACK_LIBS="-loctbstack"
+    export CFLAGS="$CFLAGS -fPIC"
+    export CXXFLAGS="$CXXFLAGS -fPIC"
+}
 
 do_compile () {
     # changing the home directory to the working directory, the .npmrc will be created in this directory
