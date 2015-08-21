@@ -3,6 +3,7 @@ KBRANCH ?= "linux-4.1.y"
 require recipes-kernel/linux/linux-yocto.inc
 
 S = "${WORKDIR}/linux-stable"
+FILESEXTRAPATHS_prepend := "${THISDIR}/linux-yocto:"
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 # Override COMPATIBLE_MACHINE to include your machine in a bbappend
@@ -23,6 +24,19 @@ SRC_URI_append_atom = " \
 	file://atom/defconfig"
 SRC_URI_append_atomup = " \
 	file://atomup/defconfig"
+
+# pick selected semi-generic fragments
+SRC_URI_append = " \
+	file://can.cfg \
+	file://nfc.cfg \
+	file://usb-serial.cfg \
+	"
+SRC_URI_append_quark = " \
+	file://can-spi.cfg \
+	file://nfc-spi.cfg \
+	file://nfc-i2c.cfg \
+	file://sensors.cfg \
+	"
 
 LINUX_VERSION ?= "4.1.3"
 
