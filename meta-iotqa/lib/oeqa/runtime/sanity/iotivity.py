@@ -24,14 +24,15 @@ class IOtvtClient(oeRuntimeTest):
         (status, output) = cls.tc.target.copy_to(os.path.join(get_files_dir(),
                           'clienttest'), "/opt/iotivity-test/apps/iotivity-test/")
         #start iotivity server to register a new resource
-        server = os.path.join(os.path.dirname(__file__), "files/servertest > /dev/null 2>&1") 
-        subprocess.Popen(server, shell=True)
+        (status, output) = cls.tc.target.run('/opt/iotivity-test/apps/iotivity-test/servertest > /tmp/output &')
+        #server = os.path.join(os.path.dirname(__file__), "files/servertest > /dev/null 2>&1") 
+        #subprocess.Popen(server, shell=True)
 
     @classmethod
     def tearDownClass(cls):
-        '''kill servertest on both Host and Target'''
-        (status, output) = cls.tc.target.run("ps | grep servertest | awk '{print $1}' | xargs kill -9")
-        shell_cmd_timeout("ps -ef | grep servertest | awk '{print $2}' | xargs kill -9", timeout=200)        
+        '''kill servertest on Target'''
+        (status, output) = cls.tc.target.run("killall servertest")
+        #shell_cmd_timeout("ps -ef | grep servertest | awk '{print $2}' | xargs kill -9", timeout=200)        
 
     @tag(FeatureID="IOTOS-498")
     def test_iotvt_findresource(self):
@@ -65,12 +66,12 @@ class IOtvtClient(oeRuntimeTest):
     def test_iotvt_regresource(self):
         '''Target starts servertest. And after several seconds, it should not crash'''
         # ensure there is no servertest running background
-        (status, output) = self.target.run("ps | grep servertest | awk '{print $1}' | xargs kill -9")
+        #(status, output) = self.target.run("ps | grep servertest | awk '{print $1}' | xargs kill -9")
         # start the server
-        (status, output) = self.target.run('/opt/iotivity-test/apps/iotivity-test/servertest &')
-        self.assertEqual(status, 0, msg="Error messages: %s" % output)
+        #(status, output) = self.target.run('/opt/iotivity-test/apps/iotivity-test/servertest &')
+        #self.assertEqual(status, 0, msg="Error messages: %s" % output)
         time.sleep(5)
         # check if servertest is there
         (status, output) = self.target.run('ps | grep servertest -c')
         number = string.atoi(output)
-        self.assertEqual(number, 2, msg="Error messages: %s" % output)
+        self.assertEqual(number, 3, msg="Error messages: %s" % output)
