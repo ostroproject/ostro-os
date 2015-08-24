@@ -16,9 +16,8 @@ class TestGetDefaultSensorAndManipulation(oeRuntimeTest):
         (status, output) = self.target.copy_to(copy_path,\
 "/opt/sensor-test/apps/")
         #run test and show related information
-        client_cmd = \
-"/opt/sensor-test/apps/test_get_default_sensor_and_manipulation "\
-                     + str(value)
+        cmd = "/opt/sensor-test/apps/test_get_default_sensor_and_manipulation"
+        client_cmd = "%s %s"%(cmd, str(value))
         (status, output) = self.target.run(client_cmd)
         print output
         self.assertEqual(status, 1, msg="Error messages: %s" % output)

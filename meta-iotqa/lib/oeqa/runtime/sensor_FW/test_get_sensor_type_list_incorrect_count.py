@@ -1,7 +1,6 @@
 '''Verify error handling when input parameter 'count' is not correct'''
 import os
 from oeqa.utils.helper import get_files_dir
-import readConfigFile
 from oeqa.oetest import oeRuntimeTest
 
 class TestGetSensorTypeListIncorrectCount(oeRuntimeTest):

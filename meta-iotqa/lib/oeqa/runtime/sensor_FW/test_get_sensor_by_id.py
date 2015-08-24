@@ -16,8 +16,8 @@ class TestGetSensorByID(oeRuntimeTest):
         (status, output) = self.target.copy_to(copy_path, \
 "/opt/sensor-test/apps/")
         #run test get sensor by id and show it's information
-        client_cmd = "/opt/sensor-test/apps/test_get_sensor_by_id " \
-                     + str(value)
+        cmd = "/opt/sensor-test/apps/test_get_sensor_by_id"
+        client_cmd = "%s %s"%(cmd, str(value))
         (status, output) = self.target.run(client_cmd)
         print output
         self.assertEqual(status, 1, msg="Error messages: %s" % output)

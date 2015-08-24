@@ -15,8 +15,8 @@ class TestGetSensorStatusByInvalidId(oeRuntimeTest):
         (status, output) = self.target.copy_to(copy_to_path,\
 "/opt/sensor-test/apps/")
         #run test get sensor status by invalid id and show it's information
-        client_cmd = "/opt/sensor-test/apps/test_get_sensor_status_by_id "\
-                     + str(value)
+        cmd = "/opt/sensor-test/apps/test_get_sensor_status_by_id"
+        client_cmd = "%s %s"%(cmd, str(value))
         (status, output) = self.target.run(client_cmd)
         print output
         self.assertEqual(status, 2, msg="Error messages: %s" % output)

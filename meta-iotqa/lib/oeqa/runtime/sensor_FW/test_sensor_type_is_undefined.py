@@ -15,8 +15,8 @@ class TestSensorTypeIsUndefined(oeRuntimeTest):
         (status, output) = self.target.copy_to(copy_to_path,\
 "/opt/sensor-test/apps/")
         #run test sensor type is supported by providing sensor type id
-        client_cmd = "/opt/sensor-test/apps/test_sensor_type_is_supported "\
-                     + str(value)
+        cmd = "/opt/sensor-test/apps/test_sensor_type_is_supported"
+        client_cmd = "%s %s"%(cmd, str(value))
         (status, output) = self.target.run(client_cmd)
         print output
         self.assertEqual(status, 0, msg="Error messages: %s" % output)

@@ -14,8 +14,8 @@ class TestDisconnectSensorInvalidId(oeRuntimeTest):
         copy_to_path = os.path.join(get_files_dir(), 'test_disconnect_sensor_invalid_id')
         (status, output) = self.target.copy_to(copy_to_path, \
 "/opt/sensor-test/apps/")
-        client_cmd = "/opt/sensor-test/apps/test_disconnect_sensor_invalid_id "\
-                     + str(value)
+        cmd = "/opt/sensor-test/apps/test_disconnect_sensor_invalid_id"
+        client_cmd = "%s %s"%(cmd, str(value))
         (status, output) = self.target.run(client_cmd)
         print output
         self.assertEqual(status, 0, msg="Error messages: %s" % output)

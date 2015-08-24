@@ -15,8 +15,8 @@ class TestGetDataOfUnconnectedSensor(oeRuntimeTest):
         copy_to_path = os.path.join(get_files_dir(), 'test_get_data_of_unconnected_sensor')
         (status, output) = self.target.copy_to(copy_to_path, "/opt/sensor-test/apps/")
         #run test get sensor data by id and show it's information
-        client_cmd = "/opt/sensor-test/apps/test_get_data_of_unconnected_sensor " \
-                     + str(value)
+        cmd = "/opt/sensor-test/apps/test_get_data_of_unconnected_sensor"
+        client_cmd = "%s %s"%(cmd, str(value))
         (status, output) = self.target.run(client_cmd)
         print output
         self.assertEqual(status, 1, msg="Error messages: %s" % output)

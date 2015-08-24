@@ -15,8 +15,8 @@ class TestGetDefaultSensorByInvalidType(oeRuntimeTest):
         (status, output) = self.target.copy_to(copy_to_path, \
 "/opt/sensor-test/apps/")
         #run test get error and show it's information
-        client_cmd = "/opt/sensor-test/apps/test_get_default_sensor_by_type "\
-                     + str(value)
+        cmd = "/opt/sensor-test/apps/test_get_default_sensor_by_type"
+        client_cmd = "%s %s"%(cmd, str(value))
         (status, output) = self.target.run(client_cmd)
         print output
         self.assertEqual(status, 0, msg="Error messages: %s" % output)

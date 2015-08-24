@@ -14,8 +14,8 @@ class TestGetSensorNameByInvalidId(oeRuntimeTest):
         copy_to_path = os.path.join(get_files_dir(), 'test_get_sensor_name_by_id')
         (status, output) = self.target.copy_to(copy_to_path, "/opt/sensor-test/apps/")
         #run test get sensor name by invalid id and show it's information
-        client_cmd = "/opt/sensor-test/apps/test_get_sensor_name_by_id " \
-                     + str(value)
+        cmd = "/opt/sensor-test/apps/test_get_sensor_name_by_id"
+        client_cmd = "%s %s"%(cmd, str(value))
         (status, output) = self.target.run(client_cmd)
         print output
         self.assertEqual(status, 0, msg="Error messages: %s" % output)

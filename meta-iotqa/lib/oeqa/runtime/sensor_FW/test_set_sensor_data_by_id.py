@@ -14,8 +14,8 @@ class TestSetSensorDataById(oeRuntimeTest):
         copy_to_path = os.path.join(get_files_dir(), 'test_set_sensor_data_by_id')
         (status, output) = self.target.copy_to(copy_to_path, "/opt/sensor-test/apps/")
         #run test set sensor data by id and show it's information
-        client_cmd = "/opt/sensor-test/apps/test_set_sensor_data_by_id " \
-                     + str(value)
+        cmd = "/opt/sensor-test/apps/test_set_sensor_data_by_id"
+        client_cmd = "%s %s"%(cmd, str(value))
         (status, output) = self.target.run(client_cmd)
         print output
         self.assertEqual(status, 1, msg="Error messages: %s" % output)

@@ -15,8 +15,8 @@ class TestStressConnectDisconnectSensor(oeRuntimeTest):
         (status, output) = self.target.copy_to(copy_to_path, \
 "/opt/sensor-test/apps/")
         #run test stress connect disconnect sensor and show it's information
-        client_cmd = "/opt/sensor-test/apps/test_stress_connect_disconnect_sensor " \
-                     + str(value)
+        cmd = "/opt/sensor-test/apps/test_stress_connect_disconnect_sensor"
+        client_cmd = "%s %s"%(cmd, str(value))
         (status, output) = self.target.run(client_cmd)
         print output
         self.assertEqual(status, 1, msg="Error messages: %s" % output)
