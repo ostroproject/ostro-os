@@ -1,5 +1,4 @@
-meta-soletta
-==============
+#meta-soletta
 
 This is the soletta yocto meta-layer. Soletta Project is a framework for making
 IoT devices. With Soletta Project's libraries developers can easily write
@@ -10,8 +9,7 @@ devices.
 If you have any question or want to propose any a change contact the soletta
 project on github: https://github.com/solettaproject/.
 
-SmallOS
-=============
+##SmallOS
 
 SmallOS is a distribution based on poky adding what seems to be required for
 soletta framework + IoT (i.e systemd, udev, and all needed to produce a minimal
