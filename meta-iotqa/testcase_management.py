@@ -4,6 +4,7 @@ import os, sys
 from optparse import OptionParser
 import unittest
 import csv
+import StringIO
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 TOPDIR = os.path.dirname(BASEDIR)
@@ -13,6 +14,8 @@ TITLE = ["EntityType", "CaseID", "Component", "Description",
          "StepNumber", "StepDescription", "ExpectedResult",
          "TestScriptEntry", "TestScriptExpectResult" ]
 COLUMN_NUM = len(TITLE)
+
+VERBOSE = 0
 
 def parseArgs():
     usage = "usage: %prog [options]"
@@ -26,13 +29,21 @@ def parseArgs():
     parser.add_option("-o", "--output-file", dest="output",
             default  = "out.csv",
             help="The output file name.")
-
+    parser.add_option("-l", "--layer", dest="layers",
+            action="append",
+            help="specify layer to export. if layers count is greater than 1: -l [layer1] -l [layer2]..")
+    parser.add_option("-L", "--skip-layer", dest="skip_layers",
+            action="append",
+            help="specify layer don't export. if layers count is greater than 1: -L [layer1] -L [layer2]..")
+    parser.add_option("-v", "--verbose", dest="verbose",
+            action="store_true",
+            help="print verbose information")
     return parser.parse_args()
 
 def getCaseList(path, pypath=["oeqa", "runtime"]):
     testslist = []
     if not os.path.exists(os.path.join(path, '__init__.py')):
-        print("%s __init__.py missing!"%path)
+        print("Ignore %s due to __init__.py is missing!"%path)
         return []
     for f in os.listdir(path):
         fullpath = os.path.join(path, f)
@@ -68,17 +79,25 @@ def caseIter(testsuite):
             for y in caseIter(x):
                 yield y
 
-def getCasesInfo(pathList):
+def getCasesInfo(pathList, layer="None"):
     entityType = "TestScript"
     rows = []
     defaultValList = [""] * COLUMN_NUM
     casename = ".".join(pathList)
-    defaultComponent = pathList[-2] if len(pathList)>3 else "None"
+    defaultComponent = pathList[-2] if len(pathList)>3 else layer
+    output = StringIO.StringIO()
+    oristdout, oristderr = sys.stdout, sys.stderr
+    sys.stdout, sys.stderr = output, output
     try:
         testsuite = unittest.TestLoader().loadTestsFromName(casename)
     except:
-        print >>sys.stderr, "Import %s Failed"%".".join(pathList)
+        print >>oristderr, "Import %s Failed"%".".join(pathList)
         return []
+    finally:
+        sys.stdout, sys.stderr = oristdout, oristderr
+        if VERBOSE:
+            sys.stdout.write(output.getvalue())
+        output.close()
     defaultValList[TITLE.index("Component")] = defaultComponent
     defaultValList[TITLE.index("Status")] = "Ready"
     defaultValList[TITLE.index("ExecutionType")] = "Auto"
@@ -90,6 +109,9 @@ def getCasesInfo(pathList):
 
 def main():
     opt, args = parseArgs()
+    if opt.verbose:
+        global VERBOSE
+        VERBOSE = 1
     sys.path.append(os.path.join(TOPDIR, "bitbake", "lib"))
     sys.path.append(os.path.join(TOPDIR, "meta", "lib"))
     for dir in os.listdir(TOPDIR):
@@ -102,16 +124,19 @@ def main():
     tc = TestContext()
     setattr(oeTest, "tc", tc)
     d = MyDataDict()
+    dirs = opt.layers if opt.layers else os.listdir(TOPDIR)
+    notdirs = opt.skip_layers if opt.skip_layers else []
+    dirs = filter(lambda x: x not in notdirs, dirs)
     with open(opt.output, "w") as output, open(opt.manual, "r") as manual:
         outputcsv = csv.writer(output)
         outputcsv.writerow(TITLE)
-        for dir in os.listdir(TOPDIR):
+        for dir in dirs:
             libPath = os.path.join(TOPDIR, dir, "lib")
             oeqaPath = os.path.join(libPath, "oeqa")
             runtimePath = os.path.join(oeqaPath, "runtime")
             if os.path.exists(runtimePath):
                 for case in getCaseList(runtimePath):
-                    rows = getCasesInfo(case)
+                    rows = getCasesInfo(case, dir)
                     for row in rows:
                         outputcsv.writerow(row)
         manualcsv = csv.reader(manual)
