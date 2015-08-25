@@ -18,8 +18,8 @@ Descriptions of section entries:
 	M: Mail patches to: FullName <address@domain>
 	F: Files and directories with wildcard patterns.
 	   A trailing slash includes all files and subdirectory files.
-	   F:	meta-crownbay/	all files in and below meta-crownbay
-	   F:	meta-crownbay/*	all files in meta-crownbay, but not below
+	   F:	common/	 all files in and below common
+	   F:	common/* all files in common, but not below
 	   One pattern per line.  Multiple F: lines acceptable.
 
 Please keep this list in alphabetical order.
@@ -31,33 +31,13 @@ COMMON
 M:	Saul Wold <sgw@linux.intel.com>
 F:	common/
 
-CROWNBAY
-M:	Saul Wold <sgw@linux.intel.com>
-F:	meta-crownbay/
-
 CRYSTALFOREST
 M:      Wu Chia Chuan <chia.chuan.wu@intel.com>
 F:      meta-crystalforest/
 
-EMENLOW
-M:	Saul Wold <sgw@linux.intel.com>
-F:	meta-emenlow/
-
-FRI2
-M:	Darren Hart <dvhart@linux.intel.com>
-F:	meta-fri2/
-
-JASPERFOREST
-M:	Saul Wold <sgw@linux.intel.com>
-F:	meta-jasperforest/
-
 ROMLEY
 M:      Wu Chia Chuan <chia.chuan.wu@intel.com>
 F:      meta-romley/
-
-SUGARBAY
-M:	Saul Wold <sgw@linux.intel.com>
-F:	meta-sugarbay/
 
 TLK
 M:	Saul Wold <sgw@linux.intel.com>
