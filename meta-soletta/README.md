@@ -14,3 +14,12 @@ project on github: https://github.com/solettaproject/.
 SmallOS is a distribution based on poky adding what seems to be required for
 soletta framework + IoT (i.e systemd, udev, and all needed to produce a minimal
 linux system).
+
+##Dependencies
+
+The dependencies to build the images are:
+  - Yocto poky or later
+  - meta-intel (If building for intel based-hardware is required)
+
+##Build image for Minnowboard Max
+Go to [Soletta wiki](https://github.com/solettaproject/soletta/wiki/MinnowBoard-MAX-Instructions):
