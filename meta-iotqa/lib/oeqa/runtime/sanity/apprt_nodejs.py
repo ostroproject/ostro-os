@@ -37,8 +37,8 @@ class SanityTestNodejs(oeRuntimeTest):
             msg='The node version number is invalid!')
         version_num = int(major) * 10000 + int(minor) * 100 + int(patch)
         self.assertTrue(
-            version_num >= 1035,
-            msg='node version must not be less than 0.10.35!')
+            version_num >= 1207,
+            msg='node version must not be less than 0.12.7!')
 
 
     def test_node_helloworld(self):
