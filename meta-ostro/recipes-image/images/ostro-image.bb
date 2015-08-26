@@ -68,13 +68,48 @@ EXTRA_USERS_PARAMS = "\
 usermod -p '${@crypt_pass(d)}' root; \
 "
 
-# Do not create ISO images by default, only HDDIMG will be created
+# Do not create ISO images by default, only HDDIMG will be created (if it gets created at all).
 NOISO = "1"
+
+# Replace the default "live" (aka HDDIMG) images with whole-disk images
+# that contain multiple partitions (hdddirect = raw image, vdi/vmdk/qcow2 for
+# different virtual machines). hdddirect is generated implicitly because the
+# virtual image types depend on it. Only applicable to some machines.
+OSTRO_VM_IMAGE_TYPES ?= "vdi vmdk qcow2"
+IMAGE_FSTYPES_remove_intel-core2-32 = "live"
+IMAGE_FSTYPES_append_intel-core2-32 = " ${OSTRO_VM_IMAGE_TYPES}"
+IMAGE_FSTYPES_remove_intel-corei7-64 = "live"
+IMAGE_FSTYPES_append_intel-corei7-64 = " ${OSTRO_VM_IMAGE_TYPES}"
+IMAGE_FSTYPES_remove_intel-quark = "live"
+IMAGE_FSTYPES_append_intel-quark = " ${OSTRO_VM_IMAGE_TYPES}"
+# Remove also for qemu for the sake of consistency. It is not enabled there by default already.
+IMAGE_FSTYPES_remove_qemux86 = "live"
+IMAGE_FSTYPES_append_qemux86 = " ${OSTRO_VM_IMAGE_TYPES}"
+IMAGE_FSTYPES_remove_qemux86-64 = "live"
+IMAGE_FSTYPES_append_qemux86-64 = " ${OSTRO_VM_IMAGE_TYPES}"
+
+# Inherit image-vm if any of the image fstypes depends on it.
+# Works around an error from image.py:
+# ERROR: No IMAGE_CMD defined for IMAGE_FSTYPES entry 'vdi' - possibly invalid type name or missing support class
+# Necessary because the normal image class inheritance mechanism
+# runs at the wrong time to avoid the image.py check.
+inherit ${@'image-vm' if set(d.getVar('IMAGE_FSTYPES', True).split()).intersection(['vdi', 'vmdk', 'qcow2']) else ''}
 
 BUILD_ID ?= "${DATETIME}"
 IMAGE_BUILDINFO_VARS_append = " BUILD_ID"
 
 IMAGE_NAME = "${IMAGE_BASENAME}-${MACHINE}-${BUILD_ID}"
+
+# Enable initramfs based on initramfs-framework (chosen in
+# core-image-minimal-initramfs.bbappend). All machines must
+# boot with a suitable initramfs, because IMA initialization is done
+# in it.
+OSTRO_INITRAMFS ?= "ostro-initramfs"
+INITRD_IMAGE_intel-core2-32 = "${OSTRO_INITRAMFS}"
+INITRD_IMAGE_intel-corei7-64 = "${OSTRO_INITRAMFS}"
+INITRD_IMAGE_intel-quark = "${OSTRO_INITRAMFS}"
+INITRD_IMAGE_qemux86 = "${OSTRO_INITRAMFS}"
+INITRD_IMAGE_qemux86-64 = "${OSTRO_INITRAMFS}"
 
 # Activate IMA signing of rootfs, using the default (and insecure,
 # because publicly available) keys shipped with the integrity
