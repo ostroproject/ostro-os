@@ -76,7 +76,7 @@ IMAGE_CMD_update () {
 	ln -s ${IMAGE_NAME}.update.tar.gz ${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}-${MACHINE}.update.tar.gz
 }
 
-IMAGE_DEPENDS_toflash = "ifwi flashall u-boot u-boot-mkimage-native"
+IMAGE_DEPENDS_toflash = "ifwi flashall u-boot-edison u-boot-mkimage-native"
 IMAGE_TYPEDEP_toflash = "ext4 boot update"
 
 IMAGE_CMD_toflash () {

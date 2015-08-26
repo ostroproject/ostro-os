@@ -25,4 +25,4 @@ do_install () {
 FILES_${PN} = "${sbindir}/*"
 FILES_${PN} += "${sysconfdir}/fw_env.config"
 
-DEPENDS = "u-boot"
+DEPENDS = "u-boot-edison"
