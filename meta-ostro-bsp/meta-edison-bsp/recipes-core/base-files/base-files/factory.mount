@@ -1,0 +1,12 @@
+[Unit]
+Description=Mount for factory
+
+[Install]
+WantedBy=default.target
+
+[Mount]
+What=/dev/disk/by-partlabel/factory
+Where=/factory
+Options=ro,noauto,x-systemd.automount,nosuid,nodev,noatime,discard,barrier=1,data=ordered,noauto_da_alloc
+Type=ext4
+TimeoutSec=3
