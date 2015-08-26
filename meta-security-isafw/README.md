@@ -1,5 +1,5 @@
 **meta-security-isafw** is an OE layer that allows enabling the Image
-Security Analyse Framework (isafw) for your image builds. 
+Security Analysis Framework (isafw) for your image builds. 
 
 The primary purpose of isafw is to provide an extensible 
 framework for analysing different security aspects of images 
