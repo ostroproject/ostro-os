@@ -1,5 +1,7 @@
 include dpdk.inc
 
+SRC_URI += "file://dpdk-1.8.0-and-2.0.0-examples-add-config-variable-to-enable-disable-dpdk.patch"
+
 SRC_URI[dpdk.md5sum] = "11ad8785aaa869cc87265bcb8d828f22"
 SRC_URI[dpdk.sha256sum] = "9f5386830bd999355182e20408f3fc2cfa0802a4497fdded8d43202feede1939"
 
