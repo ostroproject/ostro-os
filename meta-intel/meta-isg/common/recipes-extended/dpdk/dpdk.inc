@@ -9,6 +9,8 @@ SRC_URI = "http://dpdk.org/browse/dpdk/snapshot/dpdk-${PV}.tar.gz;name=dpdk \
 	   file://dpdk-1.8.0-and-2.0.0-point-to-the-right-include-and-lib-path.patch \
 	  "
 
+COMPATIBLE_MACHINE = "crystalforest|intel-corei7-64"
+
 # dpdk example apps dpdk_qat and vhost have dependancy on fuse and qat.
 # fuse is in meta-filesystems and qat is not yet upstreamed.
 # So adding mechanism to explicitly disable the use of fuse and qat.
@@ -53,6 +55,7 @@ def get_dpdk_target_mach(bb, d):
         "crystalforest":  "ivb",
         "romley":         "snd",
         "romley-ivb":     "ivb",
+        "intel_corei7_64": "hsw",
     }
 
     if target_arch in multiarch_options :
