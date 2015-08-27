@@ -11,13 +11,17 @@ class CommBTTest(oeRuntimeTest):
     def setUp(self):
         # un-block software rfkill lock
         self.target.run('rfkill unblock all')
+        self.target.run('hciconfig hci0 reset')
+        time.sleep(1)
         self.target.run('hciconfig hci0 up')
         self.target.run('hciconfig hci0 piscan')
         self.target.run('hciconfig hci0 noleadv')
         time.sleep(1)
-        status, output = shell_cmd_timeout('hciconfig hci0 up', timeout=100)
-        status, output = shell_cmd_timeout('hciconfig hci0 piscan', timeout=100)
-        status, output = shell_cmd_timeout('hciconfig hci0 noleadv', timeout=100)
+        shell_cmd_timeout('hciconfig hci0 reset', timeout=200)
+        time.sleep(1)
+        shell_cmd_timeout('hciconfig hci0 up', timeout=100)
+        shell_cmd_timeout('hciconfig hci0 piscan', timeout=100)
+        shell_cmd_timeout('hciconfig hci0 noleadv', timeout=100)
         time.sleep(1)
 
     @tag(FeatureID="IOTOS-453")
@@ -120,8 +124,6 @@ class CommBTTest(oeRuntimeTest):
     def test_bt_visible_scan(self):
         '''Scan nearby bluetooth devices (not ble scan)'''
         # Close target's leadv
-        shell_cmd_timeout('hciconfig hci0 reset', timeout=100)
-        self.target.run('hciconfig hci0 reset')
         self.target.run('hciconfig hci0 noleadv')
         self.target.run('hciconfig hci0 piscan')
         time.sleep(1)
@@ -138,8 +140,6 @@ class CommBTTest(oeRuntimeTest):
     def test_bt_leadv(self):
         '''Target does LE advertising, Host scan target'''
         # close target piscan firstly, and then enable leadv
-        shell_cmd_timeout('hciconfig hci0 reset', timeout=100)
-        self.target.run('hciconfig hci0 reset')
         self.target.run('hciconfig hci0 leadv')
         time.sleep(1)
         (status, target_btmac) = self.target.run("hciconfig | grep 'BD Address' | awk '{print $3}'")
@@ -155,8 +155,6 @@ class CommBTTest(oeRuntimeTest):
     def test_bt_le_scan(self):
         '''Another device (host) does LE advertising, target scan'''
         # close host piscan firstly, and then enable leadv
-        shell_cmd_timeout('hciconfig hci0 reset', timeout=100)
-        self.target.run('hciconfig hci0 reset')
         status, output = shell_cmd_timeout('hciconfig hci0 leadv 3', timeout=100)
         time.sleep(1)
         (status, host_btmac) = shell_cmd_timeout("hciconfig | grep 'BD Address' | awk '{print $3}'", timeout=100)
