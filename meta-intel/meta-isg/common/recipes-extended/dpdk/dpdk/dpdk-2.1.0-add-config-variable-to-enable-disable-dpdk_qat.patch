@@ -1,0 +1,31 @@
+From a424a79b1422f1877de3ee7aee6f781aeacc3630 Mon Sep 17 00:00:00 2001
+From: Anuj Mittal <anujx.mittal@intel.com>
+Date: Tue, 18 Aug 2015 12:36:02 +0800
+Subject: [PATCH] examples: add config variable to enable/disable dpdk_qat
+
+Upstream-Status: Inappropriate [configuration]
+
+Add CONFIG_EXAMPLE_DPDK_QAT to control compilation of dpdk_qat
+example by PACKAGECONFIG
+
+Signed-off-by: Anuj Mittal <anujx.mittal@intel.com>
+---
+ examples/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/examples/Makefile b/examples/Makefile
+index b4eddbd..1bc14b0 100644
+--- a/examples/Makefile
++++ b/examples/Makefile
+@@ -41,7 +41,7 @@ DIRS-$(CONFIG_RTE_LIBRTE_PMD_BOND) += bond
+ DIRS-y += cmdline
+ DIRS-$(CONFIG_RTE_LIBRTE_DISTRIBUTOR) += distributor
+ ifneq ($(ICP_ROOT),)
+-DIRS-y += dpdk_qat
++DIRS-$(CONFIG_EXAMPLE_DPDK_QAT) += dpdk_qat
+ endif
+ DIRS-y += exception_path
+ DIRS-y += helloworld
+-- 
+1.7.9.5
+
