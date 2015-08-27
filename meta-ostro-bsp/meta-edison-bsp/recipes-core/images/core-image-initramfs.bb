@@ -1,7 +1,7 @@
 # Simple initramfs image.
 DESCRIPTION = "Small initramfs image capable of supporting fota."
 
-PACKAGE_INSTALL = "initramfs-boot busybox udev base-passwd u-boot-fw-utils dosfstools e2fsprogs-mke2fs e2fsprogs-tune2fs ${ROOTFS_BOOTSTRAP_INSTALL}"
+PACKAGE_INSTALL = "initramfs-boot busybox udev base-passwd u-boot-fw-utils-edison dosfstools e2fsprogs-mke2fs e2fsprogs-tune2fs ${ROOTFS_BOOTSTRAP_INSTALL}"
 
 # Do not pollute the initrd image with rootfs features
 IMAGE_FEATURES = ""
