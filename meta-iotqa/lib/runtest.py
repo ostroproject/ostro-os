@@ -29,6 +29,9 @@ try:
 except ImportError:
     import json
 
+def tearDown(self):
+    pass
+oeRuntimeTest.tearDown = tearDown
 
 def getVar(obj):
     #extend form dict, if a variable didn't exists, need find it in testcase
