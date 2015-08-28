@@ -42,11 +42,7 @@ def getVar(obj):
     return VarDict()
 
 def checkTags(tc, tagexp):
-    ret = True
-    try:
-        ret = eval(tagexp, None, getVar(tc))
-    finally:
-        return ret
+    return eval(tagexp, None, getVar(tc))
 
 def filterByTags(testsuite, tagexp):
     if not tagexp:
