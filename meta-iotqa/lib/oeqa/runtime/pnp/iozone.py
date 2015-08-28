@@ -25,6 +25,7 @@ class IOzoneTest(oeRuntimeTest):
             msg="Failed to find iozone command")
 
     def test_iozone(self):
+        """Use IOzone to measure storage read/write speed"""
         self._setup()
         filename = os.path.basename(__file__)
         casename = os.path.splitext(filename)[0]

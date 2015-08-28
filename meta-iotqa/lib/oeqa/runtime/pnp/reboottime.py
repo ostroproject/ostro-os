@@ -12,6 +12,7 @@ class RebootTimeTest(oeRuntimeTest):
     """The case will measure system reboot time"""
     
     def test_reboottime(self):
+        """Measure system reboot time"""
         filename = os.path.basename(__file__)
         casename = os.path.splitext(filename)[0]
         (status, out)=self.target.run('date +"%m-%d %H:%M:%S"; reboot &')

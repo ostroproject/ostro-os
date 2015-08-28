@@ -15,6 +15,7 @@ class PoweroffTest(oeRuntimeTest):
     """
     
     def test_poweroff(self):
+        """Measure system power off time"""
         filename = os.path.basename(__file__)
         casename = os.path.splitext(filename)[0]
         port = "/dev/ttyACM0"
