@@ -23,6 +23,7 @@ from oeqa.runexported import FakeTarget
 from oeqa.runexported import MyDataDict
 from oeqa.runexported import TestContext
 from oeqa.utils.sshcontrol import SSHControl
+from oeqa.utils.helper import gettag
 
 try:
     import simplejson as json
@@ -36,7 +37,7 @@ def getVar(obj):
         def __getitem__(self, key):
             tc_method = getattr(obj, obj._testMethodName)
             tc_class = tc_method.__self__.__class__
-            ret = getattr(tc_method, key, getattr(tc_class, key, getattr(obj, key, False)))
+            ret = gettag(tc_method, key, gettag(tc_class, key, getattr(obj, key, None)))
             return ret
     return VarDict()
 

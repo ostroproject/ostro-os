@@ -13,11 +13,14 @@ def tag(*args, **kwargs):
     """
     def wrap_ob(ob):
         for name in args:
-            setattr(ob, name, True)
+            setattr(ob, "tag__" + name, True)
         for name, value in kwargs.iteritems():
-            setattr(ob, name, value)
+            setattr(ob, "tag__" + name, value)
         return ob
     return wrap_ob
+
+def gettag(obj, key, default=None):
+    return getattr(obj, "tag__"+key, default)
 
 def shell_cmd(cmd):
     """Execute shell command till it return"""
