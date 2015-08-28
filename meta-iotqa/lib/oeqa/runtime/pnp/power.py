@@ -22,6 +22,7 @@ class PowerTest(oeRuntimeTest):
             time.sleep(10)
 
     def test_power(self):
+        """Measure power consumption"""
         self._setup()
         filename = os.path.basename(__file__)
         casename = os.path.splitext(filename)[0]

@@ -16,7 +16,7 @@ class CPUUsageTest(oeRuntimeTest):
         self.assertEqual(status, 0, output)
     
     def test_cpuusage(self):
-        """Used_cpu = 100% - idle_cpu"""
+        """Measure system idle CPU usage"""
         # self._reboot()
         filename = os.path.basename(__file__)
         casename = os.path.splitext(filename)[0]

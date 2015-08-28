@@ -27,6 +27,7 @@ class NetperfTest(oeRuntimeTest):
         #ret = shell_cmd("/usr/bin/netserver")
 
     def test_netperf(self):
+        """Use Netperf to measure network bandwidth"""
         self._setup()
         filename = os.path.basename(__file__)
         casename = os.path.splitext(filename)[0]
