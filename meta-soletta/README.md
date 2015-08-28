@@ -22,4 +22,4 @@ The dependencies to build the images are:
   - meta-intel (If building for intel based-hardware is required)
 
 ##Build image for Minnowboard Max
-Go to [Soletta wiki](https://github.com/solettaproject/soletta/wiki/MinnowBoard-MAX-Instructions):
+Go to [Soletta wiki](https://github.com/solettaproject/soletta/wiki/MinnowBoard-MAX-Instructions)
