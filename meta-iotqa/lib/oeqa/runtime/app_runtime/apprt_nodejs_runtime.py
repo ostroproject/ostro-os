@@ -106,14 +106,14 @@ def get_nodejs_repo(
     return p.returncode
 
 
-def checkout_nodejs(local_nodejs_path, node_version='v0.10.35'):
+def checkout_nodejs(local_nodejs_path, node_version='v0.12.7'):
     '''
     Switch the right branch from the local nodejs repo.
     We need to checkout the branch because of different branches of nodejs
     source may have different number of API test cases.
     Make sure the test cases matches node version of target device.
-    For example, if the node version of target device is v0.10.35, we need to
-    git checkout v0.10.35-release
+    For example, if the node version of target device is v0.12.7, we need to
+    git checkout v0.12.7-release
     branch.
     '''
     apprt_files_dir = os.path.dirname(local_nodejs_path)
@@ -154,7 +154,7 @@ def choose_test_files_and_tar(local_nodejs_path, node_version):
     choose all the test files and directories so that we start tests.
     1. Generate a new temporary directory
     2. Copy all the files and directories to the temporary directory.
-    3. tar -cjf node-v0.10.35-release.tar.gz
+    3. tar -cjf node-<version>-release.tar.gz
     '''
     apprt_files_dir = os.path.abspath(os.path.dirname(local_nodejs_path))
 
