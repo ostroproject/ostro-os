@@ -25,6 +25,16 @@ main(int argc, char* argv[])
 	}
 	if(count == 0){
 		fprintf(stdout, "No sensor exists in system!\n");
+	}
+	result = sf_connect_sensor(sensor_id);
+	if(result < 0){
+		fprintf(stdout, "error: %d, failed to connect to sensor id %d \n", result, sensor_id);
+		return false;
+	}
+	result = sf_disconnect_sensor(sensor_id);
+	if(result < 0){
+		fprintf(stdout, "error: %d, failed to disconnect to sensor id %d \n", result, sensor_id);
+		return false;
 	}	
 	result = sf_disconnect_sensor(sensor_id);
 	if(result < 0){

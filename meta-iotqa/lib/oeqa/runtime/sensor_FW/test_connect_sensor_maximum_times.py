@@ -1,12 +1,13 @@
 '''Verify maximum connections to sensor is 64'''
 import os
 from oeqa.utils.helper import get_files_dir
-import readConfigFile
 from oeqa.oetest import oeRuntimeTest
-
+from oeqa.utils.ddt import ddt, file_data
+@ddt
 class TestConnectSensorMaximumTimes(oeRuntimeTest):
     '''Verify maximum connections allowed to sensor is 64'''
-    def testConnectSensorMaximumTimes(self):
+    @file_data('sensor_id.json')
+    def testConnectSensorMaximumTimes(self, value):
         '''Verify maximum connections allowed to sensor is 64'''
         #Prepare test binaries to image        
         mkdir_path = "mkdir -p /opt/sensor-test/apps/"
@@ -15,8 +16,8 @@ class TestConnectSensorMaximumTimes(oeRuntimeTest):
         (status, output) = self.target.copy_to(copy_path, \
 "/opt/sensor-test/apps/")
         #run test get sensor by id and show it's information
-        client_cmd = "/opt/sensor-test/apps/test_connect_sensor_maximum_times " \
-                     + readConfigFile.ReadConfFile.getSectionValue('sensors','valid-id')
+        cmd = "/opt/sensor-test/apps/test_connect_sensor_maximum_times"
+        client_cmd = "%s %s"%(cmd, str(value))
         (status, output) = self.target.run(client_cmd)
         print output
         self.assertEqual(status, 1, msg="Error messages: %s" % output)
