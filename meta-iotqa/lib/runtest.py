@@ -38,10 +38,7 @@ def getVar(obj):
     #extend form dict, if a variable didn't exists, need find it in testcase
     class VarDict(dict):
         def __getitem__(self, key):
-            tc_method = getattr(obj, obj._testMethodName)
-            tc_class = tc_method.__self__.__class__
-            ret = gettag(tc_method, key, gettag(tc_class, key, getattr(obj, key, None)))
-            return ret
+            return gettag(obj, key)
     return VarDict()
 
 def checkTags(tc, tagexp):

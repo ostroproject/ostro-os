@@ -6,6 +6,7 @@ import time
 import subprocess
 import os
 from oeqa.oetest import oeRuntimeTest
+import unittest
 
 def tag(*args, **kwargs):
     """Decorator that adds attributes to classes or functions
@@ -20,7 +21,13 @@ def tag(*args, **kwargs):
     return wrap_ob
 
 def gettag(obj, key, default=None):
-    return getattr(obj, "tag__"+key, default)
+    key = "tag__" + key
+    if not isinstance(obj, unittest.TestCase):
+        return getattr(obj, key, default)
+    tc_method = getattr(obj, obj._testMethodName)
+    tc_class = tc_method.__self__.__class__
+    ret = getattr(tc_method, key, getattr(tc_class, key, getattr(obj, key, default)))
+    return ret
 
 def shell_cmd(cmd):
     """Execute shell command till it return"""

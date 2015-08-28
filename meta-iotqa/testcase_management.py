@@ -62,7 +62,8 @@ def getCaseList(path, pypath=["oeqa", "runtime"]):
 
 
 def getTagValue(case, key, default=""):
-    return getattr(case, key, getattr(case.__class__, key, default))
+    from oeqa.utils.helper import gettag
+    return gettag(case, key, default)
 
 __opDict = {"EntityType"   : lambda x, y, z: "TestScript",
             "CaseID"       : lambda x, y, z: x.id(),
