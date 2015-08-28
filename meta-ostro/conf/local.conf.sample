@@ -36,6 +36,9 @@
 # For BeagleBone Black:
 #MACHINE ?= "beaglebone"
 #
+# For Intel Edison:
+#MACHINE ?= "edison"
+#
 # This sets the default machine to be "intel-corei7-64" if no other machine is selected:
 MACHINE ??= "intel-corei7-64"
 
