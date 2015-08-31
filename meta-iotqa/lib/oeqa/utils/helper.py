@@ -26,7 +26,18 @@ def gettag(obj, key, default=None):
         return getattr(obj, key, default)
     tc_method = getattr(obj, obj._testMethodName)
     tc_class = tc_method.__self__.__class__
-    ret = getattr(tc_method, key, getattr(tc_class, key, getattr(obj, key, default)))
+    ret = getattr(tc_method, key, getattr(obj, key, default))
+    return ret
+
+def get_all_tags(obj):
+    def __gettags(o):
+        r = {k[len("tag__"):]:getattr(o,k) for k in dir(o) if k.startswith("tag__")}
+        return r
+    if not isinstance(obj, unittest.TestCase):
+        return __gettags(obj)
+    tc_method = getattr(obj, obj._testMethodName)
+    ret = __gettags(obj)
+    ret.update(__gettags(tc_method))
     return ret
 
 def shell_cmd(cmd):
