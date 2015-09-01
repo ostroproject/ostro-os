@@ -5,17 +5,28 @@ from optparse import OptionParser
 import unittest
 import csv
 import StringIO
+import logging
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 TOPDIR = os.path.dirname(BASEDIR)
+def addPaths():
+    sys.path.append(os.path.join(TOPDIR, "bitbake", "lib"))
+    sys.path.append(os.path.join(TOPDIR, "meta", "lib"))
+    for dir in os.listdir(TOPDIR):
+        libPath = os.path.join(TOPDIR, dir, "lib")
+        if os.path.exists(libPath) and libPath not in sys.path:
+            sys.path.insert(0, libPath)
+addPaths()
+from oeqa.utils.helper import gettag, get_all_tags
+
 TITLE = ["EntityType", "CaseID", "Component", "Description",
          "TestType", "Status", "FeatureID", "ExecutionType",
          "PreCondition", "PostCondition",
          "StepNumber", "StepDescription", "ExpectedResult",
-         "TestScriptEntry", "TestScriptExpectResult" ]
+         "TestScriptEntry", "TestScriptExpectResult", "Other" ]
 COLUMN_NUM = len(TITLE)
 
-VERBOSE = 0
+LOG_LEVEL = logging.WARNING
 
 def parseArgs():
     usage = "usage: %prog [options]"
@@ -43,7 +54,7 @@ def parseArgs():
 def getCaseList(path, pypath=["oeqa", "runtime"]):
     testslist = []
     if not os.path.exists(os.path.join(path, '__init__.py')):
-        print("Ignore %s due to __init__.py is missing!"%path)
+        logging.warn("Ignore %s due to __init__.py is missing!"%path)
         return []
     for f in os.listdir(path):
         fullpath = os.path.join(path, f)
@@ -60,13 +71,22 @@ def getCaseList(path, pypath=["oeqa", "runtime"]):
             pypath.pop()
     return testslist
 
+__title = TITLE[:]
+__title.pop()
+def getOtherInfo(case, key, default=""):
+    ret = []
+    for k, v in get_all_tags(case).iteritems():
+        if k not in __title:
+            ret.append("%s=%r"%(k, v))
+    return ", ".join(ret) if ret else default
 
 def getTagValue(case, key, default=""):
-    return getattr(case, key, getattr(case.__class__, key, default))
+    return gettag(case, key, default)
 
 __opDict = {"EntityType"   : lambda x, y, z: "TestScript",
             "CaseID"       : lambda x, y, z: x.id(),
             "Description"  : lambda x, y, z: x._testMethodDoc if x._testMethodDoc else z,
+            "Other"        : getOtherInfo
             }
 def getValueFromCase(case, key, default=""):
     return __opDict.get(key, getTagValue)(case, key, default)
@@ -91,18 +111,17 @@ def getCasesInfo(pathList, layer="None"):
     try:
         testsuite = unittest.TestLoader().loadTestsFromName(casename)
     except:
-        print >>oristderr, "Import %s Failed"%".".join(pathList)
+        logging.warn("Import %s:%s Failed"%(layer, ".".join(pathList)))
         return []
     finally:
         sys.stdout, sys.stderr = oristdout, oristderr
-        if VERBOSE:
-            sys.stdout.write(output.getvalue())
+        logging.debug(output.getvalue())
         output.close()
     defaultValList[TITLE.index("Component")] = defaultComponent
     defaultValList[TITLE.index("Status")] = "Ready"
     defaultValList[TITLE.index("ExecutionType")] = "Auto"
     for case in caseIter(testsuite):
-        print "Testcase:", case.id()
+        logging.info( "Testcase: ", case.id())
         row = map(getValueFromCase, [case]*COLUMN_NUM, TITLE, defaultValList)
         rows.append(row)
     return rows
@@ -110,14 +129,9 @@ def getCasesInfo(pathList, layer="None"):
 def main():
     opt, args = parseArgs()
     if opt.verbose:
-        global VERBOSE
-        VERBOSE = 1
-    sys.path.append(os.path.join(TOPDIR, "bitbake", "lib"))
-    sys.path.append(os.path.join(TOPDIR, "meta", "lib"))
-    for dir in os.listdir(TOPDIR):
-        libPath = os.path.join(TOPDIR, dir, "lib")
-        if os.path.exists(libPath) and libPath not in sys.path:
-            sys.path.insert(0, libPath)
+        global LOG_LEVEL
+        LOG_LEVEL = logging.NOTSET
+    logging.basicConfig(level=LOG_LEVEL, format="%(asctime)s: %(message)s")
     from oeqa.oetest import oeTest, loadTests, oeRuntimeTest
     from oeqa.runexported import MyDataDict, FakeTarget, TestContext
     import oeqa.utils
@@ -141,7 +155,6 @@ def main():
                         outputcsv.writerow(row)
         manualcsv = csv.reader(manual)
         manualTitle = []
-        mapIndex = [0, 1, 2, 3, 7, 8, 9, 10, 11, 4, 5, 6,  12, 13, 14]
         def convertManualToOut(row):
             ret = []
             for title in TITLE:
