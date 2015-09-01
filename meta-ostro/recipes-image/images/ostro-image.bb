@@ -11,6 +11,7 @@ IMAGE_INSTALL = " \
                 iotivity-resource iotivity-resource-samples \
                 packagegroup-core-connectivity \
                 nodejs hid-api iotkit-agent upm tempered mraa linuxptp \
+                iotivity-node iot-rest-api-server \
                 packagegroup-user-management \
                 iot-app-fw iot-app-fw-launcher \
                 sensord \
