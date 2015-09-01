@@ -9,16 +9,18 @@ DESCRIPTION = "iucode_tool is a program to manipulate Intel i686 and X86-64\
  It operates on microcode data downloaded directly from Intel:\
  http://feeds.downloadcenter.intel.com/rss/?p=2371\
 "
-HOMEPAGE = "http://gitorious.org/iucode-tool/"
+HOMEPAGE = "https://gitlab.com/iucode-tool/"
 BUGTRACKER = "https://bugs.debian.org/cgi-bin/pkgreport.cgi?ordering=normal;archive=0;src=iucode-tool;repeatmerged=0"
 
 LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe \
-                    file://iucode_tool.c;beginline=1;endline=15;md5=94d9128c5b95d5c249197a3854f40003"
+                    file://iucode_tool.c;beginline=1;endline=15;md5=f65c2be08bfd462331cadff25869588e"
 
-SRC_URI = "git://gitorious.org/iucode-tool/iucode-tool.git"
-SRCREV = "0ba2ebe57681435fdd0d8af2675c84783b5fa2aa"
-S = "${WORKDIR}/git"
+SRC_URI = "https://gitlab.com/iucode-tool/releases/raw/master/iucode-tool_${PV}.tar.xz"
+SRC_URI[md5sum] = "ad5aa3ed5eee2f9ef58a291fe7ca711d"
+SRC_URI[sha256sum] = "c6e134fc63ac7e765f729c500adc9e154da57b02e991be35b421acf9c7eb0ea9"
+
+S = "${WORKDIR}/iucode_tool-${PV}"
 
 inherit autotools
 
