@@ -17,13 +17,17 @@ spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -
    {
     send "connect $service\n"; exp_continue
    }
+ "Input/output error"
+   {
+    send "connect $service\n"; exp_continue
+   }
  "Hidden SSID name?"
    {
     send "$ssid\n"; exp_continue
    }
  "Passphrase?"
    {
-    send "$password\n"; exp_continue
+    sleep 1; send "$password\n"; exp_continue
    }
  "Connected wifi*"
    {
