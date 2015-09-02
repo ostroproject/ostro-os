@@ -94,7 +94,7 @@ layer:
     # does. Most likely the default attributes for these certificates
     # need to be adapted; modify the scripts as needed.
     cd $IMA_EVM_KEY_DIR
-    $IMA_EVM_BASE/scripts/ima-local-ca.priv
+    $IMA_EVM_BASE/scripts/ima-gen-local-ca.sh
     $IMA_EVM_BASE/scripts/ima-gen.sh
     exit
 
