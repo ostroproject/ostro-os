@@ -40,6 +40,7 @@ FILES_${PN}-dev = " \
                 ${libdir}/soletta/modules/flow/* \
                 ${libdir}/soletta/modules/pin-mux/* \
                 ${libdir}/soletta/modules/linux-micro/* \
+                ${libdir}/soletta/modules/flow-metatype/* \
 "
 
 FILES_${PN} = " \
@@ -82,6 +83,10 @@ do_configure_prepend() {
       echo "HAVE_UDEV=y" >> ${WORKDIR}/config
    fi
    cp ${WORKDIR}/config ${B}/.config
+
+   #Duktape configuration
+   git submodule init ${B}
+   git submodule update ${B}
 }
 
 do_compile() {
