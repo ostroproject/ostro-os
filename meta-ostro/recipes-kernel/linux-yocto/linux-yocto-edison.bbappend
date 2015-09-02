@@ -1,1 +1,0 @@
-linux-yocto_%.bbappend
