@@ -48,17 +48,17 @@ do_compile () {
     npm cache clear
 
     case ${TARGET_ARCH} in
-        "i586") targetArch="ia32"
+        i?86) targetArch="ia32"
             echo "targetArch = 32"
             ;;
-        "x86_64") targetArch="x64"
+        x86_64) targetArch="x64"
             echo "targetArch = 64"
             ;;
-        "arm") targetArch="arm"
+        arm) targetArch="arm"
             ;;
-        "mips") targetArch="mips"
+        mips) targetArch="mips"
             ;;
-        "sparc") targetArch="sparc"
+        sparc) targetArch="sparc"
             ;;
         *) echo "unknown architecture"
            exit 1
