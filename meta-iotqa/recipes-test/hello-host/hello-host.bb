@@ -11,5 +11,3 @@ do_compile() {
 }
 inherit native
 
-inherit copybin
-NATIVE_FILES += "${WORKDIR}/hello"
