@@ -1,0 +1,55 @@
+From 8187238b32aea5fdbf4c76b5afb8cba2af7e5869 Mon Sep 17 00:00:00 2001
+From: Ismo Puustinen <ismo.puustinen@intel.com>
+Date: Tue, 4 Aug 2015 15:33:47 +0300
+Subject: [PATCH 1/6] tests: handle strings right.
+
+Upstream-status: Submitted
+
+Signed-off-by: Ismo Puustinen <ismo.puustinen@intel.com>
+
+diff --git a/tests/libcg_ba.cpp b/tests/libcg_ba.cpp
+index 322794b..f89a8a7 100644
+--- a/tests/libcg_ba.cpp
++++ b/tests/libcg_ba.cpp
+@@ -94,7 +94,7 @@ struct cgroup *cg::makenode(const string &name, const string &task_uid,
+ 
+ 	cgroup_dbg("tuid %d, tgid %d, cuid %d, cgid %d\n", tuid, tgid, cuid, cgid);
+ 
+-	cgroup_name = (char *) malloc(name.length());
++	cgroup_name = (char *) malloc(name.length() + 1);
+ 	strncpy(cgroup_name, name.c_str(), name.length() + 1);
+ 
+ 	ccg = cgroup_new_cgroup(cgroup_name);
+@@ -112,6 +112,8 @@ struct cgroup *cg::makenode(const string &name, const string &task_uid,
+ 		if (ret)
+ 			cout << "cg delete group failed " << errno << endl;
+ 	}
++
++	free(cgroup_name);
+ 	return ccg;
+ }
+ 
+@@ -121,9 +123,8 @@ struct cgroup *cg::makenodefromparent(const string &name)
+ 	struct cgroup *ccg;
+ 	int ret;
+ 
+-	cgroup_name = (char *) malloc(name.length());
+-	memset(cgroup_name, '\0', name.length());
+-	strcpy(cgroup_name, name.c_str());
++	cgroup_name = (char *) malloc(name.length() + 1);
++	strncpy(cgroup_name, name.c_str(), name.length() + 1);
+ 
+ 	ccg = cgroup_new_cgroup(cgroup_name);
+ 	ret = cgroup_create_cgroup_from_parent(ccg, 1);
+@@ -133,6 +134,8 @@ struct cgroup *cg::makenodefromparent(const string &name)
+ 		if (ret)
+ 			cout << "cg delete group failed " << errno << endl;
+ 	}
++
++	free(cgroup_name);
+ 	return ccg;
+ }
+ 
+-- 
+2.4.3
+

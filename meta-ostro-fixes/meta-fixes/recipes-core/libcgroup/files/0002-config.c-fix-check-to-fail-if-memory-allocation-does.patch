@@ -1,0 +1,42 @@
+From 0aa47239276a7e662b321e4bc44248259a810630 Mon Sep 17 00:00:00 2001
+From: Ismo Puustinen <ismo.puustinen@intel.com>
+Date: Tue, 4 Aug 2015 16:07:55 +0300
+Subject: [PATCH 2/6] config.c: fix check to fail if memory allocation doesn't
+ succeed.
+
+Upstream-status: Submitted
+
+Signed-off-by: Ismo Puustinen <ismo.puustinen@intel.com>
+
+diff --git a/src/config.c b/src/config.c
+index da2c0dd..3edd0a3 100644
+--- a/src/config.c
++++ b/src/config.c
+@@ -1659,7 +1659,7 @@ int cgroup_config_create_template_group(struct cgroup *cgroup,
+ 		/* no template is present for given name x controller pair
+ 		 * add controller to result cgroup */
+ 		aux_cgroup = cgroup_new_cgroup(cgroup->name);
+-		if (aux_cgroup) {
++		if (aux_cgroup == NULL) {
+ 			ret = ECGINVAL;
+ 			fprintf(stderr, "cgroup %s can't be created\n",
+ 				cgroup->name);
+@@ -1671,6 +1671,7 @@ int cgroup_config_create_template_group(struct cgroup *cgroup,
+ 			ret = ECGINVAL;
+ 			fprintf(stderr, "cgroup %s can't be created\n",
+ 				cgroup->name);
++			cgroup_free(&aux_cgroup);
+ 			goto end;
+ 		}
+ 		ret = cgroup_create_cgroup(aux_cgroup, flags);
+@@ -1678,6 +1679,7 @@ int cgroup_config_create_template_group(struct cgroup *cgroup,
+ 			ret = ECGINVAL;
+ 			fprintf(stderr, "cgroup %s can't be created\n",
+ 				cgroup->name);
++			cgroup_free(&aux_cgroup);
+ 			goto end;
+ 		}
+ 	}
+-- 
+2.4.3
+
