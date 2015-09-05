@@ -1,12 +1,12 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/base-files:"
+FILESEXTRAPATHS_prepend_edison := "${THISDIR}/base-files:"
 
-SRC_URI += "file://factory.mount"
-SRC_URI += "file://fstab"
+SRC_URI_edison += "file://factory.mount"
+SRC_URI_edison += "file://fstab"
 
 # override default volatile to suppress var/log link creation
 volatiles = "tmp"
 
-do_install_append() {
+do_install_append_edison() {
 	install -d ${D}${sysconfdir}
 	install -m 0644 ${WORKDIR}/fstab ${D}${sysconfdir}/fstab
 
@@ -20,6 +20,6 @@ do_install_append() {
 
 }
 
-FILES_${PN} += "${base_libdir}/systemd/system/*.mount"
-FILES_${PN} += "${sysconfdir}/systemd/system/default.target.wants/*.mount"
+FILES_${PN}_append_edison = " ${base_libdir}/systemd/system/*.mount"
+FILES_${PN}_append_edison = " ${sysconfdir}/systemd/system/default.target.wants/*.mount"
 
