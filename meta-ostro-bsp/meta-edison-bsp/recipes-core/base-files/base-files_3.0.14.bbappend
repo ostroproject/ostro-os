@@ -4,7 +4,7 @@ SRC_URI_edison += "file://factory.mount"
 SRC_URI_edison += "file://fstab"
 
 # override default volatile to suppress var/log link creation
-volatiles = "tmp"
+volatiles_edison = "tmp"
 
 do_install_append_edison() {
 	install -d ${D}${sysconfdir}
