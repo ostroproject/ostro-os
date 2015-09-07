@@ -1,0 +1,124 @@
+From 54984c3e02475bb26e56af9ff1d2638cdac5fa63 Mon Sep 17 00:00:00 2001
+From: Ismo Puustinen <ismo.puustinen@intel.com>
+Date: Fri, 7 Aug 2015 22:14:47 -0400
+Subject: [PATCH 2/2] GH367: Fix dsa keygen for too-short seed
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+If the seed value for dsa key generation is too short (< qsize),
+return an error. Also update the documentation.
+
+Signed-off-by: Rich Salz <rsalz@akamai.com>
+Reviewed-by: Emilia Käsper <emilia@openssl.org>
+
+Backported for 1.0.2d.
+
+Upstream-status: Accepted
+
+Signed-off-by: Ismo Puustinen <ismo.puustinen@intel.com>
+---
+ CHANGES                                |  6 ++++++
+ crypto/dsa/dsa_gen.c                   | 29 ++++++++++++-----------------
+ doc/crypto/DSA_generate_parameters.pod | 11 +++++------
+ 3 files changed, 23 insertions(+), 23 deletions(-)
+
+diff --git a/CHANGES b/CHANGES
+index 5d4c234..bd101f6 100644
+--- a/CHANGES
++++ b/CHANGES
+@@ -2,6 +2,12 @@
+  OpenSSL CHANGES
+  _______________
+ 
++ Changes between 1.0.2d and patched version
++
++  *) In DSA_generate_parameters_ex, if the provided seed is too short,
++     return an error
++     [Rich Salz and Ismo Puustinen <ismo.puustinen@intel.com>]
++
+  Changes between 1.0.2c and 1.0.2d [9 Jul 2015]
+ 
+   *) Alternate chains certificate forgery
+diff --git a/crypto/dsa/dsa_gen.c b/crypto/dsa/dsa_gen.c
+index 5a328aa..777db76 100644
+--- a/crypto/dsa/dsa_gen.c
++++ b/crypto/dsa/dsa_gen.c
+@@ -163,18 +163,15 @@ int dsa_builtin_paramgen(DSA *ret, size_t bits, size_t qbits,
+ 
+     bits = (bits + 63) / 64 * 64;
+ 
+-    /*
+-     * NB: seed_len == 0 is special case: copy generated seed to seed_in if
+-     * it is not NULL.
+-     */
+-    if (seed_len && (seed_len < (size_t)qsize))
+-        seed_in = NULL;         /* seed buffer too small -- ignore */
+-    if (seed_len > (size_t)qsize)
+-        seed_len = qsize;       /* App. 2.2 of FIPS PUB 186 allows larger
+-                                 * SEED, but our internal buffers are
+-                                 * restricted to 160 bits */
+-    if (seed_in != NULL)
++    if (seed_in != NULL) {
++        if (seed_len < (size_t)qsize)
++            return 0;
++        if (seed_len > (size_t)qsize) {
++            /* Don't overflow seed local variable. */
++            seed_len = qsize;
++        }
+         memcpy(seed, seed_in, seed_len);
++    }
+ 
+     if ((ctx = BN_CTX_new()) == NULL)
+         goto err;
+@@ -197,20 +194,18 @@ int dsa_builtin_paramgen(DSA *ret, size_t bits, size_t qbits,
+ 
+     for (;;) {
+         for (;;) {              /* find q */
+-            int seed_is_random;
++            int seed_is_random = seed_in == NULL;
+ 
+             /* step 1 */
+             if (!BN_GENCB_call(cb, 0, m++))
+                 goto err;
+ 
+-            if (!seed_len) {
++            if (seed_is_random) {
+                 if (RAND_pseudo_bytes(seed, qsize) < 0)
+                     goto err;
+-                seed_is_random = 1;
+             } else {
+-                seed_is_random = 0;
+-                seed_len = 0;   /* use random seed if 'seed_in' turns out to
+-                                 * be bad */
++                /* If we come back through, use random seed next time. */
++                seed_in = NULL;
+             }
+             memcpy(buf, seed, qsize);
+             memcpy(buf2, seed, qsize);
+diff --git a/doc/crypto/DSA_generate_parameters.pod b/doc/crypto/DSA_generate_parameters.pod
+index 16a67f2..7db1522 100644
+--- a/doc/crypto/DSA_generate_parameters.pod
++++ b/doc/crypto/DSA_generate_parameters.pod
+@@ -23,13 +23,12 @@ Deprecated:
+ DSA_generate_parameters_ex() generates primes p and q and a generator g
+ for use in the DSA and stores the result in B<dsa>.
+ 
+-B<bits> is the length of the prime to be generated; the DSS allows a
+-maximum of 1024 bits.
++B<bits> is the length of the prime p to be generated.
++For lengths under 2048 bits, the length of q is 160 bits; for lengths
++at least 2048, it is set to 256 bits.
+ 
+-If B<seed> is B<NULL> or B<seed_len> E<lt> 20, the primes will be
+-generated at random. Otherwise, the seed is used to generate
+-them. If the given seed does not yield a prime q, a new random
+-seed is chosen and placed at B<seed>.
++If B<seed> is NULL, the primes will be generated at random.
++If B<seed_len> is less than the length of q, an error is returned.
+ 
+ DSA_generate_parameters_ex() places the iteration count in
+ *B<counter_ret> and a counter used for finding a generator in
+-- 
+2.4.3
+
