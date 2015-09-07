@@ -90,7 +90,7 @@ def get_nodejs_repo(
             'github',
             'nodejs_url',
             vars={
-                'nodejs_url': 'https://github.com/joyent/node.git'})
+                'nodejs_url': 'https://github.com/nodejs/node.git'})
 
         git_cmd.append('clone')
         git_cmd.append(nodejs_url)
