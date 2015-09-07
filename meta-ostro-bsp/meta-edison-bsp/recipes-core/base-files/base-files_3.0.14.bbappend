@@ -1,7 +1,7 @@
 FILESEXTRAPATHS_prepend_edison := "${THISDIR}/base-files:"
 
-SRC_URI_edison += "file://factory.mount"
-SRC_URI_edison += "file://fstab"
+SRC_URI_append_edison = " file://factory.mount"
+SRC_URI_append_edison = " file://fstab"
 
 # override default volatile to suppress var/log link creation
 volatiles_edison = "tmp"
