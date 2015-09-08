@@ -36,3 +36,16 @@ IMAGE_FSTYPES = "${INITRAMFS_FSTYPES}"
 inherit core-image
 
 BAD_RECOMMENDATIONS += "busybox-syslog"
+
+# Ensure that we install the additional files needed for IMA/EVM
+# by inheriting ima-evm-rootfs, even though no files need to be
+# signed in the initramfs itself.
+#
+# For the rootfs we use the IMA example policy which allows both
+# signed and hashed files (installed as part of
+# initramfs-framework-ima.bb) and sign the rootfs accordingly (in
+# ostro-image.bb).
+IMA_EVM_ROOTFS_SIGNED = "-maxdepth 0 -false"
+IMA_EVM_ROOTFS_HASHED = "-maxdepth 0 -false"
+inherit ima-evm-rootfs
+PACKAGE_INSTALL += "initramfs-framework-ima"
