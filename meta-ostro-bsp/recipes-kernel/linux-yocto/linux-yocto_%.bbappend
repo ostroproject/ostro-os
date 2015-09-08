@@ -51,3 +51,7 @@ SRC_URI_append = " file://6lowpan.cfg"
 
 # 6lowpan over 802154 support and drivers
 SRC_URI_append = " file://6lowpan-802154.cfg"
+
+# 6lowpan over Bluetooth LE support
+SRC_URI_append = " file://6lowpan-btle.cfg"
+SRC_URI_append_intel-quark = " file://debug-fs.cfg"
