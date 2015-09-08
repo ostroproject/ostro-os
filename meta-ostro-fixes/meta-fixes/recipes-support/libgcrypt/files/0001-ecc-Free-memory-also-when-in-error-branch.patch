@@ -1,0 +1,52 @@
+From 1d896371fbc94c605fce35eabcde01e24dd22892 Mon Sep 17 00:00:00 2001
+From: Ismo Puustinen <ismo.puustinen@intel.com>
+Date: Wed, 5 Aug 2015 15:27:43 +0300
+Subject: [PATCH 1/2] ecc: Free memory also when in error branch.
+
+* cipher/ecc-eddsa.c (_gcry_ecc_eddsa_sign): Init DISGEST and goto
+leave on error.
+--
+
+Fixing an issue found by static analysis.
+
+Signed-off-by: Ismo Puustinen <ismo.puustinen@intel.com>
+
+Added DIGEST init and wrote Changelog.
+
+Signed-off-by: Werner Koch <wk@gnupg.org>
+
+Upstream-status: Accpeted
+
+---
+ cipher/ecc-eddsa.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/cipher/ecc-eddsa.c b/cipher/ecc-eddsa.c
+index 4323d8e..1e95489 100644
+--- a/cipher/ecc-eddsa.c
++++ b/cipher/ecc-eddsa.c
+@@ -580,7 +580,7 @@ _gcry_ecc_eddsa_sign (gcry_mpi_t input, ECC_secret_key *skey,
+   mpi_ec_t ctx = NULL;
+   int b;
+   unsigned int tmp;
+-  unsigned char *digest;
++  unsigned char *digest = NULL;
+   gcry_buffer_t hvec[3];
+   const void *mbuf;
+   size_t mlen;
+@@ -607,8 +607,10 @@ _gcry_ecc_eddsa_sign (gcry_mpi_t input, ECC_secret_key *skey,
+   ctx = _gcry_mpi_ec_p_internal_new (skey->E.model, skey->E.dialect, 0,
+                                      skey->E.p, skey->E.a, skey->E.b);
+   b = (ctx->nbits+7)/8;
+-  if (b != 256/8)
+-    return GPG_ERR_INTERNAL; /* We only support 256 bit. */
++  if (b != 256/8) {
++    rc = GPG_ERR_INTERNAL; /* We only support 256 bit. */
++    goto leave;
++  }
+ 
+   rc = _gcry_ecc_eddsa_compute_h_d (&digest, skey->d, ctx);
+   if (rc)
+-- 
+2.4.3
+
