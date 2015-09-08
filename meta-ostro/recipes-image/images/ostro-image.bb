@@ -124,6 +124,12 @@ inherit ima-evm-rootfs
 # really unmodified.
 IMAGE_INSTALL += "ima-evm-utils"
 
+# This limits attempts to mount the rootfs to exactly the right type.
+# Avoids kernel messages like:
+# EXT4-fs (hda2): couldn't mount as ext3 due to feature incompatibilities
+# The VM types must be treated like ext4 (also hard-coded there).
+APPEND_append = "${@''.join([' rootfstype=' + i for i in ['ext4', 'ext3', 'ext2'] if i in d.getVar('IMAGE_FSTYPES', True).replace('vdi', 'ext4').replace('vmdk', 'ext4').replace('qcow2', 'ext4').split()])}"
+
 # parted-native is required by wic to build the final image but has no
 # explicit dependency set in recipes. Use EXTRA_IMAGEDEPENDS to ensure
 # parted-native gets built.
