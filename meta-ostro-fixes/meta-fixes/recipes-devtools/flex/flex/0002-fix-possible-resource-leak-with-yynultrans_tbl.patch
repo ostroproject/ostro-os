@@ -1,0 +1,44 @@
+From dc2ccd2166bc0c57fca25c0b6f7823958f46830e Mon Sep 17 00:00:00 2001
+From: Jaska Uimonen <jaska.uimonen@helsinki.fi>
+Date: Mon, 27 Jul 2015 11:20:05 +0300
+Subject: [PATCH 2/2] fix possible resource leak with yynultrans_tbl
+
+Upstream-Status: Accepted
+
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ gen.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/gen.c b/gen.c
+index 8261951..461a85d 100644
+--- a/gen.c
++++ b/gen.c
+@@ -1503,8 +1503,7 @@ void make_tables ()
+ {
+ 	register int i;
+ 	int     did_eof_rule = false;
+-	struct yytbl_data *yynultrans_tbl;
+-
++	struct yytbl_data *yynultrans_tbl = NULL;
+ 
+ 	skelout ();		/* %% [2.0] - break point in skel */
+ 
+@@ -1733,9 +1732,13 @@ void make_tables ()
+ 			    0)
+ 				flexerror (_
+ 					   ("Could not write yynultrans_tbl"));
++		}
++
++		if (yynultrans_tbl != NULL) {
+ 			yytbl_data_destroy (yynultrans_tbl);
+ 			yynultrans_tbl = NULL;
+-		}
++        }
++
+ 		/* End generating yy_NUL_trans */
+ 	}
+ 
+-- 
+2.1.0
+
