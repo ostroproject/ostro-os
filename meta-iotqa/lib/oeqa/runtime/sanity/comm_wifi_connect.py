@@ -20,18 +20,19 @@ class CommWiFiConect(oeRuntimeTest):
         # Enable WiFi
         (status, output) = self.target.run('connmanctl enable wifi')
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
-        time.sleep(20)
+        time.sleep(30)
         # Scan nearby to get service of none-encryption broadcasting ssid
         hidden_str = "hidden_managed_psk"
-        (status, output) = self.target.run('connmanctl scan wifi')
-        self.assertEqual(status, 0, msg="Error messages: %s" % output)
-        (status, services) = self.target.run("connmanctl services | grep %s" % hidden_str)
-        # will do scan retry 1 time if needed
-        if (status != 0):
+        # will do scan retry 3 times if needed
+        retry = 0
+        while (retry < 4):
             (status, output) = self.target.run('connmanctl scan wifi')
             self.assertEqual(status, 0, msg="Error messages: %s" % output)
             (status, services) = self.target.run("connmanctl services | grep %s" % hidden_str)
-            self.assertEqual(status, 0, msg="Not found hidden AP service")
+            retry = retry + 1
+            if (status == 0):
+                break
+        self.assertEqual(status, 0, msg="Not found hidden AP service")
         self.hidden_service = services.strip()
 
     def tearDown(self):
