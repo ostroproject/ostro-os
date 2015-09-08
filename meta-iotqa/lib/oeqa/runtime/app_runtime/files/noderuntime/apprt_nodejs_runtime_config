@@ -1,6 +1,6 @@
 [github]
-nodejs_url=https://github.com/joyent/node.git
-node_archive_url=https://github.com/joyent/node/archive
+nodejs_url=https://github.com/nodejs/node.git
+node_archive_url=https://github.com/nodejs/node/archive
 
 [target]
 node_path=/usr/bin/node
