@@ -8,22 +8,26 @@ from oeqa.utils.helper import tag
 
 @tag(TestType="Functional Positive", FeatureID="IOTOS-754")
 class IOtvtIntegration(oeRuntimeTest):
+    @classmethod
+    def setUpClass(cls):
+        '''Clean all the server and client firstly'''
+        cls.tc.target.run("killall presenceserver presenceclient devicediscoveryserver devicediscoveryclient")        
+        cls.tc.target.run("killall fridgeserver fridgeclient garageserver garageclient groupserver groupclient")
+        cls.tc.target.run("killall roomserver roomclient simpleserver simpleclient simpleserverHQ simpleclientHQ")
+        cls.tc.target.run("killall simpleclientserver threadingsample")
+
     def presence_check(self, para):
         '''this is a function used by presence test'''
-        # ensure env is clean
-        self.target.run("killall presenceserver")        
-        self.target.run("killall presenceclient")        
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/presenceserver > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd)
+        (status, output) = self.target.run(server_cmd, timeout=20)
         time.sleep(1)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/presenceclient -t %d > /tmp/output &" % para
-        self.target.run(client_cmd)
+        self.target.run(client_cmd, timeout=20)
         time.sleep(15)
         (status, output) = self.target.run("cat /tmp/output | grep 'Received presence notification from' -c")
-        self.target.run("killall presenceserver")        
-        self.target.run("killall presenceclient")
+        self.target.run("killall presenceserver presenceclient")        
         return string.atoi(output)
 
     def test_devicediscovery(self):
@@ -33,14 +37,12 @@ class IOtvtIntegration(oeRuntimeTest):
             server and fetch the information to print out. 
         '''
         # ensure env is clean
-        self.target.run("killall devicediscoveryserver")        
-        self.target.run("killall devicediscoveryclient")        
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/devicediscoveryserver > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd)
+        (status, output) = self.target.run(server_cmd, timeout=20)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/devicediscoveryclient > /tmp/output &"
-        self.target.run(client_cmd)
+        self.target.run(client_cmd, timeout=20)
         time.sleep(2)
         (status, output) = self.target.run('cat /tmp/output')
         # judge if the values are correct
@@ -54,10 +56,9 @@ class IOtvtIntegration(oeRuntimeTest):
             pass
         else:
             ret = 1
-        self.assertEqual(ret, 0, msg="Error messages: %s" % output)                      
         # kill server and client
-        self.target.run("killall devicediscoveryserver")        
-        self.target.run("killall devicediscoveryclient")        
+        self.target.run("killall devicediscoveryserver devicediscoveryclient")        
+        self.assertEqual(ret, 0, msg="Error messages: %s" % output)                      
 
     def test_fridge(self):
         '''
@@ -66,15 +67,13 @@ class IOtvtIntegration(oeRuntimeTest):
             server and fetch the information to print out. 
         '''
         # ensure env is clean
-        self.target.run("killall fridgeserver")        
-        self.target.run("killall fridgeclient")        
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/fridgeserver > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd)
+        (status, output) = self.target.run(server_cmd, timeout=20)
         time.sleep(1)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/fridgeclient > /tmp/output &"
-        self.target.run(client_cmd)
+        self.target.run(client_cmd, timeout=20)
         time.sleep(5)
         (status, output) = self.target.run('cat /tmp/output')
         # judge if the values are correct
@@ -88,10 +87,9 @@ class IOtvtIntegration(oeRuntimeTest):
             pass
         else:
             ret = 1
-        self.assertEqual(ret, 0, msg="Error messages: %s" % output)                      
         # kill server and client
-        self.target.run("killall fridgeserver")        
-        self.target.run("killall fridgeclient")        
+        self.target.run("killall fridgeserver fridgeclient")        
+        self.assertEqual(ret, 0, msg="Error messages: %s" % output)                      
 
     def test_garage(self):
         '''
@@ -100,16 +98,13 @@ class IOtvtIntegration(oeRuntimeTest):
             OCRepresentation. Then the attribute number of OCRepresentation should 
             reduce 1. 
         '''
-        # ensure env is clean
-        self.target.run("killall garageserver")        
-        self.target.run("killall garageclient")        
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/garageserver > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd)
+        (status, output) = self.target.run(server_cmd, timeout=20)
         time.sleep(1)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/garageclient > /tmp/output &"
-        self.target.run(client_cmd)
+        self.target.run(client_cmd, timeout=20)
         time.sleep(5)
         (status, output) = self.target.run('cat /tmp/output')
         # judge if the values are correct
@@ -121,10 +116,9 @@ class IOtvtIntegration(oeRuntimeTest):
             pass
         else:
             ret = 1
-        self.assertEqual(ret, 0, msg="Error messages: %s" % output)                      
         # kill server and client
-        self.target.run("killall garageserver")        
-        self.target.run("killall garageclient")        
+        self.target.run("killall garageserver garageclient")        
+        self.assertEqual(ret, 0, msg="Error messages: %s" % output)                      
 
     def test_group(self):
         '''
@@ -132,20 +126,16 @@ class IOtvtIntegration(oeRuntimeTest):
             In option (user inputs 1), it will set ActionSet value of rep. This case
             is to check if the set operation is done. 
         '''
-        # ensure env is clean
-        self.target.run("killall groupserver")        
-        self.target.run("killall groupclient")        
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/groupserver > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd)
+        (status, output) = self.target.run(server_cmd, timeout=20)
         time.sleep(1)
         # start client to get info, here needs user input. So use expect
         exp_cmd = os.path.join(os.path.dirname(__file__), "files/group_client.exp")
         status, output = shell_cmd_timeout("expect %s %s" % (exp_cmd, self.target.ip), timeout=200)
-        self.assertEqual(status, 2, msg="expect excution fail")
         # kill server and client
-        self.target.run("killall groupserver")        
-        self.target.run("killall groupclient")        
+        self.target.run("killall groupserver groupclient")        
+        self.assertEqual(status, 2, msg="expect excution fail")
 
     def test_presence_unicast(self):
         '''
@@ -166,12 +156,12 @@ class IOtvtIntegration(oeRuntimeTest):
     def test_presence_unicast_one_filter(self):
         ''' See instruction in test_presence_unicast. '''
         number = self.presence_check(2)
-        self.assertEqual(number, 5, msg="type 2 should have 5 notifications")
+        self.assertEqual(number, 3, msg="type 2 should have 5 notifications")
 
     def test_presence_unicast_two_filters(self):
         ''' See instruction in test_presence_unicast. '''
         number = self.presence_check(3)
-        self.assertEqual(number, 6, msg="type 3 should have 6 notifications")
+        self.assertEqual(number, 4, msg="type 3 should have 6 notifications")
 
     def test_presence_multicast(self):
         ''' See instruction in test_presence_unicast. '''
@@ -181,12 +171,12 @@ class IOtvtIntegration(oeRuntimeTest):
     def test_presence_multicast_one_filter(self):
         ''' See instruction in test_presence_unicast. '''
         number = self.presence_check(5)
-        self.assertEqual(number, 5, msg="type 5 should have 5 notifications")
+        self.assertEqual(number, 3, msg="type 5 should have 5 notifications")
 
     def test_presence_multicast_two_filters(self):
         ''' See instruction in test_presence_unicast. '''
         number = self.presence_check(6)
-        self.assertEqual(number, 6, msg="type 6 should have 6 notifications")
+        self.assertEqual(number, 4, msg="type 6 should have 6 notifications")
  
     def test_room_default_collection(self):
         ''' 
@@ -194,9 +184,6 @@ class IOtvtIntegration(oeRuntimeTest):
             So, there is no 'In Server CPP entity handler' output. Each respone is given by
             light or fan. 
         '''
-        # ensure env is clean
-        self.target.run("killall roomserver")        
-        self.target.run("killall roomclient")        
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/roomserver 1 > /tmp/svr_output &"
         (status, output) = self.target.run(server_cmd)
@@ -206,10 +193,9 @@ class IOtvtIntegration(oeRuntimeTest):
         self.target.run(client_cmd)
         time.sleep(3)
         (status, output) = self.target.run("cat /tmp/svr_output | grep 'In Server CPP entity handler' -c")
-        self.assertEqual(string.atoi(output), 0, msg="CPP entity handler is: %s" % output)                      
         # kill server and client
-        self.target.run("killall roomserver")        
-        self.target.run("killall roomclient")        
+        self.target.run("killall roomserver roomclient")        
+        self.assertEqual(string.atoi(output), 0, msg="CPP entity handler is: %s" % output)                      
 
     def test_room_application_collection(self):
         ''' 
@@ -217,38 +203,31 @@ class IOtvtIntegration(oeRuntimeTest):
             response. So, there are 3 responses output: In Server CPP entity handler.
             In the middle one, it will handle light and fan. 
         '''
-        # ensure env is clean
-        self.target.run("killall roomserver")        
-        self.target.run("killall roomclient")        
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/roomserver 2 > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd)
+        (status, output) = self.target.run(server_cmd, timeout=20)
         time.sleep(1)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/roomclient > /tmp/output &"
-        self.target.run(client_cmd)
+        self.target.run(client_cmd, timeout=20)
         time.sleep(3)
         (status, output) = self.target.run("cat /tmp/svr_output | grep 'In Server CPP entity handler' -c")
-        self.assertEqual(string.atoi(output), 3, msg="CPP entity handler is: %s" % output)                      
         # kill server and client
-        self.target.run("killall roomserver")        
-        self.target.run("killall roomclient")        
+        self.target.run("killall roomserver roomclient")        
+        self.assertEqual(string.atoi(output), 3, msg="CPP entity handler is: %s" % output)                      
 
     def test_simple(self):
         '''
             Test simpleserver and simpleclient. 
             After finding resource, simpleclient will do: GET, PUT, POST, Observer sequencely. 
         '''
-        # ensure env is clean
-        self.target.run("killall simpleserver")        
-        self.target.run("killall simpleclient")        
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/simpleserver > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd)
+        (status, output) = self.target.run(server_cmd, timeout=90)
         time.sleep(1)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclient > /tmp/output &"
-        self.target.run(client_cmd)
+        self.target.run(client_cmd, timeout=90)
         print "\npatient... simpleclient needs long time for its observation"
         time.sleep(70)
         (status, output) = self.target.run('cat /tmp/output')
@@ -263,10 +242,9 @@ class IOtvtIntegration(oeRuntimeTest):
             pass
         else:
             ret = 1
-        self.assertEqual(ret, 0, msg="Error messages: %s" % output)                      
         # kill server and client
-        self.target.run("killall simpleserver")        
-        self.target.run("killall simpleclient")        
+        self.target.run("killall simpleserver simpleclient")        
+        self.assertEqual(ret, 0, msg="Error messages: %s" % output)                      
 
     def test_simpleHQ(self):
         '''
@@ -275,16 +253,13 @@ class IOtvtIntegration(oeRuntimeTest):
             sendResponse (when PUT) / sendPostResponse (when POST). Basically, they
             are the same.  
         '''
-        # ensure env is clean
-        self.target.run("killall simpleserverHQ")        
-        self.target.run("killall simpleclientHQ")        
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/simpleserverHQ > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd)
+        (status, output) = self.target.run(server_cmd, timeout=90)
         time.sleep(1)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclientHQ > /tmp/output &"
-        self.target.run(client_cmd)
+        self.target.run(client_cmd, timeout=90)
         print "\npatient... simpleclientHQ needs long time for its observation"
         time.sleep(70)
         (status, output) = self.target.run('cat /tmp/output')
@@ -299,18 +274,15 @@ class IOtvtIntegration(oeRuntimeTest):
             pass
         else:
             ret = 1
-        self.assertEqual(ret, 0, msg="Error messages: %s" % output)                      
         # kill server and client
-        self.target.run("killall simpleserverHQ")        
-        self.target.run("killall simpleclientHQ")        
+        self.target.run("killall simpleserverHQ simpleclientHQ")        
+        self.assertEqual(ret, 0, msg="Error messages: %s" % output)                      
 
     def test_simpleclientserver(self):
         ''' Test simpleclientserver. It foos a server, and start client to do GET/PUT. ''' 
-        # ensure env is clean
-        self.target.run("killall simpleclientserver")        
         # start test
         client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclientserver > /tmp/output &"
-        self.target.run(client_cmd)
+        self.target.run(client_cmd, timeout=20)
         time.sleep(10)
         (status, output) = self.target.run('cat /tmp/output')
         # judge if the values are correct
@@ -322,9 +294,9 @@ class IOtvtIntegration(oeRuntimeTest):
             pass
         else:
             ret = 1
-        self.assertEqual(ret, 0, msg="Error messages: %s" % output)                      
         # kill test
         self.target.run("killall simpleclientserver")        
+        self.assertEqual(ret, 0, msg="Error messages: %s" % output)                      
 
     def test_threadingsample(self):
         ''' 
@@ -334,11 +306,9 @@ class IOtvtIntegration(oeRuntimeTest):
              2> clinet1 to detect foo1
              3> client2 to detect foo2, and does GET/PUT further
         ''' 
-        # ensure env is clean
-        self.target.run("killall threadingsample")        
         # start test
         client_cmd = "/opt/iotivity/examples/resource/cpp/threadingsample > /tmp/output &"
-        self.target.run(client_cmd)
+        self.target.run(client_cmd, timeout=20)
         print "\n patient, threadingsample needs some time to open 3 threads"
         time.sleep(20)
         (status, output) = self.target.run('cat /tmp/output')
@@ -351,6 +321,6 @@ class IOtvtIntegration(oeRuntimeTest):
             pass
         else:
             ret = 1
-        self.assertEqual(ret, 0, msg="Error messages: %s" % output)                      
         # kill test
         self.target.run("killall threadingsample")        
+        self.assertEqual(ret, 0, msg="Error messages: %s" % output)                      
