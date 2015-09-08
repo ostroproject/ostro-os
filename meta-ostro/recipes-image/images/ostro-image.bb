@@ -293,5 +293,9 @@ ima_evm_sign_rootfs_prepend () {
 # in case of problems during the transition from initramfs to rootfs, spawn a shell.
 APPEND_append = " init_fatal_sh"
 
+# Mount read-only at first. This gives systemd a chance to run fsck
+# and then mount read/write.
+APPEND_append = " ro"
+
 # Ensure that images preserve Smack labels and IMA/EVM.
 inherit xattr-images
