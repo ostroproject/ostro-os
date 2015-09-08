@@ -7,7 +7,9 @@ IMA_EVM_X509 ?= "${IMA_EVM_KEY_DIR}/x509_ima.der"
 IMA_EVM_ROOT_CA ?= "${IMA_EVM_KEY_DIR}/ima-local-ca.x509"
 
 # Sign all regular files by default.
-IMA_EVM_ROOTFS_FILES ?= ". -type f"
+IMA_EVM_ROOTFS_SIGNED ?= ". -type f"
+# Hash nothing by default.
+IMA_EVM_ROOTFS_HASHED ?= ". -depth 0 -false"
 
 ima_evm_sign_rootfs () {
     cd ${IMAGE_ROOTFS}
@@ -20,8 +22,10 @@ ima_evm_sign_rootfs () {
     install "${IMA_EVM_X509}" ./${sysconfdir}/keys/x509_evm.der
 
     # Sign file with private IMA key. EVM not supported at the moment.
-    bbnote "IMA/EVM: signing files 'find ${IMA_EVM_ROOTFS_FILES}' with private key '${IMA_EVM_PRIVKEY}'"
-    find ${IMA_EVM_ROOTFS_FILES} -exec evmctl ima_sign --key ${IMA_EVM_PRIVKEY} "{}" ";"
+    bbnote "IMA/EVM: signing files 'find ${IMA_EVM_ROOTFS_SIGNED}' with private key '${IMA_EVM_PRIVKEY}'"
+    find ${IMA_EVM_ROOTFS_SIGNED} | xargs -d "\n" --max-args=1 --no-run-if-empty --verbose evmctl ima_sign --key ${IMA_EVM_PRIVKEY}
+    bbnote "IMA/EVM: hashing files 'find ${IMA_EVM_ROOTFS_HASHED}'"
+    find ${IMA_EVM_ROOTFS_HASHED} | xargs -d "\n" --max-args=1 --no-run-if-empty --verbose evmctl ima_hash
 
     # Optionally install custom policy for loading by systemd.
     if [ "${IMA_EVM_POLICY_SYSTEMD}" ]; then
