@@ -11,6 +11,10 @@ IMA_EVM_ROOTFS_SIGNED ?= ". -type f"
 # Hash nothing by default.
 IMA_EVM_ROOTFS_HASHED ?= ". -depth 0 -false"
 
+# Mount these file systems (identified via their mount point) with
+# the iversion flags (needed by IMA when allowing writing).
+IMA_EVM_ROOTFS_IVERSION ?= ""
+
 ima_evm_sign_rootfs () {
     cd ${IMAGE_ROOTFS}
 
@@ -20,6 +24,23 @@ ima_evm_sign_rootfs () {
     # as in the kernel default).
     install -d ./${sysconfdir}/keys
     install "${IMA_EVM_X509}" ./${sysconfdir}/keys/x509_evm.der
+
+    # Fix /etc/fstab: it must include the "i_version" mount option for
+    # those file systems where writing files is allowed, otherwise
+    # these changes will not get detected at runtime.
+    #
+    # Note that "i_version" is documented in "man mount" only for ext4,
+    # whereas "iversion" is said to be filesystem-independent. In practice,
+    # there is only one MS_I_VERSION flag in the syscall and ext2/ext3/ext4
+    # all support it.
+    #
+    # coreutils translates "iversion" into MS_I_VERSION. busybox rejects
+    # "iversion" and only understands "i_version". systemd only understands
+    # "iversion". We pick "iversion" here for systemd, whereas rootflags
+    # for initramfs must use "i_version" for busybox.
+    if [ -f etc/fstab ]; then
+       perl -pi -e 's;(\S+)(\s+)(${@"|".join((d.getVar("IMA_EVM_ROOTFS_IVERSION", True) or "no-such-mount-point").split())})(\s+)(\S+)(\s+)(\S+);\1\2\3\4\5\6\7,iversion;' etc/fstab
+    fi
 
     # Sign file with private IMA key. EVM not supported at the moment.
     bbnote "IMA/EVM: signing files 'find ${IMA_EVM_ROOTFS_SIGNED}' with private key '${IMA_EVM_PRIVKEY}'"
