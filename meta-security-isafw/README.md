@@ -49,12 +49,12 @@ environment.
 In order to produce image reports, you can execute image build 
 normally. For example:
 
-bitbake iot-os-image
+bitbake core-image-minimal
 
 If you are only interested to produce a report based on packages 
 and without building an image, please use:
 
-bitbake -c analyse_sources_all iot-os-image
+bitbake -c analyse_sources_all core-image-minimal
 
 
 Logs
