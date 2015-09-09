@@ -32,10 +32,6 @@ try:
 except ImportError:
     import json
 
-def tearDown(self):
-    pass
-oeRuntimeTest.tearDown = tearDown
-
 def wrap_runner(runner, *wargs, **wkwargs):
     @wraps(runner)
     def __wrapper(*args, **kwargs):
