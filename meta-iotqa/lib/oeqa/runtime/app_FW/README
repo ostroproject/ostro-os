@@ -1,4 +1,4 @@
-Since example-app and example-session are not integrated in image by default , we need to build a specific image to test these cases.
+Since example-app and example-session are not integrated in image by default , we need to build a specific image to test these cases except appfw python binding cases.
 Here are steps for how to build the image for these test cases.
 1. cd <Directory of ostro>
 2. source oe-init-build-env
