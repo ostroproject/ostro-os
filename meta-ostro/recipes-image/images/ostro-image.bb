@@ -111,6 +111,17 @@ INITRD_IMAGE_intel-quark = "${OSTRO_INITRAMFS}"
 INITRD_IMAGE_qemux86 = "${OSTRO_INITRAMFS}"
 INITRD_IMAGE_qemux86-64 = "${OSTRO_INITRAMFS}"
 
+# Our initramfs supports finding the partition by UUID, so use that
+# to make the resulting whole-disk .hdddirect image more versatile (will
+# work regardless whether the disk is attached via IDE, SATA, USB or
+# copied to internal flash).
+OSTRO_ROOT ?= "root=UUID=<<uuid-of-rootfs>>"
+SYSLINUX_ROOT_intel-core2-32 = "${OSTRO_ROOT}"
+SYSLINUX_ROOT_intel-corei7-64 = "${OSTRO_ROOT}"
+SYSLINUX_ROOT_intel-quark = "${OSTRO_ROOT}"
+SYSLINUX_ROOT_qemux86 = "${OSTRO_ROOT}"
+SYSLINUX_ROOT_qemux86-64 = "${OSTRO_ROOT}"
+
 # Activate IMA signing of rootfs, using the default (and insecure,
 # because publicly available) keys shipped with the integrity
 # layer. Actual products are expected to use their own, secret keys.
