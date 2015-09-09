@@ -16,5 +16,3 @@ do_install() {
     install -m 0755 hello ${D}${bindir}
 }
 
-inherit copybin
-TARGET_FILES += "${WORKDIR}/hello"

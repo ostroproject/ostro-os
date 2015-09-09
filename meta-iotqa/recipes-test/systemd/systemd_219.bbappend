@@ -1,2 +1,2 @@
-inherit copybin
-TARGET_FILES += "${WORKDIR}/build/systemd-analyze"
+inherit deploy-files
+DEPLOY_FILES_FROM[target] = "${WORKDIR}/build/systemd-analyze"

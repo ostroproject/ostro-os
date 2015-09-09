@@ -84,7 +84,7 @@ def get_files_dir():
     """Get directory of supporting files"""
     pkgarch = oeRuntimeTest.tc.d.getVar('MACHINE', True)
     deploydir = oeRuntimeTest.tc.d.getVar('DEPLOY_DIR', True)
-    return os.path.join(deploydir, "files", pkgarch)
+    return os.path.join(deploydir, "files", "target", pkgarch)
 
 def get_native_dir():
     """Get directory of native files"""
