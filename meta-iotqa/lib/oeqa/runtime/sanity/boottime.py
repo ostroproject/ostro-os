@@ -3,6 +3,8 @@
 
 """System boot time"""
 import os
+import re
+import time
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import collect_pnp_log, get_files_dir
 
@@ -24,14 +26,28 @@ class BootTimeTest(oeRuntimeTest):
             0,
             msg="Failed to find systemd-analyze command")
 
+    def _parse_result(self, data):
+        boottime = 0.0
+        if data:
+		    min_result = re.search(r'(\d+)(min)', data)
+		    if min_result:
+			    boottime = boottime + int(min_result.group(1)) * 60.0
+		    second_result = re.search(r'(\d+\.*\d*)(s)', data)
+		    if second_result:
+			    boottime = boottime + float(second_result.group(1))
+        return boottime
+
     def test_boot_time(self):
         self._setup()
+        time.sleep(60)
         filename = os.path.basename(__file__)
         casename = os.path.splitext(filename)[0]
         (status, output) = self.target.run("/tmp/systemd-analyze time"
                                            " | awk -F '=' '{print $2}'")
-        collect_pnp_log(casename, casename, output)
-        print "\n%s:%s\n" % (casename, output)
+        result = self._parse_result(output)
+        boottime = str(result)+"s"
+        collect_pnp_log(casename, casename, boottime)
+        print "\n%s:%s\n" % (casename, boottime)
         (status, output) = self.target.run("/tmp/systemd-analyze time")
         logname = casename + "-systemd-analyze"
         collect_pnp_log(casename, logname, output)
