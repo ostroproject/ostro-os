@@ -1,5 +1,5 @@
 #!/usr/bin/expect
-set timeout 100
+set timeout 200
 set login 0
 set ip       [lindex $argv 0]
 set cmd      [lindex $argv 1]

@@ -52,8 +52,7 @@ class IOtvtClient(oeRuntimeTest):
         '''Target sets observer'''
         (status, output) = self.target.run('cat /tmp/output')
         ret = 0
-        if "Observe is used." in output and \
-           "SequenceNumber: 14" in output:
+        if "Observe is used." in output:
             pass
         else:
            ret = 1
