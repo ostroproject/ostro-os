@@ -55,3 +55,6 @@ SRC_URI_append = " file://6lowpan-802154.cfg"
 # 6lowpan over Bluetooth LE support
 SRC_URI_append = " file://6lowpan-btle.cfg"
 SRC_URI_append_intel-quark = " file://debug-fs.cfg"
+
+# Bluetooth and Bluetooth LE support on Galileo Gen 2
+SRC_URI_append_intel-quark = " file://bluetooth.cfg"
