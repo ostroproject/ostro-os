@@ -1,0 +1,84 @@
+From db48dbd4919cc2752e9ef134496631428f598943 Mon Sep 17 00:00:00 2001
+From: Imran Zaman <imran.zaman@intel.com>
+Date: Wed, 9 Sep 2015 12:28:40 +0300
+Subject: [PATCH 1/2] extlinux: fix file descriptors leak
+
+file descriptors are closed when not in use
+
+Upstream-status: Submitted (http://www.syslinux.org/archives/2015-September/024135.html)
+
+Signed-off-by: Imran Zaman <imran.zaman@intel.com>
+---
+ extlinux/main.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/extlinux/main.c b/extlinux/main.c
+index 09740bd..55a1495 100644
+--- a/extlinux/main.c
++++ b/extlinux/main.c
+@@ -580,6 +580,7 @@ int ext2_fat_install_file(const char *path, int devfd, struct stat *rst)
+ 	goto bail;
+     }
+ 
++    close(fd);
+     free(file);
+     free(oldfile);
+     free(c32file);
+@@ -778,7 +779,7 @@ static char * get_default_subvol(char * rootdir, char * subvol)
+     struct btrfs_ioctl_search_key *sk = &args.key;
+     struct btrfs_ioctl_search_header *sh;
+     int ret, i;
+-    int fd;
++    int fd = -1;
+     struct btrfs_root_ref *ref;
+     struct btrfs_dir_item *dir_item;
+     unsigned long off = 0;
+@@ -797,6 +798,8 @@ static char * get_default_subvol(char * rootdir, char * subvol)
+     }
+     if (ret <= 0) {
+         subvol[0] = '\0';
++        if (fd >= 0)
++            close(fd);
+         return NULL;
+     }
+ 
+@@ -831,6 +834,8 @@ static char * get_default_subvol(char * rootdir, char * subvol)
+        if (ret < 0) {
+            fprintf(stderr, "ERROR: can't perform the search\n");
+            subvol[0] = '\0';
++           if (fd >= 0)
++               close(fd);
+            return NULL;
+        }
+        /* the ioctl returns the number of item it found in nr_items */
+@@ -891,6 +896,8 @@ static char * get_default_subvol(char * rootdir, char * subvol)
+ 
+    if (defaultsubvolid == 0) {
+        subvol[0] = '\0';
++       if (fd >= 0)
++           close(fd);
+        return NULL;
+    }
+ 
+@@ -922,6 +929,8 @@ static char * get_default_subvol(char * rootdir, char * subvol)
+        if (ret < 0) {
+            fprintf(stderr, "ERROR: can't perform the search\n");
+            subvol[0] = '\0';
++           if (fd >= 0)
++               close(fd);
+            return NULL;
+        }
+        /* the ioctl returns the number of item it found in nr_items */
+@@ -975,6 +984,9 @@ static char * get_default_subvol(char * rootdir, char * subvol)
+        } else
+            break;
+    }
++
++   if (fd >= 0)
++       close(fd);
+    return subvol;
+ }
+ 
+-- 
+1.9.1
+
