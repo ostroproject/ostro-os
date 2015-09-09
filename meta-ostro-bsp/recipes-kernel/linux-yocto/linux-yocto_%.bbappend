@@ -45,3 +45,16 @@ SRC_URI_append_intel-corei7-64 = " file://can-x86.cfg"
 # RealTek WiFi chip used on Gigabyte GB-BXBT-3825
 SRC_URI_append_intel-core2-32 = " file://wireless.cfg"
 SRC_URI_append_intel-corei7-64 = " file://wireless.cfg"
+
+# 6lowpan support
+SRC_URI_append = " file://6lowpan.cfg"
+
+# 6lowpan over 802154 support and drivers
+SRC_URI_append = " file://6lowpan-802154.cfg"
+
+# 6lowpan over Bluetooth LE support
+SRC_URI_append = " file://6lowpan-btle.cfg"
+SRC_URI_append_intel-quark = " file://debug-fs.cfg"
+
+# Bluetooth and Bluetooth LE support on Galileo Gen 2
+SRC_URI_append_intel-quark = " file://bluetooth.cfg"
