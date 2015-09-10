@@ -5,6 +5,12 @@ import string
 from oeqa.oetest import oeRuntimeTest, skipModule
 from oeqa.utils.decorators import *
 
+def get_files_dir():
+    """Get directory of supporting files"""
+    pkgarch = oeRuntimeTest.tc.d.getVar('MACHINE', True)
+    deploydir = oeRuntimeTest.tc.d.getVar('DEPLOY_DIR', True)
+    return os.path.join(deploydir, "files", "target", pkgarch)
+
 MAX_LABEL_LEN = 255
 LABEL = "a" * MAX_LABEL_LEN
 
@@ -431,11 +437,8 @@ class SmackEnforceMmap(SmackBasicTest):
         mmap_label="mmap_label"
         file_label="mmap_file_label"
         test_file = "/tmp/smack_test_mmap"
-        print "mmap present: ", self.hasPackage("mmap-smack-test")
-        if not self.hasPackage("mmap-smack-test"):
-            self.skipTest("mmap_test binary not present") 
-
-        status, mmap_exe = self.target.run("which mmap_test")
+        self.target.copy_to(os.path.join(get_files_dir(), "mmap_test"), "/usr/bin/")
+        mmap_exe = "/usr/bin/mmap_test"
         status, echo = self.target.run("which echo")
         status, output = self.target.run("ls /tmp/notroot.py")
         if status != 0:
@@ -522,9 +525,8 @@ class SmackTcpSockets(SmackBasicTest):
 
         whole test takes places on image, depends on tcp_server/tcp_client'''
        
-        if not self.hasPackage("tcp-smack-test"):
-            self.skipTest("tcp smack binaries not present")       
-        
+        self.target.copy_to(os.path.join(get_files_dir(), "tcp_client"), "/usr/bin/")
+        self.target.copy_to(os.path.join(get_files_dir(), "tcp_server"), "/usr/bin/")
         status, output = self.target.run("ls /tmp/test_smack_tcp_sockets.sh")
         if status != 0:
             self.target.copy_to(
@@ -540,9 +542,8 @@ class SmackUdpSockets(SmackBasicTest):
 
         whole test takes places on image, depends on udp_server/udp_client'''
 
-        if not self.hasPackage("udp-smack-test"):
-            self.skipTest("udp smack binaries not present") 
-        
+        self.target.copy_to(os.path.join(get_files_dir(), "udp_client"), "/usr/bin/")
+        self.target.copy_to(os.path.join(get_files_dir(), "udp_server"), "/usr/bin/")
         status, output = self.target.run("ls /tmp/test_smack_udp_sockets.sh")
         if status != 0:
             self.target.copy_to(
