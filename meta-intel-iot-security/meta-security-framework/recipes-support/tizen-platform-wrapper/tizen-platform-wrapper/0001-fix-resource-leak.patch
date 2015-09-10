@@ -1,0 +1,43 @@
+From 3b001ce94405e7d00472405a8d09d96b0c94764a Mon Sep 17 00:00:00 2001
+From: Imran Zaman <imran.zaman@intel.com>
+Date: Tue, 8 Sep 2015 13:19:35 +0300
+Subject: [PATCH] fix: resource leak
+
+'sum' is free'd when it is not in use anymore
+
+Upstream-status: Submitted (https://review.tizen.org/gerrit/47754)
+
+Signed-off-by: Imran Zaman <imran.zaman@intel.com>
+---
+ src/toolbox.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/src/toolbox.c b/src/toolbox.c
+index 0c48f36..35dfd3d 100644
+--- a/src/toolbox.c
++++ b/src/toolbox.c
+@@ -703,14 +703,19 @@ static int signup( FILE *output)
+     term = ';';
+     for (key = keys ; key != NULL ; key = key->next) {
+         status = sha256sum_add_data(sum, key->name, strlen(key->name));
+-        if (status < 0)
++        if (status < 0) {
++            sha256sum_destroy(sum);
+             return status;
++        }
+         status = sha256sum_add_data(sum, &term, 1);
+-        if (status < 0)
++        if (status < 0) {
++            sha256sum_destroy(sum);
+             return status;
++        }
+     }
+ 
+     status = sha256sum_get(sum, signup);
++    sha256sum_destroy(sum);
+     if (status < 0)
+         return status;
+ 
+-- 
+1.9.1
+
