@@ -2,9 +2,6 @@ EntityType,CaseID,Component,Description,StepNumber,StepDescription,ExpectedResul
 TestScript,ethernet_connect_internet,misc,check internet connection via ethernet,1,Ensure ethernet cable is connceted to Internet,,Functional Positive,ready,IOTOS-461,,,,
 TestStep,,,,2,Plug the other port to IoT device,,,,,,,,
 TestStep,,,,3,Check if wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.30.tar.xz,wget command works,,,,,,,
-TestScript,wifi_connect_internet,wifi,check internet connection via wifi,1,Ensure WLAN port of the wifi AP is connected to Internet,,Functional Positive,ready,IOTOS-528,,,,
-TestStep,,,,2,Connect to the WiFi AP,,,,,,,,
-TestStep,,,,3,"On IoT device, wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.30.tar.xz",wget command works,,,,,,,
 TestScript,bt_gatt_write_handle,bluetooth,use gatttool to write IoT BLE handle value,1,IoT device does ble advertising. Command is: hciconfig hci0 leadv,,Functional Positive,ready,IOTOS-456,,,,
 TestStep,,,,2,"On Host, gatttool -b <iot BT MAC> --characteristics",,,,,,,,
 TestStep,,,,3,"In the characteristics list, use a handle to see its value. Command is: 
