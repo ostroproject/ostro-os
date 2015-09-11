@@ -1,0 +1,66 @@
+From a98c2b09dbebc08c330ba1280466adde4e239b8c Mon Sep 17 00:00:00 2001
+From: Jussi Laako <jussi.laako@linux.intel.com>
+Date: Mon, 14 Sep 2015 15:52:35 +0300
+Subject: [PATCH 2/2] Always inline inline functions
+
+Signed-off-by: Jussi Laako <jussi.laako@linux.intel.com>
+---
+ lib/mpi/mpi-inline.h   |  4 +---
+ lib/mpi/mpi-internal.h | 22 ++++++++++++----------
+ 2 files changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/lib/mpi/mpi-inline.h b/lib/mpi/mpi-inline.h
+index e2b3985..043c3c6 100644
+--- a/lib/mpi/mpi-inline.h
++++ b/lib/mpi/mpi-inline.h
+@@ -29,9 +29,7 @@
+ #ifndef G10_MPI_INLINE_H
+ #define G10_MPI_INLINE_H
+ 
+-#ifndef G10_MPI_INLINE_DECL
+-#define G10_MPI_INLINE_DECL  extern inline
+-#endif
++#define G10_MPI_INLINE_DECL  __attribute__((always_inline)) static inline
+ 
+ G10_MPI_INLINE_DECL mpi_limb_t
+ mpihelp_add_1(mpi_ptr_t res_ptr, mpi_ptr_t s1_ptr,
+diff --git a/lib/mpi/mpi-internal.h b/lib/mpi/mpi-internal.h
+index 60cf765..bb9dec9 100644
+--- a/lib/mpi/mpi-internal.h
++++ b/lib/mpi/mpi-internal.h
+@@ -168,20 +168,22 @@ void mpi_rshift_limbs(MPI a, unsigned int count);
+ int mpi_lshift_limbs(MPI a, unsigned int count);
+ 
+ /*-- mpihelp-add.c --*/
+-mpi_limb_t mpihelp_add_1(mpi_ptr_t res_ptr, mpi_ptr_t s1_ptr,
+-			 mpi_size_t s1_size, mpi_limb_t s2_limb);
++static inline mpi_limb_t mpihelp_add_1(mpi_ptr_t res_ptr, mpi_ptr_t s1_ptr,
++			mpi_size_t s1_size, mpi_limb_t s2_limb);
+ mpi_limb_t mpihelp_add_n(mpi_ptr_t res_ptr, mpi_ptr_t s1_ptr,
+-			 mpi_ptr_t s2_ptr, mpi_size_t size);
+-mpi_limb_t mpihelp_add(mpi_ptr_t res_ptr, mpi_ptr_t s1_ptr, mpi_size_t s1_size,
+-		       mpi_ptr_t s2_ptr, mpi_size_t s2_size);
++			mpi_ptr_t s2_ptr, mpi_size_t size);
++static inline mpi_limb_t mpihelp_add(mpi_ptr_t res_ptr, mpi_ptr_t s1_ptr,
++			mpi_size_t s1_size, mpi_ptr_t s2_ptr,
++			mpi_size_t s2_size);
+ 
+ /*-- mpihelp-sub.c --*/
+-mpi_limb_t mpihelp_sub_1(mpi_ptr_t res_ptr, mpi_ptr_t s1_ptr,
+-			 mpi_size_t s1_size, mpi_limb_t s2_limb);
++static inline mpi_limb_t mpihelp_sub_1(mpi_ptr_t res_ptr, mpi_ptr_t s1_ptr,
++			mpi_size_t s1_size, mpi_limb_t s2_limb);
+ mpi_limb_t mpihelp_sub_n(mpi_ptr_t res_ptr, mpi_ptr_t s1_ptr,
+-			 mpi_ptr_t s2_ptr, mpi_size_t size);
+-mpi_limb_t mpihelp_sub(mpi_ptr_t res_ptr, mpi_ptr_t s1_ptr, mpi_size_t s1_size,
+-		       mpi_ptr_t s2_ptr, mpi_size_t s2_size);
++			mpi_ptr_t s2_ptr, mpi_size_t size);
++static inline mpi_limb_t mpihelp_sub(mpi_ptr_t res_ptr, mpi_ptr_t s1_ptr,
++			mpi_size_t s1_size, mpi_ptr_t s2_ptr,
++			mpi_size_t s2_size);
+ 
+ /*-- mpihelp-cmp.c --*/
+ int mpihelp_cmp(mpi_ptr_t op1_ptr, mpi_ptr_t op2_ptr, mpi_size_t size);
+-- 
+2.5.1
+
