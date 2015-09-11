@@ -2,7 +2,7 @@
 IMA_EVM_KEY_DIR ?= "${IMA_EVM_BASE}/data/debug-keys"
 IMA_EVM_PRIVKEY ?= "${IMA_EVM_KEY_DIR}/privkey_ima.pem"
 
-# Public part of certificates.
+# Public part of certificates (used for both IMA and EVM).
 IMA_EVM_X509 ?= "${IMA_EVM_KEY_DIR}/x509_ima.der"
 IMA_EVM_ROOT_CA ?= "${IMA_EVM_KEY_DIR}/ima-local-ca.x509"
 
@@ -18,12 +18,13 @@ IMA_EVM_ROOTFS_IVERSION ?= ""
 ima_evm_sign_rootfs () {
     cd ${IMAGE_ROOTFS}
 
-    # Copy file(s) which must be on the device. Use the name as expected
-    # by evmctl to make "evmctl ima_verify" work out-of-the-box, even
-    # though the tool is probably using the wrong name (should be x509_ima.der
-    # as in the kernel default).
+    # Copy file(s) which must be on the device. Note that
+    # evmctl uses x509_evm.der also for "ima_verify", which is probably
+    # a bug (should default to x509_ima.der). Does not matter for us
+    # because we use the same key for both.
     install -d ./${sysconfdir}/keys
     install "${IMA_EVM_X509}" ./${sysconfdir}/keys/x509_evm.der
+    ln -s x509_evm.der ./${sysconfdir}/keys/x509_ima.der
 
     # Fix /etc/fstab: it must include the "i_version" mount option for
     # those file systems where writing files is allowed, otherwise

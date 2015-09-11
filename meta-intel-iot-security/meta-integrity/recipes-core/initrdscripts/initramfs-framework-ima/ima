@@ -9,7 +9,7 @@ ima_enabled() {
 }
 
 ima_run() {
-    info "Loading /etc/ima-policy (can be skipped with no_ima boot parameter)."
+    info "Initializing IMA (can be skipped with no_ima boot parameter)."
     if ! grep -w securityfs /proc/mounts >/dev/null; then
         if ! mount -t securityfs securityfs /sys/kernel/security; then
             fatal "Could not mount securityfs."
@@ -18,6 +18,27 @@ ima_run() {
     if [ ! -d /sys/kernel/security/ima ]; then
         fatal "No /sys/kernel/security/ima. Cannot proceed without IMA enabled in the kernel."
     fi
+
+    # Instead of depending on the kernel to load the IMA X.509 certificate,
+    # use keyctl. This avoids a bug in certain kernels (https://lkml.org/lkml/2015/9/10/492)
+    # where the loaded key was not checked sufficiently. We use keyctl here because it is
+    # slightly smaller than evmctl and is needed anyway.
+    # (see http://sourceforge.net/p/linux-ima/ima-evm-utils/ci/v0.9/tree/README#l349).
+    for kind in ima evm; do
+        key=/etc/keys/x509_$kind.der
+        if [ -s $key ]; then
+            id="`awk '/\.$kind/ { printf "%d", "0x"$1; }' /proc/keys`"
+            if [ -z "$id" ]; then
+                id=`keyctl search @u keyring _$kind 2>/dev/null`
+                if [ -z "$id" ]; then
+	            id=`keyctl newring _$kind @u`
+                fi
+            fi
+            info "Loading $key into $kind keyring $id"
+            keyctl padd asymmetric "" $id <$key
+        fi
+    done
+
     # In theory, a simple "cat" should be enough. In practice, loading sometimes fails randomly
     # ("[Linux-ima-user] IMA policy loading via cat") and we get better error reporting when
     # checking the write of each line. To minimize the risk of policy loading going wrong we

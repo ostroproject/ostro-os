@@ -3,7 +3,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/linux:"
 IS_KERNEL_RECIPE := "${@bb.data.inherits_class('kernel', d) and 'yes' or 'no'}"
 
 # Kernel config fragment enabling IMA/EVM
-IMA_EVM_CFG_yes = " file://ima-evm.cfg"
+IMA_EVM_CFG_yes = " file://ima.cfg"
 IMA_EVM_CFG_no = ""
 SRC_URI_append = "${IMA_EVM_CFG_${IS_KERNEL_RECIPE}}"
 

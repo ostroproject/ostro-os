@@ -29,3 +29,4 @@ do_install () {
 }
 
 FILES_${PN} = "/init.d ${sysconfdir}"
+RDEPENDS_${PN} = "keyutils"
