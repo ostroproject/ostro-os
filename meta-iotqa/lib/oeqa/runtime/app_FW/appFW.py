@@ -81,5 +81,7 @@ class AppFwTest(oeRuntimeTest):
         self.assertTrue(self._getPID("example-app") == None , "App fail to respond TERM signal")
 
     def tearDown(self):
+        """ resume example session """
+
         self.target.run("systemctl start example-corp")
         time.sleep(3)
