@@ -11,9 +11,9 @@ PR = "r0"
 # needed to unset no_proxy for internal development
 export no_proxy = ""
 
-SRC_URI = "http://download.xdk.intel.com/iot/xdk-daemon-0.0.35.tar.bz2"
-SRC_URI[md5sum] = "6fb760111d3caf0ab3189e267f0d2cd0"
-SRC_URI[sha256sum] = "6bfba58acf144cb0bf3329f6341990917724ee54d8d3e3cd527219918aeba03a"
+SRC_URI = "http://download.xdk.intel.com/iot/xdk-daemon-0.0.37.tar.bz2"
+SRC_URI[md5sum] = "8ecc2d2c931d82bb5aaaeb2afefeee06"
+SRC_URI[sha256sum] = "624e534b5620db59105e3014278aebc5ef4da855be218dc1006351ab9c8a08dd"
 
 # we don't care about debug for the few binary node modules
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
