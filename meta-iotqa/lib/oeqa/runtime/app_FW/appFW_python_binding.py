@@ -109,7 +109,7 @@ class AppFwTestPython(oeRuntimeTest):
     def test_appFW_Python_Send_Recevie_Event_Negative(self):
         """ test python app should not receive un-subscribed events """
 
-        (status,output) = self.target.run("exec python %s -s -e a,b,c -d  &" % self.catch_app_path)
+        (status,output) = self.target.run("python %s -s -e a,b,c -d  &" % self.catch_app_path)
         
         PID = self._getPID(self.catch_app)
         self.assertTrue(PID!=None, 'unable to get PID of catch app')
@@ -126,7 +126,8 @@ class AppFwTestPython(oeRuntimeTest):
 
     def tearDown(self):
         """ Stop catch app , stop launcher daemon and clean up testing log """
-        PID  = self._getPID("appfw-python-event-catch.py")
+
+        PID  = self._getPID(self.catch_app)
         if PID :
             self.target.run("kill -9 %s" % PID)
 
