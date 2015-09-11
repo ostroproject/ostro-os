@@ -6,9 +6,9 @@ spawn bluetoothctl
  "NEW* Controller"
    {
     send "power on\n"; 
-    send "discoverable on\n";
-    send "pairable on\n";
-    send "agent on\n"; exp_continue
+    sleep 1; send "discoverable on\n";
+    sleep 1; send "pairable on\n";
+    sleep 1; send "agent on\n"; exp_continue
    }
  "Agent registered"
    {
@@ -16,7 +16,8 @@ spawn bluetoothctl
    }
  "Default agent request successful"
    {
-    send "scan on\n"; exp_continue
+    send "remove $mac\n";
+    sleep 2; send "scan on\n"; exp_continue
    }
  "Device $mac RSSI"
    {
@@ -28,23 +29,19 @@ spawn bluetoothctl
    }
  "Discovery stopped"
    {
-    send "pair $mac\n"; exp_continue
-   }
- "Failed to pair: org.bluez.Error.AlreadyExists"
-   {
-    send "remove $mac\n"; exp_continue
-   }
- "Device has been removed"
-   {
-    send "scan on\n"; exp_continue
+    sleep 5; send "pair $mac\n"; exp_continue
    }
  "agent* Confirm passkey"
    {
-    send "yes\n"; sleep 5; exit 2
+    send "yes\n"; exp_continue
+   }
+ "Failed to pair: org.bluez.Error.AuthenticationFailed"
+   {
+    sleep 10; send "exit\n"; exit 1
    }
  "Pairing successful"
    {
-    sleep 1; send "exit\n"; exit 2
+    sleep 2; send "exit\n"; sleep 2; exit 2
    }
  eof
    {}

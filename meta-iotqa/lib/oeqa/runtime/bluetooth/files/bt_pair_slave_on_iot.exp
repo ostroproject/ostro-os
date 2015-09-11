@@ -1,6 +1,7 @@
 #!/usr/bin/expect
 set timeout 200
 set ip    [lindex $argv 0] 
+set mac   [lindex $argv 1]
 spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR bluetoothctl
  expect {
  "NEW* Controller"
@@ -12,7 +13,8 @@ spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -
    }
  "Agent registered"
    {
-    send "default-agent\n"; exp_continue
+    send "default-agent\n";
+    sleep 2; send "remove $mac\n"; exp_continue
    }
  "Accept pairing"
    {
@@ -20,11 +22,11 @@ spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -
    }
  "agent* Confirm passkey"
    {
-    send "yes\n"; sleep 5; exit 2
+    send "yes\n"; exp_continue
    }
  "CHG* Connected: no"
    {
-    send "exit\n"; exp_continue
+    send "exit\n"; exit 2
    }
  eof
    {}

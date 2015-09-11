@@ -28,8 +28,9 @@ class CommBTTest(oeRuntimeTest):
     def test_bt_pairing(self):
         '''Use bluetoothctl to pair IoT device with host'''
         # On IoT target, start pair_slave in back-ground 
+        (status, host_btmac) = shell_cmd_timeout("hciconfig | grep 'BD Address' | awk '{print $3}'")
         slave_exp = os.path.join(os.path.dirname(__file__), "files/bt_pair_slave_on_iot.exp")
-        cmd = "%s %s" % (slave_exp, self.target.ip)
+        cmd = "%s %s %s" % (slave_exp, self.target.ip, host_btmac)
         subprocess.Popen(cmd, shell=True)
  
         # On Host, get to know target BT mac and perform pair_master
