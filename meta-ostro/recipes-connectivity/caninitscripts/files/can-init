@@ -1,0 +1,4 @@
+# can service config file
+# this file is sourced by the start-can script
+
+BITRATE=125000
