@@ -8,38 +8,6 @@ import os
 from oeqa.oetest import oeRuntimeTest
 import unittest
 
-def tag(*args, **kwargs):
-    """Decorator that adds attributes to classes or functions
-    for use with the Attribute (-a) plugin.
-    """
-    def wrap_ob(ob):
-        for name in args:
-            setattr(ob, "tag__" + name, True)
-        for name, value in kwargs.iteritems():
-            setattr(ob, "tag__" + name, value)
-        return ob
-    return wrap_ob
-
-def gettag(obj, key, default=None):
-    key = "tag__" + key
-    if not isinstance(obj, unittest.TestCase):
-        return getattr(obj, key, default)
-    tc_method = getattr(obj, obj._testMethodName)
-    tc_class = tc_method.__self__.__class__
-    ret = getattr(tc_method, key, getattr(obj, key, default))
-    return ret
-
-def get_all_tags(obj):
-    def __gettags(o):
-        r = {k[len("tag__"):]:getattr(o,k) for k in dir(o) if k.startswith("tag__")}
-        return r
-    if not isinstance(obj, unittest.TestCase):
-        return __gettags(obj)
-    tc_method = getattr(obj, obj._testMethodName)
-    ret = __gettags(obj)
-    ret.update(__gettags(tc_method))
-    return ret
-
 def shell_cmd(cmd):
     """Execute shell command till it return"""
     cmd_proc = subprocess.Popen(cmd, shell=True)

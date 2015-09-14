@@ -4,7 +4,7 @@ import string
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import get_files_dir
 from oeqa.utils.helper import shell_cmd_timeout
-from oeqa.utils.helper import tag
+from oeqa.utils.decorators import tag
 
 @tag(TestType="Functional Positive", FeatureID="IOTOS-754")
 class IOtvtIntegration(oeRuntimeTest):

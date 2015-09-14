@@ -6,7 +6,7 @@ import subprocess
 import ConfigParser
 
 from oeqa.oetest import oeRuntimeTest
-from oeqa.utils.helper import tag
+from oeqa.utils.decorators import tag
 
 from apprt_nodejs_runtime_log_parser import print_test_results
 from apprt_nodejs_runtime_log_parser import parse_test_cases

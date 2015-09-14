@@ -3,7 +3,7 @@ import time
 import string
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import shell_cmd_timeout
-from oeqa.utils.helper import tag
+from oeqa.utils.decorators import tag
 
 @tag(TestType="Functional Positive", FeatureID="IOTOS-498")
 class IOtvtClient(oeRuntimeTest):

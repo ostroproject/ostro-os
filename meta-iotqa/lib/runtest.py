@@ -11,6 +11,7 @@ import os
 import time
 import unittest
 import inspect
+from functools import wraps
 
 BASEDIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 sys.path.append(os.path.join(BASEDIR, "oeqa"))
@@ -19,63 +20,28 @@ sys.path.append(os.path.join(BASEDIR, "bitbake", "lib"))
 from optparse import OptionParser
 from oeqa.oetest import oeTest
 from oeqa.oetest import oeRuntimeTest
+from oeqa.oetest import runTests
 from oeqa.runexported import FakeTarget
 from oeqa.runexported import MyDataDict
 from oeqa.runexported import TestContext
 from oeqa.utils.sshcontrol import SSHControl
-from oeqa.utils.helper import gettag
+from oeqa.utils.decorators import gettag
 
 try:
     import simplejson as json
 except ImportError:
     import json
 
-def tearDown(self):
-    pass
-oeRuntimeTest.tearDown = tearDown
-
-def getVar(obj):
-    #extend form dict, if a variable didn't exists, need find it in testcase
-    class VarDict(dict):
-        def __getitem__(self, key):
-            return gettag(obj, key)
-    return VarDict()
-
-def checkTags(tc, tagexp):
-    return eval(tagexp, None, getVar(tc))
-
-def filterByTags(testsuite, tagexp):
-    if not tagexp:
-        return testsuite
-    caseList = []
-    for each in testsuite:
-        if not isinstance(each, unittest.BaseTestSuite):
-            if checkTags(each, tagexp):
-                caseList.append(each)
-        else:
-            caseList.append(filterByTags(each, tagexp))
-    return testsuite.__class__(caseList)
-
-def runTests_tag(tc, tagexp=None, runner=None):
-    """ run whole test suite according to tclist"""
-    # set the context object passed from the test class
-    setattr(oeTest, "tc", tc)
-    # set ps command to use
-    setattr(oeRuntimeTest, "pscmd", "ps -ef" if oeTest.hasPackage("procps") else "ps")
-    # prepare test suite, loader and runner
-    suite = unittest.TestSuite()
-    testloader = unittest.TestLoader()
-    testloader.sortTestMethodsUsing = None
-    suite = testloader.loadTestsFromNames(tc.testslist)
-    if tagexp:
-        tagexp = tagexp.strip()
-        suite = filterByTags(suite, tagexp)
-    print("Test modules  %s" % tc.testslist)
-    print("Found %s tests" % suite.countTestCases())
-    if not runner:
-        runner = unittest.TextTestRunner(verbosity=2)
-    result = runner.run(suite)
-    return result
+def wrap_runner(runner, *wargs, **wkwargs):
+    @wraps(runner)
+    def __wrapper(*args, **kwargs):
+        # args and kwargs will overwrite the wargs and wkwargs
+        _args = list(args)
+        _args.extend(wargs[len(args):] if len(wargs) > len(args) else [])
+        kw = wkwargs.copy()
+        kw.update(kwargs)
+        return runner(*_args, **kw)
+    return __wrapper
 
 def main():
 
@@ -141,9 +107,7 @@ def main():
         except Exception:
             raise Exception(
               "xUnit output requested but unittest-xml-reporting not installed")
-        runner = xmlrunner.XMLTestRunner(verbosity=2, output=options.xunit)
-    else:
-        runner = unittest.TextTestRunner(verbosity=2)
+        unittest.TextTestRunner = wrap_runner(xmlrunner.XMLTestRunner, output=options.xunit)
     if options.build_data:
         build_data = options.build_data
     else:
@@ -184,7 +148,8 @@ def main():
             setattr(tc, key, loaded[key])
 
     target.exportStart()
-    runTests_tag(tc, options.tag, runner=runner)
+    setattr(tc, "tagexp", options.tag)
+    runTests(tc)
 
     return 0
 
