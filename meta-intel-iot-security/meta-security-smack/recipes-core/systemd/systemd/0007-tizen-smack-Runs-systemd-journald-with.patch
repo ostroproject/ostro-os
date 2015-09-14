@@ -12,6 +12,8 @@ System domain that needs read access to the User domain. Giving
 the journal daemon the hat label means that we can remove the
 System domain's read access to the User domain.
 
+Upstream-Status: Inappropriate [configuration]
+
 Change-Id: Ic22633f0c9d99c04f873be8a346786ea577d0370
 Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
 ---

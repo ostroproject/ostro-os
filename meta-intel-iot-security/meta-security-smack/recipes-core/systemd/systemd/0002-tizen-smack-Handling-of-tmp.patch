@@ -5,6 +5,8 @@ Subject: [PATCH 2/9] tizen-smack: Handling of /tmp
 
 Mount /tmp publicly accessable.
 
+Upstream-Status: Inappropriate [configuration]
+
 Change-Id: I2e7f91183ba0707bd28a6a3e7db40214db7659af
 ---
  units/tmp.mount | 2 +-

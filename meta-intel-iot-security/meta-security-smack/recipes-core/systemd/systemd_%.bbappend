@@ -1,12 +1,18 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-# From sandbox/jobol/v219. Cannot be applied unconditionally
+# Most patches from sandbox/jobol/v219. Cannot be applied unconditionally
 # because systemd panics when booted without Smack support:
 # systemd[1]: Cannot determine cgroup we are running in: No such file or directory
 # systemd[1]: Failed to allocate manager object: No such file or directory
 # [!!!!!!] Failed to allocate manager object, freezing.
-SRC_URI_append_smack = " \
-file://0001-tizen-rpm-2-useful-macro-for-RPM.patch \
+#
+# There's a slight dependency on the base systemd in 0005-tizen-smack-Handling-network.
+# We use the beginning of PV (unexpanded here to prevent a cyclic dependency
+# during resolution apparently caused by ${SRCPV}) to pick the right set of
+# patches.
+SRC_URI_append_smack = " ${SYSTEMD_SMACK_PATCHES_${@d.getVar('PV', False)[0:3]}}"
+
+SYSTEMD_SMACK_PATCHES_219 = " \
 file://0002-tizen-smack-Handling-of-tmp.patch \
 file://0003-tizen-smack-Handling-of-run-and-sys-fs-cgroup.patch \
 file://0004-tizen-smack-Handling-of-dev.patch \
@@ -14,14 +20,14 @@ file://0005-tizen-smack-Handling-network.patch \
 file://0006-tizen-smack-Tuning-user-.service.m4.in.patch \
 file://0007-tizen-smack-Runs-systemd-journald-with.patch \
 "
-
-# Not applied.
-# Used to be 0019-Update-to-216-with-conditional-kdbus-support.patch
-# in the Tizen patches for 2.12.
-# 0008-tizen-Add-pam_systemd.so-to-systemd-user.patch
-
-# Not applied because not related to Smack.
-# 0009-tizen-Tune-of-swap.patch
+SYSTEMD_SMACK_PATCHES_225 = " \
+file://0002-tizen-smack-Handling-of-tmp.patch \
+file://0003-tizen-smack-Handling-of-run-and-sys-fs-cgroup.patch \
+file://0004-tizen-smack-Handling-of-dev.patch \
+file://0005-tizen-smack-Handling-network-v225.patch \
+file://0006-tizen-smack-Tuning-user-.service.m4.in.patch \
+file://0007-tizen-smack-Runs-systemd-journald-with.patch \
+"
 
 # From Tizen .spec file.
 EXTRA_OECONF_append_smack = " --with-smack-run-label=System"

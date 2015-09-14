@@ -6,6 +6,8 @@ Subject: [PATCH 3/9] tizen-smack: Handling of /run and /sys/fs/cgroup
 Make /run a transmuting directory to enable systemd
 communications with services in the User domain.
 
+Upstream-Status: Pending
+
 Change-Id: I9e23b78d17a108d8e56ad85a9e839b6ccbe4feff
 ---
  src/core/mount-setup.c | 12 ++++++++----

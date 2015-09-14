@@ -42,6 +42,8 @@ comm="amd_session_age" name="UNIX" dev="sockfs" ino=14108
 CAP_MAC_ADMIN only allows policy administration, it doesn't override the
 checks.
 
+Upstream-Status: Inappropriate [configuration]
+
 Change-Id: Ie4026dfaf4c6cd463c11f077ca97e75c5085e4c8
 ---
  units/user@.service.m4.in | 4 ++++
