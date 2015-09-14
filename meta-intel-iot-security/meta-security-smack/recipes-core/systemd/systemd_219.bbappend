@@ -15,9 +15,6 @@ file://0006-tizen-smack-Tuning-user-.service.m4.in.patch \
 file://0007-tizen-smack-Runs-systemd-journald-with.patch \
 "
 
-# Fix for broken IMA policy loading.
-SRC_URI_append = " file://systemd-ima-init.patch"
-
 # Not applied.
 # Used to be 0019-Update-to-216-with-conditional-kdbus-support.patch
 # in the Tizen patches for 2.12.
