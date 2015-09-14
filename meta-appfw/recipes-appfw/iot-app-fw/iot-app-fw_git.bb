@@ -25,7 +25,7 @@ PACKAGECONFIG[pulse]      = "--enable-pulse,--disable-pulse,pulseaudio"
 PACKAGECONFIG[glib-2.0]   = "--enable-glib,--disable-glib,glib-2.0"
 PACKAGECONFIG[node]       = "--enable-nodejs,--disable-nodejs,nodejs"
 PACKAGECONFIG[shave]      = "--enable-shave,--disable-shave"
-PACKAGECONFIG[python]     = "--enable-python,--disable-python,python python-json glib-2.0 python-pygobject"
+PACKAGECONFIG[python]     = "--enable-python,--disable-python,python python-json glib-2.0 python-pygobject, glib-2.0 python-pygobject"
 
 do_configure[prefuncs] += "set_python_env"
 
