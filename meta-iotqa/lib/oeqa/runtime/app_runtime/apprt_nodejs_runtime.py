@@ -411,6 +411,10 @@ class NodejsRuntimeTest(oeRuntimeTest):
 #               'There are %s test(s) failed!' % failed_num)
 
     def tearDown(self):
+        '''
+        Clean work: remove all the files downloaded on host and 
+        copied to the target device during the test.
+        '''
         node_test_dir = os.path.join(
             self.files_dir,
             'node_%s_test' %

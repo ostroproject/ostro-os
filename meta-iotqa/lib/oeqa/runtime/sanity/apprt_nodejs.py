@@ -8,6 +8,9 @@ class SanityTestNodejs(oeRuntimeTest):
     apprt_test_node_helloworld_target = '/tmp/%s' % apprt_test_node_helloworld
 
     def setUp(self):
+        '''
+        Copy all necessary files for test to the target device.
+        '''
         self.target.copy_to(
             os.path.join(
                 os.path.dirname(__file__),
@@ -15,14 +18,23 @@ class SanityTestNodejs(oeRuntimeTest):
                 SanityTestNodejs.apprt_test_node_helloworld),
             SanityTestNodejs.apprt_test_node_helloworld_target)
 
+
     def test_node_exists(self):
+        '''
+        Test if the node executable is installed and in PATH.
+        '''
         (status, _) = self.target.run('which node')
         self.assertEqual(
             status,
             0,
             msg='node binary not in PATH or on target.')
 
+
     def test_node_version(self):
+        '''
+        Test if the version of node executable is OK.
+        The expected version of node must be greater than or equal to v0.12.7
+        '''
         (status, output) = self.target.run('node -v')
         self.assertEqual(
             status,
@@ -42,6 +54,9 @@ class SanityTestNodejs(oeRuntimeTest):
 
 
     def test_node_helloworld(self):
+        '''
+        Test if the simple hello world test program of node works well.        
+        '''
         (status, output) = self.target.run('node %s' %
                            SanityTestNodejs.apprt_test_node_helloworld_target)
         self.assertEqual(
@@ -55,7 +70,11 @@ class SanityTestNodejs(oeRuntimeTest):
             msg='Incorrect output: %s' %
             output)
 
+
     def tearDown(self):
+        '''
+        Clean work: remove all the files copied to the target device.
+        '''
         self.target.run(
             'rm -f %s' %
             SanityTestNodejs.apprt_test_node_helloworld_target)
