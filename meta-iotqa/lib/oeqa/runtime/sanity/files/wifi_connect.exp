@@ -1,29 +1,29 @@
 #!/usr/bin/expect
-set timeout 200
+set timeout 100
 set login 0
 set ip       [lindex $argv 0]
 set cmd      [lindex $argv 1]
 set service  [lindex $argv 2]
-set ssid     [lindex $argv 3]
-set password [lindex $argv 4]
+set password [lindex $argv 3]
 
-spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR "$cmd" 
+spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR "$cmd"
  expect {
  "Agent registered"
    {
-    send "connect $service\n"; exp_continue
+    send "config $service --remove\n";
+    sleep 2; send "connect $service\n"; exp_continue
    }
  "Operation timeout"
    {
-    send "connect $service\n"; exp_continue
+    sleep 1; send "connect $service\n"; exp_continue
+   }
+ "Operation aborted"
+   {
+    sleep 1; send "connect $service\n"; exp_continue
    }
  "Input/output error"
    {
-    send "connect $service\n"; exp_continue
-   }
- "Hidden SSID name?"
-   {
-    sleep 1; send "$ssid\n"; exp_continue
+    sleep 1; send "connect $service\n"; exp_continue
    }
  "Passphrase?"
    {
@@ -36,10 +36,6 @@ spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -
  "Connected wifi*"
    {
     send "exit\n"; exit 2
-   }
- "Input*Output"
-   {
-    send "exit\n"; exit 3
    }
  "connmanctl*"
    {
