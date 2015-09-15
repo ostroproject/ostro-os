@@ -21,4 +21,7 @@ dont_appraise fsmagic=0x42494e4d
 dont_appraise fsmagic=0x73636673
 # SELINUXFS_MAGIC
 dont_appraise fsmagic=0xf97cff8c
+# NSFS_MAGIC (introduced in 3.19, see cd025f7 and e149ed2 in the upstream Linux kernel)
+dont_appraise fsmagic=0x6e736673
+
 appraise

@@ -2,26 +2,52 @@
 IMA_EVM_KEY_DIR ?= "${IMA_EVM_BASE}/data/debug-keys"
 IMA_EVM_PRIVKEY ?= "${IMA_EVM_KEY_DIR}/privkey_ima.pem"
 
-# Public part of certificates.
+# Public part of certificates (used for both IMA and EVM).
 IMA_EVM_X509 ?= "${IMA_EVM_KEY_DIR}/x509_ima.der"
 IMA_EVM_ROOT_CA ?= "${IMA_EVM_KEY_DIR}/ima-local-ca.x509"
 
 # Sign all regular files by default.
-IMA_EVM_ROOTFS_FILES ?= ". -type f"
+IMA_EVM_ROOTFS_SIGNED ?= ". -type f"
+# Hash nothing by default.
+IMA_EVM_ROOTFS_HASHED ?= ". -depth 0 -false"
+
+# Mount these file systems (identified via their mount point) with
+# the iversion flags (needed by IMA when allowing writing).
+IMA_EVM_ROOTFS_IVERSION ?= ""
 
 ima_evm_sign_rootfs () {
     cd ${IMAGE_ROOTFS}
 
-    # Copy file(s) which must be on the device. Use the name as expected
-    # by evmctl to make "evmctl ima_verify" work out-of-the-box, even
-    # though the tool is probably using the wrong name (should be x509_ima.der
-    # as in the kernel default).
+    # Copy file(s) which must be on the device. Note that
+    # evmctl uses x509_evm.der also for "ima_verify", which is probably
+    # a bug (should default to x509_ima.der). Does not matter for us
+    # because we use the same key for both.
     install -d ./${sysconfdir}/keys
     install "${IMA_EVM_X509}" ./${sysconfdir}/keys/x509_evm.der
+    ln -s x509_evm.der ./${sysconfdir}/keys/x509_ima.der
+
+    # Fix /etc/fstab: it must include the "i_version" mount option for
+    # those file systems where writing files is allowed, otherwise
+    # these changes will not get detected at runtime.
+    #
+    # Note that "i_version" is documented in "man mount" only for ext4,
+    # whereas "iversion" is said to be filesystem-independent. In practice,
+    # there is only one MS_I_VERSION flag in the syscall and ext2/ext3/ext4
+    # all support it.
+    #
+    # coreutils translates "iversion" into MS_I_VERSION. busybox rejects
+    # "iversion" and only understands "i_version". systemd only understands
+    # "iversion". We pick "iversion" here for systemd, whereas rootflags
+    # for initramfs must use "i_version" for busybox.
+    if [ -f etc/fstab ]; then
+       perl -pi -e 's;(\S+)(\s+)(${@"|".join((d.getVar("IMA_EVM_ROOTFS_IVERSION", True) or "no-such-mount-point").split())})(\s+)(\S+)(\s+)(\S+);\1\2\3\4\5\6\7,iversion;' etc/fstab
+    fi
 
     # Sign file with private IMA key. EVM not supported at the moment.
-    bbnote "IMA/EVM: signing files 'find ${IMA_EVM_ROOTFS_FILES}' with private key '${IMA_EVM_PRIVKEY}'"
-    find ${IMA_EVM_ROOTFS_FILES} -exec evmctl ima_sign --key ${IMA_EVM_PRIVKEY} "{}" ";"
+    bbnote "IMA/EVM: signing files 'find ${IMA_EVM_ROOTFS_SIGNED}' with private key '${IMA_EVM_PRIVKEY}'"
+    find ${IMA_EVM_ROOTFS_SIGNED} | xargs -d "\n" --max-args=1 --no-run-if-empty --verbose evmctl ima_sign --key ${IMA_EVM_PRIVKEY}
+    bbnote "IMA/EVM: hashing files 'find ${IMA_EVM_ROOTFS_HASHED}'"
+    find ${IMA_EVM_ROOTFS_HASHED} | xargs -d "\n" --max-args=1 --no-run-if-empty --verbose evmctl ima_hash
 
     # Optionally install custom policy for loading by systemd.
     if [ "${IMA_EVM_POLICY_SYSTEMD}" ]; then
