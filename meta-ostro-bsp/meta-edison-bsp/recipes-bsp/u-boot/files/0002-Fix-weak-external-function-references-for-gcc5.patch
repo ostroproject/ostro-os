@@ -1,0 +1,67 @@
+From 5b940cd15970aed177ee943d449f6df839afd96e Mon Sep 17 00:00:00 2001
+From: Jussi Laako <jussi.laako@linux.intel.com>
+Date: Fri, 11 Sep 2015 16:42:50 +0300
+Subject: [PATCH 2/2] Fix weak external function references for gcc5
+
+Signed-off-by: Jussi Laako <jussi.laako@linux.intel.com>
+---
+ common/board_f.c | 28 +++++++++-------------------
+ common/main.c    |  3 +--
+ 2 files changed, 10 insertions(+), 21 deletions(-)
+
+diff --git a/common/board_f.c b/common/board_f.c
+index 52b715c..eb55cbe 100644
+--- a/common/board_f.c
++++ b/common/board_f.c
+@@ -78,25 +78,15 @@ DECLARE_GLOBAL_DATA_PTR;
+  ************************************************************************
+  * May be supplied by boards if desired
+  */
+-inline void __coloured_LED_init(void) {}
+-void coloured_LED_init(void)
+-	__attribute__((weak, alias("__coloured_LED_init")));
+-inline void __red_led_on(void) {}
+-void red_led_on(void) __attribute__((weak, alias("__red_led_on")));
+-inline void __red_led_off(void) {}
+-void red_led_off(void) __attribute__((weak, alias("__red_led_off")));
+-inline void __green_led_on(void) {}
+-void green_led_on(void) __attribute__((weak, alias("__green_led_on")));
+-inline void __green_led_off(void) {}
+-void green_led_off(void) __attribute__((weak, alias("__green_led_off")));
+-inline void __yellow_led_on(void) {}
+-void yellow_led_on(void) __attribute__((weak, alias("__yellow_led_on")));
+-inline void __yellow_led_off(void) {}
+-void yellow_led_off(void) __attribute__((weak, alias("__yellow_led_off")));
+-inline void __blue_led_on(void) {}
+-void blue_led_on(void) __attribute__((weak, alias("__blue_led_on")));
+-inline void __blue_led_off(void) {}
+-void blue_led_off(void) __attribute__((weak, alias("__blue_led_off")));
++__weak void coloured_LED_init(void) {}
++__weak void red_led_on(void) {}
++__weak void red_led_off(void) {}
++__weak void green_led_on(void) {}
++__weak void green_led_off(void) {}
++__weak void yellow_led_on(void) {}
++__weak void yellow_led_off(void) {}
++__weak void blue_led_on(void) {}
++__weak void blue_led_off(void) {}
+ 
+ /*
+  * Why is gd allocated a register? Prior to reloc it might be better to
+diff --git a/common/main.c b/common/main.c
+index 8b6f274..24e9117 100644
+--- a/common/main.c
++++ b/common/main.c
+@@ -27,8 +27,7 @@ DECLARE_GLOBAL_DATA_PTR;
+ /*
+  * Board-specific Platform code can reimplement show_boot_progress () if needed
+  */
+-void inline __show_boot_progress (int val) {}
+-void show_boot_progress (int val) __attribute__((weak, alias("__show_boot_progress")));
++__weak void show_boot_progress (int val) {}
+ 
+ #define MAX_DELAY_STOP_STR 32
+ 
+-- 
+2.5.1
+
