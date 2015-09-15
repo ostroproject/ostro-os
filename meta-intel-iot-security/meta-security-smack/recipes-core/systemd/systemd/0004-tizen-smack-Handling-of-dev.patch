@@ -9,6 +9,8 @@ Smack enabled systems need /dev special devices correctly labeled
 - Add Check for smack in Makefile.am to include smack default rules
 - Add smack default rules to label /dev/xxx correctly for access
 
+Upstream-Status: Inappropriate [configuration]
+
 Change-Id: Iebe2e349cbedb3013abdf32edb55e9310f1d17f5
 ---
  Makefile.am                       |  5 +++++

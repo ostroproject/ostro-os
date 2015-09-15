@@ -29,6 +29,9 @@ address to be a CIPSO host.
 
 If any netlabel host rules are defined in /etc/smack/netlabel.d
 install them into the smackfs netlabel interface.
+
+Upstream-Status: Pending
+
 ---
  src/core/smack-setup.c | 33 ++++++++++++++++++++++++++++++++-
  1 file changed, 32 insertions(+), 1 deletion(-)
