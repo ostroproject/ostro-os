@@ -32,6 +32,10 @@ try:
 except ImportError:
     import json
 
+def setUp(self):
+    pass
+oeRuntimeTest.setUp = setUp
+
 def wrap_runner(runner, *wargs, **wkwargs):
     @wraps(runner)
     def __wrapper(*args, **kwargs):
