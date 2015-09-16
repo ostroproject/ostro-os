@@ -1,6 +1,7 @@
 import os
 import time
 import string
+import subprocess
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import get_files_dir
 from oeqa.utils.helper import shell_cmd_timeout
@@ -126,15 +127,20 @@ class IOtvtIntegration(oeRuntimeTest):
             In option (user inputs 1), it will set ActionSet value of rep. This case
             is to check if the set operation is done. 
         '''
-        # start server
-        server_cmd = "/opt/iotivity/examples/resource/cpp/groupserver > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd, timeout=20)
-        time.sleep(1)
+        # start light server and group server
+        lightserver_cmd = "/opt/iotivity/examples/resource/cpp/lightserver > /tmp/svr_output &"
+        (status, output) = self.target.run(lightserver_cmd, timeout=20)
+        time.sleep(2)
+        ssh_cmd = "ssh root@%s -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR" % self.target.ip
+        groupserver_cmd = "/opt/iotivity/examples/resource/cpp/groupserver > /dev/null 2>&1"
+        subprocess.Popen("%s %s" % (ssh_cmd, groupserver_cmd), shell=True)
+        time.sleep(3)
+        
         # start client to get info, here needs user input. So use expect
         exp_cmd = os.path.join(os.path.dirname(__file__), "files/group_client.exp")
         status, output = shell_cmd_timeout("expect %s %s" % (exp_cmd, self.target.ip), timeout=200)
         # kill server and client
-        self.target.run("killall groupserver groupclient")        
+        self.target.run("killall lightserver groupserver groupclient")        
         self.assertEqual(status, 2, msg="expect excution fail")
 
     def test_presence_unicast(self):
