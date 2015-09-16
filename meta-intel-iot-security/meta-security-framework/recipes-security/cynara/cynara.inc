@@ -11,6 +11,11 @@ zip \
 # For testing:
 # DEPENDS += "gmock"
 
+PACKAGECONFIG ??= ""
+# Use debug mode to increase logging. Beware, also compiles with less optimization
+# and thus has to disable FORTIFY_SOURCE below.
+PACKAGECONFIG[debug] = "-DCMAKE_BUILD_TYPE=DEBUG,-DCMAKE_BUILD_TYPE=RELEASE,libunwind elfutils"
+
 inherit cmake
 
 CXXFLAGS_append = " \
@@ -19,11 +24,11 @@ CXXFLAGS_append = " \
 -DCYNARA_TESTS_DIR=\\\\\"${prefix}/share/cynara/tests/\\\\\" \
 -DCYNARA_CONFIGURATION_DIR=\\\\\"${sysconfdir}/cynara/\\\\\" \
 -DCYNARA_VERSION=\\\\\"${PV}\\\\\" \
+${@bb.utils.contains('PACKAGECONFIG', 'debug', '-Wp,-U_FORTIFY_SOURCE', '', d)} \
 "
 
 EXTRA_OECMAKE += " \
 -DCMAKE_VERBOSE_MAKEFILE=ON \
--DCMAKE_BUILD_TYPE=RELEASE \
 -DSYSTEMD_SYSTEM_UNITDIR=${systemd_unitdir}/system \
 "
 
