@@ -10,7 +10,8 @@ Subject: [PATCH 2/2] libparted: Fix memory leaks
 * libparted/arch/linux.c(_kernel_get_partition_start_and_length): Don't leak
   dev_fd file descriptor.
 
-  Upstream-status: Pending
+Upstream-status: Accepted.
+[http://lists.alioth.debian.org/pipermail/parted-devel/2015-August/004690.html]
 
 Signed-off-by: Amarnath Valluri <amarnath.valluri@intel.com>
 ---
@@ -52,7 +53,7 @@ index a1c37cc..61edcbb 100644
  	/* Resize the HFS+ volume */
  	if (!hfsplus_volume_resize (fs, embedded_geom, timer_plus)) {
  		if (timer_plus != timer) ped_timer_destroy_nested (timer_plus);
-+		ped_geometry_destroy (embedded_geom);
++		if (priv_data->wrapper) ped_geometry_destroy (embedded_geom);
  		ped_exception_throw (
  			PED_EXCEPTION_ERROR,
  			PED_EXCEPTION_CANCEL,
