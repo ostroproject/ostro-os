@@ -21,6 +21,9 @@ systemd \
 tizen-platform-config \
 "
 
+PACKAGECONFIG ??= ""
+PACKAGECONFIG[debug] = "-DCMAKE_BUILD_TYPE=DEBUG,-DCMAKE_BUILD_TYPE=RELEASE"
+
 # TODO: get this from tizen-platform-config and adapt tizen-platform-config.
 TZ_SYS_DB = "/usr/dbspace"
 
@@ -28,7 +31,6 @@ EXTRA_OECMAKE = " \
 -DCMAKE_VERBOSE_MAKEFILE=ON \
 -DVERSION=${PV} \
 -DSYSTEMD_INSTALL_DIR=${systemd_unitdir}/system \
--DCMAKE_BUILD_TYPE=RELEASE \
 -DBIN_INSTALL_DIR=${bindir} \
 -DDB_INSTALL_DIR=${TZ_SYS_DB} \
 -DLIB_INSTALL_DIR=${libdir} \
