@@ -1,0 +1,64 @@
+From 17530f22e3cf5f6318bf614c89949c8128d57600 Mon Sep 17 00:00:00 2001
+From: Jaska Uimonen <jaska.uimonen@helsinki.fi>
+Date: Mon, 3 Aug 2015 15:43:22 +0300
+Subject: [PATCH] mke2fs: check string lengths before strncpy
+
+Upstream-Status: Pending
+
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ misc/mke2fs.c | 25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
+
+diff --git a/misc/mke2fs.c b/misc/mke2fs.c
+index 179a4d1..c1b7d82 100644
+--- a/misc/mke2fs.c
++++ b/misc/mke2fs.c
+@@ -2724,6 +2724,7 @@ int main (int argc, char *argv[])
+ 	char		opt_string[40];
+ 	char		*hash_alg_str;
+ 	int		itable_zeroed = 0;
++	int		str_size = 0;
+ 
+ #ifdef ENABLE_NLS
+ 	setlocale(LC_MESSAGES, "");
+@@ -2919,20 +2920,28 @@ int main (int argc, char *argv[])
+ 	 * Set the volume label...
+ 	 */
+ 	if (volume_label) {
+-		memset(fs->super->s_volume_name, 0,
+-		       sizeof(fs->super->s_volume_name));
+-		strncpy(fs->super->s_volume_name, volume_label,
+-			sizeof(fs->super->s_volume_name));
++		str_size = sizeof(fs->super->s_volume_name);
++		if (strlen(volume_label) > str_size - 1) {
++			com_err (program_name, 0, 
++                     _("too long volume label name - %s"), volume_label);
++			exit(1);
++		}
++		memset(fs->super->s_volume_name, 0, str_size);
++		strncpy(fs->super->s_volume_name, volume_label, str_size);
+ 	}
+ 
+ 	/*
+ 	 * Set the last mount directory
+ 	 */
+ 	if (mount_dir) {
+-		memset(fs->super->s_last_mounted, 0,
+-		       sizeof(fs->super->s_last_mounted));
+-		strncpy(fs->super->s_last_mounted, mount_dir,
+-			sizeof(fs->super->s_last_mounted));
++		str_size = sizeof(fs->super->s_last_mounted);
++		if (strlen(mount_dir) > str_size - 1) {
++			com_err (program_name, 0, 
++                     _("too long mount dir name - %s"), mount_dir);
++			exit(1);
++		}
++		memset(fs->super->s_last_mounted, 0, str_size);
++		strncpy(fs->super->s_last_mounted, mount_dir, str_size);
+ 	}
+ 
+ 	/* Set current default encryption algorithms for data and
+-- 
+2.1.0
+
