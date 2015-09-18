@@ -31,7 +31,7 @@
 #MACHINE ?= "intel-core2-32"
 #
 # For Intel Galileo Gen 2:
-#MACHINE ?= "quark"
+#MACHINE ?= "intel-quark"
 #
 # For BeagleBone Black:
 #MACHINE ?= "beaglebone"
