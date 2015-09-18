@@ -17,7 +17,7 @@ SRC_URI="https://01.org/sites/default/files/page/qatmux.l.${PV}.tgz;name=qat \
          file://qat16_2.3.0-34-make-sure-CFLAGS-are-correct.patch \
          "
 
-COMPATIBLE_MACHINE = "crystalforest"
+COMPATIBLE_MACHINE = "crystalforest|intel-corei7-64"
 
 S = "${WORKDIR}/${ICP_DRIVER_TYPE}"
 ICP_TOOLS = "accelcomp"
