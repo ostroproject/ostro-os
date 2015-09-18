@@ -49,7 +49,7 @@ inherit core-image extrausers image-buildinfo
 
 # Set IMAGE_ROOTFS_EXTRA_SPACE to 512M (in Kbytes) to ensure there's
 # always some extra space in the image.
-IMAGE_ROOTFS_EXTRA_SPACE = "524288"
+IMAGE_ROOTFS_EXTRA_SPACE ??= "524288"
 
 # Set root password to "ostro" if not set
 OSTRO_ROOT_PASSWORD ?= "ostro"
