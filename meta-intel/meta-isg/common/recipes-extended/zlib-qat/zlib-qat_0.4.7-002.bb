@@ -29,7 +29,7 @@ SRC_URI[zlib.sha256sum] = "36658cb768a54c1d4dec43c3116c27ed893e88b02ecfcb44f2166
 SRC_URI[zlibqat.md5sum] = "dfde8618198aa8d35ecc00d10dcc7000"
 SRC_URI[zlibqat.sha256sum] = "8e5786400bbc2a879ae705c864ec63b53ae019b4f2d1c94524a97223847b6e46"
 
-COMPATIBLE_MACHINE = "crystalforest"
+COMPATIBLE_MACHINE = "crystalforest|intel-corei7-64"
 
 ZLIB_VERSION = "1.2.8"
 ZLIB_QAT_VERSION = "0.4.7-002"
