@@ -5,7 +5,7 @@ spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -
  expect {
  "NEW* Controller"
    {
-    send "discoverable on\n"; exp_continue
+    sleep 1; send "discoverable on\n"; exp_continue
    }
  "Changing discoverable on succeeded"
    {

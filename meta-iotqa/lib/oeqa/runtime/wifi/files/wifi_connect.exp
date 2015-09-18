@@ -25,6 +25,10 @@ spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -
    {
     sleep 1; send "connect $service\n"; exp_continue
    }
+ "Retry (yes/no)?"
+   {
+    sleep 1; send "yes\n"; exp_continue
+   }
  "Passphrase?"
    {
     sleep 1; send "$password\n"; exp_continue
