@@ -1,6 +1,7 @@
 include qat16.inc
 
 SRC_URI += "file://qat16_2.3.0-34-qat-add-install-target-to-makefiles.patch \
+            file://qat16_2.3.0-34-qat-replace-strict_strtoull-with-kstrtoull.patch \
             "
 
 SRC_URI[qat.md5sum] = "9614bf598bc8e7eedc8adb6d29109033"
