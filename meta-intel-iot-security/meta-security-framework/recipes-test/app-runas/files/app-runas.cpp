@@ -102,9 +102,10 @@ int main(int argc, char **argv)
     const char *pkgid = NULL;
     const char *uid = NULL;
     std::vector<const char *> privileges;
+    std::vector< std::pair<app_install_path_type, std::string> > paths;
     int install = 0, uninstall = 0, run = 0;
 
-    while ((opt = getopt(argc, argv, "a:p:u:r:ide")) != -1) {
+    while ((opt = getopt(argc, argv, "a:p:u:r:t:ide")) != -1) {
         switch (opt) {
         case 'a':
             appid = optarg;
@@ -118,6 +119,32 @@ int main(int argc, char **argv)
         case 'r':
             privileges.push_back(optarg);
             break;
+        case 't': {
+            const char *colon = strchr(optarg, ':');
+            if (!colon) {
+                fprintf(stderr, "-t parameter must be of the format <type>:<path>");
+                return EXIT_FAILURE;
+            }
+            std::string typestr(optarg, colon - optarg);
+            std::string path(colon + 1);
+            app_install_path_type type;
+            if (typestr == "private") {
+                type = SECURITY_MANAGER_PATH_PRIVATE;
+            } else if (typestr == "public") {
+                type = SECURITY_MANAGER_PATH_PUBLIC;
+            } else if (typestr == "public-ro") {
+                type = SECURITY_MANAGER_PATH_PUBLIC_RO;
+            } else if (typestr == "rw") {
+                type = SECURITY_MANAGER_PATH_RW;
+            } else if (typestr == "ro") {
+                type = SECURITY_MANAGER_PATH_PRIVATE;
+            } else {
+                fprintf(stderr, "Invalid -t type: %s", typestr.c_str());
+                return EXIT_FAILURE;
+            }
+            paths.push_back(std::make_pair(type, path));
+            break;
+        }
         case 'i':
             install = 1;
             break;
@@ -129,7 +156,7 @@ int main(int argc, char **argv)
             break;
         default: /* '?' */
             fprintf(stderr,
-                    "Usage: %s -i|-e|-d -a appid -u uid -p pkgid -r privilege1 -r privilege2 -- command args\n"
+                    "Usage: %s -i|-e|-d -a appid -u uid -p pkgid -r privilege1 ... -t private|public|public-ro|rw:<path> ... -- command args\n"
                     "       -i = install, command ignored\n"
                     "       -e = run command, privileges and pkgid ignored\n"
                     "       -d = uninstall, command and privileges ignored\n"
@@ -161,8 +188,9 @@ int main(int argc, char **argv)
     if (uid) {
         CHECK(security_manager_app_inst_req_set_uid(preq, atoi(uid)));
     }
-    // security_manager_app_inst_req_add_path(preq, app_data_path, SECURITY_MANAGER_PATH_RW);
-    // security_manager_app_inst_req_add_path(preq, app_code_path, SECURITY_MANAGER_PATH_RO);
+    for (size_t i = 0; i < paths.size(); i++) {
+        security_manager_app_inst_req_add_path(preq, paths[i].second.c_str(), paths[i].first);
+    }
     for (size_t i = 0; i < privileges.size(); i++) {
         CHECK(security_manager_app_inst_req_add_privilege(preq, privileges[i]));
     }
