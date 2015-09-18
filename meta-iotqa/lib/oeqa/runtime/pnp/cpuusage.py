@@ -24,7 +24,7 @@ class CPUUsageTest(oeRuntimeTest):
             "top -b -d 10 -n 12 >/tmp/top.log")
         (status, output) = self.target.run(
             "cat /tmp/top.log | grep -i 'CPU' | grep 'id*' | "
-            "awk '{print $8}' | "
+            "tail -10 | awk '{print $8}' | "
             "awk -F '%' '{sum+=$1} END {print sum/NR}'")
         cpu_idle = float(output)
         cpu_idle = float("{0:.2f}".format(cpu_idle))
