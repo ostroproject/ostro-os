@@ -111,6 +111,12 @@ INITRD_IMAGE_intel-quark = "${OSTRO_INITRAMFS}"
 INITRD_IMAGE_qemux86 = "${OSTRO_INITRAMFS}"
 INITRD_IMAGE_qemux86-64 = "${OSTRO_INITRAMFS}"
 
+# When using the ostro-initramfs, building an hddimg with
+# the rootfs in a rootfs.img is not useful, because the initramfs
+# will not be able to mount it and therefore the resulting image
+# will not boot.
+NOHDD ?= "${@'1' if d.getVar('INITRD_IMAGE', True) == 'ostro-initramfs' else '0'}"
+
 # Our initramfs supports finding the partition by UUID, so use that
 # to make the resulting whole-disk .hdddirect image more versatile (will
 # work regardless whether the disk is attached via IDE, SATA, USB or
