@@ -12,8 +12,7 @@ class PowerTest(oeRuntimeTest):
 
     def _setup(self):
         """The test requires power control program:rs2"""
-        (status, output) = self.target.run("reboot")
-        self.assertEqual(status, 0, msg="Reboot failed!")
+        (status, output) = self.target.run("reboot &")
         time.sleep(100)
         ret = shell_cmd_timeout("ping -c 1 %s" %self.target.ip, 4)[0]
         if ret != 0:
