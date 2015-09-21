@@ -23,6 +23,10 @@ class CommBTTest(oeRuntimeTest):
         shell_cmd_timeout('hciconfig hci0 piscan', timeout=100)
         shell_cmd_timeout('hciconfig hci0 noleadv', timeout=100)
         time.sleep(1)
+        (status, output) = self.target.run('which gatttool')
+        if (status != 0):
+            copy_to_path = os.path.join(get_files_dir(), 'gatttool')
+            (status, output) = self.target.copy_to(copy_to_path, "/usr/bin/")
 
     @tag(FeatureID="IOTOS-453")
     def test_bt_pairing(self):
@@ -37,9 +41,8 @@ class CommBTTest(oeRuntimeTest):
         master_exp = os.path.join(os.path.dirname(__file__), "files/bt_pair_master.exp")
         (status, target_btmac) = self.target.run("hciconfig | grep 'BD Address' | awk '{print $3}'")
         cmd = "expect %s %s" % (master_exp, target_btmac)
-        print cmd
         status, output = shell_cmd_timeout(cmd, timeout=200)
-        self.assertEqual(status, 2, msg="expect excution fail")
+        self.assertEqual(status, 2, msg="expect excution fail: %s" % output)
 
         # On Host, check paired devices to see if IoT is in
         check_exp = os.path.join(os.path.dirname(__file__), "files/bt_list_paired_device.exp")
@@ -166,3 +169,55 @@ class CommBTTest(oeRuntimeTest):
         shell_cmd_timeout('hciconfig hci0 reset', timeout=100)
         self.target.run('hciconfig hci0 reset')
         self.assertEqual(status, 2, msg="scan host leadv fails: %s" % output) 
+
+    @tag(FeatureID="IOTOS-456")
+    def test_bt_target_gatt_read_primary(self):
+        '''Use gatttool to show host primary attr handles'''
+        # On Host, do LE advertising
+        shell_cmd_timeout('hciconfig hci0 leadv')
+        time.sleep(1)
+        # Target does gatttool commands
+        (status, host_btmac) = shell_cmd_timeout("hciconfig | grep 'BD Address' | awk '{print $3}'")
+        cmd = "gatttool --primary -b %s | grep '^attr handle'" % host_btmac.strip("\n")
+        status, output = self.target.run(cmd, timeout=200)
+        self.assertEqual(status, 0, msg="Host primary info is wrong")
+
+    @tag(FeatureID="IOTOS-456")
+    def test_bt_target_gatt_read_characteristics(self):
+        '''Use gatttool to show host characteristics handles'''
+        # On host, do LE advertising
+        shell_cmd_timeout('hciconfig hci0 leadv')
+        time.sleep(1)
+        # Target does gatttool commands
+        (status, host_btmac) = shell_cmd_timeout("hciconfig | grep 'BD Address' | awk '{print $3}'")
+        cmd = "gatttool --characteristics -b %s | grep '^handle'" % host_btmac.strip("\n")
+        status, output = self.target.run(cmd, timeout=200)
+        self.assertEqual(status, 0, msg="Host characteristics info is wrong")
+
+    @tag(FeatureID="IOTOS-456")
+    def test_bt_target_gatt_read_handle(self):
+        '''Use gatttool to read host handle value'''
+        # On target, do LE advertising
+        shell_cmd_timeout('hciconfig hci0 leadv')
+        time.sleep(1)
+        # Target does gatttool commands
+        (status, host_btmac) = shell_cmd_timeout("hciconfig | grep 'BD Address' | awk '{print $3}'")
+        print host_btmac
+        cmd = "gatttool --char-read -a 0x0002 -b %s | grep '02 03 00 00 2a'" % host_btmac.strip("\n")
+        print cmd
+        status, output = self.target.run(cmd, timeout=200)
+        self.assertEqual(status, 0, msg="Host handle 0x0002 value is wrong")
+
+    @tag(FeatureID="IOTOS-456")
+    def test_bt_target_gatt_connect(self):
+        '''Use gatttool interactive mode to do connect to host'''
+        # On target, do LE advertising
+        shell_cmd_timeout('hciconfig hci0 leadv')
+        time.sleep(1)
+        # Target does gatttool commands
+        (status, host_btmac) = shell_cmd_timeout("hciconfig | grep 'BD Address' | awk '{print $3}'")
+        connect_exp = os.path.join(os.path.dirname(__file__), "files/gatt_connect_target.exp")
+        cmd = "expect %s %s %s" % (connect_exp, self.target.ip, host_btmac)
+        status, output = shell_cmd_timeout(cmd, timeout=200)
+        self.assertEqual(status, 2, msg="gatttool connect host fails: %s" % output) 
+
