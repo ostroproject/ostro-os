@@ -11,6 +11,12 @@ SRC_URI_append_beaglebone = " file://sensors.cfg"
 #  Minnow Max has I2C
 SRC_URI_append_intel-corei7-64 = " file://sensors.cfg"
 SRC_URI_append_intel-core2-32 = " file://sensors.cfg"
+# backport BH1750 light sensor support on Minnow Max and NUC
+SRC_URI_append_intel-corei7-64 = " file://0001-iio-light-add-support-for-ROHM-BH1710-BH1715-BH1721-.patch"
+SRC_URI_append_intel-core2-32 = " file://0001-iio-light-add-support-for-ROHM-BH1710-BH1715-BH1721-.patch"
+SRC_URI_append_intel-corei7-64 = " file://bh1750.cfg"
+SRC_URI_append_intel-core2-32 = " file://bh1750.cfg"
+
 #  BeagleBone Black enable all I2Cs
 SRC_URI_append_beaglebone = " file://0001-v3.15.0-ARM-dts-am335x-boneblack-configure-i2c1-and-2.patch"
 
