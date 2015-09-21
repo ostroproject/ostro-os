@@ -17,7 +17,7 @@ def addPaths():
         if os.path.exists(libPath) and libPath not in sys.path:
             sys.path.insert(0, libPath)
 addPaths()
-from oeqa.utils.helper import gettag, get_all_tags
+from oeqa.utils.decorators import gettag, getAllTags
 
 TITLE = ["EntityType", "CaseID", "Component", "Description",
          "TestType", "Status", "FeatureID", "ExecutionType",
@@ -75,7 +75,7 @@ __title = TITLE[:]
 __title.pop()
 def getOtherInfo(case, key, default=""):
     ret = []
-    for k, v in get_all_tags(case).iteritems():
+    for k, v in getAllTags(case).iteritems():
         if k not in __title:
             ret.append("%s=%r"%(k, v))
     return ", ".join(ret) if ret else default
