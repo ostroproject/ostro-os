@@ -141,7 +141,7 @@ class IOtvtIntegration(oeRuntimeTest):
         status, output = shell_cmd_timeout("expect %s %s" % (exp_cmd, self.target.ip), timeout=200)
         # kill server and client
         self.target.run("killall lightserver groupserver groupclient")        
-        self.assertEqual(status, 2, msg="expect excution fail")
+        self.assertEqual(status, 2, msg="expect excution fail\n %s" % output)
 
     def test_presence_unicast(self):
         '''
