@@ -1,7 +1,6 @@
 #[PROTEXCAT]
 #\License: ALL RIGHTS RESERVED
 
-"""System boot time"""
 import os
 import re
 import time
@@ -11,7 +10,9 @@ from oeqa.utils.helper import collect_pnp_log, get_files_dir
 
 class BootTimeTest(oeRuntimeTest):
 
+    """System boot time measurement"""
     def _setup(self):
+        """Copy systemd-analyze to target device"""
         (status, output) = self.target.copy_to(
             os.path.join(get_files_dir(),
                          'systemd-analyze'), "/tmp/systemd-analyze")
@@ -27,6 +28,7 @@ class BootTimeTest(oeRuntimeTest):
             msg="Failed to find systemd-analyze command")
 
     def _parse_result(self, data):
+        """Parse result, transfer min to second"""
         boottime = 0.0
         if data:
 		    min_result = re.search(r'(\d+)(min)', data)
@@ -38,6 +40,7 @@ class BootTimeTest(oeRuntimeTest):
         return boottime
 
     def test_boot_time(self):
+        """Measure boot time with systemd-analyze"""
         self._setup()
         time.sleep(60)
         filename = os.path.basename(__file__)
