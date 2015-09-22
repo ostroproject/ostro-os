@@ -24,6 +24,10 @@ spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -
    {
     send "yes\n"; exp_continue
    }
+ "Enter PIN code:"
+   {
+    send "123456\n"; exp_continue
+   }
  "CHG* Connected: no"
    {
     send "exit\n"; exit 2

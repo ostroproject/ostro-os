@@ -1,0 +1,23 @@
+#!/usr/bin/expect
+set timeout 100
+set login   0
+set ip      [lindex $argv 0]
+set mac     [lindex $argv 1]
+spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR gatttool -b $mac -I
+ expect {
+ "CON"
+   {
+    exit 2
+   }
+ "Connection successful"
+   {
+    exit 2
+   }
+ "$mac"
+   {
+    if {$login==0} {set login 1;send "connect\n"; exp_continue} else {sleep 2; exp_continue}
+   }
+ eof
+   {}
+ }
+

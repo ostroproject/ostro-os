@@ -35,6 +35,10 @@ spawn bluetoothctl
    {
     send "yes\n"; exp_continue
    }
+ "Enter PIN code:"
+   {
+    send "123456\n"; exp_continue
+   }
  "Failed to pair: org.bluez.Error.AuthenticationFailed"
    {
     sleep 10; send "exit\n"; exit 1
