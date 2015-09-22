@@ -4,13 +4,13 @@ LICENSE = "BSD-3-Clause"
 
 LIC_FILES_CHKSUM = "file://LICENSE-BSD;md5=f9f435c1bd3a753365e799edf375fc42"
 
-DEPENDS = "json-c systemd"
+DEPENDS = "json-c systemd security-manager"
 
 SRC_URI = " \
-    git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh \
+    git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh;branch=iot/release/m2/node-listing \
   "
 
-SRCREV = "6fb9b95c00ff69a336b0b308a355959b82664fa5"
+SRCREV = "351d0807daf52f834d337faf14940dc569ab5079"
 
 inherit autotools pkgconfig systemd python-dir pythonnative
 
@@ -19,11 +19,11 @@ AUTO_LIBNAME_PKGS = ""
 S = "${WORKDIR}/git"
 
 # possible package configurations
-PACKAGECONFIG ??= "python"
+PACKAGECONFIG ??= "python node"
 PACKAGECONFIG[qt]         = "--enable-qt,--disable-qt,qt4-x11-free"
 PACKAGECONFIG[pulse]      = "--enable-pulse,--disable-pulse,pulseaudio"
 PACKAGECONFIG[glib-2.0]   = "--enable-glib,--disable-glib,glib-2.0"
-PACKAGECONFIG[node]       = "--enable-nodejs,--disable-nodejs,nodejs"
+PACKAGECONFIG[node]       = "--with-node,--without-node,nodejs"
 PACKAGECONFIG[shave]      = "--enable-shave,--disable-shave"
 PACKAGECONFIG[python]     = "--enable-python,--disable-python,python python-json glib-2.0 python-pygobject, glib-2.0 python-pygobject"
 
@@ -39,6 +39,14 @@ FILES_${PN}-launcher += "${systemd_unitdir}/system"
 
 PACKAGES =+ "${PN}-test"
 FILES_${PN}-test = "${bindir}/iot-event-test"
+
+PACKAGES =+ "${PN}-node-bindings"
+FILES_${PN}-node-bindings = "${libdir}/node_modules/iot/iot-appfw.node"
+FILES_${PN}-dbg += "${libdir}/node_modules/iot/.debug"
+
+do_install_append() {
+    rm -f ${D}/${libdir}/node_modules/iot/*.la
+}
 
 # The following would enable iot-launch socket-activation by default on the image
 # SYSTEMD_PACKAGES = "${PN}-launcher"
