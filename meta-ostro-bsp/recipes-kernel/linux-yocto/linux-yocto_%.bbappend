@@ -2,6 +2,13 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/linux-yocto:"
 
 ### Config "fix" fragments
 
+# security fixes
+SRC_URI_append = " file://security.cfg"
+SRC_URI_append_edison = " file://security-x86.cfg"
+SRC_URI_append_intel-quark = " file://security-x86.cfg"
+SRC_URI_append_intel-core2-32 = " file://security-x86.cfg"
+SRC_URI_append_intel-corei7-64 = " file://security-x64.cfg"
+
 ### Hardware support fragments
 
 # I2C sensors
