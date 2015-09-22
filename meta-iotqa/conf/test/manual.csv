@@ -10,7 +10,3 @@ TestStep,,,,4,"Write new value into the handle by:
 gatttool -b <iot BT MAC> --char-write-req -a <handle> -n abcd",return write success,,,,,,,
 TestStep,,,,5,"Read this handle again. 
 gatttool -b <iot BT MAC> --char-read -a <handle>",the value has been modified to 'ab cd ...',,,,,,,
-TestScript,iotivity_wifi_resource_finding,iotivity,iotivity client finds resource via WiFi,1,Connect both IoT device and Host to same AP,,Functional Positive,ready,IOTOS-499,,,,
-TestStep,,,,2,"On the Host, start iotivity server. Wget iotivity server from http://ostroproject.org/iot/Full/servertest. 
-Start it by ""./servertest""","The server is able to be launched, and wait for client's request.",,,,,,,
-TestStep,,,,3,"On IoT device, run /opt/iotivity/apps/iotivity-simple-client/simpleclient",It should print out finding resource succeed.,,,,,,,
