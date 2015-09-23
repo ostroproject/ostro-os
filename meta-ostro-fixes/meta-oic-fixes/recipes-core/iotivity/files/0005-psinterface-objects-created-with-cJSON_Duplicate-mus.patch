@@ -1,0 +1,26 @@
+From 30d9642510a14a7ecb28e611c9d5d6a808d42234 Mon Sep 17 00:00:00 2001
+From: Kevron Rees <tripzero.kev@gmail.com>
+Date: Wed, 23 Sep 2015 15:49:49 -0700
+Subject: [PATCH 5/7] psinterface: objects created with cJSON_Duplicate must be
+ released manually.
+
+Upstream Status: Pending
+---
+ resource/csdk/security/src/psinterface.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/resource/csdk/security/src/psinterface.c b/resource/csdk/security/src/psinterface.c
+index f295fce..c787845 100644
+--- a/resource/csdk/security/src/psinterface.c
++++ b/resource/csdk/security/src/psinterface.c
+@@ -190,6 +190,7 @@ OCStackResult UpdateSVRDatabase(const char* rsrcName, cJSON* jsonObj)
+                 OC_LOG (ERROR, TAG, PCF("Unable to open SVR database file!! "));
+             }
+         }
++        cJSON_Delete(jsonDuplicateObj);
+     }
+ 
+ exit:
+-- 
+2.1.4
+

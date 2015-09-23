@@ -1,0 +1,35 @@
+From 9cd32380281a93b8395e8f2926b80340e465fbe4 Mon Sep 17 00:00:00 2001
+From: Imran Zaman <imran.zaman@intel.com>
+Date: Thu, 24 Sep 2015 14:43:28 +0300
+Subject: [PATCH] iotivity: fixes uninitialized variables usage
+
+This patch intializes the variable before it is used
+
+Signed-off-by: Imran Zaman <imran.zaman@intel.com>
+---
+ resource/csdk/stack/src/ocstack.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/resource/csdk/stack/src/ocstack.c b/resource/csdk/stack/src/ocstack.c
+index be6fa96..5b63aa9 100644
+--- a/resource/csdk/stack/src/ocstack.c
++++ b/resource/csdk/stack/src/ocstack.c
+@@ -850,6 +850,7 @@ OCStackResult HandlePresenceResponse(const CAEndpoint_t *endpoint,
+ 
+     response.payload = NULL;
+     response.result = OC_STACK_OK;
++    response.numRcvdVendorSpecificHeaderOptions = 0;
+ 
+     CopyEndpointToDevAddr(endpoint, &response.devAddr);
+     FixUpClientResponse(&response);
+@@ -2400,6 +2401,7 @@ OCStackResult OCProcessPresence()
+             clientResponse.devAddr = *cbNode->devAddr;
+             FixUpClientResponse(&clientResponse);
+             clientResponse.payload = NULL;
++            clientResponse.numRcvdVendorSpecificHeaderOptions = 0;
+ 
+             // Increment the TTLLevel (going to a next state), so we don't keep
+             // sending presence notification to client.
+-- 
+1.9.1
+
