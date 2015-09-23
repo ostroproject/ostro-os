@@ -5,8 +5,6 @@ AUTHOR = "Brendan Le Foll, Tom Ingleby"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://COPYING;md5=e8db6501ed294e65418a933925d12058"
 
-SRC_URI = "git://github.com/intel-iot-devkit/mraa.git;protocol=git;rev=64f377cdfcedaaff6a8fb76f83b7ece9eaba422e;nobranch=1"
-
 S = "${WORKDIR}/git"
 
 inherit distutils-base pkgconfig python-dir cmake
