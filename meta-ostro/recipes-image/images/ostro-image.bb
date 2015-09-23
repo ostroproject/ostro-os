@@ -184,8 +184,8 @@ inherit ima-evm-rootfs
 #   In addition, ima-evm-rootfs.bbclass also adds the parameter to the rootfs
 #   because otherwise systemd would remove it.
 OSTRO_WRITABLE_FILES = "-path './etc/*' -o -path './var/*' -o -path './usr/dbspace/*'"
-IMA_EVM_ROOTFS_SIGNED = ". -type f -a ! \( ${OSTRO_WRITABLE_FILES} \)"
-IMA_EVM_ROOTFS_HASHED = ". -type f -a \( ${OSTRO_WRITABLE_FILES} \)"
+IMA_EVM_ROOTFS_SIGNED = ". -type f -a -uid 0 -a ! \( ${OSTRO_WRITABLE_FILES} \)"
+IMA_EVM_ROOTFS_HASHED = ". -type f -a -uid 0 -a \( ${OSTRO_WRITABLE_FILES} \)"
 IMA_EVM_ROOTFS_IVERSION = "/"
 APPEND_append = " rootflags=i_version"
 

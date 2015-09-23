@@ -66,9 +66,10 @@ dont_measure fsmagic=0x27e0eb
 # appraise appraise_type=imasig func=FILE_MMAP mask=MAY_EXEC
 # appraise appraise_type=imasig func=BPRM_CHECK mask=MAY_EXEC
 
-# Default rule. Would be needed also when other rules were added that
+# Default rule: measure and appraise everything owned by root.
+# Would be needed also when other rules were added that
 # determine what to do in case of reading (mask=MAY_READ or
 # mask=MAY_EXEC) because otherwise writing does not update the file
 # hash.
-appraise
-measure
+appraise fowner=0
+measure fowner=0
