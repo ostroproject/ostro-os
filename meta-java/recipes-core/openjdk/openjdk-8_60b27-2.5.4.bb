@@ -58,6 +58,8 @@ export CACAO_CONFIGURE_ARGS = " \
 
 JAVA_HOME[unexport] = "1"
 
+TUNE_CCARGS_append_intel-core2-32 = " -mstackrealign -fno-omit-frame-pointer "
+
 # disable shark until it is fully working again
 # WITH_ADDITIONAL_VMS ?= "--with-additional-vms=shark,cacao,jamvm"
 
