@@ -128,6 +128,12 @@ IMAGE_BUILDINFO_VARS_append = " BUILD_ID"
 
 IMAGE_NAME = "${IMAGE_BASENAME}-${MACHINE}-${BUILD_ID}"
 
+OSTRO_PACKAGE_FEED_URI="${OSTRO_PACKAGE_FEED_BASEURL}/${OSTRO_PACKAGE_FEED_PUBLISHDIR}/${OSTRO_PACKAGE_FEED_BUILDID}"
+
+# Ask package-manager to configure the package feeds
+PACKAGE_FEED_URIS="${OSTRO_PACKAGE_FEED_URI}"
+PACKAGE_FEED_PREFIX="{OSTRO_PACKAGE_FEED_PREFIX}"
+
 # Enable initramfs based on initramfs-framework (chosen in
 # core-image-minimal-initramfs.bbappend). All machines must
 # boot with a suitable initramfs, because IMA initialization is done
