@@ -137,6 +137,43 @@ SYSLINUX_ROOT_qemux86-64 = "${OSTRO_ROOT}"
 # without IMA.
 inherit ima-evm-rootfs
 
+# Exception for /usr/dbspace/.security-manager.db: we set the owner
+# to a special "sqlite" user and then rely on the IMA policy only
+# measuring/appraising files owned by root.
+#
+# SecurityManager is unaware of the change and does not need to
+# care, because it runs as root and can thus still use the file.
+# The file never gets removed either, so the change is permanent.
+#
+# That is necessary because IMA and sqlite do not play
+# well together ("[Linux-ima-user] IMA hash update"). The problem
+# is that the IMA hash only gets updated on close(), but sqlite
+# and SecurityManager keep the file open unless SecurityManager shuts
+# down. So a power loss after a write leads to an incorrect IMA hash
+# and makes the .db file unusable.
+#
+# However, the .db.journal files still get created as root (and thus
+# are owned by root) and suffer from the same risk. Both a setuid bit
+# on the directory (not supported by Linux, only BSD) or gid support
+# in IMA together with setgid (not in upstream kernel) would help, but
+# as that doesn't work we have to accept a certain risk of corruption
+# during the much smaller time window where these .db.journal files
+# exist.
+#
+# Long term the right solution will be to limit IMA to the read-only
+# rootfs and put all writeable files in a different partition.
+inherit extrausers
+EXTRA_USERS_PARAMS += " \
+    useradd --system --home ${localstatedir}/lib/empty --no-create-home --shell /bin/false sqlite; \
+"
+ROOTFS_POSTPROCESS_COMMAND_append = " set_sqlite_owner; "
+set_sqlite_owner () {
+    # Both the groupadd and the security-manager postinst are expected
+    # to have completed by now. If this command fails, something in
+    # image creation regressed.
+    chown sqlite "${IMAGE_ROOTFS}/usr/dbspace/.security-manager.db"
+}
+
 # By default, all files will be signed. Once IMA is active and its
 # policy includes a signed file, such signed files can be removed and
 # replaced, but not modified. Therefore we have to exclude certain
@@ -184,8 +221,8 @@ inherit ima-evm-rootfs
 #   In addition, ima-evm-rootfs.bbclass also adds the parameter to the rootfs
 #   because otherwise systemd would remove it.
 OSTRO_WRITABLE_FILES = "-path './etc/*' -o -path './var/*' -o -path './usr/dbspace/*'"
-IMA_EVM_ROOTFS_SIGNED = ". -type f -a ! \( ${OSTRO_WRITABLE_FILES} \)"
-IMA_EVM_ROOTFS_HASHED = ". -type f -a \( ${OSTRO_WRITABLE_FILES} \)"
+IMA_EVM_ROOTFS_SIGNED = ". -type f -a -uid 0 -a ! \( ${OSTRO_WRITABLE_FILES} \)"
+IMA_EVM_ROOTFS_HASHED = ". -type f -a -uid 0 -a \( ${OSTRO_WRITABLE_FILES} \)"
 IMA_EVM_ROOTFS_IVERSION = "/"
 APPEND_append = " rootflags=i_version"
 
