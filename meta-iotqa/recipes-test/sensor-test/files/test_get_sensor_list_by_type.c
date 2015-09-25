@@ -89,7 +89,7 @@ main(int argc, char* argv[])
 	}
 	fprintf(stdout, "sf_get_sensor_count type=%s count=%d\n", sensor_type_t.sensor_type, sensor_count);
 	sensor_list = (sf_sensor_t *)malloc(sensor_count * sizeof(sf_sensor_t));
-        if(sensor_count < 0 || sensor_count > 5)
+        if(sensor_count > 5)
 		return false;
 	sensor_list_return = sf_get_sensor_list(sensor_type_t, sensor_count, sensor_list);
 
