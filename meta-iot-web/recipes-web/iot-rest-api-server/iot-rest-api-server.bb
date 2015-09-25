@@ -8,7 +8,7 @@ DEPENDS = "nodejs-native iotivity iotivity-node"
 RDEPENDS_${PN} += "bash"
 
 SRC_URI = "git://git@github.com/01org/iot-rest-api-server.git;protocol=ssh"
-SRCREV = "4b2215cedc9daeda2f35482d0d2a705324420d49"
+SRCREV = "199ad7da626cc5b6bcdc0c3f11d74f031ccf83c3"
 
 S = "${WORKDIR}/git"
 
