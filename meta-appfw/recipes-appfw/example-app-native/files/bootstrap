@@ -1,0 +1,21 @@
+#!/bin/bash
+
+aclocal -I m4 && \
+    autoheader && \
+        libtoolize --copy --force && \
+            autoconf && \
+                automake --add-missing --copy
+
+status=$?
+
+if [ $status == 0 ]; then
+    if [ -n "$1" ]; then
+        [ "$1" == "configure" ] && shift || :
+        ./configure $*
+        status=$?
+    fi
+else
+    echo "Failed to bootstrap."
+fi
+
+exit $status
