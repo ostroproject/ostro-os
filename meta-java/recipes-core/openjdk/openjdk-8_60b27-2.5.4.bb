@@ -21,7 +21,7 @@ JDKPN = "openjdk-8"
 JDK_DIR = "java-8-openjdk"
 
 PN = "${JDKPN}-jre"
-PROVIDES += "${JDKPN}"
+PROVIDES += "${JDKPN} ${JDKPN}-jdk"
 
 DEPENDS = " \
            icedtea7-native zip-native ant-native \
@@ -186,7 +186,7 @@ OPENJDK_OECONF = " \
      CFLAGS="--sysroot=${STAGING_DIR_TARGET} " \
      CXXFLAGS="--sysroot=${STAGING_DIR_TARGET} " \
      LDFLAGS="--sysroot=${STAGING_DIR_TARGET} " \
-     --with-extra-cflags="--sysroot=${STAGING_DIR_TARGET} " \
+     --with-extra-cflags="--sysroot=${STAGING_DIR_TARGET} ${SELECTED_OPTIMIZATION}" \
      --with-extra-cxxflags="--sysroot=${STAGING_DIR_TARGET} " \
      --with-extra-ldflags="--sysroot=${STAGING_DIR_TARGET} " \
      "
