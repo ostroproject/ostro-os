@@ -53,8 +53,6 @@ def get_dpdk_target_mach(bb, d):
         "mohonpeak64":    "atm",
         "mohonpeak32":    "atm",
         "crystalforest":  "ivb",
-        "romley":         "snd",
-        "romley-ivb":     "ivb",
         "intel_corei7_64": "hsw",
     }
 

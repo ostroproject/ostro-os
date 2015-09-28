@@ -35,10 +35,6 @@ CRYSTALFOREST
 M:      Wu Chia Chuan <chia.chuan.wu@intel.com>
 F:      meta-crystalforest/
 
-ROMLEY
-M:      Wu Chia Chuan <chia.chuan.wu@intel.com>
-F:      meta-romley/
-
 TLK
 M:	Saul Wold <sgw@linux.intel.com>
 F:	meta-tlk/
