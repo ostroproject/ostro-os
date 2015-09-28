@@ -156,7 +156,7 @@ module.exports = {
         test.done();
     },
     testApiSystemTotalmemType: function(test) {
-        test.strictEqual(typeof this.apiSystem.apiResponse['totalmem'], 'string',
+        test.strictEqual(typeof this.apiSystem.apiResponse['totalmem'], 'number',
                     'totalmem property is not a string!');
         test.done(); 
     },
@@ -173,7 +173,7 @@ module.exports = {
         test.done();
     },
     testApiSystemFreememType: function(test) {
-        test.strictEqual(typeof this.apiSystem.apiResponse['freemem'], 'string',
+        test.strictEqual(typeof this.apiSystem.apiResponse['freemem'], 'number',
                     'freemem property is not a string!');
         test.done(); 
     },
