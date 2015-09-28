@@ -11,10 +11,10 @@ SRC_URI = "file://example.js \
            file://package.json \
            file://COPYING.MIT"
 
-IOTAPP_PROVIDER = "example-corp"
+IOT_APP_PROVIDER = "yoyodine"
 
 # use iot-app support class
-inherit iotapp
+inherit iot-app
 
 S = "${WORKDIR}"
 
@@ -25,11 +25,11 @@ INSANE_SKIP_${PN} = "staticdev"
 # manual install before npm-install.bbclass lands
 
 do_install () {
-    mkdir -p ${D}${IOTAPP_INSTALLATION_PATH}/lib/node_modules/${PN}
-    cp example.js package.json COPYING.MIT ${D}${IOTAPP_INSTALLATION_PATH}/lib/node_modules/${PN}/
+    mkdir -p ${D}${IOT_APP_INSTALLATION_PATH}/lib/node_modules/${PN}
+    cp example.js package.json COPYING.MIT ${D}${IOT_APP_INSTALLATION_PATH}/lib/node_modules/${PN}/
 }
 
-FILES_${PN} = "${IOTAPP_INSTALLATION_PATH}/lib/node_modules/example-app"
+FILES_${PN} = "${IOT_APP_INSTALLATION_PATH}/lib/node_modules/example-app"
 
 PACKAGES = "${PN}"
 

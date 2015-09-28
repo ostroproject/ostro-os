@@ -17,7 +17,7 @@ SYSTEMD_SERVICE_${PN} = "example-corp.service"
 
 RDEPENDS_${PN} += "example-app"
 
-inherit iotapp systemd
+inherit iot-app systemd
 
 S = "${WORKDIR}"
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"

@@ -4,13 +4,13 @@ LICENSE = "BSD-3-Clause"
 
 LIC_FILES_CHKSUM = "file://LICENSE-BSD;md5=f9f435c1bd3a753365e799edf375fc42"
 
-DEPENDS = "json-c systemd security-manager"
+DEPENDS = "json-c systemd security-manager rpm"
 
 SRC_URI = " \
-    git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh;branch=iot/release/m2/node-listing \
+    git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh;branch=iot/release/m2/installer \
   "
 
-SRCREV = "351d0807daf52f834d337faf14940dc569ab5079"
+SRCREV = "1e35c2dfafe88a5222fba9062a9d638148c3fab0"
 
 inherit autotools pkgconfig systemd python-dir pythonnative
 
@@ -19,7 +19,8 @@ AUTO_LIBNAME_PKGS = ""
 S = "${WORKDIR}/git"
 
 # possible package configurations
-PACKAGECONFIG ??= "python node"
+PACKAGECONFIG ??= "python node rpm"
+PACKAGECONFIG[rpm]        = "--with-backend=rpm5 --enable-pcre --disable-sample-app,--without-backend"
 PACKAGECONFIG[qt]         = "--enable-qt,--disable-qt,qt4-x11-free"
 PACKAGECONFIG[pulse]      = "--enable-pulse,--disable-pulse,pulseaudio"
 PACKAGECONFIG[glib-2.0]   = "--enable-glib,--disable-glib,glib-2.0"
@@ -37,6 +38,9 @@ FILES_${PN}-launcher += "${bindir}/iot-launch"
 FILES_${PN}-launcher += "${libdir}/iot-app-fw"
 FILES_${PN}-launcher += "${systemd_unitdir}/system"
 
+PACKAGES =+ "${PN}-package-manager"
+FILES_${PN}-package-manager = "${bindir}/iotpm"
+
 PACKAGES =+ "${PN}-test"
 FILES_${PN}-test = "${bindir}/iot-event-test"
 
@@ -45,7 +49,10 @@ FILES_${PN}-node-bindings = "${libdir}/node_modules/iot/iot-appfw.node"
 FILES_${PN}-dbg += "${libdir}/node_modules/iot/.debug"
 
 do_install_append() {
-    rm -f ${D}/${libdir}/node_modules/iot/*.la
+    rm -f ${D}${libdir}/node_modules/iot/*.la
+    rm -f ${D}${libdir}/*.la
+    chmod a+s ${D}${bindir}/iotpm
+    chmod a+s ${D}${bindir}/iot-launch
 }
 
 # The following would enable iot-launch socket-activation by default on the image
