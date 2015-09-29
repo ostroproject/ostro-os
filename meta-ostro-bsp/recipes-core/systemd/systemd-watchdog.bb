@@ -4,12 +4,13 @@
 
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
+SRC_URI += "file://runtime-watchdog.conf"
 
 inherit allarch
 
 do_install () {
     install -d ${D}/${sysconfdir}/systemd/system.conf.d
-    echo "RuntimeWatchdogSec=90" >${D}/${sysconfdir}/systemd/system.conf.d/00-runtime-watchdog.conf
+    install -m 0755 ${WORKDIR}/runtime-watchdog.conf ${D}/${sysconfdir}/systemd/system.conf.d/00-runtime-watchdog.conf
 }
 
 CONFFILES_${PN} = "${sysconfdir}/systemd/system.conf.d/00-runtime-watchdog.conf"
