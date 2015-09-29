@@ -17,6 +17,7 @@ IMAGE_INSTALL = " \
                 sensord \
                 python-modules \
                 packagegroup-core-can \
+                openjdk-8-jdk \
 		"
 
 IMAGE_FEATURES_append = " \
