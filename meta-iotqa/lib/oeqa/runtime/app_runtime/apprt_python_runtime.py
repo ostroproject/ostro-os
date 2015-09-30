@@ -38,14 +38,14 @@ class PythonRuntimeTest(oeRuntimeTest):
     test_mod_log = {}
     results_python_runtime = 'results-python-runtime.log'
 
-
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         '''
         Clean the workspace before run all the test cases.
         :return:
         '''
-        if os.path.exists(self.results_python_runtime):
-            os.remove(self.results_python_runtime)
+        if os.path.exists(cls.results_python_runtime):
+            os.remove(cls.results_python_runtime)
 
 
     def test_python_runtime(self):
@@ -60,12 +60,13 @@ class PythonRuntimeTest(oeRuntimeTest):
             self.test_mod_log[mod_name] = output.strip().splitlines()
 
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         '''
         Generate the final result output with specified format.
         :return:
         '''
-        parse_all_tc(self.test_mod_log, self.results_python_runtime)
+        parse_all_tc(cls.test_mod_log, cls.results_python_runtime)
 
 
 
@@ -92,7 +93,8 @@ def write_tc_name(tc_result, tc, mod_name):
     :return:
     '''
     tc_name = tc_result[0]
-    tc.append('%s.%s' % (mod_name, tc_name))
+    tc_detailed_name = tc_result[1].strip('()').split('.')[-1]
+    tc.append('%s.%s.%s' % (mod_name, tc_detailed_name, tc_name))
 
 
 def write_tc_result(tc_result, tc):
