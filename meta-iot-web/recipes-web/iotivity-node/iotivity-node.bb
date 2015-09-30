@@ -72,9 +72,11 @@ do_install () {
     install -d ${D}${libdir}/node_modules/iotivity/
     install -m 0644 ${S}/AUTHORS.txt ${D}${libdir}/node_modules/iotivity/AUTHORS.txt
     install -m 0644 ${S}/index.js ${D}${libdir}/node_modules/iotivity/index.js
+    install -m 0644 ${S}/lowlevel.js ${D}${libdir}/node_modules/iotivity/lowlevel.js
     install -m 0644 ${S}/MIT-LICENSE.txt ${D}${libdir}/node_modules/iotivity/MIT-LICENSE.txt
     install -m 0644 ${S}/README.md ${D}${libdir}/node_modules/iotivity/README.md
 
+    cp -r ${S}/lib/ ${D}${libdir}/node_modules/iotivity/
     cp -r ${S}/node_modules/ ${D}${libdir}/node_modules/iotivity/
 
     # removing the test suite as of now.
