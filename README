@@ -18,6 +18,7 @@ single repository:
 - meta-user-management
 - meta-sensor-framework
 - meta-appfw
+- meta-java
 
 The top-level directory comes from openembedded-core, everything else
 is in its own sub-directory. This repository gets updated by importing
