@@ -45,8 +45,6 @@ IMAGE_LINGUAS = " "
 
 LICENSE = "MIT"
 
-inherit core-image extrausers image-buildinfo
-
 # Set IMAGE_ROOTFS_EXTRA_SPACE to 512M (in Kbytes) to ensure there's
 # always some extra space in the image.
 IMAGE_ROOTFS_EXTRA_SPACE = "524288"
@@ -88,12 +86,17 @@ IMAGE_FSTYPES_append_qemux86 = " ${OSTRO_VM_IMAGE_TYPES}"
 IMAGE_FSTYPES_remove_qemux86-64 = "live"
 IMAGE_FSTYPES_append_qemux86-64 = " ${OSTRO_VM_IMAGE_TYPES}"
 
+# Inherit after setting variables that get evaluated when importing
+# the classes. In particular IMAGE_FSTYPES is relevant because it causes
+# other classes to be imported.
+inherit core-image extrausers image-buildinfo
+
 # Inherit image-vm if any of the image fstypes depends on it.
 # Works around an error from image.py:
 # ERROR: No IMAGE_CMD defined for IMAGE_FSTYPES entry 'vdi' - possibly invalid type name or missing support class
 # Necessary because the normal image class inheritance mechanism
 # runs at the wrong time to avoid the image.py check.
-inherit ${@'image-vm' if set(d.getVar('IMAGE_FSTYPES', True).split()).intersection(['vdi', 'vmdk', 'qcow2']) else ''}
+# inherit ${@'image-vm' if set(d.getVar('IMAGE_FSTYPES', True).split()).intersection(['vdi', 'vmdk', 'qcow2']) else ''}
 
 BUILD_ID ?= "${DATETIME}"
 IMAGE_BUILDINFO_VARS_append = " BUILD_ID"
@@ -127,6 +130,9 @@ SYSLINUX_ROOT_intel-corei7-64 = "${OSTRO_ROOT}"
 SYSLINUX_ROOT_intel-quark = "${OSTRO_ROOT}"
 SYSLINUX_ROOT_qemux86 = "${OSTRO_ROOT}"
 SYSLINUX_ROOT_qemux86-64 = "${OSTRO_ROOT}"
+
+# If (and only if) not using syslinux, we need to prepend it ourselves.
+APPEND_prepend = "${@ '' if bb.data.inherits_class('syslinux', d) else '${SYSLINUX_ROOT} ' }"
 
 # Activate IMA signing of rootfs, using the default (and insecure,
 # because publicly available) keys shipped with the integrity
