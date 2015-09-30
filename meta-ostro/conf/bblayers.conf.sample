@@ -24,6 +24,7 @@ OSTRO_LAYERS = " \
   ##OEROOT##/meta-appfw \
   ##OEROOT##/meta-sensor-framework \
   ##OEROOT##/meta-java \
+  ##OEROOT##/meta-security-isafw \
   "
 
 # The following layers are available in the combined repository.
