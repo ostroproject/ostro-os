@@ -9,8 +9,8 @@ SRC_URI += "file://runtime-watchdog.conf"
 inherit allarch
 
 do_install () {
-    install -d ${D}/${sysconfdir}/systemd/system.conf.d
-    install -m 0755 ${WORKDIR}/runtime-watchdog.conf ${D}/${sysconfdir}/systemd/system.conf.d/00-runtime-watchdog.conf
+    install -m 0755 -d ${D}/${sysconfdir}/systemd/system.conf.d
+    install -m 0644 ${WORKDIR}/runtime-watchdog.conf ${D}/${sysconfdir}/systemd/system.conf.d/00-runtime-watchdog.conf
 }
 
 CONFFILES_${PN} = "${sysconfdir}/systemd/system.conf.d/00-runtime-watchdog.conf"
