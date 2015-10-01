@@ -1,0 +1,46 @@
+From 04d707a9a68d1b116885f0c5bd8f6646af29801f Mon Sep 17 00:00:00 2001
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Date: Wed, 6 May 2015 13:29:08 +0300
+Subject: [PATCH 02/26] i2c / ACPI: Assign IRQ for devices that have GpioInt
+ automatically
+
+Following what DT already does. If the device does not have ACPI Interrupt
+resource but instead it has one or more GpioInt resources listed below it,
+we take the first GpioInt resource, convert it to suitable Linux IRQ number
+and pass it to the driver instead.
+
+This makes drivers simpler because the don't need to care about GPIOs at
+all if only thing they need is interrupt.
+
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+
+Upstream-status: Backport
+---
+ drivers/i2c/i2c-core.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index c21b3de..fc2ee82 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -631,8 +631,13 @@ static int i2c_device_probe(struct device *dev)
+ 	if (!client)
+ 		return 0;
+ 
+-	if (!client->irq && dev->of_node) {
+-		int irq = of_irq_get(dev->of_node, 0);
++	if (!client->irq) {
++		int irq = -ENOENT;
++
++		if (dev->of_node)
++			irq = of_irq_get(dev->of_node, 0);
++		else if (ACPI_COMPANION(dev))
++			irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
+ 
+ 		if (irq == -EPROBE_DEFER)
+ 			return irq;
+-- 
+2.4.3
+

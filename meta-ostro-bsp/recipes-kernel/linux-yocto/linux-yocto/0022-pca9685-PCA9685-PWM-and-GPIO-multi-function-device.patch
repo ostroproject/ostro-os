@@ -1,0 +1,931 @@
+From c732f7175a84946aa271e7d24df8c21ee28773bf Mon Sep 17 00:00:00 2001
+From: Josef Ahmad <josef.ahmad@linux.intel.com>
+Date: Wed, 31 Dec 2014 15:02:19 +0000
+Subject: [PATCH 22/26] pca9685: PCA9685 PWM and GPIO multi-function device.
+
+There is also a driver for the same chip in drivers/pwm. This version
+has support for setting the output in GPIO mode in addition to the PWM
+mode.
+
+Upstream-status: Pending
+---
+ drivers/mfd/Kconfig                   |  10 ++
+ drivers/mfd/Makefile                  |   2 +
+ drivers/mfd/pca9685-core.c            | 308 ++++++++++++++++++++++++++++++++++
+ drivers/mfd/pca9685-gpio.c            | 108 ++++++++++++
+ drivers/mfd/pca9685-pwm.c             | 262 +++++++++++++++++++++++++++++
+ drivers/mfd/pca9685.h                 | 110 ++++++++++++
+ include/linux/platform_data/pca9685.h |  51 ++++++
+ 7 files changed, 851 insertions(+)
+ create mode 100644 drivers/mfd/pca9685-core.c
+ create mode 100644 drivers/mfd/pca9685-gpio.c
+ create mode 100644 drivers/mfd/pca9685-pwm.c
+ create mode 100644 drivers/mfd/pca9685.h
+ create mode 100644 include/linux/platform_data/pca9685.h
+
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index d5ad04d..a7983b2 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -334,6 +334,16 @@ config MFD_INTEL_MSIC
+ 	  Passage) chip. This chip embeds audio, battery, GPIO, etc.
+ 	  devices used in Intel Medfield platforms.
+ 
++config MFD_PCA9685
++	tristate "NPX Semiconductors PCA9685 (PWM/GPIO) driver"
++	depends on GPIOLIB && I2C && PWM
++	select REGMAP_I2C
++	help
++	  NPX PCA9685 I2C-bus PWM controller with GPIO output interface support.
++	  The I2C-bus LED controller provides 16-channel, 12-bit PWM Fm+.
++	  Additionally, the driver allows the channels to be configured as GPIO
++	  interface (output only).
++
+ config MFD_IPAQ_MICRO
+ 	bool "Atmel Micro ASIC (iPAQ h3100/h3600/h3700) Support"
+ 	depends on SA1100_H3100 || SA1100_H3600
+diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+index 0e5cfeb..d043a1b 100644
+--- a/drivers/mfd/Makefile
++++ b/drivers/mfd/Makefile
+@@ -138,6 +138,8 @@ obj-$(CONFIG_MFD_DB8500_PRCMU)	+= db8500-prcmu.o
+ obj-$(CONFIG_AB8500_CORE)	+= ab8500-core.o ab8500-sysctrl.o
+ obj-$(CONFIG_MFD_TIMBERDALE)    += timberdale.o
+ obj-$(CONFIG_PMIC_ADP5520)	+= adp5520.o
++pca9685-objs			:= pca9685-core.o pca9685-gpio.o pca9685-pwm.o
++obj-$(CONFIG_MFD_PCA9685)	+= pca9685.o
+ obj-$(CONFIG_MFD_KEMPLD)	+= kempld-core.o
+ obj-$(CONFIG_MFD_INTEL_QUARK_I2C_GPIO)	+= intel_quark_i2c_gpio.o
+ obj-$(CONFIG_LPC_SCH)		+= lpc_sch.o
+diff --git a/drivers/mfd/pca9685-core.c b/drivers/mfd/pca9685-core.c
+new file mode 100644
+index 0000000..3f63b6d
+--- /dev/null
++++ b/drivers/mfd/pca9685-core.c
+@@ -0,0 +1,308 @@
++/*
++ * Driver for NPX PCA9685 I2C-bus PWM controller with GPIO output interface
++ * support.
++ *
++ * Copyright(c) 2013-2015 Intel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ *
++ * The I2C-bus LED controller provides 16-channel, 12-bit PWM Fm+.
++ * Additionally, the driver allows the channels to be configured as GPIO
++ * interface (output only).
++ */
++
++#include <linux/i2c.h>
++#include <linux/module.h>
++#include <linux/pwm.h>
++#include <linux/gpio.h>
++#include <linux/regmap.h>
++#include <linux/slab.h>
++#include <linux/delay.h>
++#include <linux/acpi.h>
++#include <linux/property.h>
++
++#include "pca9685.h"
++
++static unsigned int en_invrt;
++module_param(en_invrt, uint, 0);
++MODULE_PARM_DESC(en_invrt, "Enable output logic state inverted mode");
++
++static unsigned int en_open_dr;
++module_param(en_open_dr, uint, 0);
++MODULE_PARM_DESC(en_open_dr,
++	"The outputs are configured with an open-drain structure");
++
++static int gpio_base = -1; /*  requests dynamic ID allocation */
++module_param(gpio_base, int, 0);
++MODULE_PARM_DESC(gpio_base, "GPIO base number");
++
++static unsigned int pwm_period = PWM_PERIOD_DEF; /* PWM clock period */
++module_param(pwm_period, uint, 0);
++MODULE_PARM_DESC(pwm_period, "PWM clock period (nanoseconds)");
++
++static bool pca9685_register_volatile(struct device *dev, unsigned int reg)
++{
++	if (unlikely(reg == PCA9685_MODE1))
++		return true;
++	else
++		return false;
++}
++
++static struct regmap_config pca9685_regmap_i2c_config = {
++	.reg_bits     = 8,
++	.val_bits     = 8,
++	.max_register = PCA9685_NUMREGS,
++	.volatile_reg = pca9685_register_volatile,
++	.cache_type   = REGCACHE_RBTREE,
++};
++
++ssize_t pca9685_pwm_period_sysfs_show(struct device *dev,
++					  struct device_attribute *attr,
++					  char *buf)
++{
++	struct pca9685 *pca = dev_get_drvdata(dev);
++
++	return scnprintf(buf, PAGE_SIZE, "%u\n", pca->pwm_period);
++}
++
++ssize_t pca9685_pwm_period_sysfs_store(struct device *dev,
++					   struct device_attribute *attr,
++					   const char *buf, size_t count)
++{
++	struct pca9685 *pca = dev_get_drvdata(dev);
++	unsigned period_ns;
++	int ret;
++
++	sscanf(buf, "%u", &period_ns);
++
++	ret = pca9685_update_prescale(pca, period_ns, true);
++	if (ret)
++		return ret;
++
++	return count;
++}
++
++/* Sysfs attribute to allow PWM clock period adjustment at run-time
++ * NOTE: All active channels will switch off momentarily if the
++ * PWM clock period is changed
++ */
++static DEVICE_ATTR(pwm_period, S_IWUSR | S_IRUGO,
++		   pca9685_pwm_period_sysfs_show,
++		   pca9685_pwm_period_sysfs_store);
++
++u8 default_chan_mapping[] = {
++	PWM_CH_GPIO, PWM_CH_PWM,
++	PWM_CH_GPIO, PWM_CH_PWM,
++	PWM_CH_GPIO, PWM_CH_PWM,
++	PWM_CH_GPIO, PWM_CH_PWM,
++	PWM_CH_GPIO, PWM_CH_PWM,
++	PWM_CH_GPIO, PWM_CH_PWM,
++	PWM_CH_GPIO, PWM_CH_GPIO,
++	PWM_CH_GPIO, PWM_CH_GPIO,
++	PWM_CH_DISABLED /* ALL_LED disabled */
++};
++
++static int pca9685_probe(struct i2c_client *client,
++			 const struct i2c_device_id *id)
++{
++	struct pca9685_pdata *pdata;
++	struct pca9685 *pca;
++	int ret;
++	int mode2;
++
++	pca = devm_kzalloc(&client->dev, sizeof(*pca), GFP_KERNEL);
++	if (unlikely(!pca))
++		return -ENOMEM;
++
++	pdata = client->dev.platform_data;
++	if (likely(pdata)) {
++		memcpy(pca->chan_mapping, pdata->chan_mapping,
++				ARRAY_SIZE(pca->chan_mapping));
++		pca->gpio_base = pdata->gpio_base;
++		en_invrt       = pdata->en_invrt;
++		en_open_dr     = pdata->en_open_dr;
++	} else {
++		dev_warn(&client->dev,
++			 "Platform data not provided."
++			 "Using default or mod params configuration.\n");
++#if 1
++        /* hack for Galileo 2*/
++		pca->gpio_base = 64;
++		memcpy(pca->chan_mapping, default_chan_mapping,
++				ARRAY_SIZE(pca->chan_mapping));
++#else
++		pca->gpio_base = gpio_base;
++		memset(pca->chan_mapping, PWM_CH_UNDEFINED,
++				ARRAY_SIZE(pca->chan_mapping));
++#endif
++	}
++
++	if (unlikely(!i2c_check_functionality(client->adapter,
++					I2C_FUNC_I2C |
++					I2C_FUNC_SMBUS_BYTE_DATA))) {
++		dev_err(&client->dev,
++				"i2c adapter doesn't support required functionality\n");
++		return -EIO;
++	}
++
++	pca->regmap = devm_regmap_init_i2c(client, &pca9685_regmap_i2c_config);
++	if (IS_ERR(pca->regmap)) {
++		ret = PTR_ERR(pca->regmap);
++		dev_err(&client->dev, "Failed to initialize register map: %d\n",
++			ret);
++		return ret;
++	}
++
++	i2c_set_clientdata(client, pca);
++
++	/* registration of GPIO chip */
++	pca->gpio_chip.label     = "pca9685-gpio";
++	pca->gpio_chip.owner     = THIS_MODULE;
++	pca->gpio_chip.set       = pca9685_gpio_set;
++	pca->gpio_chip.get       = pca9685_gpio_get;
++	pca->gpio_chip.can_sleep = 1;
++	pca->gpio_chip.ngpio     = PCA9685_MAXCHAN;
++	pca->gpio_chip.base      = pca->gpio_base;
++	pca->gpio_chip.request   = pca9685_gpio_request;
++	pca->gpio_chip.free      = pca9685_gpio_free;
++
++	mutex_init(&pca->lock);
++
++	ret = gpiochip_add(&pca->gpio_chip);
++	if (unlikely(ret < 0)) {
++		dev_err(&client->dev, "Could not register gpiochip, %d\n", ret);
++		goto err;
++	}
++
++	/* configure initial PWM settings */
++	ret = pca9685_init_pwm_regs(pca, pwm_period);
++	if (ret) {
++		pr_err("Failed to initialize PWM registers\n");
++		goto err_gpiochip;
++	}
++
++	/* registration of PWM chip */
++
++	regmap_read(pca->regmap, PCA9685_MODE2, &mode2);
++
++	/* update mode2 register */
++	if (en_invrt)
++		mode2 |= MODE2_INVRT;
++	else
++		mode2 &= ~MODE2_INVRT;
++
++	if (en_open_dr)
++		mode2 &= ~MODE2_OUTDRV;
++	else
++		mode2 |= MODE2_OUTDRV;
++
++	regmap_write(pca->regmap, PCA9685_MODE2, mode2);
++
++	pca->pwm_chip.ops  = &pca9685_pwm_ops;
++	/* add an extra channel for ALL_LED */
++	pca->pwm_chip.npwm = PCA9685_MAXCHAN + 1;
++	pca->pwm_chip.dev  = &client->dev;
++	pca->pwm_chip.base = -1;
++
++	ret = pwmchip_add(&pca->pwm_chip);
++	if (unlikely(ret < 0)) {
++		dev_err(&client->dev, "pwmchip_add failed %d\n", ret);
++		goto err_gpiochip;
++	}
++
++	/* Also create a sysfs interface, providing a cmd line config option */
++	ret = sysfs_create_file(&client->dev.kobj, &dev_attr_pwm_period.attr);
++	if (unlikely(ret < 0)) {
++		dev_err(&client->dev, "sysfs_create_file failed %d\n", ret);
++		goto err_pwmchip;
++	}
++
++	return ret;
++
++err_pwmchip:
++	if (unlikely(pwmchip_remove(&pca->pwm_chip)))
++		dev_warn(&client->dev, "%s failed\n", "pwmchip_remove()");
++
++err_gpiochip:
++	gpiochip_remove(&pca->gpio_chip);
++err:
++	mutex_destroy(&pca->lock);
++
++	return ret;
++}
++
++static int pca9685_remove(struct i2c_client *client)
++{
++	struct pca9685 *pca = i2c_get_clientdata(client);
++	int ret;
++
++	regmap_update_bits(pca->regmap, PCA9685_MODE1, MODE1_SLEEP,
++			MODE1_SLEEP);
++
++	gpiochip_remove(&pca->gpio_chip);
++
++	sysfs_remove_file(&client->dev.kobj, &dev_attr_pwm_period.attr);
++
++	ret = pwmchip_remove(&pca->pwm_chip);
++	if (unlikely(ret))
++		dev_err(&client->dev, "%s failed, %d\n",
++				"pwmchip_remove()", ret);
++
++	mutex_destroy(&pca->lock);
++
++	return ret;
++}
++
++static const struct acpi_device_id pca9685_acpi_ids[] = {
++	{ "INT3492", 0 },
++	{ /* sentinel */ },
++};
++MODULE_DEVICE_TABLE(acpi, pca9685_acpi_ids);
++
++static const struct i2c_device_id pca9685_id[] = {
++	{ "pca9685", 0 },
++	{ /* sentinel */ },
++};
++MODULE_DEVICE_TABLE(i2c, pca9685_id);
++
++static struct i2c_driver pca9685_i2c_driver = {
++	.driver = {
++		.name  = "mfd-pca9685",
++		.owner = THIS_MODULE,
++		.acpi_match_table = ACPI_PTR(pca9685_acpi_ids),
++	},
++	.probe     = pca9685_probe,
++	.remove    = pca9685_remove,
++	.id_table  = pca9685_id,
++};
++
++static int __init pca9685_init(void)
++{
++	if (unlikely((pwm_period < PWM_PERIOD_MIN) ||
++			 (PWM_PERIOD_MAX < pwm_period))) {
++		pr_err("Invalid PWM period specified (valid range: %d-%d)\n",
++			   PWM_PERIOD_MIN, PWM_PERIOD_MAX);
++		return -EINVAL;
++	}
++
++	return i2c_add_driver(&pca9685_i2c_driver);
++}
++/* register after i2c postcore initcall */
++subsys_initcall(pca9685_init);
++
++static void __exit pca9685_exit(void)
++{
++	i2c_del_driver(&pca9685_i2c_driver);
++}
++module_exit(pca9685_exit);
++
++MODULE_AUTHOR("Wojciech Ziemba <wojciech.ziemba@emutex.com>");
++MODULE_DESCRIPTION("NPX Semiconductors PCA9685 (PWM/GPIO) driver");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/mfd/pca9685-gpio.c b/drivers/mfd/pca9685-gpio.c
+new file mode 100644
+index 0000000..ed348af
+--- /dev/null
++++ b/drivers/mfd/pca9685-gpio.c
+@@ -0,0 +1,108 @@
++/*
++ * Driver for NPX PCA9685 I2C-bus PWM controller with GPIO output interface
++ * support.
++ *
++ * Copyright(c) 2013-2015 Intel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ *
++ * The I2C-bus LED controller provides 16-channel, 12-bit PWM Fm+.
++ * Additionally, the driver allows the channels to be configured as GPIO
++ * interface (output only).
++ */
++
++#include <linux/device.h>
++#include <linux/module.h>
++#include <linux/gpio.h>
++#include <linux/pwm.h>
++#include <linux/regmap.h>
++
++#include "pca9685.h"
++
++static inline struct pca9685 *gpio_to_pca(struct gpio_chip *gpio_chip)
++{
++	return container_of(gpio_chip, struct pca9685, gpio_chip);
++}
++
++static inline int is_gpio_allowed(const struct pca9685 *pca, unsigned channel)
++{
++	return pca->chan_mapping[channel] & PWM_CH_GPIO;
++}
++
++int pca9685_gpio_request(struct gpio_chip *chip, unsigned offset)
++{
++	struct pca9685 *pca;
++	struct pwm_device *pwm;
++	int ret = 0;
++	pca = gpio_to_pca(chip);
++
++	/* validate channel constrains */
++	if (!is_gpio_allowed(pca, offset))
++		return -ENODEV;
++
++	/* return busy if channel is already allocated for pwm */
++	pwm = &pca->pwm_chip.pwms[offset];
++	if (test_bit(PWMF_REQUESTED, &pwm->flags))
++		return -EBUSY;
++
++	/* clear the on counter */
++	regmap_write(pca->regmap, LED_N_ON_L(offset), 0x0);
++	regmap_write(pca->regmap, LED_N_ON_H(offset), 0x0);
++
++	/* clear the off counter */
++	regmap_write(pca->regmap, LED_N_OFF_L(offset), 0x0);
++	ret = regmap_write(pca->regmap, LED_N_OFF_H(offset), 0x0);
++
++	clear_sleep_bit(pca);
++
++	return ret;
++}
++
++void pca9685_gpio_free(struct gpio_chip *chip, unsigned offset)
++{
++	struct pca9685 *pca;
++
++	pca = gpio_to_pca(chip);
++
++	/* clear the on counter reg */
++	regmap_write(pca->regmap, LED_N_ON_L(offset), 0x0);
++	regmap_write(pca->regmap, LED_N_ON_H(offset), 0x0);
++
++	set_sleep_bit(pca);
++
++	return;
++}
++
++void pca9685_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
++{
++	struct pca9685 *pca;
++
++	pca = gpio_to_pca(chip);
++
++	/* set the full-on bit */
++	regmap_write(pca->regmap,  LED_N_ON_H(offset), (value << 4) & LED_FULL);
++
++	return;
++}
++
++int pca9685_gpio_get(struct gpio_chip *chip, unsigned offset)
++{
++	struct pca9685 *pca;
++	unsigned int val;
++
++	pca = gpio_to_pca(chip);
++
++	/* read the full-on bit */
++	regmap_read(pca->regmap, LED_N_ON_H(offset), &val);
++
++	return !!val;
++}
++
++MODULE_LICENSE("GPL");
+diff --git a/drivers/mfd/pca9685-pwm.c b/drivers/mfd/pca9685-pwm.c
+new file mode 100644
+index 0000000..0c05263
+--- /dev/null
++++ b/drivers/mfd/pca9685-pwm.c
+@@ -0,0 +1,262 @@
++/*
++ * Driver for NPX PCA9685 I2C-bus PWM controller with GPIO output interface
++ * support.
++ *
++ * Copyright(c) 2013-2015 Intel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ *
++ * The I2C-bus LED controller provides 16-channel, 12-bit PWM Fm+.
++ * Additionally, the driver allows the channels to be configured as GPIO
++ * interface (output only).
++ */
++
++#include <linux/module.h>
++#include <linux/pwm.h>
++#include <linux/gpio.h>
++#include <linux/regmap.h>
++#include <linux/platform_device.h>
++#include <linux/delay.h>
++
++#include "pca9685.h"
++
++static inline struct pca9685 *pwm_to_pca(struct pwm_chip *pwm_chip)
++{
++	return container_of(pwm_chip, struct pca9685, pwm_chip);
++}
++
++static inline int period_ns_to_prescale(unsigned period_ns)
++{
++	return (DIV_ROUND_CLOSEST(OSC_CLK_MHZ * period_ns,
++			SAMPLE_RES * 1000)) - 1;
++}
++
++static inline int is_pwm_allowed(const struct pca9685 *pca, unsigned channel)
++{
++	return pca->chan_mapping[channel] & PWM_CH_PWM;
++}
++
++int pca9685_update_prescale(struct pca9685 *pca, unsigned period_ns,
++			    bool reconfigure_channels)
++{
++	int pre_scale, i;
++	struct pwm_device *pwm;
++	unsigned long long duty_scale;
++	unsigned long long new_duty_ns;
++
++	if (unlikely((period_ns < PWM_PERIOD_MIN) ||
++		     (PWM_PERIOD_MAX < period_ns))) {
++		pr_err("Invalid PWM period specified (valid range: %d-%d)\n",
++		       PWM_PERIOD_MIN, PWM_PERIOD_MAX);
++		return -EINVAL;
++	}
++
++	mutex_lock(&pca->lock);
++
++	/* update pre_scale to the closest period */
++	pre_scale = period_ns_to_prescale(period_ns);
++	/* ensure sleep-mode bit is set
++	 * NOTE: All active channels will switch off for at least 500 usecs
++	 */
++	regmap_update_bits(pca->regmap, PCA9685_MODE1,
++			   MODE1_SLEEP, MODE1_SLEEP);
++	regmap_write(pca->regmap, PCA9685_PRESCALE, pre_scale);
++	/* clear sleep mode flag if at least 1 channel is active */
++	if (pca->active_cnt > 0) {
++		regmap_update_bits(pca->regmap, PCA9685_MODE1,
++				   MODE1_SLEEP, 0x0);
++		usleep_range(MODE1_RESTART_DELAY, MODE1_RESTART_DELAY * 2);
++		regmap_update_bits(pca->regmap, PCA9685_MODE1,
++				   MODE1_RESTART, MODE1_RESTART);
++	}
++
++	if (reconfigure_channels) {
++		for (i = 0; i < pca->pwm_chip.npwm; i++) {
++			pwm = &pca->pwm_chip.pwms[i];
++			pwm->period = period_ns;
++			if (pwm->duty_cycle > 0) {
++				/* Scale the rise time to maintain duty cycle */
++				duty_scale = period_ns;
++				duty_scale *= 1000000;
++				do_div(duty_scale, pca->pwm_period);
++				new_duty_ns = duty_scale * pwm->duty_cycle;
++				do_div(new_duty_ns, 1000000);
++				/* Update the duty_cycle */
++				pwm_config(pwm, (int)new_duty_ns, pwm->period);
++			}
++		}
++	}
++	pca->pwm_period = period_ns;
++
++	mutex_unlock(&pca->lock);
++	return 0;
++}
++
++int pca9685_init_pwm_regs(struct pca9685 *pca, unsigned period_ns)
++{
++	int ret, chan;
++
++	/* set MODE1_SLEEP */
++	ret = regmap_update_bits(pca->regmap, PCA9685_MODE1,
++					MODE1_SLEEP, MODE1_SLEEP);
++	if (unlikely(ret < 0))
++		return ret;
++
++	/* configure the initial PWM clock period */
++	ret = pca9685_update_prescale(pca, period_ns, false);
++	if (unlikely(ret < 0))
++		return ret;
++
++	/* reset PWM channel registers to power-on default values */
++	for (chan = 0; chan < PCA9685_MAXCHAN; chan++) {
++		ret = regmap_write(pca->regmap, LED_N_ON_L(chan), 0);
++		if (unlikely(ret < 0))
++			return ret;
++		ret = regmap_write(pca->regmap, LED_N_ON_H(chan), 0);
++		if (unlikely(ret < 0))
++			return ret;
++		ret = regmap_write(pca->regmap, LED_N_OFF_L(chan), 0);
++		if (unlikely(ret < 0))
++			return ret;
++		ret = regmap_write(pca->regmap, LED_N_OFF_H(chan), LED_FULL);
++		if (unlikely(ret < 0))
++			return ret;
++	}
++	/* reset ALL_LED registers to power-on default values */
++	ret = regmap_write(pca->regmap, PCA9685_ALL_LED_ON_L, 0);
++	if (unlikely(ret < 0))
++		return ret;
++	ret = regmap_write(pca->regmap, PCA9685_ALL_LED_ON_H, 0);
++	if (unlikely(ret < 0))
++		return ret;
++	ret = regmap_write(pca->regmap, PCA9685_ALL_LED_OFF_L, 0);
++	if (unlikely(ret < 0))
++		return ret;
++	ret = regmap_write(pca->regmap, PCA9685_ALL_LED_OFF_H, LED_FULL);
++	if (unlikely(ret < 0))
++		return ret;
++
++	return ret;
++}
++
++static int pca9685_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
++				int duty_ns, int period_ns)
++{
++	struct pca9685 *pca = pwm_to_pca(chip);
++	unsigned long long duty;
++	unsigned int	reg_on_h,
++			reg_off_l,
++			reg_off_h;
++	int full_off;
++
++	/* Changing PWM period for a single channel at run-time not allowed.
++	 * The PCA9685 PWM clock is shared across all PWM channels
++	 */
++	if (unlikely(period_ns != pwm->period))
++		return -EPERM;
++
++	if (unlikely(pwm->hwpwm >= PCA9685_MAXCHAN)) {
++		reg_on_h  = PCA9685_ALL_LED_ON_H;
++		reg_off_l = PCA9685_ALL_LED_OFF_L;
++		reg_off_h = PCA9685_ALL_LED_OFF_H;
++	} else {
++		reg_on_h  = LED_N_ON_H(pwm->hwpwm);
++		reg_off_l = LED_N_OFF_L(pwm->hwpwm);
++		reg_off_h = LED_N_OFF_H(pwm->hwpwm);
++	}
++
++	duty = SAMPLE_RES * (unsigned long long)duty_ns;
++	duty = DIV_ROUND_UP_ULL(duty, period_ns);
++
++	if (duty >= SAMPLE_RES) /* set the LED_FULL bit */
++		return regmap_write(pca->regmap, reg_on_h, LED_FULL);
++	else /* clear the LED_FULL bit */
++		regmap_write(pca->regmap, reg_on_h, 0x00);
++
++	full_off = !test_bit(PWMF_ENABLED, &pwm->flags) << 4;
++
++	regmap_write(pca->regmap, reg_off_l, (int)duty & 0xff);
++
++	return regmap_write(pca->regmap, reg_off_h,
++			((int)duty >> 8 | full_off) & 0x1f);
++}
++
++static int pca9685_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
++{
++	struct pca9685 *pca = pwm_to_pca(chip);
++	int ret;
++
++	unsigned int reg_off_h;
++
++	if (unlikely(pwm->hwpwm >= PCA9685_MAXCHAN))
++		reg_off_h = PCA9685_ALL_LED_OFF_H;
++	else
++		reg_off_h = LED_N_OFF_H(pwm->hwpwm);
++
++	/* clear the full-off bit */
++	ret = regmap_update_bits(pca->regmap, reg_off_h, LED_FULL, 0x0);
++
++	clear_sleep_bit(pca);
++
++	return ret;
++}
++
++static void pca9685_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
++{
++	struct pca9685 *pca = pwm_to_pca(chip);
++
++	unsigned int reg_off_h;
++
++	if (unlikely(pwm->hwpwm >= PCA9685_MAXCHAN))
++		reg_off_h = PCA9685_ALL_LED_OFF_H;
++	else
++		reg_off_h = LED_N_OFF_H(pwm->hwpwm);
++
++	/* set the LED_OFF counter. */
++	regmap_update_bits(pca->regmap, reg_off_h, LED_FULL, LED_FULL);
++
++	set_sleep_bit(pca);
++
++	return;
++}
++
++static int pca9685_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
++{
++	struct pca9685 *pca;
++	struct gpio_chip *gpio_chip;
++	unsigned channel = pwm->hwpwm;
++
++	pca = pwm_to_pca(chip);
++
++	/* validate channel constrains */
++	if (!is_pwm_allowed(pca, channel))
++		return -ENODEV;
++
++	/* return busy if channel is already allocated for gpio */
++	gpio_chip = &pca->gpio_chip;
++
++	if ((channel < PCA9685_MAXCHAN) &&
++		(gpiochip_is_requested(gpio_chip, channel)))
++			return -EBUSY;
++
++	pwm->period = pca->pwm_period;
++
++	return 0;
++}
++
++const struct pwm_ops pca9685_pwm_ops = {
++	.enable  = pca9685_pwm_enable,
++	.disable = pca9685_pwm_disable,
++	.config  = pca9685_pwm_config,
++	.request = pca9685_pwm_request,
++	.owner   = THIS_MODULE,
++};
++
++MODULE_LICENSE("GPL");
+diff --git a/drivers/mfd/pca9685.h b/drivers/mfd/pca9685.h
+new file mode 100644
+index 0000000..d678d30
+--- /dev/null
++++ b/drivers/mfd/pca9685.h
+@@ -0,0 +1,110 @@
++/*
++ * Driver for NPX PCA9685 I2C-bus PWM controller with GPIO output interface
++ * support.
++ *
++ * Copyright(c) 2013-2015 Intel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ *
++ * The I2C-bus LED controller provides 16-channel, 12-bit PWM Fm+.
++ * Additionally, the driver allows the channels to be configured as GPIO
++ * interface (output only).
++ */
++
++#ifndef __LINUX_MFD_PCA9685_H
++#define __LINUX_MFD_PCA9685_H
++
++#include <linux/mutex.h>
++#include <linux/gpio.h>
++#include <linux/pwm.h>
++#include <linux/platform_data/pca9685.h>
++
++#define PCA9685_MODE1		0x00
++#define PCA9685_MODE2		0x01
++#define PCA9685_SUBADDR1	0x02
++#define PCA9685_SUBADDR2	0x03
++#define PCA9685_SUBADDR3	0x04
++#define PCA9685_LEDX_ON_L	0x06
++#define PCA9685_LEDX_ON_H	0x07
++#define PCA9685_LEDX_OFF_L	0x08
++#define PCA9685_LEDX_OFF_H	0x09
++
++#define PCA9685_ALL_LED_ON_L	0xFA
++#define PCA9685_ALL_LED_ON_H	0xFB
++#define PCA9685_ALL_LED_OFF_L	0xFC
++#define PCA9685_ALL_LED_OFF_H	0xFD
++#define PCA9685_PRESCALE	0xFE
++
++#define PCA9685_NUMREGS		0xFF
++
++#define LED_FULL		(1 << 4)
++#define MODE1_SLEEP		(1 << 4)
++#define MODE1_RESTART		(1 << 7)
++
++#define MODE1_RESTART_DELAY	500
++
++#define LED_N_ON_H(N)	(PCA9685_LEDX_ON_H +  (4 * (N)))
++#define LED_N_ON_L(N)	(PCA9685_LEDX_ON_L +  (4 * (N)))
++#define LED_N_OFF_H(N)	(PCA9685_LEDX_OFF_H + (4 * (N)))
++#define LED_N_OFF_L(N)	(PCA9685_LEDX_OFF_L + (4 * (N)))
++
++#define OSC_CLK_MHZ		      25 /* 25 MHz */
++#define SAMPLE_RES		    4096 /* 12 bits */
++#define PWM_PERIOD_MIN		  666666 /* ~1525 Hz */
++#define PWM_PERIOD_MAX		41666666 /* 24 Hz */
++#define PWM_PERIOD_DEF		 5000000 /* default 200 Hz */
++
++struct pca9685 {
++	struct gpio_chip	gpio_chip;
++	struct pwm_chip		pwm_chip;
++	struct regmap		*regmap;
++	struct mutex		lock; /* mutual exclusion semaphore */
++	/* Array of channel allocation constrains */
++	/* add an extra channel for ALL_LED */
++	u8	chan_mapping[PCA9685_MAXCHAN + 1];
++	int	gpio_base;
++	int	active_cnt;
++	int	pwm_exported_cnt;
++	int	pwm_period;
++};
++
++extern const struct pwm_ops pca9685_pwm_ops;
++
++int  pca9685_gpio_request(struct gpio_chip *chip, unsigned offset);
++void pca9685_gpio_free(struct gpio_chip *chip, unsigned offset);
++void pca9685_gpio_set(struct gpio_chip *chip, unsigned offset, int value);
++int  pca9685_gpio_get(struct gpio_chip *chip, unsigned offset);
++
++int pca9685_init_pwm_regs(struct pca9685 *pca, unsigned period_ns);
++int pca9685_update_prescale(struct pca9685 *pca, unsigned period_ns,
++			    bool reconfigure_channels);
++
++static inline void set_sleep_bit(struct pca9685 *pca)
++{
++	mutex_lock(&pca->lock);
++	/* set sleep mode flag if no more active LED channel*/
++	if (--pca->active_cnt == 0)
++		regmap_update_bits(pca->regmap, PCA9685_MODE1, MODE1_SLEEP,
++				MODE1_SLEEP);
++	mutex_unlock(&pca->lock);
++}
++
++static inline void clear_sleep_bit(struct pca9685 *pca)
++{
++	mutex_lock(&pca->lock);
++	/* clear sleep mode flag if at least 1 LED channel is active */
++	if (pca->active_cnt++ == 0)
++		regmap_update_bits(pca->regmap, PCA9685_MODE1,
++				MODE1_SLEEP, 0x0);
++
++	mutex_unlock(&pca->lock);
++}
++
++#endif	/* __LINUX_MFD_PCA9685_H */
+diff --git a/include/linux/platform_data/pca9685.h b/include/linux/platform_data/pca9685.h
+new file mode 100644
+index 0000000..dbb83f7
+--- /dev/null
++++ b/include/linux/platform_data/pca9685.h
+@@ -0,0 +1,51 @@
++/*
++ * Platform data for pca9685 driver
++ *
++ * Copyright(c) 2013-2015 Intel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ */
++
++#ifndef _PLAT_PCA9685_H_
++#define _PLAT_PCA9685_H_
++
++#define PCA9685_MAXCHAN	16
++#define MODE2_INVRT	(1 << 4)
++#define MODE2_OUTDRV	(1 << 2)
++
++/* PWM channel allocation flags */
++enum {
++	PWM_CH_DISABLED  = 0,
++	PWM_CH_PWM       = 1 << 0,
++	PWM_CH_GPIO      = 1 << 1,
++	/* allow PWM or GPIO */
++	PWM_CH_UNDEFINED = PWM_CH_PWM | PWM_CH_GPIO,
++};
++
++/**
++ * struct pca9685_pdata - Platform data for pca9685 driver
++ * @chan_mapping: Array of channel allocation constrains
++ * @gpio_base: GPIO base
++ * mode2_flags: mode2 register modification flags: INVRT and OUTDRV
++ **/
++struct pca9685_pdata {
++	/* Array of channel allocation constrains */
++	/* add an extra channel for ALL_LED */
++	u8	chan_mapping[PCA9685_MAXCHAN + 1];
++	/* GPIO base */
++	int	gpio_base;
++	/* mode2 flags */
++	u8	en_invrt:1,   /* enable output logic state inverted mode */
++		en_open_dr:1, /* enable if outputs are configured with an
++						 open-drain structure */
++		unused:6;
++};
++
++#endif /* _PLAT_PCA9685_H_ */
+-- 
+2.4.3
+
