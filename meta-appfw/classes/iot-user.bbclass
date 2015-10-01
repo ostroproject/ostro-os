@@ -66,7 +66,18 @@ def check_home(d, user):
     return home
 
 do_install_append () {
-    mkdir -p ${D}${IOT_USER_DIR}/${IOT_USER_NAME}
-    chown ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}
-    chgrp ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}
+     bbnote "setting up home directory for ${IOT_USER_NAME} user"
+     mkdir -p ${D}${IOT_USER_DIR}/${IOT_USER_NAME}
+     chown ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}
+     chgrp ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}
+}
+
+pkg_postinst_${PN} () {
+#!/bin/sh -e
+if [ "x$D" == "x" ] ; then
+    echo "chsmack -a User ${IOT_USER_DIR}/${IOT_USER_NAME}"
+    chsmack -a User ${IOT_USER_DIR}/${IOT_USER_NAME}
+else
+    exit 1
+fi
 }

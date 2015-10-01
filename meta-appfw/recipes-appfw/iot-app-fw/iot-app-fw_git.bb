@@ -5,12 +5,14 @@ LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE-BSD;md5=f9f435c1bd3a753365e799edf375fc42"
 
 DEPENDS = "json-c systemd security-manager rpm"
+RDEPENDS_${PN} =+ "db-bin"
+
 
 SRC_URI = " \
-    git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh;branch=iot/release/m2/installer \
+    git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh;branch=jko/devel/m2 \
   "
 
-SRCREV = "1e35c2dfafe88a5222fba9062a9d638148c3fab0"
+SRCREV = "9b4ffdf71da7828b0c0ab67f17fecef0ac2bf8ec"
 
 inherit autotools pkgconfig systemd python-dir pythonnative
 
@@ -34,12 +36,15 @@ do_package[prefuncs] += "set_python_files"
 
 PACKAGES =+ "${PN}-launcher"
 FILES_${PN}-launcher = "${bindir}/iot-launch-daemon"
-FILES_${PN}-launcher += "${bindir}/iot-launch"
-FILES_${PN}-launcher += "${libdir}/iot-app-fw"
-FILES_${PN}-launcher += "${systemd_unitdir}/system"
+FILES_${PN}-launcher =+ "${bindir}/iot-launch"
+FILES_${PN}-launcher =+ "${libdir}/iot-app-fw"
+FILES_${PN}-launcher =+ "${systemd_unitdir}/system/iot-launch.*"
 
 PACKAGES =+ "${PN}-package-manager"
 FILES_${PN}-package-manager = "${bindir}/iotpm"
+FILES_${PN}-package-manager =+ "${bindir}/register-preinstalled-apps"
+FILES_${PN}-package-manager =+ "${systemd_unitdir}/system/iotpm-*"
+
 
 PACKAGES =+ "${PN}-test"
 FILES_${PN}-test = "${bindir}/iot-event-test"
@@ -56,8 +61,12 @@ do_install_append() {
 }
 
 # The following would enable iot-launch socket-activation by default on the image
-# SYSTEMD_PACKAGES = "${PN}-launcher"
-# SYSTEMD_SERVICE_${PN}-launcher = "iot-launch.socket"
+SYSTEMD_PACKAGES = "${PN}-launcher"
+SYSTEMD_SERVICE_${PN}-launcher = "iot-launch.socket"
+
+SYSTEMD_PACKAGES += "${PN}-package-manager"
+SYSTEMD_SERVICE_${PN}-package-manager = "iotpm-register-apps.service"
+
 
 python set_python_env () {
     # Provide the build environment to distutils during Python
