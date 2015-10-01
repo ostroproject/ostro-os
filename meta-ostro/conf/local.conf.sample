@@ -231,5 +231,17 @@ ASSUME_PROVIDED += "libsdl-native"
 CONF_VERSION = "1"
 
 #
+# ISAFW: https://github.com/01org/isafw
+# For details, see meta-security-isafw/README.md
+#
+# Note: at the moment it's not ready to be enabled by default
+# This class lacks fine tuning of plugins, thus some plugins
+# can produce quite high load on developer's system or might
+# require special network configurations (e.g. proxy setup)
+#
+#INHERIT += "isafw"
+
+
+#
 # Misc configuration
 #
