@@ -6,6 +6,7 @@ BBPATH = "${TOPDIR}"
 BBFILES ?= ""
 
 OSTRO_LAYERS = " \
+  ##OEROOT##/meta-ostro-fixes \
   ##OEROOT##/meta \
   ##OEROOT##/meta-intel \
   ##OEROOT##/meta-ostro \
@@ -14,7 +15,6 @@ OSTRO_LAYERS = " \
   ##OEROOT##/meta-security-framework \
   ##OEROOT##/meta-integrity \
   ##OEROOT##/meta-intel-iot-middleware \
-  ##OEROOT##/meta-ostro-fixes \
   ##OEROOT##/meta-ostro-bsp \
   ##OEROOT##/meta-ostro-bsp/meta-edison-bsp \
   ##OEROOT##/meta-iot-web \
