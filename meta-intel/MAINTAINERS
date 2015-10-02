@@ -31,10 +31,6 @@ COMMON
 M:	Saul Wold <sgw@linux.intel.com>
 F:	common/
 
-CRYSTALFOREST
-M:      Wu Chia Chuan <chia.chuan.wu@intel.com>
-F:      meta-crystalforest/
-
 TLK
 M:	Saul Wold <sgw@linux.intel.com>
 F:	meta-tlk/

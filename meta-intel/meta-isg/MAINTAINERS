@@ -49,3 +49,7 @@ F:	meta-mohonpeak/
 VALLEYISLAND
 M:	Chang Rebecca Swee Fun <rebecca.swee.fun.chang@intel.com>
 F:	meta-valleyisland/
+
+CRYSTALFOREST
+M:      Wu Chia Chuan <chia.chuan.wu@intel.com>
+F:      meta-crystalforest/

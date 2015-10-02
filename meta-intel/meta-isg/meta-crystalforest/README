@@ -71,7 +71,7 @@ list (meta-intel@yoctoproject.org) and cc: the maintainer:
 
 Maintainer: Wu Chia Chuan <chia.chuan.wu@intel.com>
 
-Please see the meta-intel/MAINTAINERS file for more details.
+Please see the meta-isg/MAINTAINERS file for more details.
 
 
 Table of Contents
@@ -98,7 +98,7 @@ bblayers.conf, along with the meta-intel layer itself (to access
 common metadata shared between BSPs) e.g.:
 
   yocto/meta-intel \
-  yocto/meta-intel/meta-crystalforest \
+  yocto/meta-intel/meta-isg/meta-crystalforest \
 
 Crystal Forest layer is meant for building both Crystal Forest Gladden
 and Crystal Forest Server platforms. By enabling Crystal Forest layer,
@@ -197,8 +197,8 @@ IV. Enabling Intel DPDK and QuickAssist Technology
 ===================================================
 
 DPDK recipe: meta-intel/meta-isg/common/recipes-extended/dpdk
-QAT recipe:  meta-crystalforest/recipes-extended/qat
-QAT-enable zlib recipe: meta-crystalforest/recipes-extended/zlib-qat
+QAT recipe:  meta-intel/meta-isg/common/recipes-extended/qat
+QAT-enable zlib recipe: meta-intel/meta-isg/common/recipes-extended/zlib-qat
 
 Note:
 qat16 recipe is meant for platform with Coleto Creek  chipset.
