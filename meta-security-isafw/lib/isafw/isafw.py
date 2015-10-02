@@ -67,8 +67,20 @@ class ISA_filesystem:
     type = ""                     # filesystem type
     path_to_fs = ""               # path to the fs location             (mandatory argument)
 
+# configuration of ISAFW
+# if both whitelist and blacklist is empty, all avaliable plugins will be used
+# if whitelist has entries, then only whitelisted plugins will be used from a set of avaliable plugins
+# if blacklist has entries, then the specified plugins won't be used even if avaliable and even if specified in whitelist
+class ISA_config:
+    plugin_whitelist = ""         # comma separated list of plugins to whitelist
+    plugin_blacklist = ""         # comma separated list of plugins to blacklist
+    proxy = ""                    # proxy settings
+    reportdir = ""                # location of produced reports
+
+
 class ISA:
-    def __init__(self, proxy, reportdir):
+    def __init__(self, ISA_config):
+        self.ISA_config = ISA_config
         for name in isaplugins.__all__:
             plugin = getattr(isaplugins, name)
             try:
@@ -80,8 +92,12 @@ class ISA:
                 print("Skipping this plugin")
                 continue           
             else:
+                if self.ISA_config.plugin_whitelist and plugin.getPluginName() not in self.ISA_config.plugin_whitelist:
+                    continue
+                if self.ISA_config.plugin_blacklist and plugin.getPluginName() in self.ISA_config.plugin_blacklist:
+                    continue
                 try:
-                    register_plugin(proxy, reportdir)
+                    register_plugin(ISA_config)
                 except:
                     print("Exception in plugin init: ", sys.exc_info())
 
@@ -95,6 +111,10 @@ class ISA:
                 # if it doesn't, it is ok, won't call this plugin
                 pass
             else:
+                if self.ISA_config.plugin_whitelist and plugin.getPluginName() not in self.ISA_config.plugin_whitelist:
+                    continue
+                if self.ISA_config.plugin_blacklist and plugin.getPluginName() in self.ISA_config.plugin_blacklist:
+                    continue
                 try:
                     process_package(ISA_package)
                 except:
@@ -110,6 +130,10 @@ class ISA:
                 # if it doesn't, it is ok, won't call this plugin
                 pass
             else:
+                if self.ISA_config.plugin_whitelist and plugin.getPluginName() not in self.ISA_config.plugin_whitelist:
+                    continue
+                if self.ISA_config.plugin_blacklist and plugin.getPluginName() in self.ISA_config.plugin_blacklist:
+                    continue
                 try:
                     process_pkg_list(ISA_pkg_list)
                 except:
@@ -125,6 +149,10 @@ class ISA:
                 # if it doesn't, it is ok, won't call this plugin
                 pass
             else:
+                if self.ISA_config.plugin_whitelist and plugin.getPluginName() not in self.ISA_config.plugin_whitelist:
+                    continue
+                if self.ISA_config.plugin_blacklist and plugin.getPluginName() in self.ISA_config.plugin_blacklist:
+                    continue
                 try:
                     process_kernel(ISA_kernel)
                 except:
@@ -140,6 +168,10 @@ class ISA:
                 # if it doesn't, it is ok, won't call this plugin
                 pass
             else:
+                if self.ISA_config.plugin_whitelist and plugin.getPluginName() not in self.ISA_config.plugin_whitelist:
+                    continue
+                if self.ISA_config.plugin_blacklist and plugin.getPluginName() in self.ISA_config.plugin_blacklist:
+                    continue
                 try:
                     process_filesystem(ISA_filesystem)
                 except:
