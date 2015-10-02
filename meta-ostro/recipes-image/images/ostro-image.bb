@@ -65,9 +65,14 @@ IMAGE_LINGUAS = " "
 
 LICENSE = "MIT"
 
-# Set IMAGE_ROOTFS_EXTRA_SPACE to 512M (in Kbytes) to ensure there's
-# always some extra space in the image.
-IMAGE_ROOTFS_EXTRA_SPACE = "524288"
+# Increase image size by 512M to ensure there's
+# always some free space in the image for installing extra packages.
+# rootfs_rpm.bbclass adds another 50M.
+#
+# TODO: this should be a variable from OE-core which gets
+# added by rootfs_rpm.bbclass, instead of doing the increase twice.
+OSTRO_IMAGE_ROOTFS_EXTRA_SPACE ?= " + 524288"
+IMAGE_ROOTFS_EXTRA_SPACE_append = "${@bb.utils.contains("PACKAGE_INSTALL", "smartpm", "${OSTRO_IMAGE_ROOTFS_EXTRA_SPACE}", "" ,d)}"
 
 # Set root password to "ostro" if not set
 OSTRO_ROOT_PASSWORD ?= "ostro"
