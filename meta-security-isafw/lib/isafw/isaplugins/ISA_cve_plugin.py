@@ -77,7 +77,7 @@ class ISA_CVEChecker:
                     with open(self.reportdir + log, 'a') as flog:
                         flog.write("Error in executing cve-check-tool: " + sys.exc_info())
                 else:
-                    report = self.reportdir + "/cve-report"
+                    report = self.reportdir + "/cve-report.csv"
                     with open(report, 'a') as freport:
                         freport.write(output)
                 os.remove(ffauxfile)
