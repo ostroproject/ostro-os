@@ -85,9 +85,9 @@ IMAGE_CMD_toflash () {
 	install -d ${WORKDIR}/toFlash/u-boot-envs/
 	install -d ${WORKDIR}/toFlash/helper/images
 
-	install ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.ext4	${WORKDIR}/toFlash/edison-image-edison.ext4
-	install ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.hddimg	${WORKDIR}/toFlash/edison-image-edison.hddimg
-	install ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.update.hddimg	${WORKDIR}/toFlash/edison-image-edison.update.hddimg
+	install ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.ext4	${WORKDIR}/toFlash/${IMAGE_BASENAME}-${MACHINE}.ext4
+	install ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.hddimg	${WORKDIR}/toFlash/${IMAGE_BASENAME}-${MACHINE}.hddimg
+	install ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.update.hddimg	${WORKDIR}/toFlash/${IMAGE_BASENAME}-${MACHINE}.update.hddimg
 
 	install ${DEPLOY_DIR_IMAGE}/u-boot-edison.bin		${WORKDIR}/toFlash/
 	install ${DEPLOY_DIR_IMAGE}/u-boot-edison.img		${WORKDIR}/toFlash/
