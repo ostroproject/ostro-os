@@ -8,6 +8,7 @@ BBFILES ?= ""
 OSTRO_LAYERS = " \
   ##OEROOT##/meta-ostro-fixes \
   ##OEROOT##/meta \
+  ##OEROOT##/meta-selftest \
   ##OEROOT##/meta-intel \
   ##OEROOT##/meta-ostro \
   ##OEROOT##/meta-oic \
