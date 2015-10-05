@@ -9,7 +9,9 @@ RDEPENDS_${PN} = "nodejs"
 
 SRC_URI = "file://example.js \
            file://package.json \
-           file://COPYING.MIT"
+           file://COPYING.MIT \
+           file://example-app.manifest \
+"
 
 IOT_APP_PROVIDER = "yoyodine"
 
@@ -27,9 +29,11 @@ INSANE_SKIP_${PN} = "staticdev"
 do_install () {
     mkdir -p ${D}${IOT_APP_INSTALLATION_PATH}/lib/node_modules/${PN}
     cp example.js package.json COPYING.MIT ${D}${IOT_APP_INSTALLATION_PATH}/lib/node_modules/${PN}/
+    mkdir -p ${D}${IOT_APP_MANIFEST_PATH}/
+    cp example-app.manifest ${D}${IOT_APP_MANIFEST_PATH}/${PN}.manifest
 }
 
 FILES_${PN} = "${IOT_APP_INSTALLATION_PATH}/lib/node_modules/example-app"
+FILES_${PN} += "${IOT_APP_MANIFEST_PATH}/${PN}.manifest"
 
 PACKAGES = "${PN}"
-
