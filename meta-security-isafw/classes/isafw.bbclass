@@ -25,6 +25,7 @@ do_analyse_sources[cleandirs] = "${ISAFW_WORKDIR}"
 
 python do_analyse_sources() {
 
+    import re
     from isafw import *
     isafw_config = isafw.ISA_config()
     
@@ -37,8 +38,8 @@ python do_analyse_sources() {
     if not os.path.exists(os.path.dirname(isafw_config.reportdir+"/internal/test")):
         os.makedirs(os.path.dirname(isafw_config.reportdir+"/internal/test"))
 
-    isafw_config.plugin_whitelist = d.getVar('ISAFW_PLUGINS_WHITELIST', True)
-    isafw_config.plugin_blacklist = d.getVar('ISAFW_PLUGINS_BLACKLIST', True)
+    isafw_config.plugin_whitelist = re.split(r'[,\s]*', d.getVar('ISAFW_PLUGINS_WHITELIST', True))
+    isafw_config.plugin_blacklist = re.split(r'[,\s]*', d.getVar('ISAFW_PLUGINS_BLACKLIST', True))
 
     imageSecurityAnalyser = isafw.ISA(isafw_config)
 
@@ -106,6 +107,8 @@ python() {
 
 python analyse_image() {
 
+    import re
+
     # Directory where the image's entire contents can be examined
     rootfsdir = d.getVar('IMAGE_ROOTFS', True)
 
@@ -121,8 +124,8 @@ python analyse_image() {
         isafw_config.proxy = d.getVar('http_proxy', True)
     bb.debug(1, 'isafw: proxy is %s' % isafw_config.proxy)
 
-    isafw_config.plugin_whitelist = d.getVar('ISAFW_PLUGINS_WHITELIST', True)
-    isafw_config.plugin_blacklist = d.getVar('ISAFW_PLUGINS_BLACKLIST', True)
+    isafw_config.plugin_whitelist = re.split(r'[,\s]*', d.getVar('ISAFW_PLUGINS_WHITELIST', True))
+    isafw_config.plugin_blacklist = re.split(r'[,\s]*', d.getVar('ISAFW_PLUGINS_BLACKLIST', True))
 
     imageSecurityAnalyser = isafw.ISA(isafw_config)
 
