@@ -39,6 +39,9 @@ FILES_${PN}-launcher =+ "${bindir}/iot-launch"
 FILES_${PN}-launcher =+ "${libdir}/iot-app-fw"
 FILES_${PN}-launcher =+ "${systemd_unitdir}/system/iot-launch.*"
 
+PACKAGES =+ "${PN}-adduser"
+FILES_${PN}-adduser =+ "${bindir}/iot-adduser"
+
 PACKAGES =+ "${PN}-package-manager"
 FILES_${PN}-package-manager = "${bindir}/iotpm"
 FILES_${PN}-package-manager =+ "${bindir}/register-preinstalled-apps"
