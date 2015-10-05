@@ -4,15 +4,14 @@ LICENSE = "BSD-3-Clause"
 
 LIC_FILES_CHKSUM = "file://LICENSE-BSD;md5=f9f435c1bd3a753365e799edf375fc42"
 
-DEPENDS = "json-c systemd security-manager rpm"
-RDEPENDS_${PN} =+ "db-bin"
+DEPENDS = "json-c systemd security-manager cynara rpm"
 
 
 SRC_URI = " \
-    git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh;branch=jko/devel/m2 \
+    git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh;branch=kli/fixes/m2 \
   "
 
-SRCREV = "9b4ffdf71da7828b0c0ab67f17fecef0ac2bf8ec"
+SRCREV = "13ec541c2ef8fb79a2b052b7bc962489165e6e61"
 
 inherit autotools pkgconfig systemd python-dir pythonnative
 
@@ -44,7 +43,6 @@ PACKAGES =+ "${PN}-package-manager"
 FILES_${PN}-package-manager = "${bindir}/iotpm"
 FILES_${PN}-package-manager =+ "${bindir}/register-preinstalled-apps"
 FILES_${PN}-package-manager =+ "${systemd_unitdir}/system/iotpm-*"
-
 
 PACKAGES =+ "${PN}-test"
 FILES_${PN}-test = "${bindir}/iot-event-test"
