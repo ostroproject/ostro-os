@@ -14,6 +14,7 @@ SRC_URI = " \
   ${JAMVM_URI} \
   ${NASHORN_URI} \
   ${OEPATCHES} \
+  ${ICEDTEAPATCHES} \
   file://jvm.cfg \
   "
 
@@ -569,6 +570,16 @@ OEPATCHES = "\
         file://zero-build.patch;apply=no \
         file://faulty-nx-emulation.patch;apply=no \
         "
+
+ICEDTEAPATCHES = "\       
+        file://icedtea-fix-galileo-build.patch;apply=no \ 
+        "
+
+DISTRIBUTION_PATCHES = "\
+        patches/icedtea-fix-galileo-build.patch \
+	"
+
+export DISTRIBUTION_PATCHES
 
 # overrride the jamvm patch for now, needs to be solved upstream
 do_unpackpost() {
