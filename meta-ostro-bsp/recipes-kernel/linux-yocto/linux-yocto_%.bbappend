@@ -102,3 +102,7 @@ SRC_URI_append_intel-quark = " file://0023-acpi-updated-DSDT-table-for-SPI-devic
 SRC_URI_append_intel-quark = " file://0024-spi-pxa2xx-fixed-ACPI-based-enumeration-of-SPI-devic.patch"
 SRC_URI_append_intel-quark = " file://0025-staging-iio-add-support-for-ADC1x8s102.patch"
 SRC_URI_append_intel-quark = " file://0026-adc1x8s102-support-ACPI-based-enumeration.patch"
+
+# Disable GFX console and support
+SRC_URI_append_intel-core2-32 = " file://no-gfx.cfg"
+SRC_URI_append_intel-corei7-64 = " file://no-gfx.cfg"
