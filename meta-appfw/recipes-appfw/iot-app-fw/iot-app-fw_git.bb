@@ -8,10 +8,10 @@ DEPENDS = "json-c systemd security-manager cynara rpm"
 
 
 SRC_URI = " \
-    git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh;branch=kli/fixes/m2 \
+    git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh;branch=iot/release/m2/fixes \
   "
 
-SRCREV = "13ec541c2ef8fb79a2b052b7bc962489165e6e61"
+SRCREV = "638178b417447618b6b24ac2d4a2fb61ff94eba7"
 
 inherit autotools pkgconfig systemd python-dir pythonnative
 
