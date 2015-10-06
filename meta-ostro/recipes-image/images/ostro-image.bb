@@ -21,7 +21,11 @@ IMAGE_FEATURES[validitems] += " \
     devkit \
     ima \
     iotivity \
+    package-management \
     sensors \
+    ssh-server-dropbear \
+    node-runtime \
+    python-runtime \
 "
 
 IMAGE_FEATURES += " \
@@ -34,6 +38,8 @@ IMAGE_FEATURES += " \
                         package-management \
                         sensors \
                         ssh-server-dropbear \
+                        node-runtime \
+                        python-runtime \
                         "
 
 # TODO: app-privileges depends on enabled Smack. Add it only
@@ -57,6 +63,9 @@ FEATURE_PACKAGES_ima = "packagegroup-ima-evm-utils"
 
 FEATURE_PACKAGES_sensors = "packagegroup-sensor-framework"
 FEATURE_PACKAGES_iotivity = "packagegroup-iotivity"
+
+FEATURE_PACKAGES_node-runtime = "packagegroup-node-runtime"
+FEATURE_PACKAGES_python-runtime = "packagegroup-python-runtime"
 
 # Use gummiboot as the EFI bootloader.
 EFI_PROVIDER = "gummiboot"
