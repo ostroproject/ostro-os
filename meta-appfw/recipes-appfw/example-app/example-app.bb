@@ -11,14 +11,15 @@ SRC_URI = "file://example.js \
            file://package.json \
            file://COPYING.MIT \
            file://example-app.manifest \
+           file://example-app-launch \
 "
 
-IOT_APP_PROVIDER = "yoyodine"
+IOT_APP_PROVIDER = "iodine"
 
 # use iot-app support class
 inherit iot-app
 
-S = "${WORKDIR}"
+S = "${WORKDIR}/"
 
 # we don't care about debug for the few binary node modules
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
@@ -31,9 +32,12 @@ do_install () {
     cp example.js package.json COPYING.MIT ${D}${IOT_APP_INSTALLATION_PATH}/lib/node_modules/${PN}/
     mkdir -p ${D}${IOT_APP_MANIFEST_PATH}/
     cp example-app.manifest ${D}${IOT_APP_MANIFEST_PATH}/${PN}.manifest
+    install -D -m 755 ${S}/example-app-launch ${D}${IOT_APP_TLM_PATH}/tlm-launch
+    chown ${IOT_APP_PROVIDER}.${IOT_APP_PROVIDER} ${D}${IOT_APP_TLM_PATH}/tlm-launch
 }
 
 FILES_${PN} = "${IOT_APP_INSTALLATION_PATH}/lib/node_modules/example-app"
 FILES_${PN} += "${IOT_APP_MANIFEST_PATH}/${PN}.manifest"
+FILES_${PN} += "${IOT_APP_TLM_PATH}/tlm-launch"
 
 PACKAGES = "${PN}"
