@@ -14,6 +14,7 @@ SRC_URI = " \
   ${JAMVM_URI} \
   ${NASHORN_URI} \
   ${OEPATCHES} \
+  ${ICEDTEAPATCHES} \
   file://jvm.cfg \
   "
 
@@ -183,10 +184,10 @@ OPENJDK_OECONF = " \
      --disable-headful              \
      --with-sys-root=${STAGING_DIR_TARGET} \
      --with-boot-jdk=${STAGING_LIBDIR_JVM_NATIVE}/icedtea7-native \
-     CFLAGS="--sysroot=${STAGING_DIR_TARGET} " \
-     CXXFLAGS="--sysroot=${STAGING_DIR_TARGET} " \
+     CFLAGS="--sysroot=${STAGING_DIR_TARGET} ${HOST_CC_ARCH}" \
+     CXXFLAGS="--sysroot=${STAGING_DIR_TARGET} ${HOST_CC_ARCH}" \
      LDFLAGS="--sysroot=${STAGING_DIR_TARGET} " \
-     --with-extra-cflags="--sysroot=${STAGING_DIR_TARGET} ${SELECTED_OPTIMIZATION}" \
+     --with-extra-cflags="--sysroot=${STAGING_DIR_TARGET} ${SELECTED_OPTIMIZATION} -DPNG_ARM_NEON_OPT=0" \
      --with-extra-cxxflags="--sysroot=${STAGING_DIR_TARGET} " \
      --with-extra-ldflags="--sysroot=${STAGING_DIR_TARGET} " \
      "
@@ -569,6 +570,18 @@ OEPATCHES = "\
         file://zero-build.patch;apply=no \
         file://faulty-nx-emulation.patch;apply=no \
         "
+
+ICEDTEAPATCHES = "\       
+        file://icedtea-fix-galileo-build.patch;apply=no \
+        file://icedtea-fix-zero-mode-undefined-behaviour.patch;apply=no \
+        "
+
+DISTRIBUTION_PATCHES = "\
+        patches/icedtea-fix-galileo-build.patch \
+        patches/icedtea-fix-zero-mode-undefined-behaviour.patch \
+	"
+
+export DISTRIBUTION_PATCHES
 
 # overrride the jamvm patch for now, needs to be solved upstream
 do_unpackpost() {
