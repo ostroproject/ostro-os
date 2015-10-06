@@ -184,8 +184,8 @@ OPENJDK_OECONF = " \
      --disable-headful              \
      --with-sys-root=${STAGING_DIR_TARGET} \
      --with-boot-jdk=${STAGING_LIBDIR_JVM_NATIVE}/icedtea7-native \
-     CFLAGS="--sysroot=${STAGING_DIR_TARGET} " \
-     CXXFLAGS="--sysroot=${STAGING_DIR_TARGET} " \
+     CFLAGS="--sysroot=${STAGING_DIR_TARGET} ${HOST_CC_ARCH}" \
+     CXXFLAGS="--sysroot=${STAGING_DIR_TARGET} ${HOST_CC_ARCH}" \
      LDFLAGS="--sysroot=${STAGING_DIR_TARGET} " \
      --with-extra-cflags="--sysroot=${STAGING_DIR_TARGET} ${SELECTED_OPTIMIZATION}" \
      --with-extra-cxxflags="--sysroot=${STAGING_DIR_TARGET} " \
