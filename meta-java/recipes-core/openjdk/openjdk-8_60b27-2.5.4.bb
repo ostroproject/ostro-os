@@ -187,7 +187,7 @@ OPENJDK_OECONF = " \
      CFLAGS="--sysroot=${STAGING_DIR_TARGET} ${HOST_CC_ARCH}" \
      CXXFLAGS="--sysroot=${STAGING_DIR_TARGET} ${HOST_CC_ARCH}" \
      LDFLAGS="--sysroot=${STAGING_DIR_TARGET} " \
-     --with-extra-cflags="--sysroot=${STAGING_DIR_TARGET} ${SELECTED_OPTIMIZATION}" \
+     --with-extra-cflags="--sysroot=${STAGING_DIR_TARGET} ${SELECTED_OPTIMIZATION} -DPNG_ARM_NEON_OPT=0" \
      --with-extra-cxxflags="--sysroot=${STAGING_DIR_TARGET} " \
      --with-extra-ldflags="--sysroot=${STAGING_DIR_TARGET} " \
      "
