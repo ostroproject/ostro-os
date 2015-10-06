@@ -5,7 +5,15 @@
 #
 # iot-user class has the following variables for parametrization:
 #
-# IOT_USER_NAME: user to create
+# IOT_USER_NAME:
+#       user to create
+# IOT_USER_DIR:
+#       the place in the FS where all users resides.
+#       If not specified defaults to /home
+# IOT_USER_SHELL:
+#       path to the shell to be used. If not specified it
+#       defaults to /sbin/nologin
+#
 #
 #     A new user with this name will be created.
 #
@@ -66,7 +74,30 @@ def check_home(d, user):
     return home
 
 do_install_append () {
-    mkdir -p ${D}${IOT_USER_DIR}/${IOT_USER_NAME}
+    bbnote "setting up home directory for ${IOT_USER_NAME} user"
+    mkdir -p ${D}${IOT_USER_DIR}/${IOT_USER_NAME}/.local/tlm
+
     chown ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}
     chgrp ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}
+
+    chown ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}/.local
+    chgrp ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}/.local
+
+    chown ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}/.local/tlm
+    chgrp ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}/.local/tlm
+}
+
+pkg_postinst_${PN} () {
+#!/bin/sh -e
+if [ "x$D" == "x" ] ; then
+    echo "chsmack -a User ${IOT_USER_DIR}/${IOT_USER_NAME}"
+    chsmack -a User ${IOT_USER_DIR}/${IOT_USER_NAME}
+    echo "chsmack -a User ${IOT_USER_DIR}/${IOT_USER_NAME}/.local/tlm"
+    chsmack -a User ${IOT_USER_DIR}/${IOT_USER_NAME}/.local
+    chsmack -a User ${IOT_USER_DIR}/${IOT_USER_NAME}/.local/tlm
+    echo "iot-adduser --type normal ${IOT_USER_NAME}"
+    iot-adduser --type normal ${IOT_USER_NAME}
+else
+    exit 1
+fi
 }

@@ -36,9 +36,4 @@ INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 FILES_${PN} = "${IOT_APP_INSTALLATION_PATH}/hello-world"
 FILES_${PN} =+ "${IOT_APP_MANIFEST_PATH}/${PN}.manifest"
 
-do_install_append () {
-    chown -R ${IOT_APP_PROVIDER}.${IOT_APP_PROVIDER} ${D}${IOT_USER_HOME}
-    chown -R ${IOT_APP_PROVIDER}.${IOT_APP_PROVIDER} ${D}${IOT_APP_MANIFEST_PATH}
-}
-
 PACKAGES = "${PN}"
