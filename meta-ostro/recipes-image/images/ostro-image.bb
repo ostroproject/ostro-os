@@ -6,7 +6,6 @@ IMAGE_INSTALL = " \
 		packagegroup-core-boot \
                 ${ROOTFS_PKGMANAGE_BOOTSTRAP} \
                 ${CORE_IMAGE_EXTRA_INSTALL} \
-                openjdk-8-jdk \
 		"
 
 # Image features sometimes affect image building (for example,
@@ -26,6 +25,7 @@ IMAGE_FEATURES[validitems] += " \
     ssh-server-dropbear \
     node-runtime \
     python-runtime \
+    java-jdk \
 "
 
 IMAGE_FEATURES += " \
@@ -40,6 +40,7 @@ IMAGE_FEATURES += " \
                         ssh-server-dropbear \
                         node-runtime \
                         python-runtime \
+                        java-jdk \
                         "
 
 # TODO: app-privileges depends on enabled Smack. Add it only
@@ -66,6 +67,7 @@ FEATURE_PACKAGES_iotivity = "packagegroup-iotivity"
 
 FEATURE_PACKAGES_node-runtime = "packagegroup-node-runtime"
 FEATURE_PACKAGES_python-runtime = "packagegroup-python-runtime"
+FEATURE_PACKAGES_java-jdk = "packagegroup-java-jdk"
 
 # Use gummiboot as the EFI bootloader.
 EFI_PROVIDER = "gummiboot"
