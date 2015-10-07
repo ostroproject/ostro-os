@@ -18,4 +18,5 @@ RDEPENDS_${PN}_append_smack = " \
     cynara \
     security-manager \
     security-manager-policy \
+    smacknet \
 "
