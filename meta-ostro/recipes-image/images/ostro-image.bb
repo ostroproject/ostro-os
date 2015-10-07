@@ -183,8 +183,8 @@ APPEND_prepend = "${@ '' if bb.data.inherits_class('syslinux', d) else '${SYSLIN
 #
 # No IMA policy gets loaded, so in practice the resulting image runs
 # without IMA.
-IMA_EVM_ROOTFS_CLASS ?= "${@bb.utils.contains('IMAGE_FEATURES', 'ima', 'ima-evm-rootfs', '', d)}"
-INHERIT += " ${IMA_EVM_ROOTFS_CLASS} "
+IMA_EVM_ROOTFS_CLASS ?= "${@bb.utils.contains('IMAGE_FEATURES', 'ima', 'ima-evm-rootfs', 'base', d)}"
+inherit ${IMA_EVM_ROOTFS_CLASS}
 
 # Exception for /usr/dbspace/.security-manager.db: we set the owner
 # to a special "sqlite" user and then rely on the IMA policy only
