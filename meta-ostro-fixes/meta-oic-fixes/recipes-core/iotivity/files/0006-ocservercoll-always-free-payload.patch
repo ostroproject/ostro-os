@@ -1,0 +1,33 @@
+From c7c179e6b7438e95611a62004a2b0ff456cd0fa4 Mon Sep 17 00:00:00 2001
+From: Kevron Rees <tripzero.kev@gmail.com>
+Date: Wed, 23 Sep 2015 16:04:37 -0700
+Subject: [PATCH 6/7] ocservercoll: always free payload
+
+---
+ resource/csdk/stack/samples/linux/SimpleClientServer/ocservercoll.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/resource/csdk/stack/samples/linux/SimpleClientServer/ocservercoll.cpp b/resource/csdk/stack/samples/linux/SimpleClientServer/ocservercoll.cpp
+index 7d91db2..b5c6bf9 100644
+--- a/resource/csdk/stack/samples/linux/SimpleClientServer/ocservercoll.cpp
++++ b/resource/csdk/stack/samples/linux/SimpleClientServer/ocservercoll.cpp
+@@ -318,6 +318,7 @@ OCEntityHandlerResult OCEntityHandlerRoomCb(OCEntityHandlerFlag flag,
+     {
+         gLightUnderObservation = 1;
+     }
++    OCRepPayloadDestroy(payload);
+     return ret;
+ }
+ 
+@@ -440,7 +441,7 @@ OCEntityHandlerResult OCEntityHandlerFanCb(OCEntityHandlerFlag flag,
+     {
+         gLightUnderObservation = 1;
+     }
+-
++    OCRepPayloadDestroy(payload);
+     return ret;
+ }
+ 
+-- 
+2.1.4
+

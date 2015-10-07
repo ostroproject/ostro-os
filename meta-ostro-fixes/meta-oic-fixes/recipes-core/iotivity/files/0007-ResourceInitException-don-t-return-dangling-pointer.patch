@@ -1,0 +1,26 @@
+From b585db9289efa33471f31d0672270092bd614c9f Mon Sep 17 00:00:00 2001
+From: Kevron Rees <tripzero.kev@gmail.com>
+Date: Wed, 23 Sep 2015 16:30:53 -0700
+Subject: [PATCH 7/7] ResourceInitException: don't return dangling pointer
+
+Upstream Status: Pending
+---
+ resource/include/ResourceInitException.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/resource/include/ResourceInitException.h b/resource/include/ResourceInitException.h
+index 9794e42..985da6c 100644
+--- a/resource/include/ResourceInitException.h
++++ b/resource/include/ResourceInitException.h
+@@ -109,7 +109,7 @@ namespace OC
+                 ret += OC::InitException::INVALID_IP;
+             }
+ 
+-            return ret.c_str();
++            return strdup(ret.c_str());
+         }
+ 
+     private:
+-- 
+2.1.4
+

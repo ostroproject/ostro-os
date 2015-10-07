@@ -1,0 +1,40 @@
+From 14c07d8c21321481a5d68e61a0af7debe4125005 Mon Sep 17 00:00:00 2001
+From: Kevron Rees <tripzero.kev@gmail.com>
+Date: Wed, 23 Sep 2015 16:04:37 -0700
+Subject: [PATCH 6/7] ocservercoll: free payload
+
+Upstream Status: Backported
+---
+ resource/csdk/stack/samples/linux/SimpleClientServer/ocservercoll.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/resource/csdk/stack/samples/linux/SimpleClientServer/ocservercoll.cpp b/resource/csdk/stack/samples/linux/SimpleClientServer/ocservercoll.cpp
+index 4d4913a..6e87be4 100644
+--- a/resource/csdk/stack/samples/linux/SimpleClientServer/ocservercoll.cpp
++++ b/resource/csdk/stack/samples/linux/SimpleClientServer/ocservercoll.cpp
+@@ -312,6 +312,7 @@ OCEntityHandlerResult OCEntityHandlerRoomCb(OCEntityHandlerFlag flag,
+             OC_LOG_V (INFO, TAG, "Received unsupported method %d from client",
+                     ehRequest->method);
+             ret = OC_EH_ERROR;
++            OCRepPayloadDestroy(payload);
+         }
+     }
+     else if (ehRequest && flag == OC_OBSERVE_FLAG)
+@@ -434,13 +435,13 @@ OCEntityHandlerResult OCEntityHandlerFanCb(OCEntityHandlerFlag flag,
+                 ret = OC_EH_ERROR;
+             }
+         }
++        OCRepPayloadDestroy(payload);
+ 
+     }
+     else if (ehRequest && flag == OC_OBSERVE_FLAG)
+     {
+         gLightUnderObservation = 1;
+     }
+-
+     return ret;
+ }
+ 
+-- 
+2.1.4
+
