@@ -447,6 +447,8 @@ FILES_${JDKPN}-common = "${JDK_HOME}/jre/ASSEMBLY_EXCEPTION \
                           ${JDK_HOME}/jre/lib \
                          "
 
+RDEPENDS_${JDKPN}-common = " freetype"
+
 FILES_${PN}_append = " \
         ${JDK_HOME}/jre/bin/keytool \
         ${JDK_HOME}/jre/bin/orbd \
