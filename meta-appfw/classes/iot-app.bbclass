@@ -36,19 +36,10 @@ IOT_APP_ROOT = "apps_rw"
 export IOT_APP_INSTALLATION_PATH = "${IOT_USER_HOME}/${IOT_APP_ROOT}/${PN}"
 export IOT_APP_MANIFEST_PATH = "/usr/share/iot/users/${IOT_APP_PROVIDER}"
 export IOT_USER_HOME
+export IOT_APP_TLM_PATH = "${IOT_APP_INSTALLATION_PATH}"
 
 
-def get_tlm_rdepends(d):
-    return ""
-
-    if d.getVar('IOT_APP_SERVICE_FILE_PATH') != None:
-        if d.getVar('IOTAPP_TLM_SESSION_FILE_PATH') != None:
-            # this is a TLM-based session
-            return "iot-app-fw-launcher tlm"
-    else:
-        return ""
-
-RDEPENDS_${PN} += "${IOT_APP_PROVIDER}-user ${@get_tlm_rdepends(d)}"
+RDEPENDS_${PN} += "${IOT_APP_PROVIDER}-user"
 
 
 do_install_append () {

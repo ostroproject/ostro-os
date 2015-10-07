@@ -1,0 +1,15 @@
+#!/bin/sh
+
+LOGFILE=/var/log/tlm-launch.log
+
+echo "home: $HOME" > $LOGFILE
+
+for f in $HOME/apps_rw/*/tlm-launch ; do
+    if [ -f $f -a -x $f ] ; then
+        $f &
+    fi
+done
+
+while [ 1 ] ; do
+      sleep 86400
+done

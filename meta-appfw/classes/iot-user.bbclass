@@ -42,6 +42,8 @@ USERADD_PARAM_${PN} = "-s ${IOT_USER_SHELL} ${IOT_USER_NAME}"
 GROUPADD_PARAM_${PN} = ""
 GROUPMEMS_PARAM_${PN} = ""
 
+RDEPENDS_${PN} =+ "iot-app-fw-adduser"
+
 inherit useradd
 
 export IOT_USER_HOME = "${IOT_USER_DIR}/${IOT_USER_NAME}"
@@ -75,26 +77,24 @@ def check_home(d, user):
 
 do_install_append () {
     bbnote "setting up home directory for ${IOT_USER_NAME} user"
-    mkdir -p ${D}${IOT_USER_DIR}/${IOT_USER_NAME}/.local/tlm
+    mkdir -p ${D}${IOT_USER_DIR}/${IOT_USER_NAME}/apps_rw
 
     chown ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}
     chgrp ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}
 
-    chown ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}/.local
-    chgrp ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}/.local
-
-    chown ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}/.local/tlm
-    chgrp ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}/.local/tlm
+    chown ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}/apps_rw
+    chgrp ${IOT_USER_NAME} ${D}/${IOT_USER_DIR}/${IOT_USER_NAME}/apps_rw
 }
 
-pkg_postinst_${PN} () {
+pkg_postinst_${PN}_append () {
 #!/bin/sh -e
 if [ "x$D" == "x" ] ; then
-    echo "chsmack -a User ${IOT_USER_DIR}/${IOT_USER_NAME}"
-    chsmack -a User ${IOT_USER_DIR}/${IOT_USER_NAME}
-    echo "chsmack -a User ${IOT_USER_DIR}/${IOT_USER_NAME}/.local/tlm"
-    chsmack -a User ${IOT_USER_DIR}/${IOT_USER_NAME}/.local
-    chsmack -a User ${IOT_USER_DIR}/${IOT_USER_NAME}/.local/tlm
+    echo "chsmack -a User::Home ${IOT_USER_DIR}/${IOT_USER_NAME}"
+    chsmack -a User::Home ${IOT_USER_DIR}/${IOT_USER_NAME}
+
+    echo "chsmack -a User::Home ${IOT_USER_DIR}/${IOT_USER_NAME}/apps_rw"
+    chsmack -a User::Home ${IOT_USER_DIR}/${IOT_USER_NAME}/apps_rw
+
     echo "iot-adduser --type normal ${IOT_USER_NAME}"
     iot-adduser --type normal ${IOT_USER_NAME}
 else
