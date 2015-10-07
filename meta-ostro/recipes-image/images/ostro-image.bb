@@ -6,49 +6,84 @@ IMAGE_INSTALL = " \
 		packagegroup-core-boot \
                 ${ROOTFS_PKGMANAGE_BOOTSTRAP} \
                 ${CORE_IMAGE_EXTRA_INSTALL} \
-                ${OSTRO_IMAGE_SECURITY_INSTALL} \
-                iotivity iotivity-simple-client \
-                iotivity-resource iotivity-resource-samples \
-                packagegroup-core-connectivity \
-                nodejs hid-api iotkit-agent upm tempered mraa linuxptp \
-                iotivity-node iot-rest-api-server \
-                packagegroup-user-management \
-                iot-app-fw iot-app-fw-launcher \
-                sensord \
-                python-modules \
-                packagegroup-core-can \
-                openjdk-8-jdk \
 		"
 
-IMAGE_FEATURES_append = " \
+# Image features sometimes affect image building (for example,
+# ima enables image signing) and/or adds certain packages
+# via FEATURE_PACKAGES.
+#
+# TODO: document IoT specific image feature somewhere. Here?
+IMAGE_FEATURES[validitems] += " \
+    app-privileges \
+    can \
+    connectivity \
+    devkit \
+    ima \
+    iotivity \
+    package-management \
+    sensors \
+    ssh-server-dropbear \
+    node-runtime \
+    python-runtime \
+    java-jdk \
+"
+
+IMAGE_FEATURES += " \
+                        app-privileges \
+                        can \
+                        connectivity \
+                        devkit \
+                        ima \
+                        iotivity \
                         package-management \
+                        sensors \
                         ssh-server-dropbear \
+                        node-runtime \
+                        python-runtime \
+                        java-jdk \
                         "
+
+# TODO: app-privileges depends on enabled Smack. Add it only
+# when Smack is enabled, or warn when enabled without Smack?
+
+# The AppFW depends on the security framework and user management, and these frameworks
+# (currently?) make little sense without apps, therefore a single image feature is used
+# for all of these.
+FEATURE_PACKAGES_app-privileges = " \
+    packagegroup-user-management \
+    packagegroup-app-framework \
+    packagegroup-security-framework \
+"
+
+FEATURE_PACKAGES_connectivity = "packagegroup-core-connectivity"
+FEATURE_PACKAGES_can = "packagegroup-core-can"
+
+# "evmctl ima_verify <file>" can be used to check that a signed file is
+# really unmodified.
+FEATURE_PACKAGES_ima = "packagegroup-ima-evm-utils"
+
+FEATURE_PACKAGES_sensors = "packagegroup-sensor-framework"
+FEATURE_PACKAGES_iotivity = "packagegroup-iotivity"
+
+FEATURE_PACKAGES_node-runtime = "packagegroup-node-runtime"
+FEATURE_PACKAGES_python-runtime = "packagegroup-python-runtime"
+FEATURE_PACKAGES_java-jdk = "packagegroup-java-jdk"
 
 # Use gummiboot as the EFI bootloader.
 EFI_PROVIDER = "gummiboot"
-
-# Install Cynara and security-manager by default if (and only if)
-# Smack is enabled.
-#
-# Cynara does not have a hard dependency on Smack security,
-# but is meant to be used with it. security-manager instead
-# links against smack-userspace and expects Smack to be active,
-# so we do not have any choice.
-#
-# Without configuration, security-manager is not usable. We use
-# the policy packaged from the upstream source code here. Adapting
-# it for the distro can be done by patching that source.
-OSTRO_IMAGE_SECURITY_INSTALL_append_smack = "cynara security-manager security-manager-policy"
-OSTRO_IMAGE_SECURITY_INSTALL ?= ""
 
 IMAGE_LINGUAS = " "
 
 LICENSE = "MIT"
 
-# Set IMAGE_ROOTFS_EXTRA_SPACE to 512M (in Kbytes) to ensure there's
-# always some extra space in the image.
-IMAGE_ROOTFS_EXTRA_SPACE = "524288"
+# Increase image size by 512M to ensure there's
+# always some free space in the image for installing extra packages.
+# rootfs_rpm.bbclass adds another 50M.
+#
+# TODO: this should be a variable from OE-core which gets
+# added by rootfs_rpm.bbclass, instead of doing the increase twice.
+OSTRO_IMAGE_ROOTFS_EXTRA_SPACE ?= " + 524288"
+IMAGE_ROOTFS_EXTRA_SPACE_append = "${@bb.utils.contains("PACKAGE_INSTALL", "smartpm", "${OSTRO_IMAGE_ROOTFS_EXTRA_SPACE}", "" ,d)}"
 
 # Set root password to "ostro" if not set
 OSTRO_ROOT_PASSWORD ?= "ostro"
@@ -104,6 +139,12 @@ IMAGE_BUILDINFO_VARS_append = " BUILD_ID"
 
 IMAGE_NAME = "${IMAGE_BASENAME}-${MACHINE}-${BUILD_ID}"
 
+OSTRO_PACKAGE_FEED_URI="${OSTRO_PACKAGE_FEED_BASEURL}/${OSTRO_PACKAGE_FEED_PUBLISHDIR}/${OSTRO_PACKAGE_FEED_BUILDID}"
+
+# Ask package-manager to configure the package feeds
+PACKAGE_FEED_URIS="${OSTRO_PACKAGE_FEED_URI}"
+PACKAGE_FEED_PREFIX="{OSTRO_PACKAGE_FEED_PREFIX}"
+
 # Enable initramfs based on initramfs-framework (chosen in
 # core-image-minimal-initramfs.bbappend). All machines must
 # boot with a suitable initramfs, because IMA initialization is done
@@ -142,7 +183,8 @@ APPEND_prepend = "${@ '' if bb.data.inherits_class('syslinux', d) else '${SYSLIN
 #
 # No IMA policy gets loaded, so in practice the resulting image runs
 # without IMA.
-inherit ima-evm-rootfs
+IMA_EVM_ROOTFS_CLASS ?= "${@bb.utils.contains('IMAGE_FEATURES', 'ima', 'ima-evm-rootfs', '', d)}"
+INHERIT += " ${IMA_EVM_ROOTFS_CLASS} "
 
 # Exception for /usr/dbspace/.security-manager.db: we set the owner
 # to a special "sqlite" user and then rely on the IMA policy only
@@ -232,10 +274,6 @@ IMA_EVM_ROOTFS_SIGNED = ". -type f -a -uid 0 -a ! \( ${OSTRO_WRITABLE_FILES} \)"
 IMA_EVM_ROOTFS_HASHED = ". -type f -a -uid 0 -a \( ${OSTRO_WRITABLE_FILES} \)"
 IMA_EVM_ROOTFS_IVERSION = "/"
 APPEND_append = " rootflags=i_version"
-
-# "evmctl ima_verify <file>" can be used to check that a signed file is
-# really unmodified.
-IMAGE_INSTALL += "ima-evm-utils"
 
 # This limits attempts to mount the rootfs to exactly the right type.
 # Avoids kernel messages like:
