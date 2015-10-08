@@ -1,0 +1,69 @@
+From 4e6326ae5375d55966a5c872f391cf99de373057 Mon Sep 17 00:00:00 2001
+From: Pablo de Lara <pablo.de.lara.guarch@intel.com>
+Date: Sun, 22 Mar 2015 18:02:16 +0000
+Subject: [PATCH] kni: fix build with kernel 3.19
+
+Upstream-Status: Backport [2.1.0]
+
+Due to API changes in functions ndo_dflt_bridge_getlink
+(commit 2c3c031c) and ndo_fdb_add (commit f6f6424b)
+in kernel 3.19, DPDK would not build.
+
+This patch solves the problem, by checking the kernel version
+and adding the necessary new parameters.
+
+Mind that function igb_ndo_fdb_add does not need the extra parameter
+if USE_CONST_DEV_UC_CHAR is not set, since that macro is only defined
+when kernel is greater or equal than 3.7
+
+Signed-off-by: Pablo de Lara <pablo.de.lara.guarch@intel.com>
+Acked-by: Thomas Monjalon <thomas.monjalon@6wind.com>
+(cherry picked from commit 98f255ed0a4a73bf785e884dc2069405de840546)
+Signed-off-by: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+---
+ lib/librte_eal/linuxapp/kni/ethtool/igb/igb_main.c | 7 +++++++
+ lib/librte_eal/linuxapp/kni/ethtool/igb/kcompat.h  | 4 ++++
+ 2 files changed, 11 insertions(+)
+
+diff --git a/lib/librte_eal/linuxapp/kni/ethtool/igb/igb_main.c b/lib/librte_eal/linuxapp/kni/ethtool/igb/igb_main.c
+index a802a02..24b147d 100644
+--- a/lib/librte_eal/linuxapp/kni/ethtool/igb/igb_main.c
++++ b/lib/librte_eal/linuxapp/kni/ethtool/igb/igb_main.c
+@@ -2103,6 +2103,9 @@ static int igb_set_features(struct net_device *netdev,
+ static int igb_ndo_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
+ 			   struct net_device *dev,
+ 			   const unsigned char *addr,
++#ifdef HAVE_NDO_FDB_ADD_VID
++			   u16 vid,
++#endif
+ 			   u16 flags)
+ #else
+ static int igb_ndo_fdb_add(struct ndmsg *ndm,
+@@ -2259,7 +2262,11 @@ static int igb_ndo_bridge_getlink(struct sk_buff *skb, u32 pid, u32 seq,
+ 	else
+ 		mode = BRIDGE_MODE_VEPA;
+ 
++#ifdef HAVE_NDO_FDB_ADD_VID
++	return ndo_dflt_bridge_getlink(skb, pid, seq, dev, mode, 0, 0);
++#else
+ 	return ndo_dflt_bridge_getlink(skb, pid, seq, dev, mode);
++#endif /* HAVE_NDO_FDB_ADD_VID */
+ }
+ #endif /* HAVE_BRIDGE_ATTRIBS */
+ #endif /* NTF_SELF */
+diff --git a/lib/librte_eal/linuxapp/kni/ethtool/igb/kcompat.h b/lib/librte_eal/linuxapp/kni/ethtool/igb/kcompat.h
+index 1213cc6..2e7e714 100644
+--- a/lib/librte_eal/linuxapp/kni/ethtool/igb/kcompat.h
++++ b/lib/librte_eal/linuxapp/kni/ethtool/igb/kcompat.h
+@@ -3881,4 +3881,8 @@ skb_set_hash(struct sk_buff *skb, __u32 hash, __always_unused int type)
+ #define HAVE_VF_MIN_MAX_TXRATE 1
+ #endif /* >= 3.16.0 */
+ 
++#if ( LINUX_VERSION_CODE >= KERNEL_VERSION(3,19,0) )
++#define HAVE_NDO_FDB_ADD_VID
++#endif /* >= 3.19.0 */
++
+ #endif /* _KCOMPAT_H_ */
+-- 
+1.9.1
+
