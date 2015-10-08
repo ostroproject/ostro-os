@@ -11,7 +11,7 @@ SRC_URI = " \
     git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh;branch=iot/release/m2/fixes \
   "
 
-SRCREV = "0baf34181034823cb872c1ac988dd36a791fb5a6"
+SRCREV = "5826d038949779ed38c04cdd90bd3a6b26849b41"
 
 inherit autotools pkgconfig systemd python-dir pythonnative
 
