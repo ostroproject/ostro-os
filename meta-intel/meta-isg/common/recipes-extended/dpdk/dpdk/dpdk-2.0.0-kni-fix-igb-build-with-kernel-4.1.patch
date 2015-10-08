@@ -1,0 +1,70 @@
+From 97ebf687c7a635ac6f1b1e22293ed7405668c66e Mon Sep 17 00:00:00 2001
+From: Miguel Bernal Marin <miguel.bernal.marin@linux.intel.com>
+Date: Fri, 26 Jun 2015 17:14:35 -0500
+Subject: [PATCH] kni: fix igb build with kernel 4.1
+
+Upstream-Status: Backport [2.1.0]
+
+ndo_bridge_getlink has changed in kernel release 4.1. It
+adds new parameter which breaks compilation.
+
+This patch add the properly checks to fix it.
+
+Linux: 46c264daaaa5 ("bridge/nl: remove wrong use of NLM_F_MULTI")
+
+Signed-off-by: Miguel Bernal Marin <miguel.bernal.marin@linux.intel.com>
+Acked-by: Pablo de Lara <pablo.de.lara.guarch@intel.com>
+Signed-off-by: Anuj Mittal <anujx.mittal@intel.com>
+---
+ lib/librte_eal/linuxapp/kni/ethtool/igb/igb_main.c |   10 ++++++++++
+ lib/librte_eal/linuxapp/kni/ethtool/igb/kcompat.h  |    5 +++++
+ 2 files changed, 15 insertions(+)
+
+diff --git a/lib/librte_eal/linuxapp/kni/ethtool/igb/igb_main.c b/lib/librte_eal/linuxapp/kni/ethtool/igb/igb_main.c
+index bc3c6a3..b99b365 100644
+--- a/lib/librte_eal/linuxapp/kni/ethtool/igb/igb_main.c
++++ b/lib/librte_eal/linuxapp/kni/ethtool/igb/igb_main.c
+@@ -2250,8 +2250,14 @@ static int igb_ndo_bridge_setlink(struct net_device *dev,
+ }
+ 
+ #ifdef HAVE_BRIDGE_FILTER
++#ifdef HAVE_NDO_BRIDGE_GETLINK_FILTER_MASK
++static int igb_ndo_bridge_getlink(struct sk_buff *skb, u32 pid, u32 seq,
++				  struct net_device *dev, u32 filter_mask,
++				  int nlflags)
++#else
+ static int igb_ndo_bridge_getlink(struct sk_buff *skb, u32 pid, u32 seq,
+ 				  struct net_device *dev, u32 filter_mask)
++#endif /* HAVE_NDO_BRIDGE_GETLINK_FILTER_MASK */
+ #else
+ static int igb_ndo_bridge_getlink(struct sk_buff *skb, u32 pid, u32 seq,
+ 				  struct net_device *dev)
+@@ -2269,7 +2275,11 @@ static int igb_ndo_bridge_getlink(struct sk_buff *skb, u32 pid, u32 seq,
+ 		mode = BRIDGE_MODE_VEPA;
+ 
+ #ifdef HAVE_NDO_FDB_ADD_VID
++#ifdef HAVE_NDO_BRIDGE_GETLINK_FILTER_MASK
++	return ndo_dflt_bridge_getlink(skb, pid, seq, dev, mode, 0, 0, nlflags);
++#else
+ 	return ndo_dflt_bridge_getlink(skb, pid, seq, dev, mode, 0, 0);
++#endif /* HAVE_NDO_BRIDGE_GETLINK_FILTER_MASK */
+ #else
+ 	return ndo_dflt_bridge_getlink(skb, pid, seq, dev, mode);
+ #endif /* HAVE_NDO_FDB_ADD_VID */
+diff --git a/lib/librte_eal/linuxapp/kni/ethtool/igb/kcompat.h b/lib/librte_eal/linuxapp/kni/ethtool/igb/kcompat.h
+index 54d1f86..2673281 100644
+--- a/lib/librte_eal/linuxapp/kni/ethtool/igb/kcompat.h
++++ b/lib/librte_eal/linuxapp/kni/ethtool/igb/kcompat.h
+@@ -3891,4 +3891,9 @@ skb_set_hash(struct sk_buff *skb, __u32 hash, __always_unused int type)
+ #define vlan_tx_tag_present skb_vlan_tag_present
+ #define HAVE_NDO_BRIDGE_SET_DEL_LINK_FLAGS
+ #endif /* 4.0.0 */
++
++#if ( LINUX_VERSION_CODE >= KERNEL_VERSION(4,1,0) )
++/* ndo_bridge_getlink adds new nlflags parameter */
++#define HAVE_NDO_BRIDGE_GETLINK_FILTER_MASK
++#endif /* >= 4.1.0 */
+ #endif /* _KCOMPAT_H_ */
+-- 
+1.7.9.5
+

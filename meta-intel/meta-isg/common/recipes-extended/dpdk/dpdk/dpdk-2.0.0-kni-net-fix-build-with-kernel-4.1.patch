@@ -1,0 +1,54 @@
+From abb59c037a74d822e402f9d9a3d6c4d06ce7c748 Mon Sep 17 00:00:00 2001
+From: Miguel Bernal Marin <miguel.bernal.marin@linux.intel.com>
+Date: Fri, 26 Jun 2015 17:14:36 -0500
+Subject: [PATCH] kni: fix build with kernel 4.1
+
+Upstream-Status: Backport [2.1.1]
+
+rebuild member was removed from headers_ops in kernel release
+4.1. Therefore kni module compilation breaks.
+
+This patch add the properly checks to fix it.
+
+Linux: d476059e77d1 ("net: Kill dev_rebuild_header")
+
+Signed-off-by: Miguel Bernal Marin <miguel.bernal.marin@linux.intel.com>
+Acked-by: Pablo de Lara <pablo.de.lara.guarch@intel.com>
+Signed-off-by: Anuj Mittal <anujx.mittal@intel.com>
+---
+ lib/librte_eal/linuxapp/kni/kni_net.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/lib/librte_eal/linuxapp/kni/kni_net.c b/lib/librte_eal/linuxapp/kni/kni_net.c
+index dd95db5..c515870 100644
+--- a/lib/librte_eal/linuxapp/kni/kni_net.c
++++ b/lib/librte_eal/linuxapp/kni/kni_net.c
+@@ -604,6 +604,7 @@ kni_net_header(struct sk_buff *skb, struct net_device *dev,
+ /*
+  * Re-fill the eth header
+  */
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 1, 0))
+ static int
+ kni_net_rebuild_header(struct sk_buff *skb)
+ {
+@@ -615,6 +616,7 @@ kni_net_rebuild_header(struct sk_buff *skb)
+ 
+ 	return 0;
+ }
++#endif /* < 4.1.0  */
+ 
+ /**
+  * kni_net_set_mac - Change the Ethernet Address of the KNI NIC
+@@ -634,7 +636,9 @@ static int kni_net_set_mac(struct net_device *netdev, void *p)
+ 
+ static const struct header_ops kni_net_header_ops = {
+ 	.create  = kni_net_header,
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 1, 0))
+ 	.rebuild = kni_net_rebuild_header,
++#endif /* < 4.1.0  */
+ 	.cache   = NULL,  /* disable caching */
+ };
+ 
+-- 
+1.7.9.5
+

@@ -1,0 +1,58 @@
+From 54117da1c945c046c6e3959db81511c78f876426 Mon Sep 17 00:00:00 2001
+From: Pablo de Lara <pablo.de.lara.guarch@intel.com>
+Date: Tue, 28 Apr 2015 18:37:42 +0100
+Subject: [PATCH] kni: fix build with kernel 4.0
+
+Upstream-Status: Backport [2.1.0]
+
+Due to API changes in function pointer ndo_bridge_setlink
+(commit ad41faa8) and the rename of functions vlan_tx_*
+(commit df8a39de) in kernel 4.0, DPDK would not build.
+
+This patch adds the properly checks to fix the compilation.
+
+Reported-by: Stephen Hemminger <stephen@networkplumber.org>
+Signed-off-by: Pablo de Lara <pablo.de.lara.guarch@intel.com>
+Signed-off-by: Anuj Mittal <anujx.mittal@intel.com>
+---
+ lib/librte_eal/linuxapp/kni/ethtool/igb/igb_main.c |    6 ++++++
+ lib/librte_eal/linuxapp/kni/ethtool/igb/kcompat.h  |    6 ++++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/lib/librte_eal/linuxapp/kni/ethtool/igb/igb_main.c b/lib/librte_eal/linuxapp/kni/ethtool/igb/igb_main.c
+index 24b147d..bc3c6a3 100644
+--- a/lib/librte_eal/linuxapp/kni/ethtool/igb/igb_main.c
++++ b/lib/librte_eal/linuxapp/kni/ethtool/igb/igb_main.c
+@@ -2198,8 +2198,14 @@ static int igb_ndo_fdb_dump(struct sk_buff *skb,
+ #endif /* USE_DEFAULT_FDB_DEL_DUMP */
+ 
+ #ifdef HAVE_BRIDGE_ATTRIBS
++#ifdef HAVE_NDO_BRIDGE_SET_DEL_LINK_FLAGS
++static int igb_ndo_bridge_setlink(struct net_device *dev,
++				  struct nlmsghdr *nlh,
++				  u16 flags)
++#else
+ static int igb_ndo_bridge_setlink(struct net_device *dev,
+ 				  struct nlmsghdr *nlh)
++#endif /* HAVE_NDO_BRIDGE_SET_DEL_LINK_FLAGS */
+ {
+ 	struct igb_adapter *adapter = netdev_priv(dev);
+ 	struct e1000_hw *hw = &adapter->hw;
+diff --git a/lib/librte_eal/linuxapp/kni/ethtool/igb/kcompat.h b/lib/librte_eal/linuxapp/kni/ethtool/igb/kcompat.h
+index 2e7e714..54d1f86 100644
+--- a/lib/librte_eal/linuxapp/kni/ethtool/igb/kcompat.h
++++ b/lib/librte_eal/linuxapp/kni/ethtool/igb/kcompat.h
+@@ -3885,4 +3885,10 @@ skb_set_hash(struct sk_buff *skb, __u32 hash, __always_unused int type)
+ #define HAVE_NDO_FDB_ADD_VID
+ #endif /* >= 3.19.0 */
+ 
++#if ( LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0) )
++/* vlan_tx_xx functions got renamed to skb_vlan */
++#define vlan_tx_tag_get skb_vlan_tag_get
++#define vlan_tx_tag_present skb_vlan_tag_present
++#define HAVE_NDO_BRIDGE_SET_DEL_LINK_FLAGS
++#endif /* 4.0.0 */
+ #endif /* _KCOMPAT_H_ */
+-- 
+1.7.9.5
+
