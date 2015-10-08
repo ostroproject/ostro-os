@@ -20,11 +20,13 @@ export IOT_APP_SERVICE_FILE_PATH = "${IOT_APP_SERVICE_DIR}/${IOT_USER_NAME}-sess
 export IOT_APP_TLM_SESSION_FILE_PATH = "${IOT_APP_TLM_SESSION_DIR}/tlm-session.ini"
 
 
+SYSTEMD_UNIT_NAME = "${IOT_USER_NAME}-session.service"
+
 pkg_postinst_${PN}_append () {
 #!/bin/sh -e
 if [ "x$D" != "x" ] ; then
    # use tlm-seatconf to add a new configuration into the tlm.conf file
-   SEAT=$(tlm-seatconf add -c $D/etc/tlm.conf "tlm-launcher -f ${IOT_APP_TLM_SESSION_FILE_PATH} -s %s")
+   SEAT=$(tlm-seatconf add -c $D/etc/tlm.conf -h 1 -i /var/lock/iotpm.ready "tlm-launcher -f ${IOT_APP_TLM_SESSION_FILE_PATH} -s %s")
    bbdebug 1 "generated seat $SEAT for tlm session"
 
    if [ -n "$SEAT" ]; then
@@ -32,6 +34,9 @@ if [ "x$D" != "x" ] ; then
       bbdebug 1 "adding seat $SEAT to ${IOT_APP_SERVICE_FILE_PATH}"
       sed -i s/seat_placeholder/$SEAT/ $D${IOT_APP_SERVICE_FILE_PATH}
    fi
+
+   # enable the systemd session here
+   systemctl --root=$D enable ${SYSTEMD_UNIT_NAME}
 fi
 }
 
@@ -43,9 +48,10 @@ RDEPENDS_${PN} =+ "iot-app-fw-tlm"
 
 
 # automatically start the service during boot
-#SYSTEMD_SERVICE_${PN} = "${IOT_USER_NAME}-session.service"
+SYSTEMD_SERVICE_${PN} = "${SYSTEMD_UNIT_NAME}"
+SYSTEMD_AUTO_ENABLE = "status"
 
-#inherit systemd
+inherit systemd
 
 do_install_append() {
     mkdir -p ${D}${IOT_APP_SERVICE_DIR}
@@ -55,7 +61,7 @@ do_install_append() {
 [Unit]
 Description=TLM session for user ${IOT_USER_NAME}
 Requires=tlm.service iot-launch.socket
-After=tlm.service
+After=multi-user.target
 
 [Install]
 WantedBy=multi-user.target
@@ -70,3 +76,7 @@ EOF
 
 FILES_${PN} += "${IOT_APP_SERVICE_FILE_PATH}"
 
+pkg_postinst_${PN}_append () {
+#!/bin/sh -e
+exit 0
+}
