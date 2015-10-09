@@ -6,5 +6,6 @@ inherit packagegroup
 RDEPENDS_${PN} = " \
     iotivity-node \
     iot-rest-api-server \
+    iot-app-fw-node-bindings \
     nodejs \
 "
