@@ -11,7 +11,7 @@ SRC_URI = " \
     git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh;branch=iot/release/m2/fixes \
   "
 
-SRCREV = "5826d038949779ed38c04cdd90bd3a6b26849b41"
+SRCREV = "4d96abe850c363a6773e27026f682e82f8f2251e"
 
 inherit autotools pkgconfig systemd python-dir pythonnative
 
@@ -43,6 +43,7 @@ PACKAGES =+ "${PN}-adduser"
 FILES_${PN}-adduser =+ "${bindir}/iot-adduser"
 
 PACKAGES =+ "${PN}-package-manager"
+RDEPENDS_${PN}-package-manager = "${PN}-adduser"
 FILES_${PN}-package-manager = "${bindir}/iotpm"
 FILES_${PN}-package-manager =+ "${bindir}/register-preinstalled-apps"
 FILES_${PN}-package-manager =+ "${systemd_unitdir}/system/iotpm-*"
