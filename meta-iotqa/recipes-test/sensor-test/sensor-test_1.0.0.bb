@@ -33,7 +33,9 @@ file://test_sensor_framework_ready.c \
 file://test_connect_sensor_maximum_times.c \
 file://test_stress_connect_disconnect_sensor.c \
 file://test_stress_set_get_data_of_sensor.c \
-file://test_get_data_of_unconnected_sensor.c "
+file://test_get_data_of_unconnected_sensor.c \
+file://test_switch_get_sensor_data.c \
+file://test_switch_get_sensor_data_negative.c "
 
 S = "${WORKDIR}"
 
@@ -66,6 +68,8 @@ do_compile() {
     ${CC} test_stress_connect_disconnect_sensor.c -o test_stress_connect_disconnect_sensor -I${STAGING_INCDIR}/sensor -lsensor
     ${CC} test_stress_set_get_data_of_sensor.c -o test_stress_set_get_data_of_sensor -I${STAGING_INCDIR}/sensor -lsensor 
     ${CC} test_get_data_of_unconnected_sensor.c -o test_get_data_of_unconnected_sensor -I${STAGING_INCDIR}/sensor -lsensor
+    ${CC} test_switch_get_sensor_data.c -o test_switch_get_sensor_data -I${STAGING_INCDIR}/sensor -lsensor
+    ${CC} test_switch_get_sensor_data_negative.c -o test_switch_get_sensor_data_negative -I${STAGING_INCDIR}/sensor -lsensor
 }
 
 do_install() {
@@ -97,6 +101,7 @@ do_install() {
     install -m 0755 test_stress_connect_disconnect_sensor ${D}${bindir}
     install -m 0755 test_stress_set_get_data_of_sensor ${D}${bindir}
     install -m 0755 test_get_data_of_unconnected_sensor ${D}${bindir}
-
+    install -m 0755 test_switch_get_sensor_data ${D}${bindir}
+    install -m 0755 test_switch_get_sensor_data_negative ${D}${bindir}
 }
 

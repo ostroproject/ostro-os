@@ -123,6 +123,7 @@ main(int argc, char* argv[])
 	for (i = 0; i < data.value_count; i++) {
 		fprintf(stdout, "value %d: %f\n", i, data.values[i]);
 	}
+        sf_disconnect_sensor(default_sensor.sensor_id);
 	return true;
 }
 
