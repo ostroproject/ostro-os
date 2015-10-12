@@ -31,7 +31,7 @@ fullreport = "/kca_full_report_"
 problemsreport = "/kca_problems_report_"
 log = "/internal/isafw_kcalog"
 
-class ISA_KCA():    
+class ISA_KernelChecker():    
     initialized = False
 
     hardening_kco = {  'CONFIG_CC_STACKPROTECTOR'                       : 'not set', 
@@ -149,13 +149,13 @@ class ISA_KCA():
                        'CONFIG_IMA_DEFAULT_HASH_WP512'                  : 'not set'
                        }
 
-    def __init__(self, proxy, reportdir):
-        self.proxy = proxy
-        self.reportdir = reportdir
+    def __init__(self, ISA_config):
+        self.proxy = ISA_config.proxy
+        self.reportdir = ISA_config.reportdir
         self.initialized = True
-        print("Plugin ISA_KCA initialized!")
+        print("Plugin ISA_KernelChecker initialized!")
         with open(self.reportdir + log, 'w') as flog:
-            flog.write("Plugin ISA_KernelConfigChecker initialized!\n")
+            flog.write("Plugin ISA_KernelChecker initialized!\n")
 
     def process_kernel(self, ISA_kernel):
         if (self.initialized == True):
@@ -277,11 +277,11 @@ class ISA_KCA():
 
 #======== supported callbacks from ISA =============#
 
-def init(proxy, reportdir):
+def init(ISA_config):
     global KCAnalyzer 
-    KCAnalyzer = ISA_KCA(proxy, reportdir)
+    KCAnalyzer = ISA_KernelChecker(ISA_config)
 def getPluginName():
-    return "kenel_config_check"
+    return "ISA_KernelChecker"
 def process_kernel(ISA_kernel):
     global KCAnalyzer 
     return KCAnalyzer.process_kernel(ISA_kernel)

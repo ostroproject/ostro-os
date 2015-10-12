@@ -41,9 +41,9 @@ log = "/internal/isafw_lalog"
 class ISA_LicenseChecker():    
     initialized = False
 
-    def __init__(self, proxy, reportdir):
-        self.proxy = proxy
-        self.reportdir = reportdir
+    def __init__(self, ISA_config):
+        self.proxy = ISA_config.proxy
+        self.reportdir = ISA_config.reportdir
         # check that rpm is installed (supporting only rpm packages for now)
         rc = subprocess.call(["which", "rpm"])        
         if rc == 0:
@@ -130,11 +130,11 @@ class ISA_LicenseChecker():
 
 #======== supported callbacks from ISA =============#
 
-def init(proxy, reportdir):
+def init(ISA_config):
     global LicenseChecker 
-    LicenseChecker = ISA_LicenseChecker(proxy, reportdir)
+    LicenseChecker = ISA_LicenseChecker(ISA_config)
 def getPluginName():
-    return "license_check"
+    return "ISA_LicenseChecker"
 def process_package(ISA_pkg):
     global LicenseChecker 
     return LicenseChecker.process_package(ISA_pkg)

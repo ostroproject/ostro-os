@@ -33,19 +33,19 @@ full_report = "/fsa_full_report_"
 problems_report = "/fsa_problems_report_"
 log = "/internal/isafw_fsalog"
 
-class ISA_FSA():    
+class ISA_FSChecker():    
     initialized = False
-    def __init__(self, proxy, reportdir):
-        self.proxy = proxy
-        self.reportdir = reportdir
+    def __init__(self, ISA_config):
+        self.proxy = ISA_config.proxy
+        self.reportdir = ISA_config.reportdir
         self.initialized = True
         self.setuid_files = []
         self.setgid_files = []
         self.ww_files = []
         self.no_sticky_bit_ww_dirs = []
-        print("Plugin ISA_FSA initialized!")
+        print("Plugin ISA_FSChecker initialized!")
         with open(self.reportdir + log, 'w') as flog:
-            flog.write("Plugin ISA_FilesystemAnalyser initialized!\n")
+            flog.write("Plugin ISA_FSChecker initialized!\n")
 
     def process_filesystem(self, ISA_filesystem):
         if (self.initialized == True):
@@ -109,11 +109,11 @@ class ISA_FSA():
 
 #======== supported callbacks from ISA =============#
 
-def init(proxy, reportdir):
+def init(ISA_config):
     global FSAnalyzer 
-    FSAnalyzer = ISA_FSA(proxy, reportdir)
+    FSAnalyzer = ISA_FSChecker(ISA_config)
 def getPluginName():
-    return "filesystem_check"
+    return "ISA_FSChecker"
 def process_filesystem(ISA_filesystem):
     global FSAnalyzer 
     return FSAnalyzer.process_filesystem(ISA_filesystem)

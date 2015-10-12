@@ -12,6 +12,9 @@ LICENSE = "MIT"
 ISAFW_WORKDIR = "${WORKDIR}/isafw"
 ISAFW_REPORTDIR ?= "${LOG_DIR}/isafw-report"
 
+ISAFW_PLUGINS_WHITELIST ?= ""
+ISAFW_PLUGINS_BLACKLIST ?= ""
+
 do_analyse_sources[depends] += "cve-check-tool-native:do_populate_sysroot"
 do_analyse_sources[depends] += "rpm-native:do_populate_sysroot"
 do_analyse_sources[nostamp] = "1"
@@ -22,18 +25,23 @@ do_analyse_sources[cleandirs] = "${ISAFW_WORKDIR}"
 
 python do_analyse_sources() {
 
+    import re
     from isafw import *
+    isafw_config = isafw.ISA_config()
     
-    proxy = d.getVar('HTTP_PROXY', True)
-    if not proxy :
-        proxy = d.getVar('http_proxy', True)
-    bb.debug(1, 'isafw: proxy is %s' % proxy)
+    isafw_config.proxy = d.getVar('HTTP_PROXY', True)
+    if not isafw_config.proxy :
+        isafw_config.proxy = d.getVar('http_proxy', True)
+    bb.debug(1, 'isafw: proxy is %s' % isafw_config.proxy)
 
-    reportdir = d.getVar('ISAFW_REPORTDIR', True)
-    if not os.path.exists(os.path.dirname(reportdir+"/internal/test")):
-        os.makedirs(os.path.dirname(reportdir+"/internal/test"))
+    isafw_config.reportdir = d.getVar('ISAFW_REPORTDIR', True)
+    if not os.path.exists(os.path.dirname(isafw_config.reportdir+"/internal/test")):
+        os.makedirs(os.path.dirname(isafw_config.reportdir+"/internal/test"))
 
-    imageSecurityAnalyser = isafw.ISA(proxy, reportdir)
+    isafw_config.plugin_whitelist = re.split(r'[,\s]*', d.getVar('ISAFW_PLUGINS_WHITELIST', True))
+    isafw_config.plugin_blacklist = re.split(r'[,\s]*', d.getVar('ISAFW_PLUGINS_BLACKLIST', True))
+
+    imageSecurityAnalyser = isafw.ISA(isafw_config)
 
     if not d.getVar('SRC_URI', True):
         # Recipe didn't fetch any sources, nothing to do here I assume?
@@ -99,20 +107,27 @@ python() {
 
 python analyse_image() {
 
+    import re
+
     # Directory where the image's entire contents can be examined
     rootfsdir = d.getVar('IMAGE_ROOTFS', True)
 
     imagebasename = d.getVar('IMAGE_BASENAME', True)
-    reportdir = d.getVar('ISAFW_REPORTDIR', True)
-
-    proxy = d.getVar('HTTP_PROXY', True)
-    if not proxy :
-        proxy = d.getVar('http_proxy', True)
-
-    bb.debug(1, 'isafw: proxy is %s' % proxy)
 
     from isafw import *
-    imageSecurityAnalyser = isafw.ISA(proxy, reportdir)
+    isafw_config = isafw.ISA_config()
+
+    isafw_config.reportdir = d.getVar('ISAFW_REPORTDIR', True)
+
+    isafw_config.proxy = d.getVar('HTTP_PROXY', True)
+    if not isafw_config.proxy :
+        isafw_config.proxy = d.getVar('http_proxy', True)
+    bb.debug(1, 'isafw: proxy is %s' % isafw_config.proxy)
+
+    isafw_config.plugin_whitelist = re.split(r'[,\s]*', d.getVar('ISAFW_PLUGINS_WHITELIST', True))
+    isafw_config.plugin_blacklist = re.split(r'[,\s]*', d.getVar('ISAFW_PLUGINS_BLACKLIST', True))
+
+    imageSecurityAnalyser = isafw.ISA(isafw_config)
 
     pkglist = manifest2pkglist(d)
 

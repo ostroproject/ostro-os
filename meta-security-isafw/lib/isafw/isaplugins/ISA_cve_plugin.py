@@ -36,9 +36,9 @@ log = "/internal/isafw_cvelog"
 
 class ISA_CVEChecker:    
     initialized = False
-    def __init__(self, proxy, reportdir):
-        self.proxy = proxy
-        self.reportdir = reportdir
+    def __init__(self, ISA_config):
+        self.proxy = ISA_config.proxy
+        self.reportdir = ISA_config.reportdir
         # check that cve-check-tool is installed
         rc = subprocess.call(["which", "cve-check-tool"])
         if rc == 0:
@@ -77,7 +77,7 @@ class ISA_CVEChecker:
                     with open(self.reportdir + log, 'a') as flog:
                         flog.write("Error in executing cve-check-tool: " + sys.exc_info())
                 else:
-                    report = self.reportdir + "/cve-report"
+                    report = self.reportdir + "/cve-report.csv"
                     with open(report, 'a') as freport:
                         freport.write(output)
                 os.remove(ffauxfile)
@@ -108,11 +108,11 @@ class ISA_CVEChecker:
 
 #======== supported callbacks from ISA =============#
 
-def init(proxy, reportdir):
+def init(ISA_config):
     global CVEChecker 
-    CVEChecker = ISA_CVEChecker(proxy, reportdir)
+    CVEChecker = ISA_CVEChecker(ISA_config)
 def getPluginName():
-    return "cve-check"
+    return "ISA_CVEChecker"
 def process_package(ISA_pkg):
     global CVEChecker 
     return CVEChecker.process_package(ISA_pkg)

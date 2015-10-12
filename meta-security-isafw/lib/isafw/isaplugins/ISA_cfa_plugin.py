@@ -46,9 +46,9 @@ class ISA_CFChecker():
     no_pie = []
     no_nx = []
 
-    def __init__(self, proxy, reportdir):
-        self.proxy = proxy
-        self.reportdir = reportdir
+    def __init__(self, ISA_config):
+        self.proxy = ISA_config.proxy
+        self.reportdir = ISA_config.reportdir
         # check that checksec is installed
         rc = subprocess.call(["which", "checksec.sh"])
         if rc == 0:
@@ -243,11 +243,11 @@ class ISA_CFChecker():
 
 #======== supported callbacks from ISA =============#
 
-def init(proxy, reportdir):
+def init(ISA_config):
     global CFChecker 
-    CFChecker = ISA_CFChecker(proxy, reportdir)
+    CFChecker = ISA_CFChecker(ISA_config)
 def getPluginName():
-    return "compile_flag_check"
+    return "ISA_CFChecker"
 def process_filesystem(ISA_filesystem):
     global CFChecker 
     return CFChecker.process_filesystem(ISA_filesystem)
