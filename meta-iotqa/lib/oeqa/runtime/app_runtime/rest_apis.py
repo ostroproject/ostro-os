@@ -344,7 +344,7 @@ class RESTAPITest(oeRuntimeTest):
         Test if type of loadavg property in response is an array.
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testApiSystemLoadavgType:' % (
+                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testApiSystemLoadavgType' % (
                     self.target_rest_api_dir,
                     self.target_rest_api_dir,
                     self.rest_api_js_files['api_system']
