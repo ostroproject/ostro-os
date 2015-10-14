@@ -43,6 +43,7 @@ FILES_${PN}-dev = " \
 FILES_${PN} = " \
             ${bindir}/sol* \
             ${libdir}/libsoletta.so* \
+            ${libdir}/soletta/soletta-image-hash \
 "
 
 # Setup what PACKAGES should be installed by default.
@@ -86,4 +87,6 @@ do_install() {
    unlink ${WORKDIR}/image/usr/lib/libsoletta.so
    mv ${WORKDIR}/image/usr/lib/libsoletta.so.0.0.1 ${WORKDIR}/image/usr/lib/libsoletta.so
    ln -sf libsoletta.so ${WORKDIR}/image/usr/lib/libsoletta.so.0.0.1
+   COMMIT_ID=`git --git-dir=${WORKDIR}/git/.git rev-parse --verify HEAD`
+   echo "Soletta: $COMMIT_ID" > ${D}/usr/lib/soletta/soletta-image-hash
 }
