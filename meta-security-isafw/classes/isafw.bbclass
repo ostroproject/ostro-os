@@ -156,11 +156,6 @@ python analyse_image() {
 }
 
 do_rootfs[depends] += "checksec-native:do_populate_sysroot"
-
-# Ensure we wait until source analysis gets done for all recipes whose packages
-# are going into the image before starting with the image itself
-do_rootfs[recrdeptask] += "do_analyse_sources"
-
 analyse_image[fakeroot] = "1"
 
 def manifest2pkglist(d):
