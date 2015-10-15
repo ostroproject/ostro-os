@@ -20,7 +20,7 @@ do_install(){
         install -m 0551 ${WORKDIR}/smacknet ${D}${bindir}
 
         install -d -m 755 ${D}${systemd_unitdir}/system
-        install -m 551 ${WORKDIR}/smacknet.service ${D}${systemd_unitdir}/system
+        install -m 644 ${WORKDIR}/smacknet.service ${D}${systemd_unitdir}/system
         sed -i -e 's,@BINDIR@,${bindir},g' ${D}${systemd_unitdir}/system/smacknet.service
 }
    
