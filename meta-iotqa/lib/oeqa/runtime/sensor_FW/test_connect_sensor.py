@@ -3,7 +3,7 @@ import os
 import json
 from oeqa.utils.helper import get_files_dir
 from oeqa.oetest import oeRuntimeTest
-from oeqa.utils.ddt import ddt, file_data
+from ddt import ddt, file_data
 @ddt
 class TestConnectSensor(oeRuntimeTest):
     '''Verify connect sensor under different scenarios'''
