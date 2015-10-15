@@ -38,8 +38,12 @@ python do_analyse_sources() {
     if not os.path.exists(os.path.dirname(isafw_config.reportdir+"/internal/test")):
         os.makedirs(os.path.dirname(isafw_config.reportdir+"/internal/test"))
 
-    isafw_config.plugin_whitelist = re.split(r'[,\s]*', d.getVar('ISAFW_PLUGINS_WHITELIST', True))
-    isafw_config.plugin_blacklist = re.split(r'[,\s]*', d.getVar('ISAFW_PLUGINS_BLACKLIST', True))
+    whitelist = d.getVar('ISAFW_PLUGINS_WHITELIST', True)
+    blacklist = d.getVar('ISAFW_PLUGINS_BLACKLIST', True)
+    if whitelist: 
+        isafw_config.plugin_whitelist = re.split(r'[,\s]*', whitelist)
+    if blacklist:
+        isafw_config.plugin_blacklist = re.split(r'[,\s]*', blacklist)
 
     imageSecurityAnalyser = isafw.ISA(isafw_config)
 
@@ -124,8 +128,12 @@ python analyse_image() {
         isafw_config.proxy = d.getVar('http_proxy', True)
     bb.debug(1, 'isafw: proxy is %s' % isafw_config.proxy)
 
-    isafw_config.plugin_whitelist = re.split(r'[,\s]*', d.getVar('ISAFW_PLUGINS_WHITELIST', True))
-    isafw_config.plugin_blacklist = re.split(r'[,\s]*', d.getVar('ISAFW_PLUGINS_BLACKLIST', True))
+    whitelist = d.getVar('ISAFW_PLUGINS_WHITELIST', True)
+    blacklist = d.getVar('ISAFW_PLUGINS_BLACKLIST', True)
+    if whitelist: 
+        isafw_config.plugin_whitelist = re.split(r'[,\s]*', whitelist)
+    if blacklist:
+        isafw_config.plugin_blacklist = re.split(r'[,\s]*', blacklist)
 
     imageSecurityAnalyser = isafw.ISA(isafw_config)
 
