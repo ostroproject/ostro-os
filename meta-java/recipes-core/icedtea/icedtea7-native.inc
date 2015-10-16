@@ -152,6 +152,7 @@ EXTRA_OEMAKE = ' \
                 OE_CXXFLAGS="${CXXFLAGS}" \
                 OE_LDFLAGS="${LDFLAGS}" \
                 ZIPEXE="${STAGING_BINDIR_NATIVE}/zip" \
+                DISABLE_HOTSPOT_OS_VERSION_CHECK=ok \
                '
 
 do_compile() {
