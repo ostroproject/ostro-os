@@ -34,9 +34,8 @@ python do_analyse_sources() {
         isafw_config.proxy = d.getVar('http_proxy', True)
     bb.debug(1, 'isafw: proxy is %s' % isafw_config.proxy)
 
-    isafw_config.reportdir = d.getVar('ISAFW_REPORTDIR', True)
-    if not os.path.exists(os.path.dirname(isafw_config.reportdir+"/internal/test")):
-        os.makedirs(os.path.dirname(isafw_config.reportdir+"/internal/test"))
+    isafw_config.timestamp = d.getVar('DATETIME', True)
+    isafw_config.reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + isafw_config.timestamp
 
     whitelist = d.getVar('ISAFW_PLUGINS_WHITELIST', True)
     blacklist = d.getVar('ISAFW_PLUGINS_BLACKLIST', True)
@@ -121,7 +120,8 @@ python analyse_image() {
     from isafw import *
     isafw_config = isafw.ISA_config()
 
-    isafw_config.reportdir = d.getVar('ISAFW_REPORTDIR', True)
+    isafw_config.timestamp = d.getVar('DATETIME', True)
+    isafw_config.reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + isafw_config.timestamp
 
     isafw_config.proxy = d.getVar('HTTP_PROXY', True)
     if not isafw_config.proxy :
@@ -170,7 +170,8 @@ def manifest2pkglist(d):
 
     manifest_file = d.getVar('IMAGE_MANIFEST', True)
     imagebasename = d.getVar('IMAGE_BASENAME', True)
-    reportdir = d.getVar('ISAFW_REPORTDIR', True)
+    timestamp = d.getVar('DATETIME', True)
+    reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + timestamp
 
     pkglist = reportdir + "/internal/pkglist_" + imagebasename
 
@@ -199,12 +200,11 @@ python isafwreport_handler () {
 
     import shutil
 
-    reportdir = e.data.getVar('ISAFW_REPORTDIR', True)
-    if os.path.exists(os.path.dirname(reportdir+"/internal/test")):
-        shutil.rmtree(reportdir)
+    timestamp = d.getVar('DATETIME', True)
+    reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + timestamp
     os.makedirs(os.path.dirname(reportdir+"/internal/test"))
-
 }
+
 addhandler isafwreport_handler
 isafwreport_handler[eventmask] = "bb.event.BuildStarted"
 

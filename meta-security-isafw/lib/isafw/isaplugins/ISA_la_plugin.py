@@ -44,6 +44,7 @@ class ISA_LicenseChecker():
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
         self.reportdir = ISA_config.reportdir
+        self.timestamp = ISA_config.timestamp
         # check that rpm is installed (supporting only rpm packages for now)
         rc = subprocess.call(["which", "rpm"])        
         if rc == 0:
@@ -91,7 +92,7 @@ class ISA_LicenseChecker():
                     and not self.check_exceptions(ISA_pkg.name, l, fexceptions)):
                         # log the package as not following correct license
                         report = self.reportdir + "/license_report"
-                        with open(report, 'a') as freport:
+                        with open(report + "_" + self.timestamp, 'a') as freport:
                             freport.write(ISA_pkg.name + ": " + l + "\n")
             else:
                 print("Mandatory argument package name is not provided!")

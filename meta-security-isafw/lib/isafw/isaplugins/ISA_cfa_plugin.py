@@ -49,6 +49,7 @@ class ISA_CFChecker():
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
         self.reportdir = ISA_config.reportdir
+        self.timestamp = ISA_config.timestamp
         # check that checksec is installed
         rc = subprocess.call(["which", "checksec.sh"])
         if rc == 0:
@@ -68,7 +69,7 @@ class ISA_CFChecker():
             if (ISA_filesystem.img_name and ISA_filesystem.path_to_fs):
                 with open(self.reportdir + log, 'a') as flog:
                     flog.write("\n\nFilesystem path is: " + ISA_filesystem.path_to_fs)
-                with open(self.reportdir + full_report + ISA_filesystem.img_name, 'w') as ffull_report:
+                with open(self.reportdir + full_report + ISA_filesystem.img_name + "_" + self.timestamp, 'w') as ffull_report:
                     ffull_report.write("Security-relevant flags for executables for image: " + ISA_filesystem.img_name + '\n')
                     ffull_report.write("With rootfs location at " +  ISA_filesystem.path_to_fs + "\n\n")
                 self.files = self.find_files(ISA_filesystem.path_to_fs)
@@ -89,7 +90,7 @@ class ISA_CFChecker():
                 flog.write("Plugin hasn't initialized! Not performing the call.\n")
 
     def write_report(self, ISA_filesystem):
-        with open(self.reportdir + problems_report + ISA_filesystem.img_name, 'w') as fproblems_report:
+        with open(self.reportdir + problems_report + ISA_filesystem.img_name + "_" + self.timestamp, 'w') as fproblems_report:
             fproblems_report.write("Report for image: " + ISA_filesystem.img_name + '\n')
             fproblems_report.write("With rootfs location at " + ISA_filesystem.path_to_fs + "\n\n")
             fproblems_report.write("Files with no RELO:\n")
@@ -137,7 +138,7 @@ class ISA_CFChecker():
                 etree.SubElement(failrs4, 'value').text = item
         print (etree.tostring(root, pretty_print=True))
         tree = etree.ElementTree(root)
-        output = self.reportdir + problems_report + ISA_filesystem.img_name + '.xml' 
+        output = self.reportdir + problems_report + ISA_filesystem.img_name + "_" + self.timestamp + '.xml' 
         tree.write(output, pretty_print=True, xml_declaration=True)
 
     def find_files(self, init_path):
@@ -231,7 +232,7 @@ class ISA_CFChecker():
                         sec_field = "File is pdf"
                     else:
                         sec_field = self.get_security_flags(real_file)
-                        with open(self.reportdir + full_report + img_name, 'a') as ffull_report:
+                        with open(self.reportdir + full_report + img_name + "_" + self.timestamp, 'a') as ffull_report:
                             real_file = real_file.replace(path_to_fs, "")
                             ffull_report.write(real_file + ": ")
                             for s in sec_field:

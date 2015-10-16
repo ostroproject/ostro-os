@@ -152,6 +152,7 @@ class ISA_KernelChecker():
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
         self.reportdir = ISA_config.reportdir
+        self.timestamp = ISA_config.timestamp
         self.initialized = True
         print("Plugin ISA_KernelChecker initialized!")
         with open(self.reportdir + log, 'w') as flog:
@@ -183,7 +184,7 @@ class ISA_KernelChecker():
                     flog.write("\n\nkeys_kco values: " + str(self.keys_kco))              
                     flog.write("\n\nsecurity_kco values: " + str(self.security_kco))              
                     flog.write("\n\nintegrity_kco values: " + str(self.integrity_kco))                    
-                with open(self.reportdir + fullreport + ISA_kernel.img_name, 'w') as freport:
+                with open(self.reportdir + fullreport + ISA_kernel.img_name + "_" + self.timestamp, 'w') as freport:
                     freport.write("Report for image: " + ISA_kernel.img_name + '\n')
                     freport.write("With the kernel conf at: " + ISA_kernel.path_to_config + '\n\n')
                     freport.write("Hardening options:\n")
@@ -198,7 +199,7 @@ class ISA_KernelChecker():
                     freport.write("\nIntegrity options:\n")
                     for key in sorted(self.integrity_kco):
                         freport.write(key + ' : ' + str(self.integrity_kco[key]) + '\n')
-                with open(self.reportdir + problemsreport + ISA_kernel.img_name, 'w') as freport:
+                with open(self.reportdir + problemsreport + ISA_kernel.img_name + "_" + self.timestamp, 'w') as freport:
                     freport.write("Report for image: " + ISA_kernel.img_name + '\n')
                     freport.write("With the kernel conf at: " + ISA_kernel.path_to_config + '\n\n')
                     freport.write("Hardening options that need improvement:\n")

@@ -38,6 +38,7 @@ class ISA_FSChecker():
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
         self.reportdir = ISA_config.reportdir
+        self.timestamp = ISA_config.timestamp
         self.initialized = True
         self.setuid_files = []
         self.setgid_files = []
@@ -55,7 +56,7 @@ class ISA_FSChecker():
                 self.files = self.find_fsobjects(ISA_filesystem.path_to_fs)
                 with open(self.reportdir + log, 'a') as flog:
                     flog.write("\n\nFilelist is: " + str(self.files))
-                with open(self.reportdir + full_report + ISA_filesystem.img_name, 'w') as ffull_report:
+                with open(self.reportdir + full_report + ISA_filesystem.img_name + "_" + self.timestamp, 'w') as ffull_report:
                     ffull_report.write("Report for image: " + ISA_filesystem.img_name + '\n')
                     ffull_report.write("With rootfs location at " + ISA_filesystem.path_to_fs + "\n\n")
                     for f in self.files:
@@ -72,7 +73,7 @@ class ISA_FSChecker():
                                 self.no_sticky_bit_ww_dirs.append(i)
                             if (((st.st_mode&S_IFREG) == S_IFREG) and ((st.st_mode&S_IFLNK) != S_IFLNK)):        
                                 self.ww_files.append(i)
-                with open(self.reportdir + problems_report + ISA_filesystem.img_name, 'w') as fproblems_report:
+                with open(self.reportdir + problems_report + ISA_filesystem.img_name + "_" + self.timestamp, 'w') as fproblems_report:
                     fproblems_report.write("Report for image: " + ISA_filesystem.img_name + '\n')
                     fproblems_report.write("With rootfs location at " + ISA_filesystem.path_to_fs + "\n\n")
                     fproblems_report.write("Files with SETUID bit set:\n")
