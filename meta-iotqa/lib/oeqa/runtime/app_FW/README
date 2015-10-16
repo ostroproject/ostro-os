@@ -6,3 +6,5 @@ Here are steps for how to build the image for these test cases.
 4. bitbake ostro-image
 5. Burn generated image to USB disk or internal eMMC
 6. Boot from the image
+
+For M2 test cases(appFW_M2.py) , you need to build test app(bitbake appfwTestApp) and copy 2 rpm packages(appfwTestApp, appfwtest-user) to iottest/deploy/files/target/${MACHINE}/. Pleas note, this setp is no need until we fix the rpm deploy issue.
