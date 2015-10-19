@@ -8,7 +8,7 @@ Subject: [PATCH] libparted: Fix possible memory leaks
 * libparted/fs/r/fat/resize.c(fat_construct_converted_tree ): Possible
   leak of new_trav_info or old_trav_info in error case.
 
-Upstream-Status: Accepted.
+Upstream-Status: Submitted
 [http://lists.alioth.debian.org/pipermail/parted-devel/2015-August/004692.html]
 
 Signed-off-by: Amarnath Valluri <amarnath.valluri@intel.com>
