@@ -18,9 +18,10 @@ IOT_APP_TLM_SESSION_DIR = "/etc/session.d"
 
 export IOT_APP_SERVICE_FILE_PATH = "${IOT_APP_SERVICE_DIR}/${IOT_USER_NAME}-session.service"
 export IOT_APP_TLM_SESSION_FILE_PATH = "${IOT_APP_TLM_SESSION_DIR}/tlm-session.ini"
-
+export IOT_APP_PATH_FILE_PATH = "${IOT_APP_SERVICE_DIR}/${IOT_USER_NAME}-session.path"
 
 SYSTEMD_UNIT_NAME = "${IOT_USER_NAME}-session.service"
+SYSTEMD_PATH_UNIT_NAME = "${IOT_USER_NAME}-session.path"
 
 pkg_postinst_${PN}_append () {
 #!/bin/sh -e
@@ -35,8 +36,6 @@ if [ "x$D" != "x" ] ; then
       sed -i s/seat_placeholder/$SEAT/ $D${IOT_APP_SERVICE_FILE_PATH}
    fi
 
-   # enable the systemd session here
-   systemctl --root=$D enable ${SYSTEMD_UNIT_NAME}
 fi
 }
 
@@ -61,7 +60,6 @@ do_install_append() {
 [Unit]
 Description=TLM session for user ${IOT_USER_NAME}
 Requires=tlm.service iot-launch.socket
-After=multi-user.target
 
 [Install]
 WantedBy=multi-user.target
@@ -71,10 +69,22 @@ Type=simple
 ExecStart=/usr/bin/tlm-client -k -l --seat seat_placeholder --username ${IOT_USER_NAME} --password automatic_login
 EOF
 
+    cat > /tmp/${IOT_USER_NAME}-session.path << EOF
+[Unit]
+Description=Path for user ${IOT_USER_NAME} session
+
+[Path]
+PathExists=/var/lock/iotpm.ready
+Unit=${IOT_USER_NAME}-session.service
+EOF
+
     install /tmp/${IOT_USER_NAME}-session.service ${D}${IOT_APP_SERVICE_FILE_PATH}
+    install /tmp/${IOT_USER_NAME}-session.path ${D}${IOT_APP_PATH_FILE_PATH}
+    install -d ${D}/${systemd_unitdir}/system/multi-user.target.wants
+    ln -sf ../${SYSTEMD_PATH_UNIT_NAME} ${D}/${systemd_unitdir}/system/multi-user.target.wants/${SYSTEMD_PATH_UNIT_NAME}
 }
 
-FILES_${PN} += "${IOT_APP_SERVICE_FILE_PATH}"
+FILES_${PN} += "${systemd_unitdir}"
 
 pkg_postinst_${PN}_append () {
 #!/bin/sh -e
