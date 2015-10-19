@@ -7,7 +7,7 @@ COMPATIBLE_MACHINE_core2-32-intel-common = "${MACHINE}"
 KMACHINE_core2-32-intel-common = "intel-core2-32"
 KBRANCH_core2-32-intel-common = "standard/base"
 SRCREV_meta_core2-32-intel-common ?= "3d8f1378d07dbc052ca8a7c22297339ad7998b5e"
-SRCREV_machine_core2-32-intel-common ?= "52a4a9f4a2b408ef3a0745372e44cc362832d86d"
+SRCREV_machine_core2-32-intel-common ?= "dbe692d91c8e55d1430f2c45fd578c8e4e71e482"
 KERNEL_FEATURES_append_core2-32-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}"
 
 LINUX_VERSION_corei7-64-intel-common = "4.1.8"
@@ -15,7 +15,7 @@ COMPATIBLE_MACHINE_corei7-64-intel-common = "${MACHINE}"
 KMACHINE_corei7-64-intel-common = "intel-corei7-64"
 KBRANCH_corei7-64-intel-common = "standard/base"
 SRCREV_meta_corei7-64-intel-common ?= "3d8f1378d07dbc052ca8a7c22297339ad7998b5e"
-SRCREV_machine_corei7-64-intel-common ?= "52a4a9f4a2b408ef3a0745372e44cc362832d86d"
+SRCREV_machine_corei7-64-intel-common ?= "dbe692d91c8e55d1430f2c45fd578c8e4e71e482"
 KERNEL_FEATURES_append_corei7-64-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}"
 
 # Quark / X1000 BSP Info
@@ -24,7 +24,7 @@ COMPATIBLE_MACHINE_i586-nlp-32-intel-common = "${MACHINE}"
 KMACHINE_i586-nlp-32-intel-common = "intel-quark"
 KBRANCH_i586-nlp-32-intel-common = "standard/base"
 SRCREV_meta_i586-nlp-32-intel-common ?= "3d8f1378d07dbc052ca8a7c22297339ad7998b5e"
-SRCREV_machine_i586-nlp-32-intel-common ?= "52a4a9f4a2b408ef3a0745372e44cc362832d86d"
+SRCREV_machine_i586-nlp-32-intel-common ?= "dbe692d91c8e55d1430f2c45fd578c8e4e71e482"
 KERNEL_FEATURES_append_i586-nlp-32-intel-common = ""
 
 
