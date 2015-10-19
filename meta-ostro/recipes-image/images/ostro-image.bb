@@ -33,7 +33,7 @@ IMAGE_FEATURES += " \
                         can \
                         connectivity \
                         devkit \
-                        ima \
+                        ${@bb.utils.contains('DISTRO_FEATURES', 'ima', 'ima', '', d)} \
                         iotivity \
                         package-management \
                         sensors \
