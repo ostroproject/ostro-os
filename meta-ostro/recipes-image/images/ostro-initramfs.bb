@@ -11,7 +11,7 @@ DESCRIPTION = "Small image capable of booting a device. The kernel includes \
 the Minimal RAM-based Initial Root Filesystem (initramfs), which finds the \
 first 'init' program more efficiently."
 
-PACKAGE_INSTALL = "busybox base-passwd ${ROOTFS_BOOTSTRAP_INSTALL}"
+PACKAGE_INSTALL = "busybox base-passwd ${ROOTFS_BOOTSTRAP_INSTALL} ${FEATURE_INSTALL}"
 
 # e2fs: loads fs modules and adds ext2/ext3/ext4=<device>:<path> boot parameter
 #       for mounting additional partitions
@@ -26,6 +26,15 @@ PACKAGE_INSTALL += "initramfs-module-debug"
 
 # Do not pollute the initrd image with rootfs features
 IMAGE_FEATURES = ""
+
+# Instead we have additional image feature(s).
+IMAGE_FEATURES[validitems] += " \
+    ima \
+"
+IMAGE_FEATURES += " \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'ima', 'ima', '', d)} \
+"
+FEATURE_PACKAGES_ima = "initramfs-framework-ima"
 
 export IMAGE_BASENAME = "ostro-initramfs"
 IMAGE_LINGUAS = ""
@@ -47,5 +56,5 @@ BAD_RECOMMENDATIONS += "busybox-syslog"
 # ostro-image.bb).
 IMA_EVM_ROOTFS_SIGNED = "-maxdepth 0 -false"
 IMA_EVM_ROOTFS_HASHED = "-maxdepth 0 -false"
-inherit ima-evm-rootfs
-PACKAGE_INSTALL += "initramfs-framework-ima"
+IMA_EVM_ROOTFS_CLASS = "${@bb.utils.contains('IMAGE_FEATURES', 'ima', 'ima-evm-rootfs', '',d)}"
+inherit ${IMA_EVM_ROOTFS_CLASS}
