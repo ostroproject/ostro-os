@@ -10,7 +10,7 @@ SRC_URI[sha256sum] = "414bb37471fd91646a7a41c6877a5be2d03871e8d9f845fd3ee55d0970
 
 SRC_URI = "http://ftp.gnu.org/gnu/libmicrohttpd/${BPN}-${PV}.tar.gz"
 
-inherit autotools lib_package
+inherit autotools lib_package pkgconfig
 
 # disable spdy, because it depends on openssl
 EXTRA_OECONF += "--disable-static --with-gnutls=${STAGING_LIBDIR}/../ --disable-spdy"
