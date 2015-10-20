@@ -19,6 +19,7 @@ class RebootTest(oeRuntimeTest):
         for _ in range(60):
             if not self._alive():
                 return True
+            time.sleep(1)
         return False
 
     def _wait_online(self):
