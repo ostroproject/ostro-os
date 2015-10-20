@@ -7,7 +7,7 @@ SECTION = "examples"
 DEPENDS = "glib-2.0 libpcre"
 LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://COPYING;md5=53eeaddf328b23e2355816e257450eaa"
-PV = "1_beta7"
+PV = "1_beta9"
 
 SRC_URI = "git://github.com/solettaproject/soletta.git;protocol=git;tag=v${PV}"
 
