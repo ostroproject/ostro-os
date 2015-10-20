@@ -143,7 +143,7 @@ OSTRO_PACKAGE_FEED_URI="${OSTRO_PACKAGE_FEED_BASEURL}/${OSTRO_PACKAGE_FEED_PUBLI
 
 # Ask package-manager to configure the package feeds
 PACKAGE_FEED_URIS="${OSTRO_PACKAGE_FEED_URI}"
-PACKAGE_FEED_PREFIX="{OSTRO_PACKAGE_FEED_PREFIX}"
+PACKAGE_FEED_PREFIX="${OSTRO_PACKAGE_FEED_PREFIX}"
 
 # Enable initramfs based on initramfs-framework (chosen in
 # core-image-minimal-initramfs.bbappend). All machines must
