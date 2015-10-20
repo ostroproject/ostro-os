@@ -5,7 +5,6 @@ Subject: [PATCH 1/2] ecc: Free memory also when in error branch.
 
 * cipher/ecc-eddsa.c (_gcry_ecc_eddsa_sign): Init DISGEST and goto
 leave on error.
---
 
 Fixing an issue found by static analysis.
 

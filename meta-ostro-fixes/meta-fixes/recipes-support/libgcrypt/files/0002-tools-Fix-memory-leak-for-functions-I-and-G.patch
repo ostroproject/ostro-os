@@ -4,7 +4,6 @@ Date: Thu, 6 Aug 2015 14:57:44 +0200
 Subject: [PATCH 2/2] tools: Fix memory leak for functions "I" and "G".
 
 * src/mpicalc.c (do_inv, do_gcd): Init A after stack check.
---
 
 Reported-by: Ismo Puustinen <ismo.puustinen@intel.com>
 Signed-off-by: Werner Koch <wk@gnupg.org>
