@@ -130,6 +130,8 @@ class AppFwTestPython(oeRuntimeTest):
         PID  = self._getPID(self.catch_app)
         if PID :
             self.target.run("kill -9 %s" % PID)
+            time.sleep(2)
+             
 
         self.target.run("systemctl stop iot-launch")
         (status,output) = self.target.run("rm -f %s" % self.appfw_test_log)
