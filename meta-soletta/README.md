@@ -23,5 +23,8 @@ The dependencies to build the images are:
   - Lib python3-jsonschema (Installed on host machine)
   - meta-intel (If building for intel based-hardware is required)
 
+##Build image for Intel Edison
+Go to [Soletta wiki - Edison Instructions](https://github.com/solettaproject/soletta/wiki/Edison-Instructions#yocto)
+
 ##Build image for Minnowboard Max
-Go to [Soletta wiki](https://github.com/solettaproject/soletta/wiki/MinnowBoard-MAX-Instructions)
+Go to [Soletta wiki - MinnowBoard-MAX-Instructions](https://github.com/solettaproject/soletta/wiki/MinnowBoard-MAX-Instructions)
