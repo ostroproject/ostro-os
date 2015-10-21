@@ -16,7 +16,7 @@ S = "${WORKDIR}/${PN}"
 
 INSANE_SKIP_${PN} += "file-rdeps debug-files arch"
 
-INSTALLATION_PATH = "/opt"
+INSTALLATION_PATH = "/opt/"
 SYSTEMD_PATH = "${systemd_unitdir}/system/"
 AUTOSTART_SYSTEMD_PATH = "/etc/systemd/system/multi-user.target.wants/"
 AVAHI_SERVICE = "/etc/avahi/services/"

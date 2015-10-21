@@ -3,7 +3,7 @@ Description=Autogenerate hostname with MAC ADDRESS
 
 [Service]
 Type=oneshot
-ExecStart=/soletta-dev-app/scripts/soletta-dev-app-mac.sh
+ExecStart=/opt/soletta-dev-app/scripts/soletta-dev-app-mac.sh
 
 [Install]
 WantedBy=multi-user.target
