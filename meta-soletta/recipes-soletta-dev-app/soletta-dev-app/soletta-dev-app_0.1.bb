@@ -4,8 +4,8 @@ LICENSE = "BSD-3-Clause"
 PV = "1_beta3"
 
 LIC_FILES_CHKSUM = "file://LICENSE;md5=dbf9699ab0f60ec50f52ce70fcd07caf"
-SRC_URI[archive.md5sum] = "e1e5cc17a0ed89c962002bb7bf6dd5a1"
-SRC_URI[archive.sha256sum] = "7e4a7af6c3ca2f19b064e6b7122c3064b56e6c4ebb555b8c1ffc0e9d3f2f3e0b"
+SRC_URI[archive.md5sum] = "769c98ee5cf36c234263aad4d3b4743b"
+SRC_URI[archive.sha256sum] = "5bb2be0d9b5e216628d4311bd9277c435058a0b1862e7f17e703002afb105bd6"
 SRC_URI = "https://github.com/solettaproject/soletta-dev-app/releases/download/v${PV}/soletta-dev-app_standalone_v${PV}.tar.gz;name=archive \
            file://soletta-dev-app.service \
            file://soletta-dev-app-mac.sh \
@@ -16,7 +16,7 @@ S = "${WORKDIR}/${PN}"
 
 INSANE_SKIP_${PN} += "file-rdeps debug-files arch"
 
-INSTALLATION_PATH = "/"
+INSTALLATION_PATH = "/opt"
 SYSTEMD_PATH = "${systemd_unitdir}/system/"
 AUTOSTART_SYSTEMD_PATH = "/etc/systemd/system/multi-user.target.wants/"
 AVAHI_SERVICE = "/etc/avahi/services/"
@@ -32,6 +32,7 @@ FILES_${PN} += " \
 "
 
 do_install() {
+  install -d ${D}{INSTALLATION_PATH}
   install -d ${D}${INSTALLATION_PATH}soletta-dev-app
   cp -r ${S}/* ${D}${INSTALLATION_PATH}soletta-dev-app
 
