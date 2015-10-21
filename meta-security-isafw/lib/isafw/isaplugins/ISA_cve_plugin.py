@@ -39,6 +39,7 @@ class ISA_CVEChecker:
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
         self.reportdir = ISA_config.reportdir
+        self.timestamp = ISA_config.timestamp
         # check that cve-check-tool is installed
         rc = subprocess.call(["which", "cve-check-tool"])
         if rc == 0:
@@ -77,8 +78,8 @@ class ISA_CVEChecker:
                     with open(self.reportdir + log, 'a') as flog:
                         flog.write("Error in executing cve-check-tool: " + sys.exc_info())
                 else:
-                    report = self.reportdir + "/cve-report.csv"
-                    with open(report, 'a') as freport:
+                    report = self.reportdir + "/cve-report"
+                    with open(report + "_" + self.timestamp + ".csv", 'a') as freport:
                         freport.write(output)
                 os.remove(ffauxfile)
             else:
