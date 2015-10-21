@@ -1,7 +1,7 @@
 DESCRIPTION = "Soletta Development Application"
 DEPENDS = "soletta nodejs systemd graphviz git"
 LICENSE = "BSD-3-Clause"
-PV = "1_beta2"
+PV = "1_beta3"
 
 LIC_FILES_CHKSUM = "file://LICENSE;md5=dbf9699ab0f60ec50f52ce70fcd07caf"
 SRC_URI[archive.md5sum] = "e1e5cc17a0ed89c962002bb7bf6dd5a1"
