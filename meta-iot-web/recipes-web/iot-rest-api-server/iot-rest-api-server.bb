@@ -1,4 +1,4 @@
-DESCRIPTION = "IoT API Server for REST APIs."
+DESCRIPTION = "Server for IOT REST APIs."
 HOMEPAGE = "https://github.com/01org/iot-rest-api-server"
 LICENSE = "Apache-2.0"
 
@@ -8,7 +8,7 @@ DEPENDS = "nodejs-native iotivity iotivity-node"
 RDEPENDS_${PN} += "bash iot-app-fw-node-bindings iot-app-fw-launcher"
 
 SRC_URI = "git://git@github.com/01org/iot-rest-api-server.git;protocol=ssh"
-SRCREV = "48ce322aa5b1eb86565983438f95d37c9e314243"
+SRCREV = "b09ec613b749daf87fcf8fdcf1b15d14812c4c5b"
 
 S = "${WORKDIR}/git"
 

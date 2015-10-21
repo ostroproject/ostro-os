@@ -8,7 +8,7 @@ DEPENDS = "nodejs-native glib-2.0 iotivity"
 RDEPENDS_${PN} += "bash iotivity-resource"
 
 SRC_URI = "git://github.com/otcshare/iotivity-node.git;protocol=https"
-SRCREV = "357c4e454922f978b9ce1a356cc20f824d383fa3"
+SRCREV = "fd43385570ae89ad234e43984c2928066d800d6f"
 
 S = "${WORKDIR}/git"
 INSANE_SKIP_${PN} += "ldflags staticdev"
@@ -69,24 +69,24 @@ do_compile () {
 }
 
 do_install () {
-    install -d ${D}${libdir}/node_modules/iotivity/
-    install -m 0644 ${S}/AUTHORS.txt ${D}${libdir}/node_modules/iotivity/AUTHORS.txt
-    install -m 0644 ${S}/index.js ${D}${libdir}/node_modules/iotivity/index.js
-    install -m 0644 ${S}/lowlevel.js ${D}${libdir}/node_modules/iotivity/lowlevel.js
-    install -m 0644 ${S}/MIT-LICENSE.txt ${D}${libdir}/node_modules/iotivity/MIT-LICENSE.txt
-    install -m 0644 ${S}/README.md ${D}${libdir}/node_modules/iotivity/README.md
+    install -d ${D}${libdir}/node_modules/iotivity-node/
+    install -m 0644 ${S}/AUTHORS.txt ${D}${libdir}/node_modules/iotivity-node/AUTHORS.txt
+    install -m 0644 ${S}/index.js ${D}${libdir}/node_modules/iotivity-node/index.js
+    install -m 0644 ${S}/lowlevel.js ${D}${libdir}/node_modules/iotivity-node/lowlevel.js
+    install -m 0644 ${S}/MIT-LICENSE.txt ${D}${libdir}/node_modules/iotivity-node/MIT-LICENSE.txt
+    install -m 0644 ${S}/README.md ${D}${libdir}/node_modules/iotivity-node/README.md
 
-    cp -r ${S}/lib/ ${D}${libdir}/node_modules/iotivity/
-    cp -r ${S}/node_modules/ ${D}${libdir}/node_modules/iotivity/
+    cp -r ${S}/lib/ ${D}${libdir}/node_modules/iotivity-node/
+    cp -r ${S}/node_modules/ ${D}${libdir}/node_modules/iotivity-node/
 
     # removing the test suite as of now.
-    rm -rf ${D}${libdir}/node_modules/iotivity/node_modules/ffi/deps/libffi/testsuite/
+    rm -rf ${D}${libdir}/node_modules/iotivity-node/node_modules/ffi/deps/libffi/testsuite/
 
-    install -d ${D}${libdir}/node_modules/iotivity/build/Release/
-    install -m 0755 ${S}/build/Release/iotivity.node ${D}${libdir}/node_modules/iotivity/build/Release/
+    install -d ${D}${libdir}/node_modules/iotivity-node/build/Release/
+    install -m 0755 ${S}/build/Release/iotivity.node ${D}${libdir}/node_modules/iotivity-node/build/Release/
 }
 
-FILES_${PN} = "${libdir}/node_modules/iotivity/ \
+FILES_${PN} = "${libdir}/node_modules/iotivity-node/ \
 "
 
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
