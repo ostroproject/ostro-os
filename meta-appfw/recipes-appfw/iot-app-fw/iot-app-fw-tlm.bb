@@ -10,16 +10,13 @@ RDEPENDS_${PN} =+ "tlm"
 S="${WORKDIR}/"
 
 SRC_URI = "file://COPYING.MIT \
-           file://tlm-session.ini \
            file://tlm-launch \
           "
 
 do_install_append() {
-    install -D -m 755 ${S}tlm-session.ini ${D}/etc/session.d/tlm-session.ini
     install -D -m 755 ${S}tlm-launch ${D}/etc/session.d/tlm-launch
 }
 
 
-FILES_${PN}  = "/etc/session.d/tlm-session.ini"
 FILES_${PN} += "/etc/session.d/tlm-launch"
 

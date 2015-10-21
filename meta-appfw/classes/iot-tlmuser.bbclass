@@ -19,6 +19,7 @@ IOT_APP_TLM_SESSION_DIR = "/etc/session.d"
 export IOT_APP_SERVICE_FILE_PATH = "${IOT_APP_SERVICE_DIR}/${IOT_USER_NAME}-session.service"
 export IOT_APP_TLM_SESSION_FILE_PATH = "${IOT_APP_TLM_SESSION_DIR}/tlm-session.ini"
 export IOT_APP_PATH_FILE_PATH = "${IOT_APP_SERVICE_DIR}/${IOT_USER_NAME}-session.path"
+export IOT_APP_TLM_SESSION_INI_PATH = "${IOT_APP_TLM_SESSION_DIR}/tlm-launch"
 
 SYSTEMD_UNIT_NAME = "${IOT_USER_NAME}-session.service"
 SYSTEMD_PATH_UNIT_NAME = "${IOT_USER_NAME}-session.path"
@@ -27,7 +28,7 @@ pkg_postinst_${PN}_append () {
 #!/bin/sh -e
 if [ "x$D" != "x" ] ; then
    # use tlm-seatconf to add a new configuration into the tlm.conf file
-   SEAT=$(tlm-seatconf add -c $D/etc/tlm.conf -h 1 -i /var/lock/iotpm.ready "tlm-launcher -f ${IOT_APP_TLM_SESSION_FILE_PATH} -s %s")
+   SEAT=$(tlm-seatconf add -c $D/etc/tlm.conf "${IOT_APP_TLM_SESSION_INI_PATH} -s %s")
    bbdebug 1 "generated seat $SEAT for tlm session"
 
    if [ -n "$SEAT" ]; then
@@ -65,8 +66,10 @@ Requires=tlm.service iot-launch.socket
 WantedBy=multi-user.target
 
 [Service]
-Type=simple
-ExecStart=/usr/bin/tlm-client -k -l --seat seat_placeholder --username ${IOT_USER_NAME} --password automatic_login
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/tlm-client -l --seat seat_placeholder --username ${IOT_USER_NAME} --password automatic_login
+ExecStop=/usr/bin/tlm-client -o --seat seat_placeholder
 EOF
 
     cat > /tmp/${IOT_USER_NAME}-session.path << EOF
