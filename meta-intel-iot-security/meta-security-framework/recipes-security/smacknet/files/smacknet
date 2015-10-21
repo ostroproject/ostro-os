@@ -44,6 +44,11 @@ while true; do
   echo System Network::Local w > /sys/fs/smackfs/load2
   echo Network::Cloud System w > /sys/fs/smackfs/load2
   echo Network::Local System w > /sys/fs/smackfs/load2
+  
+  echo User Network::Cloud w > /sys/fs/smackfs/load2
+  echo User Network::Local w > /sys/fs/smackfs/load2
+  echo Network::Cloud User w > /sys/fs/smackfs/load2
+  echo Network::Local User w > /sys/fs/smackfs/load2
  fi
  sleep 300
 done
