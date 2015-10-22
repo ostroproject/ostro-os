@@ -1,1 +1,3 @@
 oeqa.runtime.smack
+oeqa.runtime.application_privilege
+oeqa.runtime.securitymanager
