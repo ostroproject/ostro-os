@@ -22,9 +22,7 @@ class IotivityJSAPITest(oeRuntimeTest):
     iotivity_js_apis_files = {
         'oic_device': 'test_oic_device.js',
         'oic_client': 'test_oic_client.js',
-        'oic_server': 'test_oic_server.js',
-        'oic_resource': 'test_oic_resource.js'
-
+        'oic_server': 'test_oic_server.js'
     }
 
 
@@ -648,7 +646,6 @@ class IotivityJSAPITest(oeRuntimeTest):
         if os.path.exists('%s.tar.gz' % cls.iotivity_js_apis_dir):
             os.remove('%s.tar.gz' % cls.iotivity_js_apis_dir)
         if os.path.exists(cls.nodeunit_zip) and not os.path.exists('/tmp/master.zip'):
-            #os.remove(cls.nodeunit_zip)
             os.system('mv -f %s /tmp/' % (cls.nodeunit_zip))
 
         cls.tc.target.run('rm -f %s.tar.gz' % cls.target_iotivity_js_apis_dir)
