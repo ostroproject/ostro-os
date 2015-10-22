@@ -1,3 +1,7 @@
+/*
+Copyright (C) 1996 Andries Brouwer <aeb@cwi.nl>
+and Copyright (C) 2006, 2007 Michael Kerrisk <mtk.manpages@gmail.com>
+*/
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
