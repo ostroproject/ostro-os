@@ -66,6 +66,7 @@ EXTRA_OECONF = "\
         --disable-docs \
         --disable-nss \
         --disable-system-lcms \
+        --enable-zero \
 	--disable-system-gtk \
 	\
 	--with-jdk-home=${WORKDIR}/fake-jdk \
