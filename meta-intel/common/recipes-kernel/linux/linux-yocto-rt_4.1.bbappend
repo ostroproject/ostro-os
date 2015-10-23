@@ -15,3 +15,11 @@ SRCREV_machine_corei7-64-intel-common = "f7e4bbfef684e29b1257eaf2d7f534b38e2e1b1
 KMACHINE_corei7-64-intel-common = "intel-corei7-64"
 KBRANCH_corei7-64-intel-common = "standard/preempt-rt/base"
 KERNEL_FEATURES_append_corei7-64-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}"
+
+LINUX_VERSION_i586-nlp-32-intel-common = "4.1.8"
+COMPATIBLE_MACHINE_i586-nlp-32-intel-common = "${MACHINE}"
+SRCREV_meta_i586-nlp-32-intel-common = "aed902160251d69cc28d1e69a4f692e8ea8fa13b"
+SRCREV_machine_i586-nlp-32-intel-common = "f7e4bbfef684e29b1257eaf2d7f534b38e2e1b1e"
+KMACHINE_i586-nlp-32-intel-common = "intel-corei7-64"
+KBRANCH_i586-nlp-32-intel-common = "standard/preempt-rt/base"
+KERNEL_FEATURES_append_i586-nlp-32-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}"
