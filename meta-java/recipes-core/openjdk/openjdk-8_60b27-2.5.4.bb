@@ -576,11 +576,13 @@ OEPATCHES = "\
 ICEDTEAPATCHES = "\       
         file://icedtea-fix-galileo-build.patch;apply=no \
         file://icedtea-fix-zero-mode-undefined-behaviour.patch;apply=no \
+        file://icedtea-fix-sdt-search-path.patch;apply=no \
         "
 
 DISTRIBUTION_PATCHES = "\
         patches/icedtea-fix-galileo-build.patch \
         patches/icedtea-fix-zero-mode-undefined-behaviour.patch \
+        patches/icedtea-fix-sdt-search-path.patch \
 	"
 
 export DISTRIBUTION_PATCHES
