@@ -82,6 +82,7 @@ OPENJDK_PATCHES = " \
 	file://icedtea-flags.patch;apply=no \
 	file://icedtea-openjdk-remove-currency-data-generation-expi.patch;apply=no \
 	file://icedtea-change-to-gdb-debug-format.patch;apply=no \
+        file://icedtea-fix-zero-mode-undefined-behaviour.patch;apply=no \
         "
 
 export DISTRIBUTION_PATCHES = " \
@@ -93,4 +94,5 @@ export DISTRIBUTION_PATCHES = " \
 	patches/icedtea-flags.patch \
 	patches/icedtea-openjdk-remove-currency-data-generation-expi.patch \
 	patches/icedtea-change-to-gdb-debug-format.patch \
+        patches/icedtea-fix-zero-mode-undefined-behaviour.patch \
         "
