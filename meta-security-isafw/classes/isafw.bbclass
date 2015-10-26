@@ -18,6 +18,8 @@ ISAFW_PLUGINS_BLACKLIST ?= ""
 do_analyse_sources[depends] += "cve-check-tool-native:do_populate_sysroot"
 do_analyse_sources[depends] += "rpm-native:do_populate_sysroot"
 do_analyse_sources[nostamp] = "1"
+do_analyse_sources[lockfiles] += "${WORKDIR}/unpack.lock"
+do_unpack[lockfiles] += "${WORKDIR}/unpack.lock"
 
 # First, code to handle scanning each recipe that goes into the build
 
