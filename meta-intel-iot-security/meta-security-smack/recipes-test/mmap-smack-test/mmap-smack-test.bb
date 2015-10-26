@@ -1,10 +1,9 @@
 SUMMARY = "Mmap binary used to test smack mmap attribute"
 DESCRIPTION = "Mmap binary used to test smack mmap attribute"
-LICENSE = "VERBATIM"
-LIC_FILES_CHKSUM = "file://LICENSE;md5=52d0f7188d92ede618092599653e0a63"
-NO_GENERIC_LICENSE[VERBATIM] = "1"
+LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
-SRC_URI = "file://mmap.c file://LICENSE" 
+SRC_URI = "file://mmap.c" 
 
 S = "${WORKDIR}"
 do_compile() {

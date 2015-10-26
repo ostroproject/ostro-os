@@ -423,6 +423,8 @@ class SmackEnforceMmap(SmackBasicTest):
     def test_smack_mmap_enforced(self):
         '''Test if smack mmap access is enforced'''
 
+        raise unittest.SkipTest("Depends on mmap_test, which was removed from the layer while investigating its license.")
+
         #      12345678901234567890123456789012345678901234567890123456
         delr1="mmap_label              mmap_test_label1        -----"
         delr2="mmap_label              mmap_test_label2        -----"
