@@ -28,7 +28,9 @@ class SmackBasicTest(oeRuntimeTest):
         self.smack_path = output
         self.files_dir = os.path.join( 
             os.path.abspath(os.path.dirname(__file__)), 'files')
-
+	self.uid = 1000
+	status,output = self.target.run("cat /proc/self/attr/current")
+	self.current_label = output.strip()
 
 class SmackAccessLabel(SmackBasicTest):
 
@@ -164,7 +166,8 @@ class SmackChangeSelfLabelUnprivilege(SmackBasicTest):
                 "/tmp/notroot.py")
 
         status, output = self.target.run(
-            "python /tmp/notroot.py %s %s" %(echo, LABEL) +
+            "python /tmp/notroot.py %d %s %s %s" 
+			%(self.uid, self.current_label, echo, LABEL) +
             " 2>&1 >/proc/self/attr/current " +
             "| grep 'Operation not permitted'" )
 
@@ -189,10 +192,10 @@ class SmackChangeFileLabelPrivilege(SmackBasicTest):
                 os.path.join(self.files_dir, 'notroot.py'), 
                 "/tmp/notroot.py")
 
-        self.target.run("python /tmp/notroot.py %s %s" %(touch, filename))
+        self.target.run("python /tmp/notroot.py %d %s %s %s" %(self.uid, self.current_label, touch, filename))
         status, output = self.target.run(
             "python /tmp/notroot.py " +
-            "%s -a %s %s 2>&1 " %(chsmack, LABEL, filename) +
+            "%d unprivileged %s -a %s %s 2>&1 " %(self.uid, chsmack, LABEL, filename) +
             "| grep 'Operation not permitted'"  )
 
         self.target.run("rm %s" %filename)
@@ -423,8 +426,6 @@ class SmackEnforceMmap(SmackBasicTest):
     def test_smack_mmap_enforced(self):
         '''Test if smack mmap access is enforced'''
 
-        raise unittest.SkipTest("Depends on mmap_test, which was removed from the layer while investigating its license.")
-
         #      12345678901234567890123456789012345678901234567890123456
         delr1="mmap_label              mmap_test_label1        -----"
         delr2="mmap_label              mmap_test_label2        -----"
@@ -448,7 +449,7 @@ class SmackEnforceMmap(SmackBasicTest):
                 os.path.join(self.files_dir, 'notroot.py'),
                 "/tmp/notroot.py")
         status, output = self.target.run(
-            "python /tmp/notroot.py %s 'test' > %s" %(echo, test_file))
+            "python /tmp/notroot.py %d %s %s 'test' > %s" %(self.uid, self.current_label, echo, test_file))
         status, output = self.target.run("ls %s" %test_file)
         self.assertEqual(status, 0, "Could not create mmap test file")
         self.target.run("chsmack -m %s %s" %(file_label, test_file))
