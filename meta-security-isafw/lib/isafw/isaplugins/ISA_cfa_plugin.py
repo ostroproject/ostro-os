@@ -37,7 +37,7 @@ from lxml import etree
 CFChecker = None
 full_report = "/cfa_full_report_"
 problems_report = "/cfa_problems_report_"
-log = "/internal/isafw_cfalog"
+log = "/isafw_cfalog"
 
 class ISA_CFChecker():    
     initialized = False
@@ -49,31 +49,32 @@ class ISA_CFChecker():
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
         self.reportdir = ISA_config.reportdir
+        self.logdir = ISA_config.logdir
         self.timestamp = ISA_config.timestamp
         # check that checksec is installed
         rc = subprocess.call(["which", "checksec.sh"])
         if rc == 0:
             self.initialized = True
             print("Plugin ISA_CFChecker initialized!")
-            with open(self.reportdir + log, 'w') as flog:
+            with open(self.logdir + log, 'w') as flog:
                 flog.write("\nPlugin ISA_CFChecker initialized!\n")
         else:
             print("checksec tool is missing!")
             print("Please install it from http://www.trapkit.de/tools/checksec.html")
-            with open(self.reportdir + log, 'w') as flog:
+            with open(self.logdir + log, 'w') as flog:
                 flog.write("checksec tool is missing!\n")
                 flog.write("Please install it from http://www.trapkit.de/tools/checksec.html\n")
 
     def process_filesystem(self, ISA_filesystem):
         if (self.initialized == True):
             if (ISA_filesystem.img_name and ISA_filesystem.path_to_fs):
-                with open(self.reportdir + log, 'a') as flog:
+                with open(self.logdir + log, 'a') as flog:
                     flog.write("\n\nFilesystem path is: " + ISA_filesystem.path_to_fs)
                 with open(self.reportdir + full_report + ISA_filesystem.img_name + "_" + self.timestamp, 'w') as ffull_report:
                     ffull_report.write("Security-relevant flags for executables for image: " + ISA_filesystem.img_name + '\n')
                     ffull_report.write("With rootfs location at " +  ISA_filesystem.path_to_fs + "\n\n")
                 self.files = self.find_files(ISA_filesystem.path_to_fs)
-                with open(self.reportdir + log, 'a') as flog:
+                with open(self.logdir + log, 'a') as flog:
                     flog.write("\n\nFile list is: " + str(self.files))
                 self.process_files(ISA_filesystem.img_name, ISA_filesystem.path_to_fs)
                 self.write_report(ISA_filesystem)
@@ -81,12 +82,12 @@ class ISA_CFChecker():
             else:
                 print("Mandatory arguments such as image name and path to the filesystem are not provided!")
                 print("Not performing the call.")
-                with open(self.reportdir + log, 'a') as flog:
+                with open(self.logdir + log, 'a') as flog:
                     flog.write("Mandatory arguments such as image name and path to the filesystem are not provided!\n")
                     flog.write("Not performing the call.\n")
         else:
             print("Plugin hasn't initialized! Not performing the call.")
-            with open(self.reportdir + log, 'a') as flog:
+            with open(self.logdir + log, 'a') as flog:
                 flog.write("Plugin hasn't initialized! Not performing the call.\n")
 
     def write_report(self, ISA_filesystem):
@@ -198,7 +199,7 @@ class ISA_CFChecker():
                     result = subprocess.check_output(cmd).decode("utf-8")
                 except:
                     print("Not able to decode mime type", sys.exc_info())
-                    with open(self.reportdir + log, 'a') as flog:
+                    with open(self.logdir + log, 'a') as flog:
                         flog.write("Not able to decode mime type" + sys.exc_info())
                     continue
                 type = result.split()[-1]
@@ -210,7 +211,7 @@ class ISA_CFChecker():
                         result = subprocess.check_output(cmd).decode("utf-8")
                     except:
                         print("Not able to decode mime type", sys.exc_info())
-                        with open(self.reportdir + log, 'a') as flog:
+                        with open(self.logdir + log, 'a') as flog:
                             flog.write("Not able to decode mime type" + sys.exc_info())
                         continue
                     type = result.split()[-1]

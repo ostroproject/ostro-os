@@ -11,6 +11,7 @@ LICENSE = "MIT"
 
 ISAFW_WORKDIR = "${WORKDIR}/isafw"
 ISAFW_REPORTDIR ?= "${LOG_DIR}/isafw-report"
+ISAFW_LOGDIR ?= "${LOG_DIR}/isafw-logs"
 
 ISAFW_PLUGINS_WHITELIST ?= ""
 ISAFW_PLUGINS_BLACKLIST ?= ""
@@ -38,6 +39,9 @@ python do_analyse_sources() {
 
     isafw_config.timestamp = d.getVar('DATETIME', True)
     isafw_config.reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + isafw_config.timestamp
+    if not os.path.exists(os.path.dirname(isafw_config.reportdir + "/test")):
+        os.makedirs(os.path.dirname(isafw_config.reportdir + "/test"))
+    isafw_config.logdir = d.getVar('ISAFW_LOGDIR', True)
 
     whitelist = d.getVar('ISAFW_PLUGINS_WHITELIST', True)
     blacklist = d.getVar('ISAFW_PLUGINS_BLACKLIST', True)
@@ -124,6 +128,9 @@ python analyse_image() {
 
     isafw_config.timestamp = d.getVar('DATETIME', True)
     isafw_config.reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + isafw_config.timestamp
+    if not os.path.exists(os.path.dirname(isafw_config.reportdir + "/test")):
+        os.makedirs(os.path.dirname(isafw_config.reportdir + "/test"))
+    isafw_config.logdir = d.getVar('ISAFW_LOGDIR', True)
 
     isafw_config.proxy = d.getVar('HTTP_PROXY', True)
     if not isafw_config.proxy :
@@ -172,10 +179,9 @@ def manifest2pkglist(d):
 
     manifest_file = d.getVar('IMAGE_MANIFEST', True)
     imagebasename = d.getVar('IMAGE_BASENAME', True)
-    timestamp = d.getVar('DATETIME', True)
-    reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + timestamp
+    logdir = d.getVar('ISAFW_LOGDIR', True)
 
-    pkglist = reportdir + "/internal/pkglist_" + imagebasename
+    pkglist = logdir + "/pkglist_" + imagebasename
 
     with open(pkglist, 'w') as foutput:
         with open(manifest_file, 'r') as finput:
@@ -197,16 +203,16 @@ IMAGE_POSTPROCESS_COMMAND += " analyse_image ; "
 # aware that what you'll be looking at isn't exactly what you will see in the image
 # at runtime (there will be other postprocessing functions called after yours).
 
-# this will be run once per build in order to initialize and cleanup report dir
 python isafwreport_handler () {
 
     import shutil
 
-    timestamp = d.getVar('DATETIME', True)
-    reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + timestamp
-    os.makedirs(os.path.dirname(reportdir+"/internal/test"))
-}
+    logdir = d.getVar('ISAFW_LOGDIR', True)
+    if os.path.exists(os.path.dirname(logdir+"/test")):
+        shutil.rmtree(logdir)
+    os.makedirs(os.path.dirname(logdir+"/test"))
 
+}
 addhandler isafwreport_handler
 isafwreport_handler[eventmask] = "bb.event.BuildStarted"
 
