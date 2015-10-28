@@ -1,0 +1,13 @@
+diff --git a/SConstruct b/SConstruct
+index 0ebc436..aa537f8 100644
+--- a/SConstruct
++++ b/SConstruct
+@@ -63,7 +63,7 @@ if target_os not in ['arduino','darwin','ios', 'android']:
+ SConscript(build_dir + 'service/SConscript')
+ 
+ # Build "plugin interface" sub-project
+-SConscript(build_dir + 'plugins/SConscript')
++# SConscript(build_dir + 'plugins/SConscript')
+ 
+ # Append targets information to the help information, to see help info, execute command line:
+ #     $ scon [options] -h

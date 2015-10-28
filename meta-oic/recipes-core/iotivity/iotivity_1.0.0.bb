@@ -1,19 +1,22 @@
 SUMMARY = "Iotivity framework and SDK by the Open Interconnect Consortium."
 DESCRIPTION = "IoTivity is an open source software framework enabling seamless device-to-device connectivity to address the emerging needs of the Internet of Things."
 HOMEPAGE = "https://www.iotivity.org/"
-DEPENDS = "boost virtual/gettext chrpath-replacement-native expat openssl util-linux curl"
+DEPENDS = "boost virtual/gettext chrpath-replacement-native expat openssl util-linux curl glib-2.0"
 EXTRANATIVEPATH += "chrpath-native"
 SECTION = "libs"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://resource/include/OCApi.h;beginline=1;endline=19;md5=fc5a615cf1dc3880967127bc853b3e0c"
-SRC_URI = "https://downloads.iotivity.org/0.9.2/iotivity-0.9.2.tar.gz;name=iotivity \
-           git://github.com/01org/tinycbor.git;protocol=https;name=cbor;destsuffix=iotivity-0.9.2/extlibs/tinycbor/tinycbor \
+SRC_URI = "https://mirrors.kernel.org/iotivity/1.0.0/iotivity-1.0.0.tar.gz;name=iotivity \
+           git://github.com/01org/tinycbor.git;protocol=https;name=cbor;destsuffix=iotivity-1.0.0/extlibs/tinycbor/tinycbor \
            https://googletest.googlecode.com/files/gtest-1.7.0.zip;name=gtest \
            https://github.com/dascandy/hippomocks/archive/2f40aa11e31499432283b67f9d3449a3cd7b9c4d.zip \
            file://arch.patch;patch=1 \
+           file://pkgconf.patch;patch=1 \
+           file://zigbeepluginignore.patch;patch=1 \
+           file://hippomocks_mips_patch \
           "	  
-SRC_URI[iotivity.md5sum] = "cf32e10a8f355fe1327db98ffc9a6173"
-SRC_URI[iotivity.sha256sum] = "abe078cc75f2094fe21266aedbc7a890625635d1db289a4a99947b6e4ffdf21a"
+SRC_URI[iotivity.md5sum] = "4bcbabffc1734c664bbdf8fedfa60543"
+SRC_URI[iotivity.sha256sum] = "e85c5b730193707c2d96332954b29136eaf71966d459ea030ffc26b2622145c8"
 SRCREV_cbor = "47a78569c082905572c7a7c12b5ddbc8248b46e0"
 SRC_URI[gtest.md5sum] = "2d6ec8ccdf5c46b05ba54a9fd1d130d7"
 SRC_URI[gtest.sha256sum] = "247ca18dd83f53deb1328be17e4b1be31514cedfc1e3424f672bf11fd7e0d60d"
@@ -24,7 +27,7 @@ inherit scons
 
 python () {
     IOTIVITY_TARGET_ARCH = d.getVar("TARGET_ARCH", True)
-    EXTRA_OESCONS = "TARGET_OS=yocto TARGET_ARCH=" + IOTIVITY_TARGET_ARCH + " RELEASE=1"
+    EXTRA_OESCONS = "TARGET_OS=yocto TARGET_ARCH=" + IOTIVITY_TARGET_ARCH + " RELEASE=1 WITH_RD=1 ROUTING=GW"
     d.setVar("EXTRA_OESCONS", EXTRA_OESCONS)
     d.setVar("IOTIVITY_TARGET_ARCH", IOTIVITY_TARGET_ARCH)
 }
@@ -38,6 +41,9 @@ do_compile_prepend() {
     fi
     if [ ! -d "${S}/extlibs/hippomocks-master/" ]; then        
         mv ${WORKDIR}/hippomocks-2f40aa11e31499432283b67f9d3449a3cd7b9c4d ${S}/extlibs/hippomocks-master
+    fi
+    if cd ${S} && patch -p1 --dry-run < ${WORKDIR}/hippomocks_mips_patch; then
+        cd ${S} && patch -p1 < ${WORKDIR}/hippomocks_mips_patch
     fi
 }
 
@@ -80,8 +86,9 @@ do_install() {
     copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libcoap.a ${D}${libdir} 
     copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/liboctbstack.a ${D}${libdir}
     copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libc_common.a ${D}${libdir}     
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libocsrm.a ${D}${libdir}     
-
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libocsrm.a ${D}${libdir}
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libroutingmanager.a ${D}${libdir}     
+    
     #Resource C++ Apps
     make_dir ${IOTIVITY_BIN_DIR_D}/examples/resource/cpp
     copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/examples/oic_svr_db_client.json ${IOTIVITY_BIN_DIR_D}/examples/resource/cpp
@@ -103,8 +110,6 @@ do_install() {
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/examples/simpleserverHQ ${IOTIVITY_BIN_DIR_D}/examples/resource/cpp  
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/examples/devicediscoveryserver ${IOTIVITY_BIN_DIR_D}/examples/resource/cpp  
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/examples/devicediscoveryclient ${IOTIVITY_BIN_DIR_D}/examples/resource/cpp  
-    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/examples/groupserver ${IOTIVITY_BIN_DIR_D}/examples/resource/cpp  
-    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/examples/groupclient ${IOTIVITY_BIN_DIR_D}/examples/resource/cpp  
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/examples/threadingsample ${IOTIVITY_BIN_DIR_D}/examples/resource/cpp  
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/examples/lightserver ${IOTIVITY_BIN_DIR_D}/examples/resource/cpp
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/examples/OICMiddle/OICMiddle ${IOTIVITY_BIN_DIR_D}/examples/resource/cpp   
@@ -113,6 +118,7 @@ do_install() {
     #Resource CSDK Apps
     make_dir ${IOTIVITY_BIN_DIR_D}/examples/resource/c/SimpleClientServer
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/csdk/stack/samples/linux/SimpleClientServer/occlientcoll ${IOTIVITY_BIN_DIR_D}/examples/resource/c/SimpleClientServer
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/csdk/stack/samples/linux/SimpleClientServer/ocrouting ${IOTIVITY_BIN_DIR_D}/examples/resource/c/SimpleClientServer    
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/csdk/stack/samples/linux/SimpleClientServer/ocserver ${IOTIVITY_BIN_DIR_D}/examples/resource/c/SimpleClientServer
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/csdk/stack/samples/linux/SimpleClientServer/ocserverbasicops ${IOTIVITY_BIN_DIR_D}/examples/resource/c/SimpleClientServer
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/csdk/stack/samples/linux/SimpleClientServer/occlientslow ${IOTIVITY_BIN_DIR_D}/examples/resource/c/SimpleClientServer
@@ -123,25 +129,29 @@ do_install() {
     chrpath -d ${IOTIVITY_BIN_DIR_D}/examples/resource/c/SimpleClientServer/*
 
     make_dir ${IOTIVITY_BIN_DIR_D}/examples/resource/c/secure
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/csdk/stack/samples/linux/secure/ocamsservice ${IOTIVITY_BIN_DIR_D}/examples/resource/c/secure    
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/csdk/stack/samples/linux/secure/ocserverbasicops ${IOTIVITY_BIN_DIR_D}/examples/resource/c/secure
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/csdk/stack/samples/linux/secure/occlientbasicops ${IOTIVITY_BIN_DIR_D}/examples/resource/c/secure
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/examples/oic_svr_db_client.json ${IOTIVITY_BIN_DIR_D}/examples/resource/c/secure
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/examples/oic_svr_db_server.json ${IOTIVITY_BIN_DIR_D}/examples/resource/c/secure     
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/csdk/stack/samples/linux/secure/oic_svr_db_client.json ${IOTIVITY_BIN_DIR_D}/examples/resource/c/secure
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/csdk/stack/samples/linux/secure/oic_svr_db_server.json ${IOTIVITY_BIN_DIR_D}/examples/resource/c/secure
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/csdk/stack/samples/linux/secure/oic_amss_db.json ${IOTIVITY_BIN_DIR_D}/examples/resource/c/secure
     chrpath -d `find ${IOTIVITY_BIN_DIR_D}/examples/resource/c/secure/ -type f | grep -v ".json"`
     
     #Resource Tests
     make_dir ${IOTIVITY_BIN_DIR_D}/tests/resource    
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/csdk/ocrandom/test/randomtests ${IOTIVITY_BIN_DIR_D}/tests/resource/ocrandom_tests
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/unittests/unittests ${IOTIVITY_BIN_DIR_D}/tests/resource/oc_unittests
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/unittests/oic_svr_db_client.json ${IOTIVITY_BIN_DIR_D}/tests/resource    
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/csdk/stack/test/stacktests ${IOTIVITY_BIN_DIR_D}/tests/resource/octbstack_tests
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/csdk/connectivity/test/catests ${IOTIVITY_BIN_DIR_D}/tests/resource/ca_tests
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/oc_logger/examples/examples_cpp ${IOTIVITY_BIN_DIR_D}/tests/resource/logger_test_cpp
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/oc_logger/examples/examples_c ${IOTIVITY_BIN_DIR_D}/tests/resource/logger_test_c
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/resource/csdk/security/unittest/unittest ${IOTIVITY_BIN_DIR_D}/tests/resource/security_tests
     copy_file ${S}/extlibs/gtest/gtest-1.7.0/lib/.libs/libgtest.so ${D}${libdir}
-    copy_file ${S}/extlibs/gtest/gtest-1.7.0/lib/.libs/libgtest_main.so ${D}${libdir}
-    chrpath -d ${IOTIVITY_BIN_DIR_D}/tests/resource/*
+    copy_file ${S}/extlibs/gtest/gtest-1.7.0/lib/.libs/libgtest_main.so ${D}${libdir}    
     chrpath -d ${D}${libdir}/libgtest.so
     chrpath -d ${D}${libdir}/libgtest_main.so
+    chrpath -d `find ${IOTIVITY_BIN_DIR_D}/tests/resource/ -type f | grep -v ".json"`    
 
     #Resource headers
     make_dir ${D}${includedir}/iotivity/resource/stack/
@@ -157,7 +167,6 @@ do_install() {
     copy_file_recursive ${S}/resource/csdk/stack/include ${D}${includedir}/iotivity/resource/stack
     copy_file_recursive ${S}/resource/csdk/logger/include  ${D}${includedir}/iotivity/resource/logger
     copy_file_recursive ${S}/resource/csdk/connectivity/inc  ${D}${includedir}/iotivity/resource/connectivity
-    copy_file_recursive ${S}/resource/csdk/connectivity/external/inc ${D}${includedir}/iotivity/resource/connectivity/external
     copy_file_recursive ${S}/resource/csdk/connectivity/api ${D}${includedir}/iotivity/resource/connectivity/api
     copy_file_recursive ${S}/resource/csdk/connectivity/common/inc ${D}${includedir}/iotivity/resource/connectivity/common
     copy_file_recursive ${S}/resource/csdk/security/include  ${D}${includedir}/iotivity/resource/security
@@ -166,96 +175,113 @@ do_install() {
     copy_file ${S}/resource/c_common/oic_string/include/oic_string.h ${D}${includedir}/iotivity/resource
     copy_file ${S}/resource/c_common/oic_malloc/include/oic_malloc.h ${D}${includedir}/iotivity/resource
 
-    #Service Components
-    #Resource Encapsulation Framework
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/librcs_common.so ${D}${libdir}
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/librcs_server.so ${D}${libdir}
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/librcs_container.so ${D}${libdir}
+    #Service Components        
+    #Resource container
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/librcs_container.so ${D}${libdir}    
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/librcs_container.a ${D}${libdir}    
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libBMISensorBundle.so ${D}${libdir}
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libDISensorBundle.so ${D}${libdir}
     copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libHueBundle.so ${D}${libdir}
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libSoftSensorBundle.so ${D}${libdir}
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/librcs_client.a ${D}${libdir}
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/librcs_server.a ${D}${libdir}
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/librcs_container.a ${D}${libdir}
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/librcs_common.a ${D}${libdir}    
 
-    #Resource Encapsulation Apps
-    make_dir ${IOTIVITY_BIN_DIR_D}/examples/service/resource-encapsulation/resource-container
+    #Resource container sample apps
+    make_dir ${IOTIVITY_BIN_DIR_D}/examples/service/resource-container/
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-container/HeightSensorApp ${IOTIVITY_BIN_DIR_D}/examples/service/resource-container/
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-container/THSensorApp ${IOTIVITY_BIN_DIR_D}/examples/service/resource-container/
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-container/THSensorApp1 ${IOTIVITY_BIN_DIR_D}/examples/service/resource-container/
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-container/WeightSensorApp ${IOTIVITY_BIN_DIR_D}/examples/service/resource-container/
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-container/ContainerSample ${IOTIVITY_BIN_DIR_D}/examples/service/resource-container/
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-container/ContainerSampleClient ${IOTIVITY_BIN_DIR_D}/examples/service/resource-container/
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-container/examples/ResourceContainerConfig.xml ${IOTIVITY_BIN_DIR_D}/examples/service/resource-container/
+
+    #Resource container tests
+    make_dir ${IOTIVITY_BIN_DIR_D}/tests/service/resource-container
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-container/unittests/container_test ${IOTIVITY_BIN_DIR_D}/tests/service/resource-container
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-container/unittests/libTestBundle.so ${IOTIVITY_BIN_DIR_D}/tests/service/resource-container
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-container/unittests/ResourceContainerInvalidConfig.xml ${IOTIVITY_BIN_DIR_D}/tests/service/resource-container
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-container/unittests/ResourceContainerTestConfig.xml ${IOTIVITY_BIN_DIR_D}/tests/service/resource-container
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-container/unittests/libTestBundle.so ${D}${libdir}
+
+    #Resource encapsulation
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/librcs_client.so ${D}${libdir}
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/librcs_client.a ${D}${libdir}
+
+    #Resource encapsulation common
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/librcs_common.so ${D}${libdir}
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/librcs_common.a ${D}${libdir}
+
+    #Resource encapsulation server builder
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/librcs_server.so ${D}${libdir}
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/librcs_server.a ${D}${libdir}    
+
+    #Resource encapsulation sample apps
+    make_dir ${IOTIVITY_BIN_DIR_D}/examples/service/resource-encapsulation
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/sampleResourceClient ${IOTIVITY_BIN_DIR_D}/examples/service/resource-encapsulation
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/sampleResourceServer ${IOTIVITY_BIN_DIR_D}/examples/service/resource-encapsulation
-    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-encapsulation/src/resourceContainer/ContainerSampleClient ${IOTIVITY_BIN_DIR_D}/examples/service/resource-encapsulation/resource-container
-    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-encapsulation/src/resourceContainer/ContainerSample ${IOTIVITY_BIN_DIR_D}/examples/service/resource-encapsulation/resource-container   
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/nestedAttributeClient ${IOTIVITY_BIN_DIR_D}/examples/service/resource-encapsulation
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/nestedAttributeServer ${IOTIVITY_BIN_DIR_D}/examples/service/resource-encapsulation    
 
-    #Resource Encapsulation Tests
+    #Resource encapsulation test
     make_dir ${IOTIVITY_BIN_DIR_D}/tests/service/resource-encapsulation/resource-broker
     make_dir ${IOTIVITY_BIN_DIR_D}/tests/service/resource-encapsulation/resource-cache
     make_dir ${IOTIVITY_BIN_DIR_D}/tests/service/resource-encapsulation/common
     make_dir ${IOTIVITY_BIN_DIR_D}/tests/service/resource-encapsulation/server-builder
-    make_dir ${IOTIVITY_BIN_DIR_D}/tests/service/resource-encapsulation/resource-container    
-    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-encapsulation/unittests/ResourceClientTest ${IOTIVITY_BIN_DIR_D}/examples/service/resource-encapsulation
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-encapsulation/unittests/rcs_client_test ${IOTIVITY_BIN_DIR_D}/tests/service/resource-encapsulation    
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-encapsulation/src/resourceBroker/unittest/broker_test ${IOTIVITY_BIN_DIR_D}/examples/service/resource-encapsulation/resource-broker
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-encapsulation/src/resourceCache/unittests/cache_test ${IOTIVITY_BIN_DIR_D}/examples/service/resource-encapsulation/resource-cache
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-encapsulation/src/common/rcs_common_test ${IOTIVITY_BIN_DIR_D}/examples/service/resource-encapsulation/common
     copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-encapsulation/src/serverBuilder/rcs_server_test ${IOTIVITY_BIN_DIR_D}/examples/service/resource-encapsulation/server-builder
-    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-encapsulation/src/resourceContainer/unittests/container_test ${IOTIVITY_BIN_DIR_D}/examples/service/resource-encapsulation/resource-container
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libTestBundle.so ${D}${libdir}     
 
-    #Things Manager Framework
+    #Resource hosting
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libresource_hosting.a ${D}${libdir}
+
+    #Resource hosting sample app
+    make_dir ${IOTIVITY_BIN_DIR_D}/examples/service/resource-hosting
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-hosting/SampleApp/linux/sampleconsumer ${IOTIVITY_BIN_DIR_D}/examples/service/resource-hosting
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-hosting/SampleApp/linux/sampleprovider ${IOTIVITY_BIN_DIR_D}/examples/service/resource-hosting
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-hosting/SampleApp/linux/sampleresourcehosting ${IOTIVITY_BIN_DIR_D}/examples/service/resource-hosting
+
+    #Things manager
     copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libTGMSDKLibrary.so ${D}${libdir} 
     copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libTGMSDKLibrary.a ${D}${libdir} 
 
-    #Things Manager Apps
+    #Things manager apps
     make_dir ${IOTIVITY_BIN_DIR_D}/examples/service/things-manager/configuration
     copy_exec_recursive ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/things-manager/sampleapp/linux/configuration ${IOTIVITY_BIN_DIR_D}/examples/service/things-manager/configuration
     
     make_dir ${IOTIVITY_BIN_DIR_D}/examples/service/things-manager/groupaction
     copy_exec_recursive ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/things-manager/sampleapp/linux/groupaction ${IOTIVITY_BIN_DIR_D}/examples/service/things-manager/groupaction
-    make_dir ${IOTIVITY_BIN_DIR_D}/examples/service/things-manager/groupsyncaction
-    copy_exec_recursive ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/things-manager/sampleapp/linux/groupsyncaction ${IOTIVITY_BIN_DIR_D}/examples/service/things-manager/groupsyncaction
 
-    #Notification Manager Framework
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/notification-manager/libNotificationManager.a ${D}${libdir} 
+    #Things manager test
+    make_dir ${IOTIVITY_BIN_DIR_D}/tests/service/things-manager
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/things-manager/unittests/ThingsManagerTest ${IOTIVITY_BIN_DIR_D}/tests/service/things-manager
 
-    #Notification Manager Apps
-    make_dir ${IOTIVITY_BIN_DIR_D}/examples/service/notification-manager/
-    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/notification-manager/SampleApp/linux/notificationmanager ${IOTIVITY_BIN_DIR_D}/examples/service/notification-manager
-    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/notification-manager/SampleApp/linux/sampleconsumer ${IOTIVITY_BIN_DIR_D}/examples/service/notification-manager
-    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/notification-manager/SampleApp/linux/sampleprovider ${IOTIVITY_BIN_DIR_D}/examples/service/notification-manager
+    #Resource directory
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libresource_directory.a ${D}${libdir} 
 
-    #Soft Sensor Manager Core
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libSSMCore.so ${D}${libdir} 
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/soft-sensor-manager/libSSMSDK.a ${D}${libdir} 
+    #Resource directory samples
+    make_dir ${IOTIVITY_BIN_DIR_D}/examples/service/resource-directory
+    copy_exec_recursive ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/resource-directory/samples ${IOTIVITY_BIN_DIR_D}/examples/service/resource-directory
+    chrpath -d ${IOTIVITY_BIN_DIR_D}/examples/service/resource-directory/*
 
-    #Soft Sensor Plugins
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libBMISensor.so ${D}${libdir}
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libDiscomfortIndexSensor.so ${D}${libdir}
-
-    #Soft Sensor Manager Apps
-    make_dir ${IOTIVITY_BIN_DIR_D}/examples/service/soft-sensor-manager/
-    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/soft-sensor-manager/HeightSensorApp ${IOTIVITY_BIN_DIR_D}/examples/service/soft-sensor-manager
-    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/soft-sensor-manager/SSMTesterApp ${IOTIVITY_BIN_DIR_D}/examples/service/soft-sensor-manager
-    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/soft-sensor-manager/SoftSensorDescription.xml ${IOTIVITY_BIN_DIR_D}/examples/service/soft-sensor-manager
-    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/soft-sensor-manager/THSensorApp ${IOTIVITY_BIN_DIR_D}/examples/service/soft-sensor-manager
-    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/soft-sensor-manager/THSensorApp1 ${IOTIVITY_BIN_DIR_D}/examples/service/soft-sensor-manager
-    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/service/soft-sensor-manager/WeightSensorApp ${IOTIVITY_BIN_DIR_D}/examples/service/soft-sensor-manager
+    #Easy setup
+    copy_file ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/libESSDKLibrary.so ${D}${libdir}
+    chrpath -d ${D}${libdir}/*.so
+    
+    #Easy setup app
+    make_dir ${IOTIVITY_BIN_DIR_D}/examples/service/easy-setup    
+    copy_exec ${S}/out/yocto/${IOTIVITY_TARGET_ARCH}/release/mediator ${IOTIVITY_BIN_DIR_D}/examples/service/easy-setup
 
     #Service Headers
-    make_dir ${D}${includedir}/iotivity/service/soft-sensor-manager
-    make_dir ${D}${includedir}/iotivity/service/notification-manager/
-    make_dir ${D}${includedir}/iotivity/service/things-manager/
+    make_dir ${D}${includedir}/iotivity/service/resource-container/
     make_dir ${D}${includedir}/iotivity/service/resource-encapsulation/   
+    make_dir ${D}${includedir}/iotivity/service/resource-hosting/
+    make_dir ${D}${includedir}/iotivity/service/resource-directory/        
+    make_dir ${D}${includedir}/iotivity/service/things-manager/
+    make_dir ${D}${includedir}/iotivity/service/easy-setup/    
 
-    #Soft Sensor Manager
-    copy_file_recursive ${S}/service/soft-sensor-manager/SSMCore/include ${D}${includedir}/iotivity/service/soft-sensor-manager
-    copy_file_recursive ${S}/service/soft-sensor-manager/SDK/cpp/include  ${D}${includedir}/iotivity/service/soft-sensor-manager
-    copy_file_recursive ${S}/service/soft-sensor-manager/SSMCore/src/Common ${D}${includedir}/iotivity/service/soft-sensor-manager
-    copy_file_recursive ${S}/service/soft-sensor-manager/SSMCore/src/SSMInterface  ${D}${includedir}/iotivity/service/soft-sensor-manager
-    copy_file_recursive ${S}/service/soft-sensor-manager/SSMCore/src/QueryProcessor ${D}${includedir}/iotivity/service/soft-sensor-manager
-    copy_file_recursive ${S}/service/soft-sensor-manager/SSMCore/src/SensorProcessor ${D}${includedir}/iotivity/service/soft-sensor-manager
-
-    #Notification Manager
-    copy_file_recursive ${S}/service/notification-manager/NotificationManager/include ${D}${includedir}/iotivity/service/notification-manager
-    copy_file_recursive ${S}/service/things-manager/sdk/inc ${D}${includedir}/iotivity/service/things-manager
-
+    #Resource container
+    copy_file_recursive ${S}/service/resource-container/include ${D}${includedir}/iotivity/service/resource-container
+    
     #Resource Encapsulation 
     copy_file_recursive ${S}/service/resource-encapsulation/include ${D}${includedir}/iotivity/service/resource-encapsulation
     copy_file_recursive ${S}/service/resource-encapsulation/src/common/expiryTimer/include ${D}${includedir}/iotivity/service/resource-encapsulation
@@ -263,15 +289,28 @@ do_install() {
     copy_file_recursive ${S}/service/resource-encapsulation/src/common/utils/include ${D}${includedir}/iotivity/service/resource-encapsulation
     copy_file_recursive ${S}/service/resource-encapsulation/src/resourceBroker/include ${D}${includedir}/iotivity/service/resource-encapsulation
     copy_file_recursive ${S}/service/resource-encapsulation/src/resourceCache/include ${D}${includedir}/iotivity/service/resource-encapsulation
-    copy_file_recursive ${S}/service/resource-encapsulation/src/resourceContainer/bundle-api/include ${D}${includedir}/iotivity/service/resource-encapsulation
-    copy_file_recursive ${S}/service/resource-encapsulation/src/resourceContainer/include ${D}${includedir}/iotivity/service/resource-encapsulation
     copy_file_recursive ${S}/service/resource-encapsulation/src/serverBuilder/include ${D}${includedir}/iotivity/service/resource-encapsulation
+
+    #Resource hosting
+    copy_file_recursive ${S}/service/resource-hosting/include ${D}${includedir}/iotivity/service/resource-hosting
+
+    #Resource directory
+    copy_file_recursive ${S}/service/resource-directory/include ${D}${includedir}/iotivity/service/resource-directory
+
+    #Things manager
+    copy_file_recursive ${S}/service/things-manager/sdk/inc ${D}${includedir}/iotivity/service/things-manager
+
+    #Easy setup
+    copy_file_recursive ${S}/service/easy-setup/sdk/common ${D}${includedir}/iotivity/service/easy-setup
+    copy_file_recursive ${S}/service/easy-setup/sdk/enrollee/api ${D}${includedir}/iotivity/service/easy-setup
+    copy_file_recursive ${S}/service/easy-setup/sdk/enrollee/inc ${D}${includedir}/iotivity/service/easy-setup
 
     #Misc headers
     make_dir ${D}${includedir}/iotivity/extlibs/cjson
     make_dir ${D}${includedir}/iotivity/extlibs/timer
     copy_file_recursive ${S}/extlibs/cjson/ ${D}${includedir}/iotivity/extlibs/cjson
     copy_file_recursive ${S}/extlibs/timer/ ${D}${includedir}/iotivity/extlibs/timer
+    copy_file ${S}/resource/c_common/platform_features.h ${D}${includedir}/iotivity/resource
 }
 
 #IOTIVITY packages:
@@ -290,7 +329,8 @@ FILES_iotivity-resource-thin-staticdev = "\
                         ${libdir}/libconnectivity_abstraction.a \
                         ${libdir}/liboctbstack.a \
                         ${libdir}/libcoap.a \
-                        ${libdir}/libc_common.a"
+                        ${libdir}/libc_common.a \
+                        ${libdir}/libroutingmanager.a"
 
 FILES_iotivity-resource = "\
                         ${libdir}/liboc.so \
@@ -302,6 +342,7 @@ FILES_iotivity-resource-dbg = "\
                         ${prefix}/src/debug/${PN}/${EXTENDPE}${PV}-${PR}/${PN}-${PV}/resource \
                         ${prefix}/src/debug/${PN}/${EXTENDPE}${PV}-${PR}/${PN}-${PV}/extlibs \
                         ${prefix}/src/debug/${PN}/${EXTENDPE}${PV}-${PR}/${PN}-${PV}/examples \
+                        ${prefix}/src/debug/${PN}/${EXTENDPE}${PV}-${PR}/${PN}-${PV}/out \
                         ${libdir}/.debug/liboc.so \
                         ${libdir}/.debug/liboctbstack.so \
                         ${libdir}/.debug/liboc_logger.so \
@@ -323,32 +364,33 @@ FILES_iotivity-service-dev = "\
                         ${includedir}/iotivity/service"
 
 FILES_iotivity-service = "\            
-                        ${libdir}/libBMISensor.so \
-                        ${libdir}/libDiscomfortIndexSensor.so \              
+                        ${libdir}/libBMISensorBundle.so \
+                        ${libdir}/libDISensorBundle.so \              
                         ${libdir}/librcs_server.so \
                         ${libdir}/librcs_common.so \
                         ${libdir}/librcs_container.so \
                         ${libdir}/libHueBundle.so \
-                        ${libdir}/libSoftSensorBundle.so \
 			${libdir}/libTGMSDKLibrary.so \
-			${libdir}/libSSMCore.so"
-
+                        ${libdir}/libESSDKLibrary.so \
+                        ${libdir}/librcs_client.so \
+                        ${libdir}/libTestBundle.so"
+			
 FILES_iotivity-service-staticdev = "\
                         ${libdir}/librcs_client.a \
                         ${libdir}/librcs_server.a \
                         ${libdir}/librcs_common.a \
                         ${libdir}/librcs_container.a \
                         ${libdir}/libTGMSDKLibrary.a \
-                        ${libdir}/libNotificationManager.a \
-                        ${libdir}/libSSMSDK.a" 
+                        ${libdir}/libresource_hosting.a \
+                        ${libdir}/libresource_directory.a"
 
 FILES_iotivity-service-samples-dbg = "\
-                      ${IOTIVITY_BIN_DIR}/examples/service/notification-manager/.debug \
-                      ${IOTIVITY_BIN_DIR}/examples/service/soft-sensor-manager/.debug \
                       ${IOTIVITY_BIN_DIR}/examples/service/things-manager/groupaction/.debug \
-                      ${IOTIVITY_BIN_DIR}/examples/service/things-manager/groupsyncaction/.debug \
                       ${IOTIVITY_BIN_DIR}/examples/service/resource-encapsulation/.debug \
-                      ${IOTIVITY_BIN_DIR}/examples/service/resource-encapsulation/resource-container/.debug \
+                      ${IOTIVITY_BIN_DIR}/examples/service/resource-container/.debug \
+                      ${IOTIVITY_BIN_DIR}/examples/service/resource-hosting/.debug \
+                      ${IOTIVITY_BIN_DIR}/examples/service/resource-directory/.debug \
+                      ${IOTIVITY_BIN_DIR}/examples/service/easy-setup/.debug \
                       ${IOTIVITY_BIN_DIR}/examples/service/things-manager/configuration/.debug"
 
 FILES_iotivity-service-samples = "\
@@ -357,7 +399,10 @@ FILES_iotivity-service-samples = "\
 FILES_iotivity-tests-dbg = "\
                       ${libdir}/.debug/libgtest.so \
                       ${libdir}/.debug/libgtest_main.so \
-                      ${IOTIVITY_BIN_DIR}/tests/resource/.debug"
+                      ${IOTIVITY_BIN_DIR}/tests/resource/.debug \
+                      ${IOTIVITY_BIN_DIR}/tests/service/things-manager/.debug \
+                      ${IOTIVITY_BIN_DIR}/tests/service/resource-container/.debug \
+                      ${IOTIVITY_BIN_DIR}/tests/service/resource-encapsulation/.debug"
 
 FILES_iotivity-tests = "\
                       ${libdir}/libgtest.so \
@@ -369,10 +414,11 @@ ALLOW_EMPTY_${PN} = "1"
 RDEPENDS_${PN} += "boost"
 RRECOMMENDS_${PN} += "iotivity-resource iotivity-service"
 RRECOMMENDS_${PN}-dev += "iotivity-resource-dev iotivity-resource-thin-staticdev iotivity-service-dev iotivity-service-staticdev"
+RDEPENDS_iotivity-resource += "glib-2.0"
 RRECOMMENDS_iotivity-resource-thin-staticdev += "iotivity-resource-dev"
 RRECOMMENDS_iotivity-service-dev += "iotivity-service iotivity-service-staticdev iotivity-resource"
-RDEPENDS_iotivity-resource-samples += "iotivity-resource" 
-RDEPENDS_iotivity-tests += "iotivity-resource"
-RDEPENDS_iotivity-service-samples += "iotivity-service iotivity-resource"
-RDEPENDS_iotivity-service += "iotivity-resource"
+RDEPENDS_iotivity-resource-samples += "iotivity-resource glib-2.0" 
+RDEPENDS_iotivity-tests += "iotivity-resource iotivity-service glib-2.0"
+RDEPENDS_iotivity-service-samples += "iotivity-service iotivity-resource glib-2.0"
+RDEPENDS_iotivity-service += "iotivity-resource glib-2.0"
 BBCLASSEXTEND = "native nativesdk"

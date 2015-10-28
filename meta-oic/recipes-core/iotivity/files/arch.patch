@@ -24,37 +24,3 @@ index 8117205..aebd2bf 100644
  		}
  
  host = platform.system().lower()
-diff --git a/resource/include/OCRepresentation.h b/resource/include/OCRepresentation.h
-index b89b9fb..ddbfc65 100644
---- a/resource/include/OCRepresentation.h
-+++ b/resource/include/OCRepresentation.h
-@@ -264,7 +264,7 @@ namespace OC
-                     // Enable-if required to prevent conversions to alternate types.  This prevents
-                     // ambigious conversions in the case where conversions can include a number of
-                     // types, such as the string constructor.
--                    template<typename T, typename= typename std::enable_if<
-+                    template<typename T, typename std::enable_if<
-                      std::is_same<T, int>::value ||
-                      std::is_same<T, double>::value ||
-                      std::is_same<T, bool>::value ||
-@@ -285,14 +285,18 @@ namespace OC
-                      std::is_same<T, std::vector<OCRepresentation>>::value ||
-                      std::is_same<T, std::vector<std::vector<OCRepresentation>>>::value ||
-                      std::is_same<T, std::vector<std::vector<std::vector<OCRepresentation>>>>::value
--                     >::type // enable_if
-+                     , int>::type = 0// enable_if
-                     >
-                     operator T() const
-                     {
-                         return this->getValue<T>();
-                     }
- 
--                    operator std::nullptr_t() const
-+                    template<typename T, typename std::enable_if<
-+                        std::is_same<T, std::nullptr_t>::value
-+                        , int>::type = 0
-+                    >
-+                    operator T() const
-                     {
-                         this->getValue<NullType>();
-                         return nullptr;
