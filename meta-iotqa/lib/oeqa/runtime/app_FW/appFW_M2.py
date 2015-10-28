@@ -7,7 +7,7 @@ class AppFwTestForM2(oeRuntimeTest):
     test_dir = os.path.join(os.sep,"opt","appfw_test")
     list_app_python = "list-apps.py"
     list_app_node = "list-apps.js"
-    node_lib_dir = "/usr/lib/node_modules/iot/"
+    node_lib_file = "/usr/lib/node_modules/iot/iot-appfw.node"
     test_app_pkg = "appfwTestApp-1.0.0*.rpm"
     test_app_user_pkg = "appfwtest-user-1.0.0*.rpm"
     test_app_name = "appfwTestApp"
@@ -114,18 +114,15 @@ class AppFwTestForM2(oeRuntimeTest):
 
     def _list_app_not_run(self,cmd):
         """  list app not rung"""
-        if not self._installApp():
-             return False 
+        self.assertTrue(self._installApp(),'fail to install app')
         (status,output) = self.target.run("su -l %s -c '%s'" % (self.test_app_user,cmd))
         self.assertTrue(status == 0 and self.test_app_name in output, "fail to list all app")
 
     def _list_app_running(self,cmd):
 
         """  list app running """
-        if not self._installApp():
-             return False 
-        if not self._startApp() :
-            return False
+        self.assertTrue(self._installApp(),'fail to install app')
+        self.assertTrue(self._startApp(),"fail to start app")
         (status,output) = self.target.run("su -l %s -c '%s'" % (self.test_app_user,cmd))
         self.assertTrue(status == 0 and self.test_app_name in output, "fail to list running app")
          
@@ -160,13 +157,13 @@ class AppFwTestForM2(oeRuntimeTest):
     def test_list_all_app_by_node_API(self):
         """ test all app can be listed by Node API """
         self._prepare_list_program(self.list_app_node)
-        cmd = "node %s --libdir %s -a" % (self.list_app_node, self.node_lib_dir) 
+        cmd = "node %s %s -a" % (self.list_app_node, self.node_lib_file) 
         self._list_app_not_run(cmd)
 
-    def test_list_running__app_by_node_API(self):
+    def test_list_running_app_by_node_API(self):
         """ test running app can be listed by Node API """
         self._prepare_list_program(self.list_app_node)
-        cmd = "node %s --libdir %s -r" % (self.list_app_node, self.node_lib_dir) 
+        cmd = "node %s %s -r" % (self.list_app_node, self.node_lib_file) 
         self._list_app_running(cmd)
 
     def test_app_start(self):
