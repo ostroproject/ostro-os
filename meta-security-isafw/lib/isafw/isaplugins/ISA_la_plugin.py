@@ -36,7 +36,7 @@ LicenseChecker = None
 flicenses = "/configs/la/licenses"
 fapproved_non_osi = "/configs/la/approved-non-osi"
 fexceptions = "/configs/la/exceptions"
-log = "/internal/isafw_lalog"
+log = "/isafw_lalog"
 
 class ISA_LicenseChecker():    
     initialized = False
@@ -44,17 +44,18 @@ class ISA_LicenseChecker():
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
         self.reportdir = ISA_config.reportdir
+        self.logdir = ISA_config.logdir
         self.timestamp = ISA_config.timestamp
         # check that rpm is installed (supporting only rpm packages for now)
         rc = subprocess.call(["which", "rpm"])        
         if rc == 0:
                 self.initialized = True
                 print("Plugin ISA_LicenseChecker initialized!")
-                with open(self.reportdir + log, 'a') as flog:
+                with open(self.logdir + log, 'a') as flog:
                     flog.write("\nPlugin ISA_LA initialized!\n")
         else:
             print("rpm tool is missing!")
-            with open(self.reportdir + log, 'a') as flog:
+            with open(self.logdir + log, 'a') as flog:
                 flog.write("rpm tool is missing!\n")
 
     def process_package(self, ISA_pkg):
@@ -66,7 +67,7 @@ class ISA_LicenseChecker():
                         if (not ISA_pkg.path_to_sources):
                             print("No path to sources or source file list is provided!")
                             print("Not able to determine licenses for package: ", ISA_pkg.name)
-                            with open(self.reportdir + log, 'a') as flog:
+                            with open(self.logdir + log, 'a') as flog:
                                 flog.write("No path to sources or source file list is provided!")
                                 flog.write("\nNot able to determine licenses for package: " + ISA_pkg.name)
                             return 
@@ -82,7 +83,7 @@ class ISA_LicenseChecker():
                             except:
                                 print("Error in executing rpm query: ", sys.exc_info())
                                 print("Not able to process package: ", ISA_pkg.name)
-                                with open(self.reportdir + log, 'a') as flog:
+                                with open(self.logdir + log, 'a') as flog:
                                     flog.write("Error in executing rpm query: " + sys.exc_info())
                                     flog.write("\nNot able to process package: " + ISA_pkg.name)
                                 return 
@@ -97,12 +98,12 @@ class ISA_LicenseChecker():
             else:
                 print("Mandatory argument package name is not provided!")
                 print("Not performing the call.")
-                with open(self.reportdir + log, 'a') as flog:
+                with open(self.logdir + log, 'a') as flog:
                     flog.write("Mandatory argument package name is not provided!\n")
                     flog.write("Not performing the call.\n")
         else:
             print("Plugin hasn't initialized! Not performing the call.")
-            with open(self.reportdir + log, 'a') as flog:
+            with open(self.logdir + log, 'a') as flog:
                 flog.write("Plugin hasn't initialized! Not performing the call.")
 
     def find_files(self, init_path):
