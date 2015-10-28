@@ -12,11 +12,7 @@ LIC_FILES_CHKSUM = "file://COPYING.LIB;md5=4fbd65380cdd255951079008b364516c"
 DEPENDS = "libva"
 
 SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/${REALPN}/${REALPN}-${PV}.tar.bz2 \
-           file://install-tests.patch \
-           "
-
-SRC_URI[md5sum] = "3bd90b696b644be943450ba0c1497193"
-SRC_URI[sha256sum] = "0dd236c7bf225322b8934fdba99a7a9e4542566a2acbe7564cdc3ec2c8b73c9d"
+          "
 
 S = "${WORKDIR}/${REALPN}-${PV}"
 
