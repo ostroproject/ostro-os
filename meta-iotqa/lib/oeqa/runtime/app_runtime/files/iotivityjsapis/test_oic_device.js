@@ -1,4 +1,4 @@
-var oicDevice = require('iotivity');
+var oicDevice = require('iotivity-node');
 
 var settings = {
 	role: "intermediary",
@@ -18,44 +18,44 @@ module.exports = {
 	},
 
 	testHasOicDeviceSettingsAttr: function(test) {
-		test.ok('_settings' in OicDevice);
-		test.strictEqual(typeof(OicDevice._settings), 'object');		
+		test.ok('settings' in OicDevice);
+		test.strictEqual(typeof(OicDevice.settings), 'object');		
 		test.done();
 	},
 
 	testOicDeviceSettingsMemberUrl: function(test) {
-		if ('url' in OicDevice._settings) {
-			test.strictEqual(typeof(OicDevice._settings.url), 'string');
-			test.ok(':' in OicDevice._settings.url);
+		if ('url' in OicDevice.settings) {
+			test.strictEqual(typeof(OicDevice.settings.url), 'string');
+			test.ok(':' in OicDevice.settings.url);
 		}
 		test.done();		
 	},
 
 	testOicDeviceSettingsMemberInfo: function(test) {
-		if ('info' in OicDevice._settings) {
-			test.strictEqual(typeof(OicDevice._settings.info), 'object');
+		if ('info' in OicDevice.settings) {
+			test.strictEqual(typeof(OicDevice.settings.info), 'object');
 		}
 		test.done();
 	},
 
 	testOicDeviceSettingsMemberRole: function(test) {
-		if ('role' in OicDevice._settings) {
-			test.strictEqual(typeof(OicDevice._settings.role), 'string');
+		if ('role' in OicDevice.settings) {
+			test.strictEqual(typeof(OicDevice.settings.role), 'string');
 
-			test.ok((OicDevice._settings.role === 'client') || 
-					(OicDevice._settings.role === 'server') ||
-					(OicDevice._settings.role === 'intermediary'));
+			test.ok((OicDevice.settings.role === 'client') || 
+					(OicDevice.settings.role === 'server') ||
+					(OicDevice.settings.role === 'intermediary'));
 		}
 		test.done();
 	},	
 
 	testOicDeviceSettingsMemberConnectionMode: function(test) {
-		if ('connectionMode' in OicDevice._settings) {
-			test.strictEqual(typeof(OicDevice._settings.connectionMode), 'string');
+		if ('connectionMode' in OicDevice.settings) {
+			test.strictEqual(typeof(OicDevice.settings.connectionMode), 'string');
 
-			test.ok((OicDevice._settings.connectionMode === 'acked') || 
-					(OicDevice._settings.role === 'non-acked') ||
-					(OicDevice._settings.role === 'default'));
+			test.ok((OicDevice.settings.connectionMode === 'acked') || 
+					(OicDevice.settings.role === 'non-acked') ||
+					(OicDevice.settings.role === 'default'));
 		}
 		test.done();
 	},
@@ -66,31 +66,31 @@ module.exports = {
     		return uuidPattern.test(str);
 		};
 
-		if ('info' in OicDevice._settings) {
-			if ('uuid' in OicDevice._settings.info) {
-				test.strictEqual(typeof(OicDevice._settings.info.uuid), 'string');
-				test.ok(checkUuidFormat(OicDevice._settings.info.uuid));
+		if ('info' in OicDevice.settings) {
+			if ('uuid' in OicDevice.settings.info) {
+				test.strictEqual(typeof(OicDevice.settings.info.uuid), 'string');
+				test.ok(checkUuidFormat(OicDevice.settings.info.uuid));
 			}
 		}
 		test.done();
 	},
 
 	testOicDeviceInfoMemberName: function(test) {
-		if ('info' in OicDevice._settings) {
-			if ('name' in OicDevice._settings.info) {
-				test.strictEqual(typeof(OicDevice._settings.info.name), 'string');
+		if ('info' in OicDevice.settings) {
+			if ('name' in OicDevice.settings.info) {
+				test.strictEqual(typeof(OicDevice.settings.info.name), 'string');
 			}
 		}
 		test.done();
 	},	
 
 	testOicDeviceInfoMemberDataModels: function(test) {
-		if ('info' in OicDevice._settings) {
-			if ('dataModels' in OicDevice._settings.info) {
-				test.strictEqual(OicDevice._settings.info.dataModels instanceof Array);
+		if ('info' in OicDevice.settings) {
+			if ('dataModels' in OicDevice.settings.info) {
+				test.strictEqual(OicDevice.settings.info.dataModels instanceof Array);
 
-				for (var i = 0; i < OicDevice._settings.info.dataModels.length; i++) {
-					test.ok(typeof(OicDevice._settings.info.dataModels[i]), 'string');
+				for (var i = 0; i < OicDevice.settings.info.dataModels.length; i++) {
+					test.ok(typeof(OicDevice.settings.info.dataModels[i]), 'string');
 				}
 			}
 		}
@@ -98,93 +98,93 @@ module.exports = {
 	},	
 
 	testOicDeviceInfoMemberCoreSpecVersion: function(test) {
-		if ('info' in OicDevice._settings) {
-			if ('coreSpecVersion' in OicDevice._settings.info) {
-				test.strictEqual(typeof(OicDevice._settings.info.coreSpecVersion), 'string');
+		if ('info' in OicDevice.settings) {
+			if ('coreSpecVersion' in OicDevice.settings.info) {
+				test.strictEqual(typeof(OicDevice.settings.info.coreSpecVersion), 'string');
 			}
 		}
 		test.done();
 	},	
 
 	testOicDeviceInfoMemberOsVersion: function(test) {
-		if ('info' in OicDevice._settings) {
-			if ('osVersion' in OicDevice._settings.info) {
-				test.strictEqual(typeof(OicDevice._settings.info.osVersion), 'string');
+		if ('info' in OicDevice.settings) {
+			if ('osVersion' in OicDevice.settings.info) {
+				test.strictEqual(typeof(OicDevice.settings.info.osVersion), 'string');
 			}
 		}
 		test.done();
 	},	
 
 	testOicDeviceInfoMemberModel: function(test) {
-		if ('info' in OicDevice._settings) {
-			if ('model' in OicDevice._settings.info) {
-				test.strictEqual(typeof(OicDevice._settings.info.model), 'string');
+		if ('info' in OicDevice.settings) {
+			if ('model' in OicDevice.settings.info) {
+				test.strictEqual(typeof(OicDevice.settings.info.model), 'string');
 			}
 		}
 		test.done();
 	},	
 
 	testOicDeviceInfoMemberManufacturerName: function(test) {
-		if ('info' in OicDevice._settings) {
-			if ('manufacturerName' in OicDevice._settings.info) {
-				test.strictEqual(typeof(OicDevice._settings.info.manufacturerName), 'string');
+		if ('info' in OicDevice.settings) {
+			if ('manufacturerName' in OicDevice.settings.info) {
+				test.strictEqual(typeof(OicDevice.settings.info.manufacturerName), 'string');
 			}
 		}
 		test.done();
 	},
 
 	testOicDeviceInfoMemberManufacturerUrl: function(test) {
-		if ('info' in OicDevice._settings) {
-			if ('manufacturerUrl' in OicDevice._settings.info) {
-				test.strictEqual(typeof(OicDevice._settings.info.manufacturerUrl), 'string');
+		if ('info' in OicDevice.settings) {
+			if ('manufacturerUrl' in OicDevice.settings.info) {
+				test.strictEqual(typeof(OicDevice.settings.info.manufacturerUrl), 'string');
 			}
 		}
 		test.done();
 	},	
 
 	testOicDeviceInfoMemberManufacturerDate: function(test) {
-		if ('info' in OicDevice._settings) {
-			if ('manufacturerDate' in OicDevice._settings.info) {
-				test.strictEqual(OicDevice._settings.info.manufacturerDate instanceof Date);
+		if ('info' in OicDevice.settings) {
+			if ('manufacturerDate' in OicDevice.settings.info) {
+				test.strictEqual(OicDevice.settings.info.manufacturerDate instanceof Date);
 			}
 		}
 		test.done();
 	},
 
 	testOicDeviceInfoMemberPlatformVersion: function(test) {
-		if ('info' in OicDevice._settings) {
-			if ('platformVersion' in OicDevice._settings.info) {
-				test.strictEqual(typeof(OicDevice._settings.info.platformVersion), 'string');
+		if ('info' in OicDevice.settings) {
+			if ('platformVersion' in OicDevice.settings.info) {
+				test.strictEqual(typeof(OicDevice.settings.info.platformVersion), 'string');
 			}
 		}
 		test.done();
 	},
 
 	testOicDeviceInfoMemberFirmwareVersion: function(test) {
-		if ('info' in OicDevice._settings) {
-			if ('firmwareVersion' in OicDevice._settings.info) {
-				test.strictEqual(typeof(OicDevice._settings.info.firmwareVersion), 'string');
+		if ('info' in OicDevice.settings) {
+			if ('firmwareVersion' in OicDevice.settings.info) {
+				test.strictEqual(typeof(OicDevice.settings.info.firmwareVersion), 'string');
 			}
 		}
 		test.done();
 	},	
 
 	testOicDeviceInfoMemberSupportUrl: function(test) {
-		if ('info' in OicDevice._settings) {
-			if ('supportUrl' in OicDevice._settings.info) {
-				test.strictEqual(typeof(OicDevice._settings.info.supportUrl), 'string');
+		if ('info' in OicDevice.settings) {
+			if ('supportUrl' in OicDevice.settings.info) {
+				test.strictEqual(typeof(OicDevice.settings.info.supportUrl), 'string');
 			}
 		}
 		test.done();
 	},
 
 	testOicDeviceHasMemberClient: function(test) {
-		test.ok('_client' in OicDevice);
+		test.ok('client' in OicDevice);
 		test.done();
 	},
 
 	testOicDeviceHasMemberServer: function(test) {
-		test.ok('_server' in OicDevice);
+		test.ok('server' in OicDevice);
 		test.done();
 	},	
 
