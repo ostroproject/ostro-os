@@ -72,7 +72,7 @@ do_install_append_class-target() {
     sed "1s^.*^#\!${bindir}/env node^g" -i ${D}${exec_prefix}/lib/node_modules/npm/bin/npm-cli.js
 
     # install node-gyp node hedaers in /usr/include/node-gyp/
-    cd ${D}/${libdir}/node_modules/npm/node_modules/node-gyp/
+    cd ${D}/${exec_prefix}/lib/node_modules/npm/node_modules/node-gyp/
     export HOME=${D}/usr/include/node-gyp
     sed -i 's/\.node-gyp//' lib/node-gyp.js
 
