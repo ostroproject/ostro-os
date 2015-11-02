@@ -278,7 +278,7 @@ FILES_${JDKPN}-common = "${JDK_HOME}/jre/ASSEMBLY_EXCEPTION \
                           ${JDK_HOME}/jre/lib \
                          "
 
-FILES_openjdk-7-jre_append = " \
+FILES_${PN}_append = " \
 	${JDK_HOME}/jre/bin/keytool \
         ${JDK_HOME}/jre/bin/orbd \
 	${JDK_HOME}/jre/bin/pack200 \
