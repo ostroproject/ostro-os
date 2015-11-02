@@ -36,7 +36,6 @@ IMAGE_FEATURES += " \
 "
 FEATURE_PACKAGES_ima = "initramfs-framework-ima"
 
-export IMAGE_BASENAME = "ostro-initramfs"
 IMAGE_LINGUAS = ""
 
 LICENSE = "MIT"
