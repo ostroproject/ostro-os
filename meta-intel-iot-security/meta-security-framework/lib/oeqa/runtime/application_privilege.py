@@ -1,7 +1,11 @@
+#!/usr/bin/env python
+#
+# Dependent on notroot.py
+# Please see meta-security-smack/lib/oeqa/runtime/files/notroot.py
+#
+# Author: Alexandru Cornea <alexandru.cornea@intel.com>
 import unittest
-import re
 import os
-import string
 from oeqa.oetest import oeRuntimeTest, skipModule
 from oeqa.utils.decorators import *
 
@@ -18,13 +22,11 @@ class AppPrivilege(oeRuntimeTest):
 	def setUp(self):
 		self.uid = 1000
 		self.label = "test_label"
-		self.files_dir = os.path.join(
-			            os.path.abspath(os.path.dirname(__file__)), 'files')
                 status, output = self.target.run( "ls /tmp/notroot.py")
                 if status != 0:
                         self.target.copy_to(
                                 os.path.join(
-                                        self.files_dir, "notroot.py"),
+                                        get_files_dir(), "notroot.py"),
                                         "/tmp/notroot.py")
 
 		status, output = self.target.run("grep smack /proc/mounts | awk '{print $2}'")
