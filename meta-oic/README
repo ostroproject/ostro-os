@@ -1,7 +1,7 @@
 meta-oic
 ========
-This layer contains recipes for the IoTivity Project (v0.9.2)
-and related components for any Yocto target.
+This layer contains recipes for the IoTivity Project (v1.0)
+, sample applications and related components for any Yocto target.
 
 Contents
 ========
@@ -23,6 +23,7 @@ Recipes in meta-oic
                 is meant to serve as a guide for Iotivity 
                 application developers who want to quickly
                 build a recipe for their application.
+                Recipe for the IoTivity SensorBoard application. 
 
 IoTivity packages built by the meta-oic layer
 =============================================
@@ -48,6 +49,8 @@ applications.
 -- iotivity-tests-dbg : Debug builds of IoTivity framework tests.
 -- iotivity : Meta-package for all IoTivity runtimes.
 —- iotivity-dev : Meta-package for all IoTivity runtimes and headers.
+-- iotivity-sensorboard : IoTivity SensorBoard application. (Sources
+located in iotivity-1.0.0/examples/OICSensorBoard)
 -- iotivity-simple-client: IoTivity resource simpleclient example.  
 
 Building IoTivity for a Yocto target
