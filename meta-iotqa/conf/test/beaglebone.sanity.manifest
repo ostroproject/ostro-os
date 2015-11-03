@@ -2,6 +2,7 @@
 #oeqa.runtime.ping2
 oeqa.runtime.sanity.apprt_nodejs
 oeqa.runtime.sanity.apprt_python
+oeqa.runtime.sanity.apprt_java
 oeqa.runtime.sanity.baseos
 #oeqa.runtime.sanity.comm_btcheck
 oeqa.runtime.sanity.comm_managerdaemon
