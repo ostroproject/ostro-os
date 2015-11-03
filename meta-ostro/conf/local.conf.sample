@@ -28,7 +28,6 @@
 #
 # For MinnowBoard and Gigabyte GB-BXBT-3825:
 #MACHINE ?= "intel-corei7-64"
-#MACHINE ?= "intel-core2-32"
 #
 # For Intel Galileo Gen 2:
 #MACHINE ?= "intel-quark"
