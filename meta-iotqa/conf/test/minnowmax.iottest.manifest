@@ -6,11 +6,10 @@ oeqa.runtime.sanity.baseos
 #oeqa.runtime.sanity.comm_btcheck
 oeqa.runtime.sanity.comm_managerdaemon
 oeqa.runtime.sanity.comm_ssh
-oeqa.runtime.sanity.mraa_hello
 oeqa.runtime.smack.SmackFileLabels.test_smack_labels
-oeqa.runtime.sanity.iotivity
-oeqa.runtime.pnp.memory
+oeqa.runtime.sanity.iotivity.IOtvtClient.test_iotvt_findresource
+oeqa.runtime.sanity.iotivity.IOtvtClient.test_iotvt_getstate
+oeqa.runtime.sanity.iotivity.IOtvtClient.test_iotvt_observer
+oeqa.runtime.sanity.iotivity.IOtvtClient.test_iotvt_setstate
 #oeqa.runtime.sanity.comm_wifi_connect
-#oeqa.runtime.sanity.reboot
-oeqa.runtime.pnp.boottime
 oeqa.runtime.sanity.reboot
