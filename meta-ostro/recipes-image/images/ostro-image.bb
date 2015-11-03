@@ -33,7 +33,7 @@ IMAGE_FEATURES += " \
                         can \
                         connectivity \
                         devkit \
-                        ima \
+                        ${@bb.utils.contains('DISTRO_FEATURES', 'ima', 'ima', '', d)} \
                         iotivity \
                         package-management \
                         sensors \
@@ -280,10 +280,6 @@ APPEND_append = " rootflags=i_version"
 # EXT4-fs (hda2): couldn't mount as ext3 due to feature incompatibilities
 # The VM types must be treated like ext4 (also hard-coded there).
 APPEND_append = "${@''.join([' rootfstype=' + i for i in ['ext4', 'ext3', 'ext2'] if i in d.getVar('IMAGE_FSTYPES', True).replace('vdi', 'ext4').replace('vmdk', 'ext4').replace('qcow2', 'ext4').split()])}"
-
-# Mount read-only at first. This gives systemd a chance to run fsck
-# and then mount read/write.
-APPEND_append = " ro"
 
 # parted-native is required by wic to build the final image but has no
 # explicit dependency set in recipes. Use EXTRA_IMAGEDEPENDS to ensure
