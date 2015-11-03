@@ -58,21 +58,21 @@ class ISA_KernelChecker():
     hardening_kco_ref={'CONFIG_CC_STACKPROTECTOR'                       : 'y', 
                        'CONFIG_DEFAULT_MMAP_MIN_ADDR'                   : '65536', # x86 specific
                        'CONFIG_KEXEC'                                   : 'not set',
-                       'CONFIG_PROC_KCORE'                              : 'n',
+                       'CONFIG_PROC_KCORE'                              : 'not set',
                        'CONFIG_SECURITY_DMESG_RESTRICT'                 : 'y',
                        'CONFIG_DEBUG_STACKOVERFLOW'                     : 'y',
                        'CONFIG_DEBUG_STRICT_USER_COPY_CHECKS'           : 'y',
                        'CONFIG_ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS'  : 'y',
-                       'CONFIG_IKCONFIG_PROC'                           : 'n',
+                       'CONFIG_IKCONFIG_PROC'                           : 'not set',
                        'CONFIG_RANDOMIZE_BASE'                          : 'y',
                        'CONFIG_RANDOMIZE_BASE_MAX_OFFSET'               : '0x20000000,0x40000000', # x86 specific
                        'CONFIG_DEBUG_RODATA'                            : 'y',
                        'CONFIG_STRICT_DEVMEM'                           : 'y',
-                       'CONFIG_DEVKMEM'                                 : 'n',
-                       'CONFIG_X86_MSR'                                 : 'n',
+                       'CONFIG_DEVKMEM'                                 : 'not set',
+                       'CONFIG_X86_MSR'                                 : 'not set',
                        'CONFIG_ARCH_BINFMT_ELF_RANDOMIZE_PIE'           : 'y',
-                       'CONFIG_DEBUG_KERNEL'                            : 'n',
-                       'CONFIG_DEBUG_FS'                                : 'n',
+                       'CONFIG_DEBUG_KERNEL'                            : 'not set',
+                       'CONFIG_DEBUG_FS'                                : 'not set',
                        'CONFIG_MODULE_SIG_FORCE'                        : 'y'
                      }
 
@@ -84,7 +84,7 @@ class ISA_KernelChecker():
     keys_kco_ref =   { 'CONFIG_KEYS'                                    : 'y',
                        'CONFIG_TRUSTED_KEYS'                            : 'y',
                        'CONFIG_ENCRYPTED_KEYS'                          : 'y',
-                       'CONFIG_KEYS_DEBUG_PROC_KEYS'                    : 'n'
+                       'CONFIG_KEYS_DEBUG_PROC_KEYS'                    : 'not set'
                      }
 
     security_kco =   { 'CONFIG_SECURITY'                                : 'not set', 
