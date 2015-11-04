@@ -1,2 +1,2 @@
-EXTRA_IMAGEDEPENDS += "mraa-test sensor-test"
+EXTRA_IMAGEDEPENDS += "mraa-test sensor-test app-runas"
 
