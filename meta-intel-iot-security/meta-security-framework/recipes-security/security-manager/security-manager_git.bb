@@ -8,4 +8,6 @@ S = "${WORKDIR}/git"
 SRC_URI += " \
 file://systemd-stop-using-compat-libs.patch \
 file://security-manager-policy-reload-do-not-depend-on-GNU-.patch \
+file://0001-Smack-rules-create-two-new-functions.patch \
+file://0002-app-install-implement-multiple-set-of-smack-rules.patch \
 "
