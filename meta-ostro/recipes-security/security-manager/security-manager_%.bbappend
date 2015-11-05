@@ -8,4 +8,7 @@ usertype-admin.profile \
 usertype-guest.profile \
 usertype-normal.profile \
 usertype-system.profile \
+CMakeLists.txt \
+InternetAccess-template.smack \
+LocalNetworkAccess-template.smack \
 "
