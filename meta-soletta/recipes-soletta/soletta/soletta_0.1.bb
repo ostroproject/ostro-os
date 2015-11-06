@@ -4,7 +4,7 @@
 
 DESCRIPTION = "Soletta library and modules"
 SECTION = "examples"
-DEPENDS = "glib-2.0 libpcre"
+DEPENDS = "glib-2.0 libpcre pkgconfig"
 LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://COPYING;md5=53eeaddf328b23e2355816e257450eaa"
 PV = "1_beta10"
