@@ -26,6 +26,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from lxml import etree
+
 KCAnalyzer = None
 fullreport = "/kca_full_report_"
 problemsreport = "/kca_problems_report_"
@@ -200,74 +202,8 @@ class ISA_KernelChecker():
                     freport.write("\nIntegrity options:\n")
                     for key in sorted(self.integrity_kco):
                         freport.write(key + ' : ' + str(self.integrity_kco[key]) + '\n')
-                with open(self.reportdir + problemsreport + ISA_kernel.img_name + "_" + self.timestamp, 'w') as freport:
-                    freport.write("Report for image: " + ISA_kernel.img_name + '\n')
-                    freport.write("With the kernel conf at: " + ISA_kernel.path_to_config + '\n\n')
-                    freport.write("Hardening options that need improvement:\n")
-                    for key in sorted(self.hardening_kco):
-                        if (self.hardening_kco[key] != self.hardening_kco_ref[key]) :
-                            valid = False
-                            if (key == "CONFIG_DEBUG_STRICT_USER_COPY_CHECKS") :
-                                if (self.hardening_kco['CONFIG_ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS'] == 'y'):
-                                    valid = True
-                            if (key == "CONFIG_RANDOMIZE_BASE_MAX_OFFSET"):
-                                options = self.hardening_kco_ref[key].split(',')
-                                for option in options:
-                                    if (option == self.hardening_kco[key]):
-                                        valid = True
-                                        break
-                            if valid == False :
-                                freport.write("\nActual value:\n")
-                                freport.write(key + ' : ' + str(self.hardening_kco[key]) + '\n')
-                                freport.write("Recommended value:\n")
-                                freport.write(key + ' : ' + str(self.hardening_kco_ref[key]) + '\n')
-                    freport.write("\nKey-related options that need improvement:\n")
-                    for key in sorted(self.keys_kco):
-                        if (self.keys_kco[key] != self.keys_kco_ref[key]) :
-                            freport.write("\nActual value:\n")
-                            freport.write(key + ' : ' + str(self.keys_kco[key]) + '\n')
-                            freport.write("Recommended value:\n")
-                            freport.write(key + ' : ' + str(self.keys_kco_ref[key]) + '\n')
-                    freport.write("\nSecurity options that need improvement:\n")
-                    for key in sorted(self.security_kco):
-                        if (self.security_kco[key] != self.security_kco_ref[key]) :
-                            valid = False
-                            if (key == "CONFIG_DEFAULT_SECURITY"):
-                                options = self.security_kco_ref[key].split(',')
-                                for option in options:
-                                    if (option == self.security_kco[key]):
-                                        valid = True
-                                        break
-                            if ((key == "CONFIG_SECURITY_SELINUX") or 
-                               (key == "CONFIG_SECURITY_SMACK") or
-                               (key == "CONFIG_SECURITY_APPARMOR") or
-                               (key == "CONFIG_SECURITY_TOMOYO")) :
-                                if ((self.security_kco['CONFIG_SECURITY_SELINUX'] == 'y') or 
-                                    (self.security_kco['CONFIG_SECURITY_SMACK'] == 'y') or
-                                    (self.security_kco['CONFIG_SECURITY_APPARMOR'] == 'y') or
-                                    (self.security_kco['CONFIG_SECURITY_TOMOYO'] == 'y')):
-                                    valid = True
-                            if valid == False:
-                                freport.write("\nActual value:\n")
-                                freport.write(key + ' : ' + str(self.security_kco[key]) + '\n')
-                                freport.write("Recommended value:\n")
-                                freport.write(key + ' : ' + str(self.security_kco_ref[key]) + '\n')
-                    freport.write("\nIntegrity options that need improvement:\n")
-                    for key in sorted(self.integrity_kco):
-                        if (self.integrity_kco[key] != self.integrity_kco_ref[key]) :
-                            valid = False
-                            if ((key == "CONFIG_IMA_DEFAULT_HASH_SHA1") or 
-                               (key == "CONFIG_IMA_DEFAULT_HASH_SHA256") or
-                               (key == "CONFIG_IMA_DEFAULT_HASH_SHA512") or
-                               (key == "CONFIG_IMA_DEFAULT_HASH_WP512")) :
-                                if ((self.integrity_kco['CONFIG_IMA_DEFAULT_HASH_SHA256'] == 'y') or 
-                                    (self.integrity_kco['CONFIG_IMA_DEFAULT_HASH_SHA512'] == 'y')):
-                                    valid = True
-                            if valid == False :
-                                freport.write("\nActual value:\n")
-                                freport.write(key + ' : ' + str(self.integrity_kco[key]) + '\n')
-                                freport.write("Recommended value:\n")
-                                freport.write(key + ' : ' + str(self.integrity_kco_ref[key]) + '\n')
+                self.write_problems_report(ISA_kernel)
+
             else:
                 print("Mandatory arguments such as image name and path to config are not provided!")
                 print("Not performing the call.")
@@ -275,7 +211,148 @@ class ISA_KernelChecker():
                     flog.write("Mandatory arguments such as image name and path to config are not provided!\n")
                     flog.write("Not performing the call.\n")
         else:
-            print("Plugin hasn't initialized! Not performing the call.")
+            print("Plugin hasn't initialized! Not performing the call.")    
+
+    def write_problems_report(self, ISA_kernel):
+        with open(self.reportdir + problemsreport + ISA_kernel.img_name + "_" + self.timestamp, 'w') as freport:
+            freport.write("Report for image: " + ISA_kernel.img_name + '\n')
+            freport.write("With the kernel conf at: " + ISA_kernel.path_to_config + '\n\n')
+            freport.write("Hardening options that need improvement:\n")
+            for key in sorted(self.hardening_kco):
+                if (self.hardening_kco[key] != self.hardening_kco_ref[key]) :
+                    valid = False
+                    if (key == "CONFIG_DEBUG_STRICT_USER_COPY_CHECKS") :
+                        if (self.hardening_kco['CONFIG_ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS'] == 'y'):
+                            valid = True
+                    if (key == "CONFIG_RANDOMIZE_BASE_MAX_OFFSET"):
+                        options = self.hardening_kco_ref[key].split(',')
+                        for option in options:
+                            if (option == self.hardening_kco[key]):
+                                valid = True
+                                break
+                    if valid == False :
+                        freport.write("\nActual value:\n")
+                        freport.write(key + ' : ' + str(self.hardening_kco[key]) + '\n')
+                        freport.write("Recommended value:\n")
+                        freport.write(key + ' : ' + str(self.hardening_kco_ref[key]) + '\n')
+            freport.write("\nKey-related options that need improvement:\n")
+            for key in sorted(self.keys_kco):
+                if (self.keys_kco[key] != self.keys_kco_ref[key]) :
+                    freport.write("\nActual value:\n")
+                    freport.write(key + ' : ' + str(self.keys_kco[key]) + '\n')
+                    freport.write("Recommended value:\n")
+                    freport.write(key + ' : ' + str(self.keys_kco_ref[key]) + '\n')
+            freport.write("\nSecurity options that need improvement:\n")
+            for key in sorted(self.security_kco):
+                if (self.security_kco[key] != self.security_kco_ref[key]) :
+                    valid = False
+                    if (key == "CONFIG_DEFAULT_SECURITY"):
+                        options = self.security_kco_ref[key].split(',')
+                        for option in options:
+                            if (option == self.security_kco[key]):
+                                valid = True
+                                break
+                    if ((key == "CONFIG_SECURITY_SELINUX") or 
+                       (key == "CONFIG_SECURITY_SMACK") or
+                       (key == "CONFIG_SECURITY_APPARMOR") or
+                       (key == "CONFIG_SECURITY_TOMOYO")) :
+                        if ((self.security_kco['CONFIG_SECURITY_SELINUX'] == 'y') or 
+                            (self.security_kco['CONFIG_SECURITY_SMACK'] == 'y') or
+                            (self.security_kco['CONFIG_SECURITY_APPARMOR'] == 'y') or
+                            (self.security_kco['CONFIG_SECURITY_TOMOYO'] == 'y')):
+                            valid = True
+                    if valid == False:
+                        freport.write("\nActual value:\n")
+                        freport.write(key + ' : ' + str(self.security_kco[key]) + '\n')
+                        freport.write("Recommended value:\n")
+                        freport.write(key + ' : ' + str(self.security_kco_ref[key]) + '\n')
+                        freport.write("\nIntegrity options that need improvement:\n")
+            for key in sorted(self.integrity_kco):
+                if (self.integrity_kco[key] != self.integrity_kco_ref[key]) :
+                    valid = False
+                    if ((key == "CONFIG_IMA_DEFAULT_HASH_SHA1") or 
+                       (key == "CONFIG_IMA_DEFAULT_HASH_SHA256") or
+                       (key == "CONFIG_IMA_DEFAULT_HASH_SHA512") or
+                       (key == "CONFIG_IMA_DEFAULT_HASH_WP512")) :
+                        if ((self.integrity_kco['CONFIG_IMA_DEFAULT_HASH_SHA256'] == 'y') or 
+                            (self.integrity_kco['CONFIG_IMA_DEFAULT_HASH_SHA512'] == 'y')):
+                            valid = True
+                    if valid == False :
+                        freport.write("\nActual value:\n")
+                        freport.write(key + ' : ' + str(self.integrity_kco[key]) + '\n')
+                        freport.write("Recommended value:\n")
+                        freport.write(key + ' : ' + str(self.integrity_kco_ref[key]) + '\n')
+        # write_problems_report_xml 
+        root= etree.Element('Kernel_Config_ProblemsReport', {'path':ISA_kernel.path_to_config})
+        sec1= etree.SubElement(root, 'section', name='Hardening_options_that_need_improvement')            
+        for key in sorted(self.hardening_kco) :
+            if (self.hardening_kco[key] != self.hardening_kco_ref[key]) :
+                valid == False
+                if (key == "CONFIG_DEBUG_STRICT_USER_COPY_CHECKS") :
+                    if (self.hardening_kco['CONFIG_ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS'] == 'y'):
+                        valid = True
+                if (key == "CONFIG_RANDOMIZE_BASE_MAX_OFFSET"):
+                    options = self.hardening_kco_ref[key].split(',')
+                    for option in options:
+                        if (option == self.hardening_kco[key]):
+                            valid = True
+                            break
+                if valid == False:
+                    msg1= key + ':' + str(self.hardening_kco[key]) 
+                    value1 = etree.SubElement(sec1, 'value', {'current':msg1})
+                    msg2= key + ':' + str(self.hardening_kco_ref[key])
+                    value2 = etree.SubElement(sec1, 'value', {'rcmmndd':msg2})
+        sec2= etree.SubElement(root, 'section', name='Key-related_options_that_need_improvement') 
+        for key in sorted(self.keys_kco):
+           if (self.keys_kco[key] != self.keys_kco_ref[key]) :
+               msg1= key + ':' + str(self.keys_kco[key]) 
+               value1 = etree.SubElement(sec2, 'value', {'current':msg1})
+               msg2= key + ':' + str(self.keys_kco_ref[key])
+               value2 = etree.SubElement(sec2, 'value', {'rcmmndd':msg2})
+        sec3= etree.SubElement(root, 'section', name='Security_options_that_need_improvement')
+        for key in sorted(self.security_kco):
+            if (self.security_kco[key] != self.security_kco_ref[key]) :
+                valid = False
+                if (key == "CONFIG_DEFAULT_SECURITY"):
+                    options = self.security_kco_ref[key].split(',')
+                    for option in options:
+                        if (option == self.security_kco[key]):
+                            valid = True
+                            break
+                if ((key == "CONFIG_SECURITY_SELINUX") or 
+                   (key == "CONFIG_SECURITY_SMACK") or
+                   (key == "CONFIG_SECURITY_APPARMOR") or
+                   (key == "CONFIG_SECURITY_TOMOYO")) :
+                    if ((self.security_kco['CONFIG_SECURITY_SELINUX'] == 'y') or 
+                        (self.security_kco['CONFIG_SECURITY_SMACK'] == 'y') or
+                       (self.security_kco['CONFIG_SECURITY_APPARMOR'] == 'y') or
+                        (self.security_kco['CONFIG_SECURITY_TOMOYO'] == 'y')):
+                        valid = True
+                if valid == False:
+                    msg1= key + ':' + str(self.security_kco[key]) 
+                    value1 = etree.SubElement(sec3, 'value', {'current':msg1})
+                    msg2= key + ':' + str(self.security_kco_ref[key])
+                    value2 = etree.SubElement(sec3, 'value', {'rcmmndd':msg2})
+        sec4= etree.SubElement(root, 'section', name='Integrity_options_that_need_improvement')
+        for key in sorted(self.integrity_kco):
+            if (self.integrity_kco[key] != self.integrity_kco_ref[key]) :
+                valid = False
+                if ((key == "CONFIG_IMA_DEFAULT_HASH_SHA1") or 
+                   (key == "CONFIG_IMA_DEFAULT_HASH_SHA256") or
+                   (key == "CONFIG_IMA_DEFAULT_HASH_SHA512") or
+                   (key == "CONFIG_IMA_DEFAULT_HASH_WP512")) :
+                    if ((self.integrity_kco['CONFIG_IMA_DEFAULT_HASH_SHA256'] == 'y') or 
+                        (self.integrity_kco['CONFIG_IMA_DEFAULT_HASH_SHA512'] == 'y')):
+                        valid = True
+                if valid == False :
+                    msg1= key + ':' + str(self.integrity_kco[key]) 
+                    value1 = etree.SubElement(sec4, 'value', {'current':msg1})
+                    msg2= key + ':' + str(self.integrity_kco_ref[key])
+                    value2 = etree.SubElement(sec4, 'value', {'rcmmndd':msg2})
+        print (etree.tostring(root, pretty_print=True))
+        tree = etree.ElementTree(root)
+        output = self.reportdir + problemsreport + ISA_kernel.img_name + "_" + self.timestamp + '.xml' 
+        tree.write(output, encoding= 'UTF-8', pretty_print=True, xml_declaration=True)
 
 #======== supported callbacks from ISA =============#
 
@@ -287,6 +364,5 @@ def getPluginName():
 def process_kernel(ISA_kernel):
     global KCAnalyzer 
     return KCAnalyzer.process_kernel(ISA_kernel)
-
 #====================================================#
 

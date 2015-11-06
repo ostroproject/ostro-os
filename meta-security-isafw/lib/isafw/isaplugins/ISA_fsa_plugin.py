@@ -27,6 +27,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import os
 from stat import *
+from lxml import etree
 
 FSAnalyzer = None
 full_report = "/fsa_full_report_"
@@ -74,21 +75,8 @@ class ISA_FSChecker():
                                 self.no_sticky_bit_ww_dirs.append(i)
                             if (((st.st_mode&S_IFREG) == S_IFREG) and ((st.st_mode&S_IFLNK) != S_IFLNK)):        
                                 self.ww_files.append(i)
-                with open(self.reportdir + problems_report + ISA_filesystem.img_name + "_" + self.timestamp, 'w') as fproblems_report:
-                    fproblems_report.write("Report for image: " + ISA_filesystem.img_name + '\n')
-                    fproblems_report.write("With rootfs location at " + ISA_filesystem.path_to_fs + "\n\n")
-                    fproblems_report.write("Files with SETUID bit set:\n")
-                    for item in self.setuid_files:
-                        fproblems_report.write(item + '\n')
-                    fproblems_report.write("\n\nFiles with SETGID bit set:\n")
-                    for item in self.setgid_files:
-                        fproblems_report.write(item + '\n')
-                    fproblems_report.write("\n\nWorld-writable files:\n")
-                    for item in self.ww_files:
-                        fproblems_report.write(item + '\n')
-                    fproblems_report.write("\n\nWorld-writable dirs with no sticky bit:\n")
-                    for item in self.no_sticky_bit_ww_dirs:
-                        fproblems_report.write(item + '\n')
+                self.write_problems_report(ISA_filesystem)
+                self.write_problems_report_xml(ISA_filesystem)
             else:
                 print("Mandatory arguments such as image name and path to the filesystem are not provided!")
                 print("Not performing the call.")
@@ -99,6 +87,47 @@ class ISA_FSChecker():
             print("Plugin hasn't initialized! Not performing the call.")
             with open(self.logdir + log, 'a') as flog:
                 flog.write("Plugin hasn't initialized! Not performing the call.\n")
+
+    def write_problems_report(self, ISA_filesystem):
+        with open(self.reportdir + problems_report + ISA_filesystem.img_name + "_" + self.timestamp, 'w') as fproblems_report:
+            fproblems_report.write("Report for image: " + ISA_filesystem.img_name + '\n')
+            fproblems_report.write("With rootfs location at " + ISA_filesystem.path_to_fs + "\n\n")
+            fproblems_report.write("Files with SETUID bit set:\n")
+            for item in self.setuid_files:
+                fproblems_report.write(item + '\n')
+            fproblems_report.write("\n\nFiles with SETGID bit set:\n")
+            for item in self.setgid_files:
+                fproblems_report.write(item + '\n')
+            fproblems_report.write("\n\nWorld-writable files:\n")
+            for item in self.ww_files:
+                fproblems_report.write(item + '\n')
+            fproblems_report.write("\n\nWorld-writable dirs with no sticky bit:\n")
+            for item in self.no_sticky_bit_ww_dirs:
+                fproblems_report.write(item + '\n')
+
+    def write_problems_report_xml(self, ISA_filesystem):
+        root = etree.Element('filesystem_problemsreport', {'path':ISA_filesystem.path_to_fs})
+        prblms1 = etree.SubElement(root, 'findings', classname='ISA_FSChecker', name='Files_with_SETUID_bit_set')
+        if self.setuid_files:            
+            for item in self.setuid_files:
+                etree.SubElement(prblms1, 'problem').text = item
+        prblms2 = etree.SubElement(root, 'findings', classname='ISA_FSChecker', name='Files_with_SETGID_bit_set')
+        if self.setgid_files:            
+            for item in self.setgid_files:
+                etree.SubElement(prblms2, 'problem').text = item
+        prblms3 = etree.SubElement(root, 'findings', classname='ISA_FSChecker', name='World-writable_files')
+        if self.ww_files:
+            for item in self.ww_files:
+                etree.SubElement(prblms3, 'problem').text = item
+        prblms4 = etree.SubElement(root, 'findings', classname='ISA_FSChecker', name='World-writable_dirs_with_no_sticky_bit')
+        if self.no_sticky_bit_ww_dirs:            
+            for item in self.no_sticky_bit_ww_dirs:
+                etree.SubElement(prblms4, 'problem').text = item
+        print (etree.tostring(root, pretty_print=True))
+        tree = etree.ElementTree(root)
+        output = self.reportdir + problems_report + ISA_filesystem.img_name + "_" + self.timestamp + '.xml' 
+        tree.write(output, encoding= 'UTF-8', pretty_print=True, xml_declaration=True)
+
 
     def find_fsobjects(self, init_path):
         list_of_files = []
