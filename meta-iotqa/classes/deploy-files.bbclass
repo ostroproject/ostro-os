@@ -65,4 +65,4 @@ python do_deploy_files () {
                         shutil.copy(src, to)
 }
 
-addtask deploy_files before do_build after do_compile
+addtask deploy_files before do_build after do_package
