@@ -106,28 +106,31 @@ class ISA_FSChecker():
                 fproblems_report.write(item + '\n')
 
     def write_problems_report_xml(self, ISA_filesystem):
-        root = etree.Element('filesystem_problemsreport', {'path':ISA_filesystem.path_to_fs})
-        prblms1 = etree.SubElement(root, 'findings', classname='ISA_FSChecker', name='Files_with_SETUID_bit_set')
-        if self.setuid_files:            
+        root = etree.Element('filesystem_problemsreport', {'location':ISA_filesystem.path_to_fs}, {'image':ISA_filesystem.img_name})
+        sec1 = etree.SubElement(root, 'section', classname='ISA_FSChecker', name='Files_with_SETUID_bit_set')
+        if self.setuid_files:
+            failrs1 = etree.SubElement(sec1, 'failure', msg='Non-compliant files found', type='violation')                    
             for item in self.setuid_files:
-                etree.SubElement(prblms1, 'problem').text = item
-        prblms2 = etree.SubElement(root, 'findings', classname='ISA_FSChecker', name='Files_with_SETGID_bit_set')
-        if self.setgid_files:            
+                etree.SubElement(failrs1, 'value').text = item
+        sec2 = etree.SubElement(root, 'section', classname='ISA_FSChecker', name='Files_with_SETGID_bit_set')
+        if self.setgid_files:
+            failrs2 = etree.SubElement(sec2, 'failure', msg='Non-compliant files found', type='violation')                    
             for item in self.setgid_files:
-                etree.SubElement(prblms2, 'problem').text = item
-        prblms3 = etree.SubElement(root, 'findings', classname='ISA_FSChecker', name='World-writable_files')
+                etree.SubElement(failrs2, 'value').text = item
+        sec3 = etree.SubElement(root, 'section', classname='ISA_FSChecker', name='World-writable_files')
         if self.ww_files:
+            failrs3 = etree.SubElement(sec3, 'failure', msg='Non-compliant files found', type='violation')
             for item in self.ww_files:
-                etree.SubElement(prblms3, 'problem').text = item
-        prblms4 = etree.SubElement(root, 'findings', classname='ISA_FSChecker', name='World-writable_dirs_with_no_sticky_bit')
-        if self.no_sticky_bit_ww_dirs:            
+                etree.SubElement(failrs3, 'value').text = item
+        sec4 = etree.SubElement(root, 'section', classname='ISA_FSChecker', name='World-writable_dirs_with_no_sticky_bit')
+        if self.no_sticky_bit_ww_dirs:
+            failrs4 = etree.SubElement(sec4, 'failure', msg='Non-compliant directories found', type='violation')            
             for item in self.no_sticky_bit_ww_dirs:
-                etree.SubElement(prblms4, 'problem').text = item
+                etree.SubElement(failrs4, 'value').text = item
         print (etree.tostring(root, pretty_print=True))
         tree = etree.ElementTree(root)
         output = self.reportdir + problems_report + ISA_filesystem.img_name + "_" + self.timestamp + '.xml' 
         tree.write(output, encoding= 'UTF-8', pretty_print=True, xml_declaration=True)
-
 
     def find_fsobjects(self, init_path):
         list_of_files = []
