@@ -11,7 +11,7 @@ SRC_URI = "https://mirrors.kernel.org/iotivity/1.0.0/iotivity-1.0.0.tar.gz;name=
            https://googletest.googlecode.com/files/gtest-1.7.0.zip;name=gtest \
            https://github.com/dascandy/hippomocks/archive/2f40aa11e31499432283b67f9d3449a3cd7b9c4d.zip \
            file://arch.patch;patch=1 \
-           file://pkgconf.patch;patch=1 \
+           file://yocto_paths.patch;patch=1 \
            file://zigbeepluginignore.patch;patch=1 \
            file://hippomocks_mips_patch \
           "	  
