@@ -7,15 +7,17 @@ LIC_FILES_CHKSUM = "file://${WORKDIR}/git/MIT-LICENSE.txt;md5=6b58eb710e76f8b979
 DEPENDS = "nodejs-native glib-2.0 iotivity"
 RDEPENDS_${PN} += "bash iotivity-resource"
 
-SRC_URI = "git://github.com/otcshare/iotivity-node.git;protocol=https"
-SRCREV = "fd43385570ae89ad234e43984c2928066d800d6f"
+SRC_URI = "git://github.com/otcshare/iotivity-node.git;protocol=https \
+           file://0001-Disable-TCP-support.patch \
+          "
+SRCREV = "fcb5de6dcbd1ca8f07637617c2d54885c5febd83"
 
 S = "${WORKDIR}/git"
 INSANE_SKIP_${PN} += "ldflags staticdev"
 
 do_compile_prepend() {
     OCTBDIR="${STAGING_DIR_TARGET}${includedir}/iotivity/resource"
-    export OCTBSTACK_CFLAGS="-I${OCTBDIR}/stack -I${OCTBDIR}/logger -I${OCTBDIR}/oc_logger -I${OCTBDIR}/ocrandom"
+    export OCTBSTACK_CFLAGS="-I${OCTBDIR} -I${OCTBDIR}/stack -I${OCTBDIR}/logger -I${OCTBDIR}/oc_logger -I${OCTBDIR}/ocrandom -DROUTING_GATEWAY"
     export OCTBSTACK_LIBS="-loctbstack"
     export CFLAGS="$CFLAGS -fPIC"
     export CXXFLAGS="$CXXFLAGS -fPIC"

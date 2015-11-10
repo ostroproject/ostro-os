@@ -1,0 +1,33 @@
+From 28675d1d14e792930653df60e4ca431209916864 Mon Sep 17 00:00:00 2001
+From: Sudarsana Nagineni <sudarsana.nagineni@intel.com>
+Date: Tue, 10 Nov 2015 10:20:01 +0200
+Subject: [PATCH] Disable TCP support in iotivity-node.
+
+Signed-off-by: Sudarsana Nagineni <sudarsana.nagineni@intel.com>
+---
+ src/enums.cc | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/src/enums.cc b/src/enums.cc
+index 214587b..6c25a0e 100644
+--- a/src/enums.cc
++++ b/src/enums.cc
+@@ -23,7 +23,6 @@ static Local<Object> bind_OCTransportAdapter() {
+   SET_CONSTANT_NUMBER(returnValue, OC_ADAPTER_IP);
+   SET_CONSTANT_NUMBER(returnValue, OC_ADAPTER_GATT_BTLE);
+   SET_CONSTANT_NUMBER(returnValue, OC_ADAPTER_RFCOMM_BTEDR);
+-  SET_CONSTANT_NUMBER(returnValue, OC_ADAPTER_TCP);
+ 
+   return returnValue;
+ }
+@@ -54,7 +53,6 @@ static Local<Object> bind_OCConnectivityType() {
+   SET_CONSTANT_NUMBER(returnValue, CT_ADAPTER_IP);
+   SET_CONSTANT_NUMBER(returnValue, CT_ADAPTER_GATT_BTLE);
+   SET_CONSTANT_NUMBER(returnValue, CT_ADAPTER_RFCOMM_BTEDR);
+-  SET_CONSTANT_NUMBER(returnValue, CT_ADAPTER_TCP);
+   SET_CONSTANT_NUMBER(returnValue, CT_FLAG_SECURE);
+   SET_CONSTANT_NUMBER(returnValue, CT_IP_USE_V6);
+   SET_CONSTANT_NUMBER(returnValue, CT_IP_USE_V4);
+-- 
+1.9.1
+
