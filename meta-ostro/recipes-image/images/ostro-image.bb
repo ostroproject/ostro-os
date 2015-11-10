@@ -158,16 +158,6 @@ INITRD_IMAGE_intel-quark = "${OSTRO_INITRAMFS}"
 # while the rootfs is expected to be in its own partition.
 NOHDD = "1"
 
-# Activate IMA signing of rootfs, using the default (and insecure,
-# because publicly available) keys shipped with the integrity
-# layer. Actual products are expected to use their own, secret keys.
-# See meta-integrity/README.md for the relevant configuration options.
-#
-# No IMA policy gets loaded, so in practice the resulting image runs
-# without IMA.
-IMA_EVM_ROOTFS_CLASS ?= "${@bb.utils.contains('IMAGE_FEATURES', 'ima', 'ima-evm-rootfs', 'base', d)}"
-inherit ${IMA_EVM_ROOTFS_CLASS}
-
 # Exception for /usr/dbspace/.security-manager.db: we set the owner
 # to a special "sqlite" user and then rely on the IMA policy only
 # measuring/appraising files owned by root.
@@ -251,11 +241,23 @@ set_sqlite_owner () {
 #   for those files written by systemd before remounting (/etc/machine-id!).
 #   In addition, ima-evm-rootfs.bbclass also adds the parameter to the rootfs
 #   because otherwise systemd would remove it.
+# - When image signing is disabled, we must not load the IMA policy.
+#   Alternatively, we could add a ostro-initramfs-noima, but the
+#   benefits of that (smaller initramfs) do not justify the downsides
+#   (building becomes slower).
 OSTRO_WRITABLE_FILES = "-path './etc/*' -o -path './var/*' -o -path './usr/dbspace/*'"
 IMA_EVM_ROOTFS_SIGNED = ". -type f -a -uid 0 -a ! \( ${OSTRO_WRITABLE_FILES} \)"
 IMA_EVM_ROOTFS_HASHED = ". -type f -a -uid 0 -a \( ${OSTRO_WRITABLE_FILES} \)"
 IMA_EVM_ROOTFS_IVERSION = "/"
-APPEND_append = " rootflags=i_version"
+APPEND_append = "${@bb.utils.contains('IMAGE_FEATURES', 'ima', ' rootflags=i_version', ' no-ima', d)}"
+# Conditionally including this class is problematic when manipulating the
+# IMAGE_FEATURES after parsing the recipe, because then parsing will use
+# the original value of IMAGE_FEATURES. Instead, we disable all operations
+# by returning early from ima_evm_sign_rootfs.
+inherit ima-evm-rootfs
+ima_evm_sign_rootfs_prepend () {
+    ${@bb.utils.contains('IMAGE_FEATURES', 'ima', '', 'return', d)}
+}
 
 # Debug option:
 # in case of problems during the transition from initramfs to rootfs, spawn a shell.
