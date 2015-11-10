@@ -37,8 +37,15 @@ IMAGE_FEATURES[validitems] += " \
     tools-profile \
 "
 
+# "dev" images have the following features turned on.
+IMAGE_VARIANT[dev] = " \
+    tools-debug \
+    tools-develop \
+    tools-profile \
 "
 
+# Default list of features in "ostro-image" images. Additional
+# image variations modify this list, see BBCLASSEXTEND below.
 IMAGE_FEATURES += " \
                         app-privileges \
                         can \
@@ -53,6 +60,29 @@ IMAGE_FEATURES += " \
                         python-runtime \
                         java-jdk \
                         "
+
+# Create variants of the base recipe where certain features are
+# turned on or off. The name of these modified recipes are
+# ostro-image-<variant1>-<variant2>-..., for example:
+#   ostro-image-dev
+#   ostro-image-dev-noima (not enabled by default at the moment)
+#
+# These variants are created on-the-fly by the imagevariant.bbclass.
+# Features preceeded by a "no" or "no-" are explicitly turned off.
+# Features mentioned by name are turned on. All other features are on
+# or off according to the original IMAGE_FEATURES list.
+#
+# Creating virtual recipes for all possible combinations of non-standard
+# features leads to an increase in parsing time due to the combinatorial
+# explosion. Therefore we define only those images that are both expected to
+# be useful and (more important) supported. Users can still enable
+# unsupported variations in the local.conf via OSTRO_EXTRA_IMAGE_VARIANTS.
+OSTRO_EXTRA_IMAGE_VARIANTS ?= ""
+BBCLASSEXTEND = "imagevariant:dev ${OSTRO_EXTRA_IMAGE_VARIANTS}"
+
+# Once officially supported, variations with IMA disabled can be
+# added. Right now, users need to do that in their local.conf:
+# OSTRO_EXTRA_IMAGE_VARIANTS = "imagevariant:noima imagevariant:dev,noima"
 
 # TODO: app-privileges depends on enabled Smack. Add it only
 # when Smack is enabled, or warn when enabled without Smack?
