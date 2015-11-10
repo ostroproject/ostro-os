@@ -38,7 +38,12 @@ IMAGE_FEATURES[validitems] += " \
 "
 
 # "dev" images have the following features turned on.
+# ptests are enabled because (platform) developers might want
+# to run them and because it is a relatively small change which
+# avoids unnecessary proliferation of image variations that
+# need to be built automatically.
 IMAGE_VARIANT[dev] = " \
+    ptest-pkgs \
     tools-debug \
     tools-develop \
     tools-profile \
