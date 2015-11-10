@@ -20,12 +20,22 @@ IMAGE_FEATURES[validitems] += " \
     devkit \
     ima \
     iotivity \
-    package-management \
-    sensors \
-    ssh-server-dropbear \
+    java-jdk \
     node-runtime \
     python-runtime \
-    java-jdk \
+    sensors \
+"
+
+# These features come from base recipes, but are not added to
+# IMAGE_FEATURES[validitems]. Should better be fixed there.
+IMAGE_FEATURES[validitems] += " \
+    package-management \
+    ptest-pkgs \
+    ssh-server-dropbear \
+    tools-debug \
+    tools-profile \
+"
+
 "
 
 IMAGE_FEATURES += " \
