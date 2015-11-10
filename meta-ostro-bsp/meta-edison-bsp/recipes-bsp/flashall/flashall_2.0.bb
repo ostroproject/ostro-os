@@ -1,6 +1,6 @@
 DESCRIPTION = "flashall scripts and supporting files"
 
-LICENSE = "Proprietary"
+LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=ea398a763463b76b18da15f013c0c531"
 
 inherit deploy
