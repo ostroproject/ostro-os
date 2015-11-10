@@ -26,7 +26,7 @@ do_analyse_sources[cleandirs] = "${ISAFW_WORKDIR}"
 
 python do_analyse_sources() {
 
-    import re
+    import re, errno
     from isafw import *
     isafw_config = isafw.ISA_config()
     
@@ -38,7 +38,12 @@ python do_analyse_sources() {
     isafw_config.timestamp = d.getVar('DATETIME', True)
     isafw_config.reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + isafw_config.timestamp
     if not os.path.exists(os.path.dirname(isafw_config.reportdir + "/test")):
-        os.makedirs(os.path.dirname(isafw_config.reportdir + "/test"))
+        try:
+            os.makedirs(os.path.dirname(isafw_config.reportdir + "/test"))
+        except OSError as exc:
+            if exc.errno == errno.EEXIST and os.path.isdir(isafw_config.reportdir):
+                pass
+            else: raise
     isafw_config.logdir = d.getVar('ISAFW_LOGDIR', True)
 
     whitelist = d.getVar('ISAFW_PLUGINS_WHITELIST', True)
@@ -114,7 +119,7 @@ python() {
 
 python analyse_image() {
 
-    import re
+    import re, errno
 
     # Directory where the image's entire contents can be examined
     rootfsdir = d.getVar('IMAGE_ROOTFS', True)
@@ -127,7 +132,12 @@ python analyse_image() {
     isafw_config.timestamp = d.getVar('DATETIME', True)
     isafw_config.reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + isafw_config.timestamp
     if not os.path.exists(os.path.dirname(isafw_config.reportdir + "/test")):
-        os.makedirs(os.path.dirname(isafw_config.reportdir + "/test"))
+        try:
+            os.makedirs(os.path.dirname(isafw_config.reportdir + "/test"))
+        except OSError as exc:
+            if exc.errno == errno.EEXIST and os.path.isdir(isafw_config.reportdir):
+                pass
+            else: raise
     isafw_config.logdir = d.getVar('ISAFW_LOGDIR', True)
 
     isafw_config.proxy = d.getVar('HTTP_PROXY', True)
