@@ -24,6 +24,7 @@ IMAGE_FEATURES[validitems] += " \
     node-runtime \
     python-runtime \
     sensors \
+    tools-develop \
 "
 
 # These features come from base recipes, but are not added to
@@ -78,6 +79,10 @@ FEATURE_PACKAGES_iotivity = "packagegroup-iotivity"
 FEATURE_PACKAGES_node-runtime = "packagegroup-node-runtime"
 FEATURE_PACKAGES_python-runtime = "packagegroup-python-runtime"
 FEATURE_PACKAGES_java-jdk = "packagegroup-java-jdk"
+
+# git is not essential for compiling software, but include it anyway
+# because it is the most common source code management tool.
+FEATURE_PACKAGES_tools-develop = "packagegroup-core-buildessential git"
 
 # Use gummiboot as the EFI bootloader.
 EFI_PROVIDER = "gummiboot"
