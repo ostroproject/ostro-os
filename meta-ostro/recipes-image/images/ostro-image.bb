@@ -242,6 +242,9 @@ IMA_EVM_ROOTFS_HASHED = ". -type f -a -uid 0 -a \( ${OSTRO_WRITABLE_FILES} \)"
 IMA_EVM_ROOTFS_IVERSION = "/"
 APPEND_append = " rootflags=i_version"
 
+# Debug option:
+# in case of problems during the transition from initramfs to rootfs, spawn a shell.
+APPEND_append = " init_fatal_sh"
 
 # Ensure that images preserve Smack labels and IMA/EVM.
 inherit xattr-images
