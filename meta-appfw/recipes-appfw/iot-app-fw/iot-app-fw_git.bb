@@ -52,11 +52,11 @@ PACKAGES =+ "${PN}-test"
 FILES_${PN}-test = "${bindir}/iot-event-test"
 
 PACKAGES =+ "${PN}-node-bindings"
-FILES_${PN}-node-bindings = "${libdir}/node_modules/iot/iot-appfw.node"
-FILES_${PN}-dbg += "${libdir}/node_modules/iot/.debug"
+FILES_${PN}-node-bindings = "${exec_prefix}/lib/node_modules/iot/iot-appfw.node"
+FILES_${PN}-dbg += "${exec_prefix}/lib/node_modules/iot/.debug"
 
 do_install_append() {
-    rm -f ${D}${libdir}/node_modules/iot/*.la
+    rm -f ${D}${exec_prefix}/lib/node_modules/iot/*.la
     rm -f ${D}${libdir}/*.la
     chmod a+s ${D}${bindir}/iotpm
     chmod a+s ${D}${bindir}/iot-launch
