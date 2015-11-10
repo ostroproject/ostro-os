@@ -283,9 +283,9 @@ class ISA_KernelChecker():
                         freport.write("Recommended value:\n")
                         freport.write(key + ' : ' + str(self.integrity_kco_ref[key]) + '\n')
         # write_problems_report_xml 
-        root = etree.Element('kernel_config_problemsreport', {'location':ISA_kernel.path_to_config}, {'image':ISA_kernel.img_name})
-        sec1 = etree.SubElement(root, 'section', classname ='ISA_KernelChecker', name = 'Hardening_options_that_need_improvement')
-        failrs1 = etree.SubElement(sec1, 'failure', msg = 'Non-compliant kernel settings found', type = 'violation')
+        root = etree.Element('testsuite', name = 'KCA_Plugin', tests='4')
+        tcase1 = etree.SubElement(root, 'testcase', classname ='ISA_KernelChecker', name = 'Hardening_options_that_need_improvement')
+        failrs1 = etree.SubElement(tcase1, 'failure', msg = 'Non-compliant kernel settings found', type = 'violation')
         for key in sorted(self.hardening_kco) :
             if (self.hardening_kco[key] != self.hardening_kco_ref[key]) :
                 valid == False
@@ -299,16 +299,16 @@ class ISA_KernelChecker():
                             valid = True
                             break
                 if valid == False:
-                    msg1= key + ' currently : ' + str(self.hardening_kco[key]) + ' | ' + 'recommended : ' + str(self.hardening_kco_ref[key]) 
-                    value1 = etree.SubElement(failrs1, 'value').text= msg1
-        sec2 = etree.SubElement(root, 'section', classname = 'ISA_KernelChecker', name = 'Key-related_options_that_need_improvement')
-        failrs2 = etree.SubElement(sec2, 'failure', msg = 'Non-compliant kernel settings found', type = 'violation')
+                    msg1 = 'current="' + key + ':' + str(self.hardening_kco[key]) + '"' + ' recommended="' + key + ':' + str(self.hardening_kco_ref[key] + '"') 
+                    value1 = etree.SubElement(failrs1, 'value').text = msg1
+        tcase2 = etree.SubElement(root, 'testcase', classname = 'ISA_KernelChecker', name = 'Key-related_options_that_need_improvement')
+        failrs2 = etree.SubElement(tcase2, 'failure', msg = 'Non-compliant kernel settings found', type = 'violation')
         for key in sorted(self.keys_kco):
             if (self.keys_kco[key] != self.keys_kco_ref[key]) :               
-                msg2 = key + ' currently : ' + str(self.keys_kco[key]) + ' | ' + 'recommended : ' + str(self.keys_kco_ref[key]) 
+                msg2 = 'current="' + key + ':' + str(self.keys_kco[key] + '"' + ' recommended="' + key + ':' + str(self.keys_kco_ref[key] + '"')) 
                 value2 = etree.SubElement(failrs2, 'value').text= msg2
-        sec3 = etree.SubElement(root, 'section', classname = 'ISA_KernelChecker', name = 'Security_options_that_need_improvement')
-        failrs3 = etree.SubElement(sec3, 'failure', msg = 'Non-compliant kernel settings found', type ='violation')
+        tcase3 = etree.SubElement(root, 'testcase', classname = 'ISA_KernelChecker', name = 'Security_options_that_need_improvement')
+        failrs3 = etree.SubElement(tcase3, 'failure', msg = 'Non-compliant kernel settings found', type ='violation')
         for key in sorted(self.security_kco):
             if (self.security_kco[key] != self.security_kco_ref[key]) :
                 valid = False
@@ -328,10 +328,10 @@ class ISA_KernelChecker():
                         (self.security_kco['CONFIG_SECURITY_TOMOYO'] == 'y')):
                         valid = True
                 if valid == False:
-                    msg3 = key + ' currently : ' + str(self.security_kco[key]) + ' | ' + 'recommended : ' + str(self.security_kco_ref[key]) 
+                    msg3 = 'current="' + key + ':' + str(self.security_kco[key]) + '"' + ' recommended="' + key + ':' + str(self.security_kco_ref[key] + '"')
                     value3 = etree.SubElement(failrs3, 'value').text = msg3
-        sec4= etree.SubElement(root, 'section', classname='ISA_KernelChecker', name='Integrity_options_that_need_improvement')
-        failrs4 = etree.SubElement(sec4, 'failure', msg='Non-compliant kernel settings found', type='violation')
+        tcase4 = etree.SubElement(root, 'testcase', classname = 'ISA_KernelChecker', name = 'Integrity_options_that_need_improvement')
+        failrs4 = etree.SubElement(tcase4, 'failure', msg = 'Non-compliant kernel settings found', type='violation')
         for key in sorted(self.integrity_kco):
             if (self.integrity_kco[key] != self.integrity_kco_ref[key]) :
                 valid = False
@@ -343,7 +343,7 @@ class ISA_KernelChecker():
                         (self.integrity_kco['CONFIG_IMA_DEFAULT_HASH_SHA512'] == 'y')):
                         valid = True
                 if valid == False :
-                    msg4 = key + ' currently : ' + str(self.integrity_kco[key]) + ' | ' + 'recommended : ' + str(self.integrity_kco_ref[key]) 
+                    msg4 = 'current="' + key + ':' + str(self.integrity_kco[key]) + '"' + ' recommended="' + key + ':' + str(self.integrity_kco_ref[key] + '"')
                     value4 = etree.SubElement(failrs4, 'value').text = msg4
         print (etree.tostring(root, pretty_print = True))
         tree = etree.ElementTree(root)
