@@ -140,7 +140,7 @@ class ISA_CFChecker():
         print (etree.tostring(root, pretty_print=True))
         tree = etree.ElementTree(root)
         output = self.reportdir + problems_report + ISA_filesystem.img_name + "_" + self.timestamp + '.xml' 
-        tree.write(output, pretty_print=True, xml_declaration=True)
+        tree.write(output, encoding= 'UTF-8', pretty_print=True, xml_declaration=True)
 
     def find_files(self, init_path):
         list_of_files = []
