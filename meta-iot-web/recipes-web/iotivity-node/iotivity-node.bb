@@ -7,10 +7,8 @@ LIC_FILES_CHKSUM = "file://${WORKDIR}/git/MIT-LICENSE.txt;md5=6b58eb710e76f8b979
 DEPENDS = "nodejs-native glib-2.0 iotivity"
 RDEPENDS_${PN} += "bash iotivity-resource"
 
-SRC_URI = "git://github.com/otcshare/iotivity-node.git;protocol=https \
-           file://0001-Disable-TCP-support.patch \
-          "
-SRCREV = "fcb5de6dcbd1ca8f07637617c2d54885c5febd83"
+SRC_URI = "git://github.com/otcshare/iotivity-node.git;protocol=https"
+SRCREV = "0882253c76197a6567ff03a2d9c765c2eab2af87"
 
 S = "${WORKDIR}/git"
 INSANE_SKIP_${PN} += "ldflags staticdev"
