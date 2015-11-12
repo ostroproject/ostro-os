@@ -28,9 +28,9 @@ class SmackBasicTest(oeRuntimeTest):
         self.smack_path = output
         self.files_dir = os.path.join( 
             os.path.abspath(os.path.dirname(__file__)), 'files')
-	self.uid = 1000
-	status,output = self.target.run("cat /proc/self/attr/current")
-	self.current_label = output.strip()
+        self.uid = 1000
+        status,output = self.target.run("cat /proc/self/attr/current")
+        self.current_label = output.strip()
 
 class SmackAccessLabel(SmackBasicTest):
 
@@ -167,7 +167,7 @@ class SmackChangeSelfLabelUnprivilege(SmackBasicTest):
 
         status, output = self.target.run(
             "python /tmp/notroot.py %d %s %s %s" 
-			%(self.uid, self.current_label, echo, LABEL) +
+            %(self.uid, self.current_label, echo, LABEL) +
             " 2>&1 >/proc/self/attr/current " +
             "| grep 'Operation not permitted'" )
 
@@ -425,7 +425,8 @@ class SmackEnforceMmap(SmackBasicTest):
     @skipUnlessPassed('test_ssh')
     def test_smack_mmap_enforced(self):
         '''Test if smack mmap access is enforced'''
-
+        raise unittest.SkipTest("Depends on mmap_test, which was removed from the layer while investigating its license.")
+    
         #      12345678901234567890123456789012345678901234567890123456
         delr1="mmap_label              mmap_test_label1        -----"
         delr2="mmap_label              mmap_test_label2        -----"
