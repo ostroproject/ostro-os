@@ -9,7 +9,7 @@ SRC_URI += "file://4.2-3.10-hack.patch"
 SRC_URI += "file://0001-Backport-compiler-gcc.h-from-4.2-kernel.patch"
 SRC_URI += "file://0002-Always-inline-inline-functions.patch"
 
-SRCREV_machine = "c2cfa513c405298280794a946fa70141ee7fc28f"
+SRCREV_machine = "0806da4730c0b863078f9d353272863fdf0f780d"
 #SRCREV_machine = "e152349de59b43b2a75f2c332b44171df461d5a0"
 
 inherit kernel
