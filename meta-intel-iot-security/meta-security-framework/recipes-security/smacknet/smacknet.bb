@@ -14,7 +14,7 @@ inherit systemd
 
 #netlabel configuration service
 SYSTEMD_SERVICE_${PN} = "smacknet.service"
-SYSTEMD_AUTO_ENABLE = "disable"
+SYSTEMD_AUTO_ENABLE = "enable"
 do_install(){
         install -d ${D}${bindir}
         install -m 0551 ${WORKDIR}/smacknet ${D}${bindir}
