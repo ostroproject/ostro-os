@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSE;md5=fa818a259cbed7ce8bc2a22d35
 DEPENDS = "nodejs-native iotivity iotivity-node"
 RDEPENDS_${PN} += "bash iot-app-fw-node-bindings iot-app-fw-launcher"
 
-SRC_URI = "git://git@github.com/01org/iot-rest-api-server.git;protocol=ssh"
+SRC_URI = "git://git@github.com/01org/iot-rest-api-server.git;protocol=https"
 SRCREV = "705bd09874862d31af8663b570906dd6ef888901"
 
 S = "${WORKDIR}/git"
