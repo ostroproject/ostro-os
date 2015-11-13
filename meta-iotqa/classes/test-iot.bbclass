@@ -24,7 +24,8 @@
 # TEST_QEMUBOOT_TIMEOUT can be used to set the maximum time in seconds the launch code will wait for the login prompt.
 
 inherit testimage
-
+#set dependency for test_ostro and test_iot_export
+TESTIMAGEDEPENDS ?= "ostro-image:do_build ostro-image-dev:do_build ostro-image:do_populate_sdk ostro-image:do_populate_sdk_ext"
 DEPLOY_DIR_TESTSUITE ?= "${DEPLOY_DIR}/testsuite"
 
 #get layer dir
