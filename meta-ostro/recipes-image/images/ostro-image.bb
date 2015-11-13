@@ -76,17 +76,11 @@ IMAGE_LINGUAS = " "
 
 LICENSE = "MIT"
 
-# Increase image size by 512M to ensure there's
-# always some free space in the image for installing extra packages.
-# rootfs_rpm.bbclass adds another 50M.
-#
-# TODO: this should be a variable from OE-core which gets
-# added by rootfs_rpm.bbclass, instead of doing the increase twice.
-OSTRO_IMAGE_ROOTFS_EXTRA_SPACE ?= " + 524288"
-IMAGE_ROOTFS_EXTRA_SPACE_append = "${@bb.utils.contains("PACKAGE_INSTALL", "smartpm", "${OSTRO_IMAGE_ROOTFS_EXTRA_SPACE}", "" ,d)}"
-
 # Set root password to "ostro" if not set
 OSTRO_ROOT_PASSWORD ?= "ostro"
+
+# Set the location where to fetch json files describing the disk layout
+IOT_DISK_LAYOUT_DIR="${THISDIR}/files/iot-cfg/"
 
 def crypt_pass(d):
     import crypt, string, random
@@ -106,33 +100,23 @@ usermod -p '${@crypt_pass(d)}' root; \
 NOISO = "1"
 
 # Replace the default "live" (aka HDDIMG) images with whole-disk images
-# that contain multiple partitions (hdddirect = raw image, vdi/vmdk/qcow2 for
-# different virtual machines). hdddirect is generated implicitly because the
-# virtual image types depend on it. Only applicable to some machines.
-OSTRO_VM_IMAGE_TYPES ?= "vdi vmdk qcow2"
+# XXX Drop the VM hack after taking care also of the non UEFI devices (those using U-Boot: edison and beaglebone)
+OSTRO_VM_IMAGE_TYPES ?= "${@bb.utils.contains_any('MACHINE', 'intel-core2-32 intel-corei7-64 intel-quark', 'ostro', 'vdi vmdk qcow2', d)}"
 IMAGE_FSTYPES_remove_intel-core2-32 = "live"
 IMAGE_FSTYPES_append_intel-core2-32 = " ${OSTRO_VM_IMAGE_TYPES}"
 IMAGE_FSTYPES_remove_intel-corei7-64 = "live"
 IMAGE_FSTYPES_append_intel-corei7-64 = " ${OSTRO_VM_IMAGE_TYPES}"
 IMAGE_FSTYPES_remove_intel-quark = "live"
 IMAGE_FSTYPES_append_intel-quark = " ${OSTRO_VM_IMAGE_TYPES}"
-# Remove also for qemu for the sake of consistency. It is not enabled there by default already.
-IMAGE_FSTYPES_remove_qemux86 = "live"
-IMAGE_FSTYPES_append_qemux86 = " ${OSTRO_VM_IMAGE_TYPES}"
-IMAGE_FSTYPES_remove_qemux86-64 = "live"
-IMAGE_FSTYPES_append_qemux86-64 = " ${OSTRO_VM_IMAGE_TYPES}"
 
 # Inherit after setting variables that get evaluated when importing
 # the classes. In particular IMAGE_FSTYPES is relevant because it causes
 # other classes to be imported.
-inherit core-image extrausers image-buildinfo
 
-# Inherit image-vm if any of the image fstypes depends on it.
-# Works around an error from image.py:
-# ERROR: No IMAGE_CMD defined for IMAGE_FSTYPES entry 'vdi' - possibly invalid type name or missing support class
-# Necessary because the normal image class inheritance mechanism
-# runs at the wrong time to avoid the image.py check.
-# inherit ${@'image-vm' if set(d.getVar('IMAGE_FSTYPES', True).split()).intersection(['vdi', 'vmdk', 'qcow2']) else ''}
+# XXX Drop the check after taking care also of the non UEFI devices (those using U-Boot: edison and beaglebone)
+# and make image-iot a fixed import, to override some of the core-image methods
+IMAGE_INHERIT_CLASS="${@bb.utils.contains_any('MACHINE', 'intel-core2-32 intel-corei7-64 intel-quark', ' image-iot ', '', d)}"
+inherit core-image extrausers image-buildinfo ${IMAGE_INHERIT_CLASS}
 
 BUILD_ID ?= "${DATETIME}"
 IMAGE_BUILDINFO_VARS_append = " BUILD_ID"
@@ -153,28 +137,11 @@ OSTRO_INITRAMFS ?= "ostro-initramfs"
 INITRD_IMAGE_intel-core2-32 = "${OSTRO_INITRAMFS}"
 INITRD_IMAGE_intel-corei7-64 = "${OSTRO_INITRAMFS}"
 INITRD_IMAGE_intel-quark = "${OSTRO_INITRAMFS}"
-INITRD_IMAGE_qemux86 = "${OSTRO_INITRAMFS}"
-INITRD_IMAGE_qemux86-64 = "${OSTRO_INITRAMFS}"
 
-# When using the ostro-initramfs, building an hddimg with
-# the rootfs in a rootfs.img is not useful, because the initramfs
-# will not be able to mount it and therefore the resulting image
-# will not boot.
-NOHDD ?= "${@'1' if d.getVar('INITRD_IMAGE', True) == 'ostro-initramfs' else '0'}"
-
-# Our initramfs supports finding the partition by UUID, so use that
-# to make the resulting whole-disk .hdddirect image more versatile (will
-# work regardless whether the disk is attached via IDE, SATA, USB or
-# copied to internal flash).
-OSTRO_ROOT ?= "root=UUID=<<uuid-of-rootfs>>"
-SYSLINUX_ROOT_intel-core2-32 = "${OSTRO_ROOT}"
-SYSLINUX_ROOT_intel-corei7-64 = "${OSTRO_ROOT}"
-SYSLINUX_ROOT_intel-quark = "${OSTRO_ROOT}"
-SYSLINUX_ROOT_qemux86 = "${OSTRO_ROOT}"
-SYSLINUX_ROOT_qemux86-64 = "${OSTRO_ROOT}"
-
-# If (and only if) not using syslinux, we need to prepend it ourselves.
-APPEND_prepend = "${@ '' if bb.data.inherits_class('syslinux', d) else '${SYSLINUX_ROOT} ' }"
+# The expected disk layout is not compatible with the HDD format:
+# HDD places the rootfs as loop file in a VFAT partition (UEFI),
+# while the rootfs is expected to be in its own partition.
+NOHDD = "1"
 
 # Activate IMA signing of rootfs, using the default (and insecure,
 # because publicly available) keys shipped with the integrity
@@ -275,16 +242,9 @@ IMA_EVM_ROOTFS_HASHED = ". -type f -a -uid 0 -a \( ${OSTRO_WRITABLE_FILES} \)"
 IMA_EVM_ROOTFS_IVERSION = "/"
 APPEND_append = " rootflags=i_version"
 
-# This limits attempts to mount the rootfs to exactly the right type.
-# Avoids kernel messages like:
-# EXT4-fs (hda2): couldn't mount as ext3 due to feature incompatibilities
-# The VM types must be treated like ext4 (also hard-coded there).
-APPEND_append = "${@''.join([' rootfstype=' + i for i in ['ext4', 'ext3', 'ext2'] if i in d.getVar('IMAGE_FSTYPES', True).replace('vdi', 'ext4').replace('vmdk', 'ext4').replace('qcow2', 'ext4').split()])}"
-
-# parted-native is required by wic to build the final image but has no
-# explicit dependency set in recipes. Use EXTRA_IMAGEDEPENDS to ensure
-# parted-native gets built.
-EXTRA_IMAGEDEPENDS += "parted-native"
+# Debug option:
+# in case of problems during the transition from initramfs to rootfs, spawn a shell.
+APPEND_append = " init_fatal_sh"
 
 # Ensure that images preserve Smack labels and IMA/EVM.
 inherit xattr-images
