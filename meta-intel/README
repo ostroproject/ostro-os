@@ -111,6 +111,34 @@ To make these features available for your machine, you will need to:
 Once the above requirements are met, the machine features provided by
 the meta-intel layer will be available for the BSP to use.
 
+Building for Intel Quark X1000 microprocessor
+---------------------------------------------
+
+To target the Intel Quark X1000. 
+
+ 1. In conf/local.conf set the MACHINE type to be intel-quark.
+
+    MACHINE ??= "intel-quark"
+
+ 2. Build a target image of your choice. 
+    
+    $ bitbake core-image-minimal
+
+ 3. Use the provided wic script to create an SD card image. 
+
+    $ wic list images
+  mkgalileodisk                         Create an Galileo Gen 1/2 disk image
+  mkgummidisk                           Create an EFI disk image
+    ...
+
+    $ wic create mkgalileodisk -e core-image-minimal
+
+  4. Write the output image to an SD Card
+
+    $ sudo dd if=~/mkgalileodisk-*-mmcblk0.direct of=/dev/mmcblk0
+ 
+  5. Insert the SD Card into the reference platform and power on. 
+
 Available machine features
 --------------------------
 
