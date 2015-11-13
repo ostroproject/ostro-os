@@ -1,8 +1,8 @@
-var oicDevice = require('iotivity');
+var oicDevice = require('iotivity-node');
 
 
 var device = new oicDevice();
-var OicServer = device._server;
+var OicServer = device.server;
 
 module.exports = {
 
