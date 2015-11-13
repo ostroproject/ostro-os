@@ -1,0 +1,107 @@
+language: c++
+compiler: gcc
+# Select Trusty Beta environment, required for testing.
+sudo: required
+dist: trusty
+env:
+  - OE_CORE=master BITBAKE=master
+  - OE_CORE=jethro BITBAKE=1.28
+  - OE_CORE=fido BITBAKE=1.26
+  - OE_CORE=dizzy BITBAKE=1.24
+addons:
+  apt:
+    packages:
+    - s3cmd
+    - diffstat
+    - texinfo
+    - chrpath
+    # Not installed by default on Trusty environment.
+    - xvfb
+    # Not needed, sdl removed from qemu below.
+    # - libsdl1.2-dev
+install:
+  - git clone --depth=1 --single-branch --branch=$OE_CORE git://git.openembedded.org/openembedded-core
+  - ( cd openembedded-core && git clone --depth=1 --single-branch --branch=$BITBAKE git://git.openembedded.org/bitbake )
+script:
+  # The container environment has an limit of 2 hours per run. Everything else
+  # only gets 50 minutes.
+  #
+  # If we get killed, our sstate will not be uploaded and we won't be
+  # faster during the next invocation either. Therefore abort bitbake
+  # invocations which take too long ourselves, and then upload new
+  # sstate. We reserve 10 minutes for that (five was not enough
+  # sometimes).
+  - if uname -a | grep -q 3.13; then iscontainer=1; else iscontainer=; fi
+  - start=$(date +%s); if [ "$iscontainer" ]; then duration=120; else duration=50; fi; deadline=$(( $start + $duration * 60 - 10 * 60 ))
+  - echo "Started on $(date --date=@$start), must end at $(date --date=@$deadline)."
+  - echo $(df -B1048576 . | tail -1 | sed -e 's/[^ ]* *\([0-9]*\).*/\1/')
+  - . openembedded-core/oe-init-build-env
+  - sed -i -e "s;\(BBLAYERS.*\"\);\1 $(pwd)/../meta-security-smack $(pwd)/../meta-security-framework $(pwd)/../meta-integrity;" conf/bblayers.conf
+  # Simplify qemu compilation.
+  - echo 'PACKAGECONFIG_remove_pn-qemu-native = "sdl"' >>conf/local.conf
+  - echo 'ASSUME_PROVIDED_remove = "libsdl-native"' >>conf/local.conf
+  # Enable security components.
+  - echo 'DISTRO_FEATURES = "${DISTRO_FEATURES_DEFAULT} ${DISTRO_FEATURES_LIBC} systemd pam smack dbus-cynara ima"' >>conf/local.conf
+  - echo 'OVERRIDES .= ":smack"' >>conf/local.conf
+  - echo 'VIRTUAL-RUNTIME_init_manager = "systemd"' >>conf/local.conf
+  - echo 'DISTRO_FEATURES_BACKFILL_CONSIDERED = "sysvinit"' >>conf/local.conf
+  - echo 'VIRTUAL-RUNTIME_initscripts = ""' >>conf/local.conf
+  - echo 'CORE_IMAGE_EXTRA_INSTALL_append_pn-core-image-minimal = " smack-userspace security-manager security-manager-policy cynara app-runas"' >>conf/local.conf
+  - echo 'INHERIT_append_pn-core-image-minimal = " ima-evm-rootfs"' >>conf/local.conf
+  # For testing...
+  - echo 'EXTRA_IMAGE_FEATURES = "debug-tweaks ssh-server-dropbear"' >>conf/local.conf
+  - echo 'CORE_IMAGE_EXTRA_INSTALL_append_pn-core-image-minimal = " python"' >>conf/local.conf
+  # Use Amazon S3 bucket as sstate cache if available.
+  - if [ -n "$AWS_BUCKET" ]; then echo "SSTATE_MIRRORS = \"file://.* http://$AWS_BUCKET.s3-website-${AWS_BUCKET_REGION:-us-east-1}.amazonaws.com/PATH\"" >>conf/local.conf; fi
+  # Can monitor less directories (it is all one file system) and
+  # accept lower security margins, because a failure is not that
+  # critical.
+  - echo 'BB_DISKMON_DIRS = " STOPTASKS,/tmp,500M,10K STOPTASKS,${DL_DIR},500M,10K ABORT,/tmp,100M,1K ABORT,${DL_DIR},100M,1K"' >>conf/local.conf
+  # Useful to avoid running out of disk space during the build.
+  - echo 'INHERIT += "rm_work"' >>conf/local.conf
+  # Even with rm_work in place, running too many tasks in parallel can
+  # cause the disk to overflow temporarily and/or trigger the
+  # out-of-memory killer, so we allow only two tasks.  The default is
+  # too large because /proc/cpuinfo is misleading: it seems to show
+  # all CPUs on the host, although in reality (?) the environments only have
+  # two, according to
+  # http://docs.travis-ci.com/user/ci-environment/#Virtualization-environments
+  #
+  # The Trusty Beta environment has more RAM and thus can afford more parallelism.
+  # However, it also has a shorter overall runtime. If we end up with two heavy
+  # compile tasks (say, linux-yocto and qemu-native), then both compete for CPU
+  # time and neither of them manages to complete before the job gets killed.
+  - ( if [ "$iscontainer" ]; then echo 'BB_NUMBER_THREADS = "2"'; echo 'PARALLEL_MAKE = "-j4"'; else echo 'BB_NUMBER_THREADS = "2"';  echo 'PARALLEL_MAKE = "-j8"'; fi ) >>conf/local.conf
+  # Dump our local.conf for debugging.
+  - tail -50 conf/local.conf
+  # Set up sstate-cache in a more visible, fixed location.
+  - mkdir -p $HOME/sstate-cache
+  - ln -s $HOME/sstate-cache .
+  # Check for large directories (>= 1GB).
+  - du -h $HOME | grep '^[0-9\.]\+G' || true
+  - df -h .
+  # Remove .rvm to free up space. This can only be done when we do not
+  # depend anymore on TravisCI add-ons like "deploy" or "artifacts",
+  # which are implemented in Ruby.
+  - rm -rf $HOME/.rvm
+  - df -h .
+  # And now building...
+  - ../scripts/travis-cmd-wrapper.py --deadline=$deadline bitbake core-image-minimal app-runas mmap-smack-test tcp-smack-test udp-smack-test || BITBAKE_RESULT=1
+  - df -h .
+  # The download directory can become quite large.
+  - (du -h -c -s $(ls -1 -d downloads/* downloads/git2/* 2>/dev/null | grep -v -e '.done$' -e '/git2$')) || true
+  - (df -h .; du -h -s * $HOME/sstate-cache) || true
+  # temp files are preserved by rm_work.bbclass, but should not be that large.
+  - du -h -c -s tmp*/work/*/*/*/temp | tail -1
+  # Copy new sstate files to S3 bucket.
+  - $TRAVIS_BUILD_DIR/scripts/sstate2s3.sh
+  # Finally! Running tests.
+  - tests=$(echo $(ls -1 ../*/lib/oeqa/runtime/*.py | grep -v __init__.py | sed -e 's;.*/\(.*\)\.py;\1;'))
+  - echo $tests
+  - echo 'INHERIT += "testimage"' >>conf/local.conf
+  - echo "TEST_SUITES = \"ssh $tests\"" >>conf/local.conf
+  # But not when using containers, because runqemu depends on TAP networking,
+  # which requires root to set up.
+  - if [ ! "$iscontainer" ]; then xvfb-run ../scripts/travis-cmd-wrapper.py --deadline=$deadline -- bitbake -c testimage core-image-minimal || TEST_RESULT=1; for i in tmp*/work/*/core-image-minimal/*/temp/log.do_testimage tmp*/work/*/core-image-minimal/*/testimage/*log; do if [ -e $i ]; then echo "**** $i ****"; cat $i; fi; done; fi
+  # Summarize results and set final job result.
+  - echo "TravisCI result $TRAVIS_TEST_RESULT, build result ${BITBAKE_RESULT:-0}, test result ${TEST_RESULT:-0}"; if [ $TRAVIS_TEST_RESULT -eq 0 ] && ( [ "$BITBAKE_RESULT" ] || [ "$TEST_RESULT" ] ); then TRAVIS_TEST_RESULT=1; false; fi
