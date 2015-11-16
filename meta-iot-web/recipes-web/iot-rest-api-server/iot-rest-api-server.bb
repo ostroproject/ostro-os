@@ -7,8 +7,10 @@ LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSE;md5=fa818a259cbed7ce8bc2a22d35
 DEPENDS = "nodejs-native iotivity iotivity-node"
 RDEPENDS_${PN} += "bash iot-app-fw-node-bindings iot-app-fw-launcher"
 
-SRC_URI = "git://git@github.com/01org/iot-rest-api-server.git;protocol=ssh"
-SRCREV = "b09ec613b749daf87fcf8fdcf1b15d14812c4c5b"
+SRC_URI = "git://git@github.com/01org/iot-rest-api-server.git;protocol=https \
+           file://0001-Remove-iotivity-node-dependency.patch \
+          "
+SRCREV = "705bd09874862d31af8663b570906dd6ef888901"
 
 S = "${WORKDIR}/git"
 
@@ -16,7 +18,7 @@ INSANE_SKIP_${PN} += "ldflags staticdev"
 
 do_compile_prepend() {
     OCTBDIR="${STAGING_DIR_TARGET}${includedir}/iotivity/resource"
-    export OCTBSTACK_CFLAGS="-I${OCTBDIR}/stack -I${OCTBDIR}/logger -I${OCTBDIR}/oc_logger -I${OCTBDIR}/ocrandom"
+    export OCTBSTACK_CFLAGS="-I${OCTBDIR} -I${OCTBDIR}/stack -I${OCTBDIR}/logger -I${OCTBDIR}/oc_logger -I${OCTBDIR}/ocrandom -DROUTING_GATEWAY"
     export OCTBSTACK_LIBS="-loctbstack"
     export CFLAGS="$CFLAGS -fPIC"
     export CXXFLAGS="$CXXFLAGS -fPIC"

@@ -1,0 +1,27 @@
+From 65d8b24426b3bc09527b4152f161400cc807ae9c Mon Sep 17 00:00:00 2001
+From: Sudarsana Nagineni <sudarsana.nagineni@intel.com>
+Date: Thu, 12 Nov 2015 20:56:30 +0200
+Subject: [PATCH] Remove iotivity-node dependency from package.json
+
+Signed-off-by: Sudarsana Nagineni <sudarsana.nagineni@intel.com>
+---
+ package.json | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/package.json b/package.json
+index 7898eb9..8bd1fae 100644
+--- a/package.json
++++ b/package.json
+@@ -13,8 +13,7 @@
+     "body-parser": "^1.12.4",
+     "express": "^4.12.3",
+     "jade": "^1.10.0",
+-    "uuid": "^2.0.1",
+-    "iotivity-node": "^1.0.0-0"
++    "uuid": "^2.0.1"
+   },
+   "devDependencies": {
+     "gulp": "^3.8.11",
+-- 
+1.9.1
+
