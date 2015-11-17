@@ -5,6 +5,7 @@ import logging
 import appfw
 import time
 
+logging.basicConfig(filename="/opt/appfw_test/appfw_test.log")
 logger = logging.getLogger("__event-catch__")
 
 ml = glib.MainLoop(None)
@@ -42,7 +43,6 @@ def main():
 
 	if args.debug > 0:
 		if args.debug >= 1:
-	                logging.basicConfig(filename="/opt/appfw_test/appfw_test.log")
 			logger.setLevel(logging.DEBUG)
 		if args.debug >= 2:
 			app._enable_debug([""])

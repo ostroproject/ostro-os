@@ -44,7 +44,7 @@ class AppFwTestPython(oeRuntimeTest):
         self.assertTrue(PID!=None, 'unable to get PID of catch app')
         (status,output) = self.target.run("kill -TERM %s " % PID)
     
-        time.sleep(2)
+        time.sleep(5)
         expected_output = "Received a SIGTERM, quitting mainloop..."
         (status,catch_app_output) = self.target.run("cat %s | grep '%s' " % (self.appfw_test_log , expected_output))
         
@@ -59,7 +59,7 @@ class AppFwTestPython(oeRuntimeTest):
         PID = self._getPID(self.catch_app)
         self.assertTrue(PID!=None, 'unable to get PID of catch app')
         (status,output) = self.target.run("kill -HUP %s " % PID)
-        time.sleep(2)
+        time.sleep(5)
         expected_output = "Received SIGHUP, doing nothing..."
         (status,catch_app_output) = self.target.run("cat %s | grep '%s' " % (self.appfw_test_log , expected_output))
         
