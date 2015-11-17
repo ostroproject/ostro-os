@@ -1,10 +1,18 @@
-Since example-app and example-session are not integrated in image by default , we need to build a specific image to test these cases except appfw python binding cases.
-Here are steps for how to build the image for these test cases.
+example-app is a pre-installed app but it's not integrated in image ,so we need to build a specific image to test these cases(M1 verification cases in appFW.py).
+Here are steps for how to build the image .
 1. cd <Directory of ostro>
 2. source oe-init-build-env
-3. Edit conf/local.conf to set IMAGE_INSTALL_append += " example-session"
+3. Edit conf/local.conf and append below line .
+       IMAGE_INSTALL_append += " example-app"
 4. bitbake ostro-image
-5. Burn generated image to USB disk or internal eMMC
-6. Boot from the image
 
-For M2 test cases(appFW_M2.py) , you need to build test app(bitbake appfwTestApp) and copy 2 rpm packages(appfwTestApp, appfwtest-user) to iottest/deploy/files/target/${MACHINE}/. Pleas note, this setp is no need until we fix the rpm deploy issue.
+For M2 test cases(appFW_M2.py) , we need to build test app(bitbake appfwTestApp) and copy 2 rpm packages(appfwTestApp, appfwtest-user) to iottest/deploy/files/target/${MACHINE}/. Pleas note, this setp is not needed when we implement the rpm deploy functionality . Here are the location info of the 2 rpm packages:
+    For intel-corei76-64: 
+       <Directory of ostro>/<build directory>/tmp-glibc/work/corei7-64-ostro-linux/appfwTestApp/1.0.0-r0/deploy-rpms/corei7_64/
+       <Directory of ostro>/<build directory>/tmp-glibc/work/corei7-64-ostro-linux/appfwtest-user1.0.0-r0/deploy-rpms/corei7_64/
+    For intel-quark:
+       <Directory of ostro>/<build directory>/tmp-glibc/work/i586-nlp-32-ostro-linux/appfwTestApp/1.0.0-r0/deploy-rpms/i586_nlp_32/
+       <Directory of ostro>/<build directory>/tmp-glibc/work/i586-nlp-32-ostro-linux/appfwtest-user1.0.0-r0/deploy-rpms/i586_nlp_32/
+    For edison:
+       <Directory of ostro>/<build directory>/tmp-glibc/work/core2-32-ostro-linux/appfwTestApp/1.0.0-r0/deploy-rpms/core2_32/
+       <Directory of ostro>/<build directory>/tmp-glibc/work/core2-32-ostro-linux/appfwtest-user1.0.0-r0/deploy-rpms/core2_32/
