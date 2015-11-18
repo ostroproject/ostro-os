@@ -20,14 +20,37 @@ IMAGE_FEATURES[validitems] += " \
     devkit \
     ima \
     iotivity \
-    package-management \
-    sensors \
-    ssh-server-dropbear \
+    java-jdk \
     node-runtime \
     python-runtime \
-    java-jdk \
+    sensors \
+    tools-develop \
 "
 
+# These features come from base recipes, but are not added to
+# IMAGE_FEATURES[validitems]. Should better be fixed there.
+IMAGE_FEATURES[validitems] += " \
+    package-management \
+    ptest-pkgs \
+    ssh-server-dropbear \
+    tools-debug \
+    tools-profile \
+"
+
+# "dev" images have the following features turned on.
+# ptests are enabled because (platform) developers might want
+# to run them and because it is a relatively small change which
+# avoids unnecessary proliferation of image variations that
+# need to be built automatically.
+IMAGE_VARIANT[dev] = " \
+    ptest-pkgs \
+    tools-debug \
+    tools-develop \
+    tools-profile \
+"
+
+# Default list of features in "ostro-image" images. Additional
+# image variations modify this list, see BBCLASSEXTEND below.
 IMAGE_FEATURES += " \
                         app-privileges \
                         can \
@@ -42,6 +65,29 @@ IMAGE_FEATURES += " \
                         python-runtime \
                         java-jdk \
                         "
+
+# Create variants of the base recipe where certain features are
+# turned on or off. The name of these modified recipes are
+# ostro-image-<variant1>-<variant2>-..., for example:
+#   ostro-image-dev
+#   ostro-image-dev-noima (not enabled by default at the moment)
+#
+# These variants are created on-the-fly by the imagevariant.bbclass.
+# Features preceeded by a "no" or "no-" are explicitly turned off.
+# Features mentioned by name are turned on. All other features are on
+# or off according to the original IMAGE_FEATURES list.
+#
+# Creating virtual recipes for all possible combinations of non-standard
+# features leads to an increase in parsing time due to the combinatorial
+# explosion. Therefore we define only those images that are both expected to
+# be useful and (more important) supported. Users can still enable
+# unsupported variations in the local.conf via OSTRO_EXTRA_IMAGE_VARIANTS.
+OSTRO_EXTRA_IMAGE_VARIANTS ?= ""
+BBCLASSEXTEND = "imagevariant:dev ${OSTRO_EXTRA_IMAGE_VARIANTS}"
+
+# Once officially supported, variations with IMA disabled can be
+# added. Right now, users need to do that in their local.conf:
+# OSTRO_EXTRA_IMAGE_VARIANTS = "imagevariant:noima imagevariant:dev,noima"
 
 # TODO: app-privileges depends on enabled Smack. Add it only
 # when Smack is enabled, or warn when enabled without Smack?
@@ -68,6 +114,10 @@ FEATURE_PACKAGES_iotivity = "packagegroup-iotivity"
 FEATURE_PACKAGES_node-runtime = "packagegroup-node-runtime"
 FEATURE_PACKAGES_python-runtime = "packagegroup-python-runtime"
 FEATURE_PACKAGES_java-jdk = "packagegroup-java-jdk"
+
+# git is not essential for compiling software, but include it anyway
+# because it is the most common source code management tool.
+FEATURE_PACKAGES_tools-develop = "packagegroup-core-buildessential git"
 
 # Use gummiboot as the EFI bootloader.
 EFI_PROVIDER = "gummiboot"
@@ -142,16 +192,6 @@ INITRD_IMAGE_intel-quark = "${OSTRO_INITRAMFS}"
 # HDD places the rootfs as loop file in a VFAT partition (UEFI),
 # while the rootfs is expected to be in its own partition.
 NOHDD = "1"
-
-# Activate IMA signing of rootfs, using the default (and insecure,
-# because publicly available) keys shipped with the integrity
-# layer. Actual products are expected to use their own, secret keys.
-# See meta-integrity/README.md for the relevant configuration options.
-#
-# No IMA policy gets loaded, so in practice the resulting image runs
-# without IMA.
-IMA_EVM_ROOTFS_CLASS ?= "${@bb.utils.contains('IMAGE_FEATURES', 'ima', 'ima-evm-rootfs', 'base', d)}"
-inherit ${IMA_EVM_ROOTFS_CLASS}
 
 # Exception for /usr/dbspace/.security-manager.db: we set the owner
 # to a special "sqlite" user and then rely on the IMA policy only
@@ -236,11 +276,23 @@ set_sqlite_owner () {
 #   for those files written by systemd before remounting (/etc/machine-id!).
 #   In addition, ima-evm-rootfs.bbclass also adds the parameter to the rootfs
 #   because otherwise systemd would remove it.
+# - When image signing is disabled, we must not load the IMA policy.
+#   Alternatively, we could add a ostro-initramfs-noima, but the
+#   benefits of that (smaller initramfs) do not justify the downsides
+#   (building becomes slower).
 OSTRO_WRITABLE_FILES = "-path './etc/*' -o -path './var/*' -o -path './usr/dbspace/*'"
 IMA_EVM_ROOTFS_SIGNED = ". -type f -a -uid 0 -a ! \( ${OSTRO_WRITABLE_FILES} \)"
 IMA_EVM_ROOTFS_HASHED = ". -type f -a -uid 0 -a \( ${OSTRO_WRITABLE_FILES} \)"
 IMA_EVM_ROOTFS_IVERSION = "/"
-APPEND_append = " rootflags=i_version"
+APPEND_append = "${@bb.utils.contains('IMAGE_FEATURES', 'ima', ' rootflags=i_version', ' no-ima', d)}"
+# Conditionally including this class is problematic when manipulating the
+# IMAGE_FEATURES after parsing the recipe, because then parsing will use
+# the original value of IMAGE_FEATURES. Instead, we disable all operations
+# by returning early from ima_evm_sign_rootfs.
+inherit ima-evm-rootfs
+ima_evm_sign_rootfs_prepend () {
+    ${@bb.utils.contains('IMAGE_FEATURES', 'ima', '', 'return', d)}
+}
 
 # Debug option:
 # in case of problems during the transition from initramfs to rootfs, spawn a shell.
