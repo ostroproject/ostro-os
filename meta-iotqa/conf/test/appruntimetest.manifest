@@ -3,3 +3,4 @@ oeqa.runtime.app_runtime.preinstalled_node_modules
 oeqa.runtime.app_runtime.apprt_python_runtime
 oeqa.runtime.app_runtime.rest_apis
 oeqa.runtime.app_runtime.iotivity_js_apis
+oeqa.runtime.app_runtime.rest_api_apps
