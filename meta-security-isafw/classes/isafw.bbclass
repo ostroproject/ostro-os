@@ -215,7 +215,7 @@ python isafwreport_handler () {
 
     import shutil
 
-    logdir = d.getVar('ISAFW_LOGDIR', True)
+    logdir = e.data.getVar('ISAFW_LOGDIR', True)
     if os.path.exists(os.path.dirname(logdir+"/test")):
         shutil.rmtree(logdir)
     os.makedirs(os.path.dirname(logdir+"/test"))
