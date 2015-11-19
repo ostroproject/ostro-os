@@ -20,6 +20,11 @@ file://0006-Handle-unavailability-of-policy-results-for-broadcas.patch \
 file://0007-Add-own-rule-result-unavailability-handling.patch \
 "
 
+# This patch was added to dbus.inc in dizzy and fido for use with D-Bus 1.8.2,
+# but is not needed for our version of D-Bus because it already contains that
+# fix.
+SRC_URI_remove = "file://CVE-2015-0245-prevent-forged-ActivationFailure.patch"
+
 # Provides a legacy API which shouldn't be used in new code. It is
 # still needed at the moment because cynara helper methods call it
 # (creds-dbus-inner.cpp, creds-gdbus.cpp).
