@@ -43,7 +43,12 @@ MACHINE = \"%s\"
             # In that case, remember to "rm -r tmp-*" before the next run.
             self.track_for_cleanup(topdir + "/tmp-sstatesamehash-%s%s" % (machine, libcappend))
             # Replace build targets with individual recipes to investigate just those.
-            bitbake("world meta-toolchain -S none")
+            try:
+                bitbake("world meta-toolchain -S none")
+            except:
+                import traceback
+                raise AssertionError("bitbake failed for machine %s:\n%s" %
+                                     (machine, traceback.format_exc()))
 
         def get_hashes(d, subdir):
             f = {}
