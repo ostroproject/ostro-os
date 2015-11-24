@@ -98,6 +98,9 @@ def main():
     tc.testslist = tclist
     print tc.testslist
 
+    #add testsrequired for skipModule 
+    tc.testsrequired = tc.testslist
+
     deployDir = os.path.abspath(options.deploy_dir)
     if not os.path.isdir(deployDir):
         raise Exception("The path to DEPLOY_DIR does not exists: %s" % deployDir)
