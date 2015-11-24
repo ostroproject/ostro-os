@@ -5,6 +5,8 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=ea398a763463b76b18da15f013c0c531"
 
 inherit deploy
 
+PR = "r1"
+
 SRC_URI = "file://${PN}-${PV}.tar.bz2"
 
 S="${WORKDIR}/ifwi"
@@ -28,4 +30,4 @@ do_deploy () {
 	done
 }
 
-addtask deploy before do_build after do_compile
+addtask deploy before do_rootfs

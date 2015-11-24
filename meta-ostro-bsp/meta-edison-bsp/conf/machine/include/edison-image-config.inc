@@ -8,11 +8,6 @@ edison_image_fixup() {
 
 	cd ${IMAGE_ROOTFS}
 
-	# set watchdog to 90 seconds
-	if [ -e etc/systemd/system.conf ] ; then
-		sed -i -e 's/#RuntimeWatchdogSec=0/RuntimeWatchdogSec=90/' etc/systemd/system.conf
-	fi
-
 	# add wpa_supplicant config for wlan0
 	if [ -e etc/wpa_supplicant.conf ] ; then
 		mkdir etc/wpa_supplicant
