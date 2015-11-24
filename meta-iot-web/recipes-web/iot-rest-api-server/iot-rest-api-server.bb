@@ -10,7 +10,7 @@ RDEPENDS_${PN} += "bash iot-app-fw-node-bindings iot-app-fw-launcher"
 SRC_URI = "git://git@github.com/01org/iot-rest-api-server.git;protocol=https \
            file://0001-Remove-iotivity-node-dependency.patch \
           "
-SRCREV = "705bd09874862d31af8663b570906dd6ef888901"
+SRCREV = "942bc1c445472f94983f6c5b81f864b5a064d301"
 
 S = "${WORKDIR}/git"
 
