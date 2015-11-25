@@ -9,7 +9,7 @@ LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://COPYING;md5=53eeaddf328b23e2355816e257450eaa"
 PV = "1_beta11"
 
-SRC_URI = "git://github.com/solettaproject/soletta.git;protocol=git;tag=v${PV}"
+SRC_URI = "gitsm://github.com/solettaproject/soletta.git;protocol=git;tag=v${PV}"
 
 S = "${WORKDIR}/git"
 
@@ -72,10 +72,6 @@ B = "${WORKDIR}/git"
 do_configure_prepend() {
    export TARGETCC="${CC}"
    export TARGETAR="${AR}"
-
-   #Duktape configuration
-   git submodule init ${B}
-   git submodule update ${B}
 }
 
 do_compile() {
