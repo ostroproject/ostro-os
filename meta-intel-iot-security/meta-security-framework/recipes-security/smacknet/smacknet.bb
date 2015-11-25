@@ -3,7 +3,7 @@ SUMMARY = "Smack network labels configuration"
 DESCRIPTION = "Provide service that will be labeling the network rules"
 LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/BSD-3-Clause;md5=550794465ba0ec5312d6919e203a55f9"
-RDEPENDS_${PN} = "netvalue bash"
+RDEPENDS_${PN} = "python"
 
 SRC_URI += "file://smacknet \
         file://smacknet.service \
