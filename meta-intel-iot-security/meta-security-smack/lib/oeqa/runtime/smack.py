@@ -26,7 +26,7 @@ class SmackBasicTest(oeRuntimeTest):
         status, output = self.target.run(
             "grep smack /proc/mounts | awk '{print $2}'")
         self.smack_path = output
-        self.files_dir = os.path.join( 
+        self.files_dir = os.path.join(
             os.path.abspath(os.path.dirname(__file__)), 'files')
         self.uid = 1000
         status,output = self.target.run("cat /proc/self/attr/current")
@@ -41,9 +41,9 @@ class SmackAccessLabel(SmackBasicTest):
         self.target.run("touch %s" %filename)
         status, output = self.target.run("chsmack -a %s %s" %(LABEL, filename))
         self.assertEqual(
-            status, 0, 
+            status, 0,
             "Cannot set smack access label. "
-            "Status and output: %d %s" %(status, output))                  
+            "Status and output: %d %s" %(status, output))
         status, output = self.target.run("chsmack %s" %filename)
         self.target.run("rm %s" %filename)
         m = re.search('(?<=access=")\S+(?=")', output)
@@ -52,10 +52,10 @@ class SmackAccessLabel(SmackBasicTest):
         else:
             label_retrieved = m .group(0)
             self.assertEqual(
-                LABEL, label_retrieved, 
+                LABEL, label_retrieved,
                 "label not set correctly. expected and gotten: "
                 "%s %s" %(LABEL,label_retrieved))
-    
+
 class SmackExecLabel(SmackBasicTest):
 
     @skipUnlessPassed('test_ssh')
@@ -65,18 +65,18 @@ class SmackExecLabel(SmackBasicTest):
         self.target.run("touch %s" %filename)
         status, output = self.target.run("chsmack -e %s %s" %(LABEL, filename))
         self.assertEqual(
-            status, 0, 
-            "Cannot set smack exec label. " 
-            "Status and output: %d %s" %(status, output))                  
-        status, output = self.target.run("chsmack %s" %filename) 
+            status, 0,
+            "Cannot set smack exec label. "
+            "Status and output: %d %s" %(status, output))
+        status, output = self.target.run("chsmack %s" %filename)
         self.target.run("rm %s" %filename)
         m= re.search('(?<=execute=")\S+(?=")', output)
         if m is None:
             self.fail("Did not find execute attribute")
-        else:  
+        else:
             label_retrieved = m.group(0)
             self.assertEqual(
-                LABEL, label_retrieved, 
+                LABEL, label_retrieved,
                 "label not set correctly. expected and gotten: " +
                 "%s %s" %(LABEL,label_retrieved))
 
@@ -89,9 +89,9 @@ class SmackMmapLabel(SmackBasicTest):
         self.target.run("touch %s" %filename)
         status, output = self.target.run("chsmack -m %s %s" %(LABEL, filename))
         self.assertEqual(
-            status, 0, 
+            status, 0,
             "Cannot set smack mmap label. "
-            "Status and output: %d %s" %(status, output))          
+            "Status and output: %d %s" %(status, output))
         status, output = self.target.run("chsmack %s" %filename)
         self.target.run("rm %s" %filename)
         m = re.search('(?<=mmap=")\S+(?=")', output)
@@ -100,7 +100,7 @@ class SmackMmapLabel(SmackBasicTest):
         else:
             label_retrieved = m.group(0)
             self.assertEqual(
-                LABEL, label_retrieved, 
+                LABEL, label_retrieved,
                 "label not set correctly. expected and gotten: " +
                 "%s %s" %(LABEL,label_retrieved))
 
@@ -109,12 +109,12 @@ class SmackTransmutable(SmackBasicTest):
     @skipUnlessPassed('test_ssh')
     def test_add_transmutable(self):
         '''Test if chsmack can correctly set a SMACK transmutable mode'''
-        
+
         directory = "~/test_transmutable"
-        self.target.run("mkdir -p %s" %directory)    
+        self.target.run("mkdir -p %s" %directory)
         status, output = self.target.run("chsmack -t %s" %directory)
         self.assertEqual(status, 0, "Cannot set smack transmutable. "
-                        "Status and output: %d %s" %(status, output))  
+                        "Status and output: %d %s" %(status, output))
         status, output = self.target.run("chsmack %s" %directory)
         self.target.run("rmdir %s" %directory)
         m = re.search('(?<=transmute=")\S+(?=")', output)
@@ -123,7 +123,7 @@ class SmackTransmutable(SmackBasicTest):
         else:
             label_retrieved = m.group(0)
             self.assertEqual(
-                "TRUE", label_retrieved, 
+                "TRUE", label_retrieved,
                 "label not set correctly. expected and gotten: " +
                 "%s %s" %(LABEL,label_retrieved))
 
@@ -133,17 +133,17 @@ class SmackChangeSelfLabelPrivilege(SmackBasicTest):
     def test_privileged_change_self_label(self):
         '''Test if privileged process (with CAP_MAC_ADMIN privilege)
         can change its label.
-        
-        test needs to change the running label of the current process, 
+
+        test needs to change the running label of the current process,
         so whole test takes places on image
         '''
         status, output = self.target.run(
             "ls /tmp/test_privileged_change_self_label.sh")
         if status != 0:
-            self.target.copy_to( 
+            self.target.copy_to(
                 os.path.join(
                     self.files_dir,
-                    'test_privileged_change_self_label.sh'), 
+                    'test_privileged_change_self_label.sh'),
                 "/tmp/test_privileged_change_self_label.sh")
 
         status, output = self.target.run(
@@ -154,7 +154,7 @@ class SmackChangeSelfLabelUnprivilege(SmackBasicTest):
 
     @skipUnlessPassed('test_ssh')
     def test_unprivileged_change_self_label(self):
-        '''Test if unprivileged process (without CAP_MAC_ADMIN privilege) 
+        '''Test if unprivileged process (without CAP_MAC_ADMIN privilege)
         cannot change its label'''
 
         status, echo = self.target.run("which echo")
@@ -162,17 +162,17 @@ class SmackChangeSelfLabelUnprivilege(SmackBasicTest):
         status, output = self.target.run("ls /tmp/notroot.py")
         if status != 0:
             self.target.copy_to(
-                os.path.join(self.files_dir, 'notroot.py'), 
+                os.path.join(self.files_dir, 'notroot.py'),
                 "/tmp/notroot.py")
 
         status, output = self.target.run(
-            "python /tmp/notroot.py %d %s %s %s" 
+            "python /tmp/notroot.py %d %s %s %s"
             %(self.uid, self.current_label, echo, LABEL) +
             " 2>&1 >/proc/self/attr/current " +
             "| grep 'Operation not permitted'" )
 
         self.assertEqual(
-            status, 0, 
+            status, 0,
             "Unprivileged process should not be able to change its label")
 
 
@@ -189,7 +189,7 @@ class SmackChangeFileLabelPrivilege(SmackBasicTest):
         status, output = self.target.run("ls /tmp/notroot.py")
         if status != 0:
             self.target.copy_to(
-                os.path.join(self.files_dir, 'notroot.py'), 
+                os.path.join(self.files_dir, 'notroot.py'),
                 "/tmp/notroot.py")
 
         self.target.run("python /tmp/notroot.py %d %s %s %s" %(self.uid, self.current_label, touch, filename))
@@ -200,7 +200,7 @@ class SmackChangeFileLabelPrivilege(SmackBasicTest):
 
         self.target.run("rm %s" %filename)
         self.assertEqual(
-            status, 0, 
+            status, 0,
             "Unprivileged process changed label for %s" %filename)
 
 class SmackLoadRule(SmackBasicTest):
@@ -221,10 +221,10 @@ class SmackLoadRule(SmackBasicTest):
             'echo -n "%s" > %s/load' %(ruleA, self.smack_path))
         status, output = self.target.run(
             'cat %s/load | grep "^TheOne" | grep " TheOther "' %self.smack_path)
-        self.assertEqual(status, 0, "Rule A was not added")  
+        self.assertEqual(status, 0, "Rule A was not added")
         mode = filter(bool, output.split(" "))[2].strip()
         self.assertEqual(
-            mode, modeA, 
+            mode, modeA,
             "Mode A was not set correctly; mode: %s" %mode)
 
         status, output = self.target.run(
@@ -233,7 +233,7 @@ class SmackLoadRule(SmackBasicTest):
             'cat %s/load | grep "^TheOne" | grep " TheOther "' %self.smack_path)
         mode = filter(bool, output.split(" "))[2].strip()
         self.assertEqual(
-            mode, modeB, 
+            mode, modeB,
             "Mode B was not set correctly; mode: %s" %mode)
 
         self.target.run('echo -n "%s" > %s/load' %(clean, self.smack_path))
@@ -263,28 +263,28 @@ class SmackNetlabel(SmackBasicTest):
 
         test_label="191.191.191.191 TheOne"
         expected_label="191.191.191.191/32 TheOne"
-        
+
         status, output = self.target.run(
             "echo -n '%s' > %s/netlabel" %(test_label, self.smack_path))
         self.assertEqual(
-            status, 0, 
+            status, 0,
             "Netlabel /32 could not be set. Output: %s" %output)
 
         status, output = self.target.run("cat %s/netlabel" %self.smack_path)
         self.assertIn(
-            expected_label, output, 
+            expected_label, output,
             "Did not find expected label in output: %s" %output)
 
         test_label="253.253.253.0/24 TheOther"
         status, output = self.target.run(
             "echo -n '%s' > %s/netlabel" %(test_label, self.smack_path))
         self.assertEqual(
-            status, 0, 
+            status, 0,
             "Netlabel /24 could not be set. Output: %s" %output)
 
         status, output = self.target.run("cat %s/netlabel" %self.smack_path)
         self.assertIn(
-            test_label, output, 
+            test_label, output,
             "Did not find expected label in output: %s" %output)
 
 class SmackCipso(SmackBasicTest):
@@ -298,7 +298,7 @@ class SmackCipso(SmackBasicTest):
 
         status, output = self.target.run(
             "echo -n '%s' > %s/cipso" %(ruleA, self.smack_path))
-        self.assertEqual(status, 0, 
+        self.assertEqual(status, 0,
             "Could not set cipso label A. Ouput: %s" %output)
 
         status, output = self.target.run(
@@ -308,7 +308,7 @@ class SmackCipso(SmackBasicTest):
 
         status, output = self.target.run(
             "echo -n '%s' > %s/cipso" %(ruleB, self.smack_path))
-        self.assertEqual(status, 0, 
+        self.assertEqual(status, 0,
             "Could not set cipso label B. Ouput: %s" %output)
 
         status, output = self.target.run(
@@ -319,7 +319,7 @@ class SmackCipso(SmackBasicTest):
         status, output = self.target.run(
             "echo -n '%s' > %s/cipso" %(ruleC, self.smack_path))
         self.assertEqual(
-            status, 0, 
+            status, 0,
             "Could not set cipso label C. Ouput: %s" %output)
 
         status, output = self.target.run(
@@ -336,14 +336,14 @@ class SmackDirect(SmackBasicTest):
         test_direct="17"
         status, output = self.target.run(
             "echo '%s' > %s/direct" %(test_direct, self.smack_path))
-        self.assertEqual(status, 0 , 
+        self.assertEqual(status, 0 ,
             "Could not set smack direct. Output: %s" %output)
         status, new_direct = self.target.run("cat %s/direct" %self.smack_path)
         # initial label before checking
         status, output = self.target.run(
             "echo '%s' > %s/direct" %(initial_direct, self.smack_path))
         self.assertEqual(
-            test_direct, new_direct.strip(), 
+            test_direct, new_direct.strip(),
             "Smack direct label does not match.")
 
 
@@ -354,7 +354,7 @@ class SmackAmbient(SmackBasicTest):
         initial_ambient = self.target.run("cat %s/ambient" %self.smack_path)
         status, output = self.target.run(
             "echo '%s' > %s/ambient" %(test_ambient, self.smack_path))
-        self.assertEqual(status, 0, 
+        self.assertEqual(status, 0,
             "Could not set smack ambient. Output: %s" %output)
 
         status, output = self.target.run("cat %s/ambient" %self.smack_path)
@@ -363,7 +363,7 @@ class SmackAmbient(SmackBasicTest):
         status, output = self.target.run(
             "echo '%s' > %s/ambient" %(initial_ambient, self.smack_path))
         self.assertEqual(
-            test_ambient, new_ambient.strip(), 
+            test_ambient, new_ambient.strip(),
             "Ambient label does not match")
 
 
@@ -376,7 +376,7 @@ class SmackloadBinary(SmackBasicTest):
         status, output = self.target.run("echo -n '%s' > /tmp/rules" %rule)
         status, output = self.target.run("smackload /tmp/rules")
         self.assertEqual(
-            status, 0, 
+            status, 0,
             "Smackload failed to load rule. Output: %s" %output)
 
         status, output = self.target.run(
@@ -393,14 +393,14 @@ class SmackcipsoBinary(SmackBasicTest):
 
         status, output = self.target.run("echo '%s' | smackcipso" %rule)
         self.assertEqual(
-            status, 0, 
+            status, 0,
             "Smackcipso failed to load rule. Output: %s" %output)
 
         status, output = self.target.run(
             "cat %s/cipso | grep 'cipsolabel'" %self.smack_path)
         self.assertEqual(status, 0, "Smackload rule was loaded correctly")
         self.assertIn(
-            "2/2", output, 
+            "2/2", output,
             "Rule was not set correctly. Got: %s" %output)
 
 class SmackEnforceFileAccess(SmackBasicTest):
@@ -408,7 +408,7 @@ class SmackEnforceFileAccess(SmackBasicTest):
     def test_smack_enforce_file_access(self):
         '''Test if smack file access is enforced (rwx)
 
-        test needs to change the running label of the current process, 
+        test needs to change the running label of the current process,
         so whole test takes places on image
         '''
         status, output = self.target.run("ls /tmp/smack_test_file_access.sh")
@@ -432,7 +432,7 @@ class SmackEnforceMmap(SmackBasicTest):
         delr2="mmap_label              mmap_test_label2        -----"
         delr3="mmap_file_label         mmap_test_label1        -----"
         delr4="mmap_file_label         mmap_test_label2        -----"
-        
+
         RuleA="mmap_label              mmap_test_label1        rw---"
         RuleB="mmap_label              mmap_test_label2        r--at"
         RuleC="mmap_file_label         mmap_test_label1        rw---"
@@ -441,8 +441,8 @@ class SmackEnforceMmap(SmackBasicTest):
         mmap_label="mmap_label"
         file_label="mmap_file_label"
         test_file = "/tmp/smack_test_mmap"
-        self.target.copy_to(os.path.join(get_files_dir(), "mmap_test"), "/usr/bin/")
-        mmap_exe = "/usr/bin/mmap_test"
+        self.target.copy_to(os.path.join(get_files_dir(), "mmap_test"), "/tmp/")
+        mmap_exe = "/tmp/mmap_test"
         status, echo = self.target.run("which echo")
         status, output = self.target.run("ls /tmp/notroot.py")
         if status != 0:
@@ -450,7 +450,8 @@ class SmackEnforceMmap(SmackBasicTest):
                 os.path.join(self.files_dir, 'notroot.py'),
                 "/tmp/notroot.py")
         status, output = self.target.run(
-            "python /tmp/notroot.py %d %s %s 'test' > %s" %(self.uid, self.current_label, echo, test_file))
+            "python /tmp/notroot.py %d %s %s 'test' > %s" \
+            %(self.uid, self.current_label, echo, test_file))
         status, output = self.target.run("ls %s" %test_file)
         self.assertEqual(status, 0, "Could not create mmap test file")
         self.target.run("chsmack -m %s %s" %(file_label, test_file))
@@ -462,48 +463,48 @@ class SmackEnforceMmap(SmackBasicTest):
         self.target.run('echo -n "%s" > %s/load' %(delr2, self.smack_path))
         self.target.run('echo -n "%s" > %s/load' %(delr3, self.smack_path))
         self.target.run('echo -n "%s" > %s/load' %(delr4, self.smack_path))
-        status, output = self.target.run("mmap_test %s 0 2" % test_file)
+        status, output = self.target.run("%s %s 0 2" % (mmap_exe, test_file))
         self.assertEqual(
-            status, 0, 
+            status, 0,
             "Should have mmap access without rules. Output: %s" %output)
-        
+
         # add rules that do not match access required
         self.target.run('echo -n "%s" > %s/load' %(RuleA, self.smack_path))
         self.target.run('echo -n "%s" > %s/load' %(RuleB, self.smack_path))
-        status, output = self.target.run("mmap_test %s 0 2" % test_file)
-        self.assertNotEqual(
-            status, 0, 
-            "Should not have mmap access with unmatching rules. " + 
-            "Output: %s" %output)
-        self.assertIn(
-            "Permission denied", output, 
-            "Mmap access should be denied with unmatching rules")
-        
-        # add rule to match only partially (one way)
-        self.target.run('echo -n "%s" > %s/load' %(RuleC, self.smack_path))
-        status, output = self.target.run("mmap_test %s 0 2" %test_file)
+        status, output = self.target.run("%s %s 0 2" % (mmap_exe, test_file))
         self.assertNotEqual(
             status, 0,
-            "Should not have mmap access with partial matching rules. " + 
+            "Should not have mmap access with unmatching rules. " +
+            "Output: %s" %output)
+        self.assertIn(
+            "Permission denied", output,
+            "Mmap access should be denied with unmatching rules")
+
+        # add rule to match only partially (one way)
+        self.target.run('echo -n "%s" > %s/load' %(RuleC, self.smack_path))
+        status, output = self.target.run("%s %s 0 2" %(mmap_exe, test_file))
+        self.assertNotEqual(
+            status, 0,
+            "Should not have mmap access with partial matching rules. " +
             "Output: %s" %output)
         self.assertIn(
             "Permission denied", output,
             "Mmap access should be denied with partial matching rules")
-       
+
         # add rule to match fully
         self.target.run('echo -n "%s" > %s/load' %(RuleD, self.smack_path))
-        status, output = self.target.run("mmap_test %s 0 2" %test_file)
+        status, output = self.target.run("%s %s 0 2" %(mmap_exe, test_file))
         self.assertEqual(
-            status, 0, 
+            status, 0,
             "Should have mmap access with full matching rules." +
             "Output: %s" %output)
 
-class SmackEnforceTransmutable(SmackBasicTest):   
+class SmackEnforceTransmutable(SmackBasicTest):
 
     def test_smack_transmute_dir(self):
         '''Test if smack transmute attribute works
 
-        test needs to change the running label of the current process, 
+        test needs to change the running label of the current process,
         so whole test takes places on image
         '''
         test_dir = "/tmp/smack_transmute_dir"
@@ -521,16 +522,16 @@ class SmackEnforceTransmutable(SmackBasicTest):
         self.assertIn(
             'access="%s"' %label, output,
             "Did not get expected label. Output: %s" %output)
-        
+
 
 class SmackTcpSockets(SmackBasicTest):
     def test_smack_tcp_sockets(self):
         '''Test if smack is enforced on tcp sockets
 
         whole test takes places on image, depends on tcp_server/tcp_client'''
-       
-        self.target.copy_to(os.path.join(get_files_dir(), "tcp_client"), "/usr/bin/")
-        self.target.copy_to(os.path.join(get_files_dir(), "tcp_server"), "/usr/bin/")
+
+        self.target.copy_to(os.path.join(get_files_dir(), "tcp_client"), "/tmp/")
+        self.target.copy_to(os.path.join(get_files_dir(), "tcp_server"), "/tmp/")
         status, output = self.target.run("ls /tmp/test_smack_tcp_sockets.sh")
         if status != 0:
             self.target.copy_to(
@@ -546,8 +547,8 @@ class SmackUdpSockets(SmackBasicTest):
 
         whole test takes places on image, depends on udp_server/udp_client'''
 
-        self.target.copy_to(os.path.join(get_files_dir(), "udp_client"), "/usr/bin/")
-        self.target.copy_to(os.path.join(get_files_dir(), "udp_server"), "/usr/bin/")
+        self.target.copy_to(os.path.join(get_files_dir(), "udp_client"), "/tmp/")
+        self.target.copy_to(os.path.join(get_files_dir(), "udp_server"), "/tmp/")
         status, output = self.target.run("ls /tmp/test_smack_udp_sockets.sh")
         if status != 0:
             self.target.copy_to(
@@ -570,11 +571,8 @@ class SmackFileLabels(SmackBasicTest):
 /var/tmp access="*"
 '''
         (status, output) = self.target.run(
-            'chsmack -L ' + 
+            'chsmack -L ' +
             ' '.join([x.split()[0] for x in expected.split('\n') if x]))
         self.assertEqual(
             status, 0, msg="status and output: %s and %s" %(status,output))
         self.assertEqual(output.strip(), expected.strip())
-
-
-
