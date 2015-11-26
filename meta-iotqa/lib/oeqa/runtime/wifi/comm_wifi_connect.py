@@ -170,5 +170,5 @@ class CommWiFiConect(oeRuntimeTest):
         self.check_wifi_ip()
 
         # Ping internet web links
-        (status, output) = self.target.run("ping www.baidu.com -c 4")
+        (status, output) = self.target.run("wget http://www.baidu.com")
         self.assertEqual(status, 0, msg="Error messages: %s" % output) 

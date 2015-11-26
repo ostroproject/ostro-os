@@ -48,12 +48,9 @@ class IOtvtIntegration(oeRuntimeTest):
         (status, output) = self.target.run('cat /tmp/output')
         # judge if the values are correct
         ret = 0
-        if "myPlatformID" in output and "myName" in output and \
-           "www.myurl.com" in output and "myModelNumber" in output and \
-           "myDateOfManufacture" in output and "platformVersion" in output and \
-           "myOS" in output and "myHardwareVersion" in output and \
-           "my.Firmware.Version" in output and "www.mysupporturl.com" in output and \
-           "mySystemTime" in output:
+        if "Device name" in output and "Bill's Battlestar" in output and \
+           "Spec version url" in output and "0.9.0" in output and \
+           "Data Model Model" in output and "sec.0.95" in output:
             pass
         else:
             ret = 1
