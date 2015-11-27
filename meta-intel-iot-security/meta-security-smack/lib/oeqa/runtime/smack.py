@@ -133,22 +133,22 @@ class SmackChangeSelfLabelPrivilege(SmackBasicTest):
     def test_privileged_change_self_label(self):
         '''Test if privileged process (with CAP_MAC_ADMIN privilege)
         can change its label.
-
-        test needs to change the running label of the current process,
-        so whole test takes places on image
         '''
-        status, output = self.target.run(
-            "ls /tmp/test_privileged_change_self_label.sh")
+
+        status, output = self.target.run("ls /tmp/notroot.py")
         if status != 0:
             self.target.copy_to(
-                os.path.join(
-                    self.files_dir,
-                    'test_privileged_change_self_label.sh'),
-                "/tmp/test_privileged_change_self_label.sh")
+                os.path.join(self.files_dir, 'notroot.py'),
+                "/tmp/notroot.py")
+
+        labelf = "/proc/self/attr/current"
+        command = "/bin/sh -c 'echo PRIVILEGED >%s; cat %s'" %(labelf, labelf)
 
         status, output = self.target.run(
-            "bash /tmp/test_privileged_change_self_label.sh")
-        self.assertEqual(status, 0, output)
+            "python /tmp/notroot.py 0 %s %s" %(self.current_label, command))
+
+        self.assertIn("PRIVILEGED", output,
+                    "Privilege process did not change label.Output: %s" %output)
 
 class SmackChangeSelfLabelUnprivilege(SmackBasicTest):
 
@@ -157,19 +157,17 @@ class SmackChangeSelfLabelUnprivilege(SmackBasicTest):
         '''Test if unprivileged process (without CAP_MAC_ADMIN privilege)
         cannot change its label'''
 
-        status, echo = self.target.run("which echo")
-
         status, output = self.target.run("ls /tmp/notroot.py")
         if status != 0:
             self.target.copy_to(
                 os.path.join(self.files_dir, 'notroot.py'),
                 "/tmp/notroot.py")
 
+        command = "/bin/sh -c 'echo %s >/proc/self/attr/current'" %LABEL
         status, output = self.target.run(
-            "python /tmp/notroot.py %d %s %s %s"
-            %(self.uid, self.current_label, echo, LABEL) +
-            " 2>&1 >/proc/self/attr/current " +
-            "| grep 'Operation not permitted'" )
+            "python /tmp/notroot.py %d %s %s"
+            %(self.uid, self.current_label, command) +
+            " 2>&1 | grep 'Operation not permitted'" )
 
         self.assertEqual(
             status, 0,
@@ -426,7 +424,7 @@ class SmackEnforceMmap(SmackBasicTest):
     def test_smack_mmap_enforced(self):
         '''Test if smack mmap access is enforced'''
         raise unittest.SkipTest("Depends on mmap_test, which was removed from the layer while investigating its license.")
-    
+
         #      12345678901234567890123456789012345678901234567890123456
         delr1="mmap_label              mmap_test_label1        -----"
         delr2="mmap_label              mmap_test_label2        -----"
