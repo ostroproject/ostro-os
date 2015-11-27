@@ -378,7 +378,7 @@ class NodejsRuntimeTest(oeRuntimeTest):
                 (self.target_node_path, self.target_node_version))
             sys.stdout.flush()
 
-
+    @tag(CasesNumber=865)
     def test_apprt_nodejs_runtime(self):
         '''
         Execute the node.js upstream test cases.

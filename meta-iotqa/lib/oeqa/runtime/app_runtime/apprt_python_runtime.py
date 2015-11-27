@@ -47,7 +47,7 @@ class PythonRuntimeTest(oeRuntimeTest):
         if os.path.exists(cls.results_python_runtime):
             os.remove(cls.results_python_runtime)
 
-
+    @tag(CasesNumber=1364)
     def test_python_runtime(self):
         '''
         Test the Python key standard modules.
