@@ -58,7 +58,13 @@ script:
   # critical.
   - echo 'BB_DISKMON_DIRS = " STOPTASKS,/tmp,500M,10K STOPTASKS,${DL_DIR},500M,10K ABORT,/tmp,100M,1K ABORT,${DL_DIR},100M,1K"' >>conf/local.conf
   # Useful to avoid running out of disk space during the build.
-  - echo 'INHERIT += "rm_work"' >>conf/local.conf
+  - echo 'INHERIT += "rm_work_and_downloads"' >>conf/local.conf
+  - mkdir classes
+  - cp ../scripts/rm_work_and_downloads.bbclass classes
+  - echo 'BB_SCHEDULERS = "rmwork.RunQueueSchedulerRmWork"' >>conf/local.conf
+  - echo 'BB_SCHEDULER = "rmwork"' >>conf/local.conf
+  - PYTHONPATH=$TRAVIS_BUILD_DIR/scripts
+  - export PYTHONPATH
   # Even with rm_work in place, running too many tasks in parallel can
   # cause the disk to overflow temporarily and/or trigger the
   # out-of-memory killer, so we allow only two tasks.  The default is
@@ -71,7 +77,12 @@ script:
   # However, it also has a shorter overall runtime. If we end up with two heavy
   # compile tasks (say, linux-yocto and qemu-native), then both compete for CPU
   # time and neither of them manages to complete before the job gets killed.
-  - ( if [ "$iscontainer" ]; then echo 'BB_NUMBER_THREADS = "2"'; echo 'PARALLEL_MAKE = "-j4"'; else echo 'BB_NUMBER_THREADS = "2"';  echo 'PARALLEL_MAKE = "-j8"'; fi ) >>conf/local.conf
+  # The solution for this is in the custom scheduler: it can limit the number of
+  # compile tasks separately from other tasks. This allows us to run many light-weight
+  # tasks (like setscene) in parallel without overloading the machine when compiling.
+  # However, we now may end up with 32 different recipes unpacked and ready for
+  # compilation, which takes up more disk space again.
+  - ( if [ "$iscontainer" ]; then echo 'BB_NUMBER_THREADS = "2"'; echo 'PARALLEL_MAKE = "-j4"'; else echo 'BB_NUMBER_THREADS = "32"';  echo 'BB_NUMBER_COMPILE_THREADS = "1"'; echo 'PARALLEL_MAKE = "-j8"'; fi ) >>conf/local.conf
   # Dump our local.conf for debugging.
   - tail -50 conf/local.conf
   # Set up sstate-cache in a more visible, fixed location.
@@ -89,7 +100,7 @@ script:
   - ../scripts/travis-cmd-wrapper.py --deadline=$deadline bitbake core-image-minimal app-runas mmap-smack-test tcp-smack-test udp-smack-test || BITBAKE_RESULT=1
   - df -h .
   # The download directory can become quite large.
-  - (du -h -c -s $(ls -1 -d downloads/* downloads/git2/* 2>/dev/null | grep -v -e '.done$' -e '/git2$')) || true
+  - (du -h -c -s $(ls -1 -d downloads/* downloads/git2/* tmp*/work/*/*/downloads 2>/dev/null | grep -v -e '.done$' -e '/git2$')) || true
   - (df -h .; du -h -s * $HOME/sstate-cache) || true
   # temp files are preserved by rm_work.bbclass, but should not be that large.
   - du -h -c -s tmp*/work/*/*/*/temp | tail -1
