@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 SMACK_PATH=`grep smack /proc/mounts | awk '{print $2}' `
 RC=0
