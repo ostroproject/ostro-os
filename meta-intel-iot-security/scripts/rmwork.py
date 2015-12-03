@@ -74,6 +74,7 @@ class RunQueueSchedulerRmWork(BaseScheduler):
                      'do_packagedata',
                      'do_package',
                      'do_populate_lic',
+                     'do_generate_toolchain_file',
                      'do_populate_sysroot',
                      'do_install',
                      'do_compile',
