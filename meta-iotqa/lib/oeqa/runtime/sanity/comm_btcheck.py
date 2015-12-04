@@ -12,6 +12,8 @@ class CommBluetoothTest(oeRuntimeTest):
         '''check bluetooth device'''
         # un-block software rfkill lock
         self.target.run('rfkill unblock all')
+        # This is special for edison platform
+        self.target.run('connmanctl enable bluetooth')
         # Collect system information as log
         self.target_collect_info("ifconfig")
         self.target_collect_info("hciconfig")
