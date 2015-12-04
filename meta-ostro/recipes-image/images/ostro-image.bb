@@ -52,7 +52,6 @@ IMAGE_VARIANT[dev] = " \
 # Default list of features in "ostro-image" images. Additional
 # image variations modify this list, see BBCLASSEXTEND below.
 IMAGE_FEATURES += " \
-                        app-privileges \
                         can \
                         connectivity \
                         devkit \
@@ -88,9 +87,6 @@ BBCLASSEXTEND = "imagevariant:dev ${OSTRO_EXTRA_IMAGE_VARIANTS}"
 # Once officially supported, variations with IMA disabled can be
 # added. Right now, users need to do that in their local.conf:
 # OSTRO_EXTRA_IMAGE_VARIANTS = "imagevariant:noima imagevariant:dev,noima"
-
-# TODO: app-privileges depends on enabled Smack. Add it only
-# when Smack is enabled, or warn when enabled without Smack?
 
 # The AppFW depends on the security framework and user management, and these frameworks
 # (currently?) make little sense without apps, therefore a single image feature is used
