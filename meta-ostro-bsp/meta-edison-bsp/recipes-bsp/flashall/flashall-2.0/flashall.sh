@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+IMAGE_NAME="ostro-image"
 BACKUP_IFS=$IFS
 IFS=$(echo -en "\n\b")
 
@@ -43,7 +43,7 @@ OUTPUT_LOG_CMD="2>&1 | tee -a ${LOG_FILENAME} | ( sed -n '19 q'; head -n 1; cat 
 
 function print-usage {
 	cat << EOF
-Usage: ${0##*/} [-h][--help][--recovery] [--keep-data]
+Usage: ${0##*/} [-i <image-name>][--image=<image-name>] [-h][--help][--recovery] [--keep-data]
 Update all software and restore board to its initial state.
  -h,--help     display this help and exit.
  -v            verbose output
@@ -142,13 +142,14 @@ function dfu-wait {
 }
 
 # Execute old getopt to have long options support
-ARGS=$($GETOPTS -o hv -l "keep-data,recovery,help" -n "${0##*/}" -- "$@");
+ARGS=$($GETOPTS -o ihv -l "image,keep-data,recovery,help" -n "${0##*/}" -- "$@");
 #Bad arguments
 if [ $? -ne 0 ]; then print-usage ; fi;
 eval set -- "$ARGS";
 
 while true; do
 	case "$1" in
+		-i|--image) shift; IMAGE_NAME="$2";;
 		-h|--help) shift; print-usage;;
 		-v) shift; OUTPUT_LOG_CMD=" 2>&1 | tee -a ${LOG_FILENAME}";;
 		--recovery) shift; DO_RECOVERY=1;;
@@ -156,6 +157,9 @@ while true; do
 		--) shift; break;;
 	esac
 done
+
+echo -n "Image name: "
+echo ${IMAGE_NAME}
 
 echo "** Flashing Edison Board $(date) **" >> ${LOG_FILENAME}
 
@@ -225,13 +229,13 @@ else
 	dfu-wait no-prompt
 
 	echo "Flashing boot partition (kernel)"
-	flash-command --alt boot -D "${ESC_BASE_DIR}/ostro-image-edison.hddimg"
+	flash-command --alt boot -D "${ESC_BASE_DIR}/${IMAGE_NAME}-edison.hddimg"
 
 	echo "Flashing update partition"
-	flash-command --alt update -D "${ESC_BASE_DIR}/ostro-image-edison.update.hddimg"
+	flash-command --alt update -D "${ESC_BASE_DIR}/${IMAGE_NAME}-edison.update.hddimg"
 
 	echo "Flashing rootfs, (it can take up to 5 minutes... Please be patient)"
-	flash-command --alt rootfs -D "${ESC_BASE_DIR}/ostro-image-edison.ext4" -R
+	flash-command --alt rootfs -D "${ESC_BASE_DIR}/${IMAGE_NAME}-edison.ext4" -R
 
 	echo "Rebooting"
 	echo "U-boot & Kernel System Flash Success..."
