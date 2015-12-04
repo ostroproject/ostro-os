@@ -29,6 +29,11 @@ class SecurityManagerBasicTest(oeRuntimeTest):
         status, output = self.target.run(cmd)
         self.assertFalse(status, msg="%s failed: %s" % (cmd, output))
         self.privileges = output.split()
+        if not self.privileges:
+            # Only privileges that map to a Unix group need to be known to
+            # SecurityManager. Therefore it is possible that the query above
+            # returns nothing. In that case, make up something for the tests.
+            self.privileges.append('FoobarPrivilege')
         self.appid = 'test-app-id'
         self.pkgid = 'test-pkg-id'
         self.user = 'security-manager-user'
@@ -49,8 +54,9 @@ class SecurityManagerApp(SecurityManagerBasicTest):
     @skipUnlessPassed('test_ssh')
     def test_security_manager_01_setup(self):
         '''Check that basic SecurityManager setup is in place.'''
-        # This is far from comprehensive, but we need to start somewhere...
-        self.assertNotEqual(self.privileges, [])
+        # If we get this far, then at least the sqlite db must have been in place.
+        # This does not mean much, but we need to start somewhere.
+        pass
 
     @skipUnlessPassed('test_security_manager_01_setup')
     def test_security_manager_02_install(self):

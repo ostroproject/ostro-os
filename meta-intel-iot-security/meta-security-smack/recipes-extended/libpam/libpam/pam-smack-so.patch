@@ -16,28 +16,6 @@ Change-Id: I5a72fee29519d89d6b8ea60cd970d0438a0cb7cd
 Signed-off-by: Michael Leibowitz <michael.leibowitz@intel.com>
 ---
 
-diff --git a/configure.ac b/configure.ac
-index ae762a2..2749f0c 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -498,6 +498,9 @@ if test ! -z "$LIBSELINUX" ; then
-     LIBS=$BACKUP_LIBS
- fi
- 
-+dnl hacks for pam_smack
-+PKG_CHECK_MODULES([LIBSMACK], [libsmack])
-+
- dnl Checks for header files.
- AC_HEADER_DIRENT
- AC_HEADER_STDC
-@@ -625,6 +628,7 @@ AC_CONFIG_FILES([Makefile libpam/Makefile libpamc/Makefile libpamc/test/Makefile
- 	modules/pam_unix/Makefile modules/pam_userdb/Makefile \
- 	modules/pam_warn/Makefile modules/pam_wheel/Makefile \
- 	modules/pam_xauth/Makefile doc/Makefile doc/specs/Makefile \
-+	modules/pam_smack/Makefile \
- 	doc/man/Makefile doc/sag/Makefile doc/adg/Makefile \
- 	doc/mwg/Makefile examples/Makefile tests/Makefile \
- 	xtests/Makefile])
 diff --git a/modules/Makefile.am b/modules/Makefile.am
 index 0c80cea..885a4ad 100644
 --- a/modules/Makefile.am

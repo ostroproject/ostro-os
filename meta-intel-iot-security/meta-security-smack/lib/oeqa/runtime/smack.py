@@ -252,7 +252,7 @@ class SmackOnlycap(SmackBasicTest):
                 os.path.join(self.files_dir, 'test_smack_onlycap.sh'),
                 "/tmp/test_smack_onlycap.sh")
 
-        status, output = self.target.run("bash /tmp/test_smack_onlycap.sh")
+        status, output = self.target.run("sh /tmp/test_smack_onlycap.sh")
         self.assertEqual(status, 0, output)
 
 class SmackNetlabel(SmackBasicTest):
@@ -415,7 +415,7 @@ class SmackEnforceFileAccess(SmackBasicTest):
                 os.path.join(self.files_dir, 'smack_test_file_access.sh'),
                 "/tmp/smack_test_file_access.sh")
 
-        status, output = self.target.run("bash /tmp/smack_test_file_access.sh")
+        status, output = self.target.run("sh /tmp/smack_test_file_access.sh")
         self.assertEqual(status, 0, output)
 
 class SmackEnforceMmap(SmackBasicTest):
@@ -536,7 +536,7 @@ class SmackTcpSockets(SmackBasicTest):
                 os.path.join(self.files_dir, 'test_smack_tcp_sockets.sh'),
                 "/tmp/test_smack_tcp_sockets.sh")
 
-        status, output = self.target.run("bash /tmp/test_smack_tcp_sockets.sh")
+        status, output = self.target.run("sh /tmp/test_smack_tcp_sockets.sh")
         self.assertEqual(status, 0, output)
 
 class SmackUdpSockets(SmackBasicTest):
@@ -553,7 +553,7 @@ class SmackUdpSockets(SmackBasicTest):
                 os.path.join(self.files_dir, 'test_smack_udp_sockets.sh'),
                 "/tmp/test_smack_udp_sockets.sh")
 
-        status, output = self.target.run("bash /tmp/test_smack_udp_sockets.sh")
+        status, output = self.target.run("sh /tmp/test_smack_udp_sockets.sh")
         self.assertEqual(status, 0, output)
 
 class SmackFileLabels(SmackBasicTest):

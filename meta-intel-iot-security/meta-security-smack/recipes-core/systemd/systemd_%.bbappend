@@ -12,6 +12,15 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 # patches.
 SRC_URI_append_smack = " ${SYSTEMD_SMACK_PATCHES_${@d.getVar('PV', False)[0:3]}}"
 
+SYSTEMD_SMACK_PATCHES_216 = " \
+file://0002-tizen-smack-Handling-of-tmp.patch \
+file://0003-tizen-smack-Handling-of-run-and-sys-fs-cgroup-v216.patch \
+file://0004-tizen-smack-Handling-of-dev-v216.patch \
+file://0005-tizen-smack-Handling-network-v216.patch \
+file://0006-tizen-smack-Tuning-user-.service.m4.in-v216.patch \
+file://0007-tizen-smack-Runs-systemd-journald-with-v216.patch \
+"
+
 SYSTEMD_SMACK_PATCHES_219 = " \
 file://0002-tizen-smack-Handling-of-tmp.patch \
 file://0003-tizen-smack-Handling-of-run-and-sys-fs-cgroup.patch \

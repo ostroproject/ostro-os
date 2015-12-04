@@ -1,0 +1,49 @@
+From da574755b8abe1d5fb9151f901ccea51d40d9509 Mon Sep 17 00:00:00 2001
+From: Michael Demeter <michael.demeter@intel.com>
+Date: Fri, 30 Oct 2015 11:25:50 +0100
+Subject: [PATCH] tizen-smack: Handling of /run and /sys/fs/cgroup
+
+Make /run a transmuting directory to enable systemd
+communications with services in the User domain.
+
+Upstream-Status: Pending
+
+Change-Id: I9e23b78d17a108d8e56ad85a9e839b6ccbe4feff
+---
+ src/core/mount-setup.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/src/core/mount-setup.c b/src/core/mount-setup.c
+index cc2633e..3dc7cd7 100644
+--- a/src/core/mount-setup.c
++++ b/src/core/mount-setup.c
+@@ -85,19 +85,23 @@ static const MountPoint mount_table[] = {
+           use_smack,  MNT_FATAL },
+         { "tmpfs",      "/dev/shm",                  "tmpfs",      "mode=1777,smackfsroot=*", MS_NOSUID|MS_NODEV|MS_STRICTATIME,
+           use_smack,  MNT_FATAL },
+-#endif
++#else
+         { "tmpfs",      "/dev/shm",                  "tmpfs",      "mode=1777", MS_NOSUID|MS_NODEV|MS_STRICTATIME,
+           NULL,       MNT_FATAL|MNT_IN_CONTAINER },
++#endif
+         { "devpts",     "/dev/pts",                  "devpts",     "mode=620,gid=" STRINGIFY(TTY_GID), MS_NOSUID|MS_NOEXEC,
+           NULL,       MNT_IN_CONTAINER },
+ #ifdef HAVE_SMACK
+-        { "tmpfs",      "/run",                      "tmpfs",      "mode=755,smackfsroot=*", MS_NOSUID|MS_NODEV|MS_STRICTATIME,
++        { "tmpfs",      "/run",                      "tmpfs",      "mode=755,smackfstransmute=System::Run", MS_NOSUID|MS_NODEV|MS_STRICTATIME,
+           use_smack,  MNT_FATAL },
+-#endif
++        { "tmpfs",      "/sys/fs/cgroup",            "tmpfs",      "mode=755,smackfsroot=*", MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_STRICTATIME,
++          use_smack,  MNT_IN_CONTAINER },
++#else
+         { "tmpfs",      "/run",                      "tmpfs",      "mode=755", MS_NOSUID|MS_NODEV|MS_STRICTATIME,
+           NULL,       MNT_FATAL|MNT_IN_CONTAINER },
+         { "tmpfs",      "/sys/fs/cgroup",            "tmpfs",      "mode=755", MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_STRICTATIME,
+           NULL,       MNT_FATAL|MNT_IN_CONTAINER },
++#endif
+         { "cgroup",     "/sys/fs/cgroup/systemd",    "cgroup",     "none,name=systemd,xattr", MS_NOSUID|MS_NOEXEC|MS_NODEV,
+           NULL,       MNT_IN_CONTAINER },
+         { "cgroup",     "/sys/fs/cgroup/systemd",    "cgroup",     "none,name=systemd", MS_NOSUID|MS_NOEXEC|MS_NODEV,
+-- 
+2.1.4
+

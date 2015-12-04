@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 initial_label=`cat /proc/self/attr/current 2>/dev/null`
 modified_label="test_label"

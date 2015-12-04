@@ -1,0 +1,69 @@
+From c899e34fef5100ba83146a840ebc089162f6442b Mon Sep 17 00:00:00 2001
+From: Patrick McCarty <patrick.mccarty@linux.intel.com>
+Date: Mon, 9 Dec 2013 17:09:27 -0800
+Subject: [PATCH 6/9] tizen-smack: Tuning user@.service.in
+
+- set SmackProcessLabel
+- set DBUS_SESSION_BUS_ADDRESS
+- set capabilities
+
+Note: This patch should remain downstream, since it relies on the
+Tizen-specific three-domain model.
+
+On Tizen, all user@.service.in instances should run with the User label, so
+use the new SmackProcessLabel key to set it at runtime.
+
+This was at first set by user-session@.service.in, then by many services
+(bt-fwrk) and scripts (weston.sh). This patch makes it again available
+for whole user environment.
+
+Include CAP_MAC_ADMIN and CAP_SETGID in inheritable capability set for the
+whole user session. All programs started in the session will have this
+enabled, unless they drop it explicitly or someone does that in proper
+systemd services.
+
+This change alone doesn't give any special capabilities to the processes.
+It merely enables them to inherit capability while executing programs that
+have those caps in inheritable and permitted sets (+ei).
+
+The above change is meant as a part of solution for setting Smack label and
+process groups for applications. Respective application launchers (for now
+only Crosswalk) will get file capabilities mentioned above. In run-time
+they will call a designated function for setting Smack label and groups and
+drop the capabilities.
+
+It seems that also CAP_MAC_OVERRIDE will be needed to bypass Smack checks
+during modification of socket labels:
+
+kernel: type=1400 audit(1416390778.371:3): lsm=SMACK fn=smack_inode_setxattr
+action=denied subject="User" object="_" requested=w pid=2422
+comm="amd_session_age" name="UNIX" dev="sockfs" ino=14108
+
+CAP_MAC_ADMIN only allows policy administration, it doesn't override the
+checks.
+
+Upstream-Status: Inappropriate [configuration]
+
+Change-Id: Ie4026dfaf4c6cd463c11f077ca97e75c5085e4c8
+---
+ units/user@.service.in | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/units/user@.service.in b/units/user@.service.in
+index 1e21d51..dac25c4 100644
+--- a/units/user@.service.in
++++ b/units/user@.service.in
+@@ -14,5 +14,10 @@ User=%i
+ PAMName=systemd-user
+ Type=notify
+ ExecStart=-@rootlibexecdir@/systemd --user
++SmackProcessLabel=User
+ Slice=user-%i.slice
+ KillMode=mixed
++Delegate=yes
++Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%U/dbus/user_bus_socket
++Capabilities=cap_mac_admin,cap_mac_override,cap_setgid=i
++SecureBits=keep-caps
+-- 
+1.8.4.5
+

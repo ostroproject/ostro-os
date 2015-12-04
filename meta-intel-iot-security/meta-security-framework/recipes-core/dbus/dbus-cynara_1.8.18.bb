@@ -1,4 +1,4 @@
-require recipes-core/dbus/dbus.inc
+require dbus-oe-core.inc
 FILESEXTRAPATHS_prepend := "${COREBASE}/meta/recipes-core/dbus/dbus:${THISDIR}/dbus-cynara:"
 S = "${WORKDIR}/dbus-${PV}"
 libexecdir = "${libdir}/dbus"

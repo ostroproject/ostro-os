@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 RC=0
 test_file=/tmp/smack_socket_tcp
 SMACK_PATH=`grep smack /proc/mounts | awk '{print $2}' `
