@@ -41,47 +41,86 @@ class RunQueueSchedulerRmWork(BaseScheduler):
         bb.note('BB_NUMBER_COMPILE_THREADS %d BB_NUMBER_THREADS %d' % \
                 (self.number_compile_tasks, self.rq.number_tasks))
 
+        # Extract list of tasks for each recipe, with tasks sorted
+        # ascending from "must run first" (typically do_fetch) to
+        # "runs last" (do_rm_work). Both the speed and completion
+        # schedule prioritize tasks that must run first before the ones
+        # that run later; this is what we depend on here.
+        task_lists = {}
+        for taskid in self.prio_map:
+            fn = self.rqdata.get_task_file(taskid)
+            taskname = self.rqdata.get_task_name(taskid)
+            task_lists.setdefault(fn, []).append(taskname)
+
+        # Now unify the different task lists. The strategy is that
+        # common tasks get skipped and new ones get inserted after the
+        # preceeding common one(s) as they are found. Because task
+        # lists should differ only by their number of tasks, but not
+        # the ordering of the common tasks, this should result in a
+        # deterministic result that is a superset of the individual
+        # task ordering.
+        all_tasks = task_lists.itervalues().next()
+        for recipe, new_tasks in task_lists.iteritems():
+            index = 0
+            old_task = all_tasks[index] if index < len(all_tasks) else None
+            for new_task in new_tasks:
+                if old_task == new_task:
+                    # Common task, skip it. This is the fast-path which
+                    # avoids a full search.
+                    index += 1
+                    old_task = all_tasks[index] if index < len(all_tasks) else None
+                else:
+                    try:
+                        index = all_tasks.index(new_task)
+                        # Already present, just not at the current
+                        # place. We re-synchronized by changing the
+                        # index so that it matches again. Now
+                        # move on to the next existing task.
+                        index += 1
+                        old_task = all_tasks[index] if index < len(all_tasks) else None
+                    except ValueError:
+                        # Not present. Insert before old_task, which
+                        # remains the same (but gets shifted back).
+                        # bb.note('Inserting new task %s from %s after %s at %d into %s' %
+                        #         (new_task, recipe,
+                        #          all_tasks[index - 1] if index > 0 and all_tasks else None,
+                        #          index,
+                        #          all_tasks))
+                        all_tasks.insert(index, new_task)
+                        index += 1
+        # bb.note('merged task list: %s'  % all_tasks)
+
+        # Now reverse the order so that tasks that finish the work on one
+        # recipe are considered more imporant (= come first). The ordering
+        # is now so that do_rm_work[_all] is most important.
+        all_tasks.reverse()
+
         # Group tasks of the same kind before tasks of less important
         # kinds at the head of the queue (because earlier = lower
-        # priority number = runs earlier). The ordering is rm_work
-        # (run as soon as possible) > do_build >
-        # do_package_write_ipk/deb/rpm > and so on, because then tasks
-        # that complete a certain recipe come before tasks from other
-        # recipes that would otherwise interrupt completing the
-        # initial recipe.
+        # priority number = runs earlier), while preserving the
+        # ordering by recipe. If recipe foo is more important than
+        # bar, then the goal is to work on foo's do_populate_sysroot
+        # before bar's do_populate_sysroot and on the more important
+        # tasks of foo before any of the less important tasks in any
+        # other recipe (if those other recipes are more important than
+        # foo).
         #
-        # For example, when foo has a higher priority than bar, but
-        # DEPENDS on bar, then the implicit rule (from base.bbclass)
-        # is that foo's do_configure depends on bar's
-        # do_populate_sysroot. When that is done, normally the tasks
-        # from foo would continue to run and bar only gets completed
-        # and cleaned up later. By ordering bar's task after
-        # do_populate_sysroot before foo's do_configure, that problem
-        # gets avoided.
+        # All of this only applies when tasks are runable. Explicit
+        # dependencies still override this ordering by priority.
         #
-        # The list itself is hard-coded based on current tasks and
-        # sorted topologically; should new tasks get added, the whole
-        # scheme breaks again. Not all tasks listed here have to
-        # exist, so it is okay to list all three potential package
-        # formats.
+        # Here's an example why this priority re-ordering helps with
+        # minimizing disk usage. Consider a recipe foo with a higher
+        # priority than bar where foo DEPENDS on bar. Then the
+        # implicit rule (from base.bbclass) is that foo's do_configure
+        # depends on bar's do_populate_sysroot. This ensures that
+        # bar's do_populate_sysroot gets done first. Normally the
+        # tasks from foo would continue to run once that is done, and
+        # bar only gets completed and cleaned up later. By ordering
+        # bar's task after do_populate_sysroot before foo's
+        # do_configure, that problem gets avoided.
         task_index = 0
-        for task in ('do_rm_work',
-                     'do_build',
-                     'do_package_write_ipk',
-                     'do_package_rpm',
-                     'do_package_deb',
-                     'do_package_qa',
-                     'do_packagedata',
-                     'do_package',
-                     'do_populate_lic',
-                     'do_generate_toolchain_file',
-                     'do_populate_sysroot',
-                     'do_install',
-                     'do_compile',
-                     'do_configure',
-                     'do_patch',
-                     'do_unpack',
-                     'do_fetch'):
+        # self.dump_prio('Original priorities from %s' % BaseScheduler)
+        for task in all_tasks:
             for index in xrange(task_index, self.numTasks):
                 taskid = self.prio_map[index]
                 taskname = self.rqdata.runq_task[taskid]
@@ -89,6 +128,7 @@ class RunQueueSchedulerRmWork(BaseScheduler):
                     del self.prio_map[index]
                     self.prio_map.insert(task_index, taskid)
                     task_index += 1
+        # self.dump_prio('rmwork priorities')
 
     def next(self):
         taskid = self.next_buildable_task()
@@ -120,3 +160,9 @@ class RunQueueSchedulerRmWork(BaseScheduler):
         if self.rev_prio_map:
             result = result + (' pri %d' % self.rev_prio_map[taskid])
         return result
+
+    def dump_prio(self, comment):
+        bb.note('%s (most important first):\n%s' %
+                (comment,
+                 '\n'.join(['%d. %s' % (index + 1, self.describe_task(taskid)) for
+                            index, taskid in enumerate(self.prio_map)])))
