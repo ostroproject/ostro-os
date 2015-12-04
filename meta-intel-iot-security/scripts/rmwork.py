@@ -18,7 +18,7 @@
 # many heavy compile tasks.
 
 import bb
-from bb.runqueue import RunQueueSchedulerCompletion as BaseScheduler
+from bb.runqueue import RunQueueSchedulerSpeed as BaseScheduler
 import time
 
 class RunQueueSchedulerRmWork(BaseScheduler):
