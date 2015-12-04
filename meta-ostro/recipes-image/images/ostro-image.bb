@@ -23,7 +23,6 @@ IMAGE_FEATURES[validitems] += " \
     java-jdk \
     node-runtime \
     python-runtime \
-    sensors \
     tools-develop \
 "
 
@@ -58,7 +57,6 @@ IMAGE_FEATURES += " \
                         ${@bb.utils.contains('DISTRO_FEATURES', 'ima', 'ima', '', d)} \
                         iotivity \
                         package-management \
-                        sensors \
                         ssh-server-dropbear \
                         node-runtime \
                         python-runtime \
@@ -104,7 +102,6 @@ FEATURE_PACKAGES_can = "packagegroup-core-can"
 # really unmodified.
 FEATURE_PACKAGES_ima = "packagegroup-ima-evm-utils"
 
-FEATURE_PACKAGES_sensors = "packagegroup-sensor-framework"
 FEATURE_PACKAGES_iotivity = "packagegroup-iotivity"
 
 FEATURE_PACKAGES_node-runtime = "packagegroup-node-runtime"
