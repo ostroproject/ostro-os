@@ -107,7 +107,9 @@ script:
   # Copy new sstate files to S3 bucket.
   - $TRAVIS_BUILD_DIR/scripts/sstate2s3.sh
   # Finally! Running tests.
-  - tests=$(echo $(ls -1 ../*/lib/oeqa/runtime/*.py | grep -v __init__.py | sed -e 's;.*/\(.*\)\.py;\1;'))
+  # The ima tests assume that an IMA policy is activated by an initramfs, which we do not
+  # currently do in combination with OE-core under runqemu, so we have to filter those out.
+  - tests=$(echo $(ls -1 ../*/lib/oeqa/runtime/*.py | grep -v -w -e __init__.py -e ima.py | sed -e 's;.*/\(.*\)\.py;\1;'))
   - echo $tests
   - echo 'INHERIT += "testimage"' >>conf/local.conf
   - echo "TEST_SUITES = \"ssh $tests\"" >>conf/local.conf
