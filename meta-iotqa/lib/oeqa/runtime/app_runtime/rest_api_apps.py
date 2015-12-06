@@ -54,8 +54,11 @@ class RESTAPIAppTest(oeRuntimeTest):
         """ install app """
         (status,output) = cls.tc.target.run("mkdir %s" % cls.test_dir)
         test_app_paths = glob.glob(os.path.join(get_files_dir(), cls.test_app_pkg))
+        app_pkg_path = None
         if test_app_paths :
             app_pkg_path = test_app_paths[-1]
+        assert app_pkg_path is not None, "No app rpm packages named like %s found!" % cls.test_app_pkg
+        
         (status,output) = cls.tc.target.copy_to(app_pkg_path, cls.test_dir)
         if status !=0 :
             return False 
