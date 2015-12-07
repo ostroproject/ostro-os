@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend = "${COREBASE}/meta/recipes-connectivity/bluez5/bluez5"
+FILESEXTRAPATHS_prepend = "${COREBASE}/meta/recipes-connectivity/bluez5/bluez5:"
 require recipes-connectivity/bluez5/bluez5.inc
 SRC_URI[md5sum] = "68581ef1c5e3e5bcec9c57a2d3c57495"
 SRC_URI[sha256sum] = "e461ec2927f5491a202de4a180b2b42377f596b0ce372430d8204ae042d3b19c"
