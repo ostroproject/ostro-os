@@ -20,7 +20,19 @@ class IOtvtClient(oeRuntimeTest):
         client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclient > /tmp/output &"
         cls.tc.target.run(client_cmd)
         print "\npatient... simpleclient needs long time for its observation"
-        time.sleep(70)
+        time.sleep(60)
+        # If there is no 'Observe is used', give a retry.
+        (status, output) = cls.tc.target.run('cat /tmp/output')
+        if "Observe is used." in output:
+            pass
+        else:
+            cls.tc.target.run("killall simpleserver")
+            cls.tc.target.run("killall simpleclient")
+            time.sleep(2)
+            (status, output) = cls.tc.target.run(server_cmd)
+            cls.tc.target.run(client_cmd)
+            time.sleep(60)
+        # Retry ends.
 
     @classmethod
     def tearDownClass(cls):
