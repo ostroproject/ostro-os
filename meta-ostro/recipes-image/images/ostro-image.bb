@@ -222,7 +222,7 @@ inherit extrausers
 EXTRA_USERS_PARAMS += " \
     useradd --system --home ${localstatedir}/lib/empty --no-create-home --shell /bin/false sqlite; \
 "
-ROOTFS_POSTPROCESS_COMMAND_append = " set_sqlite_owner; "
+ROOTFS_POSTPROCESS_COMMAND_append = "${@bb.utils.contains('IMAGE_FEATURES', 'app-privileges', ' set_sqlite_owner; ', '', d)}"
 set_sqlite_owner () {
     # Both the groupadd and the security-manager postinst are expected
     # to have completed by now. If this command fails, something in
