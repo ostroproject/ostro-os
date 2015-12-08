@@ -1,3 +1,4 @@
+import time
 from oeqa.oetest import oeRuntimeTest
 
 class CommBluetoothTest(oeRuntimeTest):
@@ -14,6 +15,7 @@ class CommBluetoothTest(oeRuntimeTest):
         self.target.run('rfkill unblock all')
         # This is special for edison platform
         self.target.run('connmanctl enable bluetooth')
+        time.sleep(8)
         # Collect system information as log
         self.target_collect_info("ifconfig")
         self.target_collect_info("hciconfig")
