@@ -29,7 +29,7 @@ python do_analyse_sources() {
     import re, errno
     from isafw import *
     isafw_config = isafw.ISA_config()
-    
+
     isafw_config.proxy = d.getVar('HTTP_PROXY', True)
     if not isafw_config.proxy :
         isafw_config.proxy = d.getVar('http_proxy', True)
@@ -48,7 +48,7 @@ python do_analyse_sources() {
 
     whitelist = d.getVar('ISAFW_PLUGINS_WHITELIST', True)
     blacklist = d.getVar('ISAFW_PLUGINS_BLACKLIST', True)
-    if whitelist: 
+    if whitelist:
         isafw_config.plugin_whitelist = re.split(r'[,\s]*', whitelist)
     if blacklist:
         isafw_config.plugin_blacklist = re.split(r'[,\s]*', blacklist)
@@ -86,7 +86,7 @@ python do_analyse_sources() {
         spdlicense.append(canonical_license(d, l))
     recipe.licenses = spdlicense
     recipe.path_to_sources = workdir
-    
+
     for patch in src_patches(d):
         _,_,local,_,_,_=bb.fetch.decodeurl(patch)
         recipe.patch_files.append(os.path.basename(local))
@@ -147,7 +147,7 @@ python analyse_image() {
 
     whitelist = d.getVar('ISAFW_PLUGINS_WHITELIST', True)
     blacklist = d.getVar('ISAFW_PLUGINS_BLACKLIST', True)
-    if whitelist: 
+    if whitelist:
         isafw_config.plugin_whitelist = re.split(r'[,\s]*', whitelist)
     if blacklist:
         isafw_config.plugin_blacklist = re.split(r'[,\s]*', blacklist)
