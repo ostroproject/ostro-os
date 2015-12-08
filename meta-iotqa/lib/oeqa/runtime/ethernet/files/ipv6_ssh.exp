@@ -1,0 +1,25 @@
+#!/usr/bin/expect
+set timeout 60
+set login 0
+set ip6      [lindex $argv 0]
+set password [lindex $argv 1]
+set eth      [lindex $argv 2]
+
+spawn ssh root@$ip6%$eth ls /
+ expect {
+ "yes/no"
+   {
+    sleep 1; send "yes\n"; exp_continue
+   }
+ "password:"
+   {
+    sleep 1; send "$password\n"; exp_continue
+   }
+ "home"
+   {
+    sleep 1; send "exit\n"; exit 2
+   }
+ eof
+   {}
+ }
+
