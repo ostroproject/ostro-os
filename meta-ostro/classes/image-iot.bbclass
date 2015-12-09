@@ -87,7 +87,7 @@ build_uefi_executable() {
         echo "${IMAGE_NAME}" > "${dest}/${EFIDIR}/os-release.txt"
         echo "${APPEND} root=PARTUUID=${ROOTFS_PARTUUID} rootfstype=${ROOTFS_TYPE}" > "${dest}/${EFIDIR}/cmdline.txt"
         # XXX Can this be done better?
-        if [[ $(echo "${MACHINE}" |grep "64") ]]; then
+        if (echo "${MACHINE}" |grep -q "64"); then
           EXECUTABLE=bootx64.efi
         else
           EXECUTABLE=bootia32.efi
@@ -135,7 +135,7 @@ populate_ext4() {
 
     # Populate the filesystem preserving attributes and ownership of files.
     tmp2="pseudo mkfs.ext4 -F ${FULL_PARTITION_FILE_NAME} "
-    if [[ -z "${PARTITION_SOURCE}" ]]; then
+    if [ -z "${PARTITION_SOURCE}" ]; then
         tmp3=""
     else
         tmp3=" -d ${PARTITION_SOURCE}"
