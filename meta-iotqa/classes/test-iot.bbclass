@@ -97,7 +97,10 @@ def recursive_overwrite(src, dest, notOverWrite=[r'__init__\.py'], ignores=[r".+
                 continue
             recursive_overwrite(fsrc, fdest)
     else:
-        shutil.copy2(src, dest)
+        try:
+            shutil.copy2(src, dest)
+        except IOError, e :
+            bb.warn(str(e))
    
 #export test asset
 def export_testsuite(d, exportdir):
