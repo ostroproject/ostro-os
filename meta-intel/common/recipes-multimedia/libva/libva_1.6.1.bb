@@ -18,8 +18,9 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://COPYING;md5=2e48940f94acb0af582e5ef03537800f"
 
 SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/libva/${BP}.tar.bz2"
-SRC_URI[md5sum] = "ad0b55794308ec397d249a0a2a6df27a"
-SRC_URI[sha256sum] = "e946d4b3110e4e23ec6a588e0c828937e502c67196d1266214441fefc4b83486"
+
+SRC_URI[md5sum] = "7a5eb1fdf531f987211b7228a6a46428"
+SRC_URI[sha256sum] = "7fa2c23fb4431ed8590a52173db18e8760fabb7321d14110c574cc8674594e2e"
 
 DEPENDS = "libdrm virtual/mesa virtual/libgles1 virtual/libgles2 virtual/egl"
 
