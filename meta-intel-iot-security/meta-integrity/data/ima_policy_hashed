@@ -53,6 +53,9 @@ dont_measure fsmagic=0x43415d53
 # CGROUP_SUPER_MAGIC
 dont_appraise fsmagic=0x27e0eb
 dont_measure fsmagic=0x27e0eb
+# EFIVARFS_MAGIC
+dont_appraise fsmagic=0xde5e81e4
+dont_measure fsmagic=0xde5e81e4
 
 # Special partition, no checking done.
 # dont_measure  fsuuid=a11234...
