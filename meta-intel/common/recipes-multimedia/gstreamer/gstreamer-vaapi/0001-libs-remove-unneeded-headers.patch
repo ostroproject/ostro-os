@@ -1,0 +1,58 @@
+Upstream-Status: Backport from upstream
+Signed-off-by: Saul Wold <sgw@linux.intel.com>
+
+From f182fcfb379344690292c52542f92a9e7f0bf1a3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?V=C3=ADctor=20Manuel=20J=C3=A1quez=20Leal?=
+ <victorx.jaquez@intel.com>
+Date: Wed, 4 Nov 2015 16:50:44 +0100
+Subject: [PATCH] libs: remove unneeded headers
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Since gstvaapidisplay_glx.h do not expose gl.h/glx.h structures, it is not
+required to include them in the header. It is not also required to include
+them in gstvaapidisplay_glx.c, since gstvaapiutils_glx.h includes them and
+exposes their structures (e.g. GLXPixmap).
+
+Nonetheless, glext.h neither glxext.h are required to include, they are
+already included conditionally by gl.h and glx.h, respectively.
+
+Signed-off-by: Víctor Manuel Jáquez Leal <victorx.jaquez@intel.com>
+
+https://bugzilla.gnome.org/show_bug.cgi?id=757577
+---
+ gst-libs/gst/vaapi/gstvaapidisplay_glx.h | 2 --
+ gst-libs/gst/vaapi/gstvaapiutils_glx.h   | 2 --
+ 2 files changed, 4 deletions(-)
+
+diff --git a/gst-libs/gst/vaapi/gstvaapidisplay_glx.h b/gst-libs/gst/vaapi/gstvaapidisplay_glx.h
+index 8096cb2..485c413 100644
+--- a/gst-libs/gst/vaapi/gstvaapidisplay_glx.h
++++ b/gst-libs/gst/vaapi/gstvaapidisplay_glx.h
+@@ -25,8 +25,6 @@
+ #ifndef GST_VAAPI_DISPLAY_GLX_H
+ #define GST_VAAPI_DISPLAY_GLX_H
+ 
+-#include <GL/gl.h>
+-#include <GL/glx.h>
+ #include <gst/vaapi/gstvaapidisplay_x11.h>
+ 
+ G_BEGIN_DECLS
+diff --git a/gst-libs/gst/vaapi/gstvaapiutils_glx.h b/gst-libs/gst/vaapi/gstvaapiutils_glx.h
+index c89c85f..d78b3ee 100644
+--- a/gst-libs/gst/vaapi/gstvaapiutils_glx.h
++++ b/gst-libs/gst/vaapi/gstvaapiutils_glx.h
+@@ -28,9 +28,7 @@
+ #include "config.h"
+ #include "libgstvaapi_priv_check.h"
+ #include <GL/gl.h>
+-#include <GL/glext.h>
+ #include <GL/glx.h>
+-#include <GL/glxext.h>
+ #include <glib.h>
+ 
+ #if GLX_GLXEXT_VERSION < 18
+-- 
+2.5.0
+
