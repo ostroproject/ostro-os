@@ -19,8 +19,6 @@ linux system).
 
 The dependencies to build the images are:
   - Yocto poky or later
-  - python3.4 or later (Installed on host machine)
-  - Lib python3-jsonschema (Installed on host machine)
   - meta-intel (If building for intel based-hardware is required)
 
 ##Build image for Intel Edison

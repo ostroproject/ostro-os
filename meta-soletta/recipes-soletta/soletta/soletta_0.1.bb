@@ -4,7 +4,7 @@
 
 DESCRIPTION = "Soletta library and modules"
 SECTION = "examples"
-DEPENDS = "glib-2.0 libpcre pkgconfig"
+DEPENDS = "glib-2.0 libpcre pkgconfig python3-jsonschema-native"
 LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://COPYING;md5=53eeaddf328b23e2355816e257450eaa"
 PV = "1_beta11"
@@ -13,7 +13,7 @@ SRC_URI = "gitsm://github.com/solettaproject/soletta.git;protocol=git;tag=v${PV}
 
 S = "${WORKDIR}/git"
 
-inherit cml1
+inherit cml1 python3native
 
 PACKAGES = " \
          ${PN}-staticdev \
