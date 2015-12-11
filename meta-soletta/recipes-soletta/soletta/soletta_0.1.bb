@@ -4,7 +4,7 @@
 
 DESCRIPTION = "Soletta library and modules"
 SECTION = "examples"
-DEPENDS = "glib-2.0 libpcre pkgconfig python3-jsonschema-native"
+DEPENDS = "glib-2.0 libpcre pkgconfig python3-jsonschema-native icu curl"
 LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://COPYING;md5=53eeaddf328b23e2355816e257450eaa"
 PV = "1_beta11"
