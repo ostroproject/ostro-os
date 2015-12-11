@@ -141,7 +141,7 @@ def main():
 
     #inject build package manifest
     pkgs = [pname.strip() for pname in loaded["pkgmanifest"]]
-    setattr(tc, "pkgmanifest", " ".join(pkgs))
+    setattr(tc, "pkgmanifest", "\n".join(pkgs))
 
     #inject target information
     target = FakeTarget(d)
