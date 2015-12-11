@@ -15,7 +15,6 @@ from functools import wraps
 
 BASEDIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 sys.path.append(os.path.join(BASEDIR, "oeqa"))
-sys.path.append(os.path.join(BASEDIR, "bitbake", "lib"))
 
 from optparse import OptionParser
 from oeqa.oetest import oeTest
