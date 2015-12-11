@@ -14,12 +14,9 @@ COMPATIBLE_HOST = '(i.86|x86_64).*-linux'
 DEPENDS = "libva libdrm"
 
 SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/${BPN}/${BPN}-${PV}.tar.bz2"
-SRC_URI += "file://wayland-include.patch \
-	    file://Use-VMask-instead-of-DMask-in-3DSTATE_PS-on-GEN8.patch \
-	   "
 
-SRC_URI[md5sum] = "16752f1584398265072129553b7907ce"
-SRC_URI[sha256sum] = "d0b448193ab34b622cd14e4db8ca29991a4038b4eb459a8fbbcbd7db843da3dc"
+SRC_URI[md5sum] = "ed1b04c1a3c029ad389b7e23822a2762"
+SRC_URI[sha256sum] = "3656e99c5ecbe8fe179478306da157dca997a61bb1b453715f52881edfa156db"
 
 inherit autotools pkgconfig
 
