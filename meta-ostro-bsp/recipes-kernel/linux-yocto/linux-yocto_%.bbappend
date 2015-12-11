@@ -27,6 +27,11 @@ SRC_URI_append_intel-core2-32 = " file://bh1750.cfg"
 #  BeagleBone Black enable all I2Cs
 SRC_URI_append_beaglebone = " file://0001-v3.15.0-ARM-dts-am335x-boneblack-configure-i2c1-and-2.patch"
 
+# user space SPI support
+SRC_URI_append_intel-quark = " file://uspi.cfg"
+SRC_URI_append_edison = " file://uspi.cfg"
+SRC_URI_append_beaglebone = " file://uspi.cfg"
+
 # IIO support
 SRC_URI_append_beaglebone = " file://iio.cfg"
 
