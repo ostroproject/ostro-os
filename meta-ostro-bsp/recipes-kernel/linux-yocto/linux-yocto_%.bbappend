@@ -8,6 +8,7 @@ SRC_URI_append_edison = " file://security-x86.cfg"
 SRC_URI_append_intel-quark = " file://security-x86.cfg"
 SRC_URI_append_intel-core2-32 = " file://security-x86.cfg"
 SRC_URI_append_intel-corei7-64 = " file://security-x64.cfg"
+SRC_URI_append_edison = " file://edison-iptables.cfg"
 
 ### Hardware support fragments
 
