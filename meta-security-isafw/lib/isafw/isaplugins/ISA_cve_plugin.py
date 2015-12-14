@@ -32,6 +32,8 @@ import re
 import tempfile
 
 CVEChecker = None
+cve_report = "/cve-report"
+pkglist = "/cve_check_tool_pkglist"
 log = "/isafw_cvelog"
 
 class ISA_CVEChecker:    
@@ -58,45 +60,48 @@ class ISA_CVEChecker:
     def process_package(self, ISA_pkg):
         if (self.initialized == True):
             if (ISA_pkg.name and ISA_pkg.version and ISA_pkg.patch_files):
-                with open(self.logdir + log, 'a') as flog:
-                    flog.write("\npkg name: " + ISA_pkg.name)    
-                # need to compose faux format file for cve-check-tool
-                fhandle = tempfile.mkstemp()
-                ffauxfile = fhandle[1]
+                # need to compose faux format line for cve-check-tool
                 cve_patch_info = self.process_patch_list(ISA_pkg.patch_files)
-                with os.fdopen(fhandle[0], 'w') as fauxfile:
-                    fauxfile.write(ISA_pkg.name + "," + ISA_pkg.version + "," + cve_patch_info + ",")
-                args = ""
-                if self.proxy:
-                        args += "https_proxy=%s http_proxy=%s " % (self.proxy, self.proxy)
-                args += "cve-check-tool -N -c -a -t faux '" + ffauxfile + "'"
+                pkgline_faux = ISA_pkg.name + "," + ISA_pkg.version + "," + cve_patch_info + ",\n"
+
+                pkglist_faux = pkglist + "_" + self.timestamp + ".faux"
+                with open(self.reportdir + pkglist_faux, 'a') as fauxfile:
+                    fauxfile.write(pkgline_faux)
+
                 with open(self.logdir + log, 'a') as flog:
-                    flog.write("\n\nArguments for calling cve-check-tool: " + args)
-                try:
-                    popen = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE)
-                    popen.wait()
-                    output = popen.stdout.read()
-                except:
-                    print("Error in executing cve-check-tool: ", sys.exc_info())
-                    output = "Error in executing cve-check-tool"
-                    with open(self.logdir + log, 'a') as flog:
-                        flog.write("Error in executing cve-check-tool: " + sys.exc_info())
-                else:
-                    report = self.reportdir + "/cve-report"
-                    with open(report + "_" + self.timestamp + ".csv", 'a') as freport:
-                        freport.write(output)
-                os.remove(ffauxfile)
+                    flog.write("\npkg info: " + pkgline_faux)
             else:
                 print("Mandatory arguments such as pkg name, version and list of patches are not provided!")
                 print("Not performing the call.")
                 with open(self.logdir + log, 'a') as flog:
                     flog.write("Mandatory arguments such as pkg name, version and list of patches are not provided!\n")
                     flog.write("Not performing the call.\n")
-
         else:
             print("Plugin hasn't initialized! Not performing the call.")
             with open(self.logdir + log, 'a') as flog:
                 flog.write("Plugin hasn't initialized! Not performing the call.\n")
+
+    def process_report(self):
+        # now faux file is ready and we can process it
+        args = ""
+        if self.proxy:
+            args += "https_proxy=%s http_proxy=%s " % (self.proxy, self.proxy)
+        pkglist_faux = pkglist + "_" + self.timestamp + ".faux"
+        args += "cve-check-tool -c -a -t faux '" + self.reportdir + pkglist_faux  + "'"
+        try:
+            popen = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE)
+            popen.wait()
+            output = popen.stdout.read()
+        except:
+            print("Error in executing cve-check-tool: ", sys.exc_info())
+            output = "Error in executing cve-check-tool"
+            with open(self.logdir + log, 'a') as flog:
+                flog.write("Error in executing cve-check-tool: " + sys.exc_info())
+        else:
+            report = cve_report + "_" + self.timestamp + ".csv"
+            with open(self.reportdir + report, 'w') as freport:
+                freport.write(output)
+        os.remove(self.reportdir + pkglist_faux)
 
     def process_patch_list(self, patch_files):
         patch_info = ""
@@ -121,6 +126,9 @@ def getPluginName():
 def process_package(ISA_pkg):
     global CVEChecker 
     return CVEChecker.process_package(ISA_pkg)
+def process_report():
+    global CVEChecker
+    return CVEChecker.process_report()
 
 #====================================================#
 

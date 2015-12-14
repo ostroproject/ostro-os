@@ -16,15 +16,14 @@ ISAFW_LOGDIR ?= "${LOG_DIR}/isafw-logs"
 ISAFW_PLUGINS_WHITELIST ?= ""
 ISAFW_PLUGINS_BLACKLIST ?= ""
 
-do_analyse_sources[depends] += "cve-check-tool-native:do_populate_sysroot"
-do_analyse_sources[depends] += "rpm-native:do_populate_sysroot"
-do_analyse_sources[nostamp] = "1"
-
 # First, code to handle scanning each recipe that goes into the build
 
-do_analyse_sources[cleandirs] = "${ISAFW_WORKDIR}"
+do_analysesource[depends] += "cve-check-tool-native:do_populate_sysroot"
+do_analysesource[depends] += "rpm-native:do_populate_sysroot"
+do_analysesource[nostamp] = "1"
+do_analysesource[cleandirs] = "${ISAFW_WORKDIR}"
 
-python do_analyse_sources() {
+python do_analysesource() {
 
     from isafw import *
 
@@ -77,11 +76,43 @@ python do_analyse_sources() {
     return
 }
 
-addtask do_analyse_sources after do_unpack before do_build
+addtask do_analysesource after do_unpack before do_build
 
-addtask analyse_sources_all after do_analyse_sources
-do_analyse_sources_all[recrdeptask] = "do_analyse_sources_all do_analyse_sources"
-#do_analyse_sources_all[recrdeptask] = "do_${BB_DEFAULT_TASK}"
+# This task intended to be called after default task to process reports
+
+PR_ORIG_TASK := "${BB_DEFAULT_TASK}"
+BB_DEFAULT_TASK = "process_reports"
+
+do_process_reports[recrdeptask] = "do_analysesource"
+do_process_reports[recideptask] = "do_${PR_ORIG_TASK}"
+do_process_reports[nostamp] = "1"
+
+python do_process_reports() {
+
+    from isafw import *
+
+    imageSecurityAnalyser = isafw_init(isafw, d)
+
+    bb.debug(1, 'isafw: process reports')
+    imageSecurityAnalyser.process_report()
+}
+
+addtask do_process_reports after do_${PR_ORIG_TASK}
+
+# These tasks are intended to be called directly by the user (e.g. bitbake -c)
+
+addtask do_analyse_sources after do_analysesource
+do_analyse_sources[nostamp] = "1"
+do_analyse_sources[postfuncs] = "do_process_reports"
+do_analyse_sources() {
+	:
+}
+
+addtask do_analyse_sources_all after do_analysesource
+do_analyse_sources_all[recrdeptask] = "do_analyse_sources_all do_analysesource"
+do_analyse_sources_all[recideptask] = "do_${PR_ORIG_TASK}"
+do_analyse_sources_all[nostamp] = "1"
+do_analyse_sources_all[postfuncs] = "do_process_reports"
 do_analyse_sources_all() {
 	:
 }
@@ -89,7 +120,7 @@ do_analyse_sources_all() {
 python() {
     # We probably don't need to scan native/cross
     if bb.data.inherits_class('native', d) or bb.data.inherits_class('cross', d):
-        bb.build.deltask('do_analyse_sources', d)
+        bb.build.deltask('do_analysesource', d)
 }
 
 python analyse_image() {
