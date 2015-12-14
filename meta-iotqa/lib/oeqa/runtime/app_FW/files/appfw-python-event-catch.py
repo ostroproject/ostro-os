@@ -1,3 +1,16 @@
+"""
+@file appfw-python-event-catch.py
+"""
+
+##
+# @addtogroup app_FW app_FW
+# @brief This is app_FW component
+# @{
+# @addtogroup appfw-python-event-catch appfw-python-event-catch
+# @brief This is appfw-python-event-catch module
+# @{
+##
+
 import argparse
 import glib
 import json
@@ -11,6 +24,11 @@ logger = logging.getLogger("__event-catch__")
 ml = glib.MainLoop(None)
 
 def event_cb(event, data):
+        """
+        @fn event_cb
+        @param  data
+        @return
+        """
 
         logger.debug("Received an event with event = " + str(event) + \
                      ", data = " + str(data))
@@ -22,6 +40,14 @@ def event_cb(event, data):
 
 
 def subscribe_status(seqno, status, msg, data, user_data):
+	"""
+	@fn subscribe_status
+	@param seqno
+	@param  msg
+	@param  data
+	@param  user_data
+	@return
+	"""
 	if status == 0:
 		logger.debug("Succesfully subscribed for events.")
 	else:
@@ -31,6 +57,10 @@ def subscribe_status(seqno, status, msg, data, user_data):
 		             msg + ").")
 
 def main():
+	"""
+	@fn main
+	@return
+	"""
 	#Parse arguments
 	parser = argparse.ArgumentParser()
         parser.add_argument("-s", "--signals", action="store_true", help="bridge system signals as events")
@@ -74,3 +104,9 @@ def main():
 
 if __name__ == "__main__":
         main()
+
+##
+# @}
+# @}
+##
+

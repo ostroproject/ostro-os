@@ -1,7 +1,24 @@
+"""
+@file apprt_nodejs_runtime_log_parser.py
+"""
+
+##
+# @addtogroup nodejs nodejs
+# @brief This is nodejs component
+# @{
+# @addtogroup apprt_nodejs_runtime_log_parser apprt_nodejs_runtime_log_parser
+# @brief This is apprt_nodejs_runtime_log_parser module
+# @{
+##
+
 import time
 
 
 def is_a_blank_line(line):
+    """
+    @fn is_a_blank_line
+    @return
+    """
     blank = True
     for ch in line:
         if ch != chr(0x20):
@@ -16,6 +33,9 @@ def parse_test_cases(all_test_output):
     More information, please refer to the result log
     of running python tool/test.py
     in node.js repository
+    @fn parse_test_cases
+    @param all_test_output
+    @return
     '''
     statistics = all_test_output[-1]
     statistics_list = statistics.lstrip('[').rstrip(']: Done').replace(
@@ -79,6 +99,11 @@ def parse_test_cases(all_test_output):
 
 
 def print_test_results(all_tests):
+    """
+    @fn print_test_results
+    @param all_tests
+    @return
+    """
     print '%d tests...' % len(all_tests)
     for t in all_tests:
         test_name = t.keys()[0]
@@ -95,6 +120,11 @@ def print_test_results(all_tests):
 
 
 def print_error_test_results(all_tests):
+    """
+    @fn print_error_test_results
+    @param all_tests
+    @return
+    """
     print '%d tests...' % len(all_tests)
     error_tests = []
     for t in all_tests:
@@ -110,6 +140,13 @@ def print_error_test_results(all_tests):
 
 
 def write_test_results(output, start_time, log_file):
+    """
+    @fn write_test_results
+    @param output
+    @param  start_time
+    @param  log_file
+    @return
+    """
     output_seq = output
     all_tests = parse_test_cases(output_seq)
 
@@ -140,3 +177,9 @@ def write_test_results(output, start_time, log_file):
             '%s - runexported.py - RESULTS - Testcase %s: %s\n' %
             (t.values()[0]['result_at'], t.keys()[0], success))
     f.close()
+
+##
+# @}
+# @}
+##
+

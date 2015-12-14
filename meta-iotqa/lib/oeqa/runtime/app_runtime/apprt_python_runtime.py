@@ -1,6 +1,19 @@
 # -*- coding: utf8 -*-
 
 
+"""
+@file apprt_python_runtime.py
+"""
+
+##
+# @addtogroup app_runtime app_runtime
+# @brief This is app_runtime component
+# @{
+# @addtogroup apprt_python_runtime apprt_python_runtime
+# @brief This is apprt_python_runtime module
+# @{
+##
+
 import os
 import time
 
@@ -15,6 +28,7 @@ class PythonRuntimeTest(oeRuntimeTest):
     Notice:
         Python upstream tests have been already present in an Ostro OS image.
         The path generally be: /usr/lib/python2.7/test
+    @class PythonRuntimeTest
     '''
 
     python_modules = {
@@ -43,6 +57,9 @@ class PythonRuntimeTest(oeRuntimeTest):
         '''
         Clean the workspace before run all the test cases.
         :return:
+        @fn setUpClass
+        @param cls
+        @return
         '''
         if os.path.exists(cls.results_python_runtime):
             os.remove(cls.results_python_runtime)
@@ -52,6 +69,9 @@ class PythonRuntimeTest(oeRuntimeTest):
         '''
         Test the Python key standard modules.
         :return:
+        @fn test_python_runtime
+        @param self
+        @return
         '''
         for mod_name, test_mode_file in self.python_modules.items():
             (status, output) = self.target.run(
@@ -65,6 +85,9 @@ class PythonRuntimeTest(oeRuntimeTest):
         '''
         Generate the final result output with specified format.
         :return:
+        @fn tearDownClass
+        @param cls
+        @return
         '''
         parse_all_tc(cls.test_mod_log, cls.results_python_runtime)
 
@@ -75,6 +98,8 @@ def line_contains_result(line):
     Check whether a line contains the results of 'ok', 'FAIL', 'skipped', 'ERROR'
     :param line: A list of one line in the test case log files
     :return: True if the list line contains any test cases running information.
+    @fn line_contains_result
+    @return
     '''
 
     return ('ok' in line) or \
@@ -91,6 +116,8 @@ def write_tc_name(tc_result, tc, mod_name):
     :param tc:A list of two elements: [test case name, result]
     :param mod_name:The module name of a test case
     :return:
+    @fn write_tc_name
+    @return
     '''
     tc_name = tc_result[0]
     tc_detailed_name = tc_result[1].strip('()').split('.')[-1]
@@ -103,6 +130,8 @@ def write_tc_result(tc_result, tc):
     :param tc_result: A list of one line in the test case log file.
     :param tc: A list of two elements: [test case name, result]
     :return:
+    @fn write_tc_result
+    @return
     '''
     if 'ok' in tc_result or 'OK' in tc_result:
         tc.append('PASSED')
@@ -123,6 +152,8 @@ def parse_all_tc(mod_log, result_file):
     :param mod_log: The mod:log dictionary
     :param result_file: The final python runtime test case report file.
     :return:
+    @fn parse_all_tc
+    @return
     '''
     tc_results = []
 
@@ -170,3 +201,9 @@ def parse_all_tc(mod_log, result_file):
                 results_f.write('%s  - runtest.py - RESULTS - Testcase %s: %s\n' %
                         (time.strftime('%H:%M:%S'), t[0], t[1])
                                 )
+
+##
+# @}
+# @}
+##
+

@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 #
 # Author: Alexandru Cornea <alexandru.cornea@intel.com>
+"""
+@file network_privilege.py
+"""
+
+##
+# @addtogroup security security
+# @brief This is security component
+# @{
+# @addtogroup network_privilege network_privilege
+# @brief This is network_privilege module
+# @{
+##
+
 import unittest
 import os
 from time import sleep
@@ -13,9 +26,15 @@ class NetworkPrivilege(oeRuntimeTest):
     """
     Testing local network and internet privilege enforcement
     Dependent on app-runas and smack
+    @class NetworkPrivilege
     """
 
     def setUp(self):
+        """
+        @fn setUp
+        @param self
+        @return
+        """
         self.user = "network-priv-user"
         idcmd="id -u %s" %self.user
         status, output = self.target.run(idcmd)
@@ -39,17 +58,31 @@ class NetworkPrivilege(oeRuntimeTest):
         self.smack_path = output.split(" ")[2]
 
     def _alive(self):
+        """
+        @fn _alive
+        @param self
+        @return
+        """
         status, output = self.target.run("ping -c 1 %s" %self.target.ip)
         return not(bool(status))
 
     def _wait_smacknet(self):
+        """
+        @fn _wait_smacknet
+        @param self
+        @return
+        """
         status = 1
         while status != 0:
             status, output = self.target.run("cat %s/netlabel | grep Network::Local" %self.smack_path)
             sleep(10)
 
     def test_app_no_network_privilege(self):
-        """ Check if application without network privilege can access the network"""
+        """ Check if application without network privilege can access the network
+        @fn test_app_no_network_privilege
+        @param self
+        @return
+        """
 
         appid = "test-app-no-network-privilege"
         # install app
@@ -59,11 +92,17 @@ class NetworkPrivilege(oeRuntimeTest):
         # check smack rule
         status, output = self.target.run("cat %s/load2 | grep 'User::App::%s Network::Local w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #1, test_app_no_network_privilege
+        #
         self.assertNotEqual(status, 0, "Smack rule for app without network privilege to have " + \
                                         "write access to network should not be set")
 
         status, output = self.target.run("cat %s/load2 | grep 'Network::Local User::App::%s w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #2, test_app_no_network_privilege
+        #
         self.assertNotEqual(status, 0, "Smack rule for network to have write access to app " + \
                                         "without privilege should not be set")
 
@@ -72,11 +111,18 @@ class NetworkPrivilege(oeRuntimeTest):
         status, output = self.target.run("/tmp/app-runas -a %s -u %s -e -- sh -c 'ping -c 3 %s'" \
                                             %(appid, self.uid, self.target.server_ip))
 
+        ##
+        # TESTPOINT: #3, test_app_no_network_privilege
+        #
         self.assertIn("sendto: Permission denied", output, \
             "Application without network privilege can access to network")
 
     def test_app_with_network_privilege(self):
-        """ Check if application with network privilege can access the network"""
+        """ Check if application with network privilege can access the network
+        @fn test_app_with_network_privilege
+        @param self
+        @return
+        """
 
         appid = "test-app-with-network-privilege"
         # install app
@@ -86,11 +132,17 @@ class NetworkPrivilege(oeRuntimeTest):
         # check smack rule
         status, output = self.target.run("cat %s/load2 | grep 'User::App::%s Network::Local w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #1, test_app_with_network_privilege
+        #
         self.assertEqual(status, 0, "Smack rule for app with local network privilege to have " + \
                                     "write access to network should be set %s" %output )
 
         status, output = self.target.run("cat %s/load2 | grep 'Network::Local User::App::%s w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #2, test_app_with_network_privilege
+        #
         self.assertEqual(status, 0, "Smack rule for network to have write access to app with " + \
                                     "local network privilege should be set. %s" %output)
 
@@ -98,11 +150,18 @@ class NetworkPrivilege(oeRuntimeTest):
         # check ping
         status, output = self.target.run("/tmp/app-runas -a %s -u %s -e -- sh -c 'ping -c 3 %s'" \
                                         %(appid, self.uid, self.target.server_ip))
+        ##
+        # TESTPOINT: #3, test_app_with_network_privilege
+        #
         self.assertIn("3 packets transmitted, 3 packets received, 0% packet loss", \
                         output, "Application with network privilege cannot access network %s" %self.target.server_ip)
 
     def test_network_privilege_persistent_rules(self):
-        """ Check app smack rules are persistent, remain after reboot """
+        """ Check app smack rules are persistent, remain after reboot 
+        @fn test_network_privilege_persistent_rules
+        @param self
+        @return
+        """
 
         appid = "test-persistent-rules"
 
@@ -113,11 +172,17 @@ class NetworkPrivilege(oeRuntimeTest):
         # check smack rule
         status, output = self.target.run("cat %s/load2 | grep 'User::App::%s Network::Local w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #1, test_network_privilege_persistent_rules
+        #
         self.assertEqual(status, 0, "Smack rule for app with local network privilege to have " + \
                                     "write access to network should be set")
 
         status, output = self.target.run("cat %s/load2 | grep 'Network::Local User::App::%s w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #2, test_network_privilege_persistent_rules
+        #
         self.assertEqual(status, 0, "Smack rule for network to have write access to app with " + \
                                     "local network privilege should be set")
 
@@ -138,15 +203,26 @@ class NetworkPrivilege(oeRuntimeTest):
         # check smack rule after reboot
         status, output = self.target.run("cat %s/load2 | grep 'User::App::%s Network::Local w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #3, test_network_privilege_persistent_rules
+        #
         self.assertEqual(status, 0, "Smack rule for app to have write access to network " + \
                                     "was removed after reboot " )
 
         status, output = self.target.run("cat %s/load2 | grep 'Network::Local User::App::%s w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #4, test_network_privilege_persistent_rules
+        #
         self.assertEqual(status, 0, "Smack rule for network to have write access to app " + \
                                     "was removed after reboot")
 
     def test_network_privilege_remove_app(self):
+        """
+        @fn test_network_privilege_remove_app
+        @param self
+        @return
+        """
         appid = "test-remove-app"
 
         # install app
@@ -156,11 +232,17 @@ class NetworkPrivilege(oeRuntimeTest):
         # check smack rule
         status, output = self.target.run("cat %s/load2 | grep 'User::App::%s Network::Local w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #1, test_network_privilege_remove_app
+        #
         self.assertEqual(status, 0, "Smack rule for app with local network privilege to have " + \
                                     "write access to network should be set")
 
         status, output = self.target.run("cat %s/load2 | grep 'Network::Local User::App::%s w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #2, test_network_privilege_remove_app
+        #
         self.assertEqual(status, 0, "Smack rule for network to have write access to app with " + \
                                     "local network privilege should be set")
 
@@ -171,16 +253,26 @@ class NetworkPrivilege(oeRuntimeTest):
         # check smack rule
         status, output = self.target.run("cat %s/load2 | grep 'User::App::%s Network::Local w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #3, test_network_privilege_remove_app
+        #
         self.assertNotEqual(status, 0, "Smack rule for app with local network privilege to have " + \
                                     "write access to network kept after app removal")
 
         status, output = self.target.run("cat %s/load2 | grep 'Network::Local User::App::%s w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #4, test_network_privilege_remove_app
+        #
         self.assertNotEqual(status, 0, "Smack rule for network to have write access to app with " + \
                                     "local network privilege kept after app removal")
 
     def test_app_no_internet_privilege(self):
-        """ Check if application without internet privilege can access the cloud"""
+        """ Check if application without internet privilege can access the cloud
+        @fn test_app_no_internet_privilege
+        @param self
+        @return
+        """
 
         appid = "test-app-no-internet-privilege"
         # install app
@@ -190,11 +282,17 @@ class NetworkPrivilege(oeRuntimeTest):
         # check smack rule
         status, output = self.target.run("cat %s/load2 | grep 'User::App::%s Network::Cloud w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #1, test_app_no_internet_privilege
+        #
         self.assertNotEqual(status, 0, "Smack rule for app without internet privilege to have " + \
                                         "write access to cloud should not be set")
 
         status, output = self.target.run("cat %s/load2 | grep 'Network::Cloud User::App::%s w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #2, test_app_no_internet_privilege
+        #
         self.assertNotEqual(status, 0, "Smack rule for cloud to have write access to app " + \
                                         "without privilege should not be set")
 
@@ -225,10 +323,17 @@ class NetworkPrivilege(oeRuntimeTest):
         # if any of the above succeded, then status is True
         status = status1 and status2 and status3 and status4
         output = output1 + output2 + output3 + output4
+        ##
+        # TESTPOINT: #3, test_app_no_internet_privilege
+        #
         self.assertNotEqual(status, 0, "Application without internet privilege can access it. Output: %s" %output)
 
     def test_app_with_internet_privilege(self):
-        """ Check if application with internet privilege can access the cloud"""
+        """ Check if application with internet privilege can access the cloud
+        @fn test_app_with_internet_privilege
+        @param self
+        @return
+        """
 
 
         appid = "test-app-with-internet-privilege"
@@ -239,11 +344,17 @@ class NetworkPrivilege(oeRuntimeTest):
         # check smack rule
         status, output = self.target.run("cat %s/load2 | grep 'User::App::%s Network::Cloud w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #1, test_app_with_internet_privilege
+        #
         self.assertEqual(status, 0, "Smack rule for app with internet privilege to have " + \
                                     "write access to cloud should be set %s" %output )
 
         status, output = self.target.run("cat %s/load2 | grep 'Network::Cloud User::App::%s w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #2, test_app_with_internet_privilege
+        #
         self.assertEqual(status, 0, "Smack rule for cloud to have write access to app with " + \
                                     "internet privilege should be set. %s" %output)
 
@@ -274,10 +385,17 @@ class NetworkPrivilege(oeRuntimeTest):
         # if any of the above attempts passed, then status should be True
         status = status1 and status2 and status3 and status4
         output = output1 + output2 + output3 + output4
+        ##
+        # TESTPOINT: #3, test_app_with_internet_privilege
+        #
         self.assertEqual(status, 0, "Application with internet privilege cannot access it. Output: %s" %output)
 
     def test_internet_privilege_persistent_rules(self):
-        """ Check app smack rules are persistent, remain after reboot """
+        """ Check app smack rules are persistent, remain after reboot 
+        @fn test_internet_privilege_persistent_rules
+        @param self
+        @return
+        """
 
         appid = "test-persistent-rules"
 
@@ -288,11 +406,17 @@ class NetworkPrivilege(oeRuntimeTest):
         # check smack rule
         status, output = self.target.run("cat %s/load2 | grep 'User::App::%s Network::Cloud w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #1, test_internet_privilege_persistent_rules
+        #
         self.assertEqual(status, 0, "Smack rule for app with internet privilege to have " + \
                                     "write access to cloud should be set")
 
         status, output = self.target.run("cat %s/load2 | grep 'Network::Cloud User::App::%s w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #2, test_internet_privilege_persistent_rules
+        #
         self.assertEqual(status, 0, "Smack rule for cloud to have write access to app with " + \
                                     "internet privilege should be set")
 
@@ -313,15 +437,26 @@ class NetworkPrivilege(oeRuntimeTest):
         # check smack rule after reboot
         status, output = self.target.run("cat %s/load2 | grep 'User::App::%s Network::Cloud w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #3, test_internet_privilege_persistent_rules
+        #
         self.assertEqual(status, 0, "Smack rule for app to have write access to cloud " + \
                                     "was removed after reboot " )
 
         status, output = self.target.run("cat %s/load2 | grep 'Network::Cloud User::App::%s w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #4, test_internet_privilege_persistent_rules
+        #
         self.assertEqual(status, 0, "Smack rule for cloud to have write access to app " + \
                                     "was removed after reboot")
 
     def test_internet_privilege_remove_app(self):
+        """
+        @fn test_internet_privilege_remove_app
+        @param self
+        @return
+        """
         appid = "test-internet-remove-app"
 
         # install app
@@ -331,11 +466,17 @@ class NetworkPrivilege(oeRuntimeTest):
         # check smack rule
         status, output = self.target.run("cat %s/load2 | grep 'User::App::%s Network::Cloud w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #1, test_internet_privilege_remove_app
+        #
         self.assertEqual(status, 0, "Smack rule for app with internet privilege to have " + \
                                     "write access to cloud should be set")
 
         status, output = self.target.run("cat %s/load2 | grep 'Network::Cloud User::App::%s w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #2, test_internet_privilege_remove_app
+        #
         self.assertEqual(status, 0, "Smack rule for cloud to have write access to app with " + \
                                     "internet privilege should be set")
 
@@ -346,10 +487,22 @@ class NetworkPrivilege(oeRuntimeTest):
         # check smack rule
         status, output = self.target.run("cat %s/load2 | grep 'User::App::%s Network::Cloud w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #3, test_internet_privilege_remove_app
+        #
         self.assertNotEqual(status, 0, "Smack rule for app with internet privilege to have " + \
                                     "write access to cloud kept after app removal")
 
         status, output = self.target.run("cat %s/load2 | grep 'Network::Cloud User::App::%s w'" \
                                             %(self.smack_path, appid))
+        ##
+        # TESTPOINT: #4, test_internet_privilege_remove_app
+        #
         self.assertNotEqual(status, 0, "Smack rule for cloud to have write access to app with " + \
                                     "internet privilege kept after app removal")
+
+##
+# @}
+# @}
+##
+

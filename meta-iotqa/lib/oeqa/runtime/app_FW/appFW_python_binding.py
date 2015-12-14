@@ -1,9 +1,25 @@
+"""
+@file appFW_python_binding.py
+"""
+
+##
+# @addtogroup app_FW app_FW
+# @brief This is app_FW component
+# @{
+# @addtogroup appFW_python_binding appFW_python_binding
+# @brief This is appFW_python_binding module
+# @{
+##
+
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.decorators import skipUnlessPassed
 from oeqa.utils.helper import get_files_dir
 import time,os
 
 class AppFwTestPython(oeRuntimeTest):
+    """
+    @class AppFwTestPython
+    """
 
     test_dir = os.path.join(os.sep,"opt","appfw_test")
     catch_app = 'appfw-python-event-catch.py'
@@ -15,7 +31,12 @@ class AppFwTestPython(oeRuntimeTest):
     """ App Framework testing """
 
     def _getPID(self,name):
-        """ get process ID , return first one if has mutli-matched """
+        """ get process ID , return first one if has mutli-matched 
+        @fn _getPID
+        @param self
+        @param name
+        @return
+        """
                 
         (status,output) = self.target.run("ps | grep -vE 'grep|sh -c' | grep '%s' | awk 'NR==1 {print $1}'" % name)
         if status == 0 and output:
@@ -24,7 +45,11 @@ class AppFwTestPython(oeRuntimeTest):
              return None
 
     def setUp(self):
-        """ Initial testing folder , check appfw python module and start launcher daemon """
+        """ Initial testing folder , check appfw python module and start launcher daemon 
+        @fn setUp
+        @param self
+        @return
+        """
 
         (status,output) = self.target.run("mkdir %s" % self.test_dir )
         self.target.copy_to(os.path.join(os.path.dirname(__file__), "files", self.catch_app),self.test_dir)
@@ -36,11 +61,18 @@ class AppFwTestPython(oeRuntimeTest):
          
         
     def test_appFW_Python_SIGTERM(self):
-        """ test python app respond to SIGTERM """
+        """ test python app respond to SIGTERM 
+        @fn test_appFW_Python_SIGTERM
+        @param self
+        @return
+        """
 
         (status,output) = self.target.run("python %s -s -d & " % self.catch_app_path)
 
         PID = self._getPID(self.catch_app)
+        ##
+        # TESTPOINT: #1, test_appFW_Python_SIGTERM
+        #
         self.assertTrue(PID!=None, 'unable to get PID of catch app')
         (status,output) = self.target.run("kill -TERM %s " % PID)
     
@@ -48,26 +80,44 @@ class AppFwTestPython(oeRuntimeTest):
         expected_output = "Received a SIGTERM, quitting mainloop..."
         (status,catch_app_output) = self.target.run("cat %s | grep '%s' " % (self.appfw_test_log , expected_output))
         
+        ##
+        # TESTPOINT: #2, test_appFW_Python_SIGTERM
+        #
         self.assertTrue(self._getPID(self.catch_app) == None and status == 0 ,
                         "Fail to terminate python app")
 
     def test_appFW_Python_SIGHUP(self):
-        """ test python app respond to SIGHUP """
+        """ test python app respond to SIGHUP 
+        @fn test_appFW_Python_SIGHUP
+        @param self
+        @return
+        """
 
         (status,output) = self.target.run("python %s -s -d & " % self.catch_app_path)
 
         PID = self._getPID(self.catch_app)
+        ##
+        # TESTPOINT: #1, test_appFW_Python_SIGHUP
+        #
         self.assertTrue(PID!=None, 'unable to get PID of catch app')
         (status,output) = self.target.run("kill -HUP %s " % PID)
         time.sleep(5)
         expected_output = "Received SIGHUP, doing nothing..."
         (status,catch_app_output) = self.target.run("cat %s | grep '%s' " % (self.appfw_test_log , expected_output))
         
+        ##
+        # TESTPOINT: #2, test_appFW_Python_SIGHUP
+        #
         self.assertTrue(self._getPID(self.catch_app) != None and status == 0 ,
                         "app not respond to SIGHUP")
 
     def _test_appFW_Python_Send_Receive_Event(self,cmd):
-        """ test python app can send/receive events """
+        """ test python app can send/receive events 
+        @fn _test_appFW_Python_Send_Receive_Event
+        @param self
+        @param cmd
+        @return
+        """
 
         (status,output) = self.target.run("python %s -s -e a,b,c -d  &" % self.catch_app_path)
         PID = self._getPID(self.catch_app)
@@ -86,32 +136,51 @@ class AppFwTestPython(oeRuntimeTest):
                         "Receive event %s fail" % res )
     
     def test_appFW_Python_Send_Recevie_Event_By_ProcessID(self):
-        """ test python app can send/receive events by process ID"""
+        """ test python app can send/receive events by process ID
+        @fn test_appFW_Python_Send_Recevie_Event_By_ProcessID
+        @param self
+        @return
+        """
 
         command = r"""python %s -e a,b,c -D '{"k":"v"}' -p PID -dddd """ % (self.send_app_path)
 
         self._test_appFW_Python_Send_Receive_Event(command)
 
     def test_appFW_Python_Send_Recevie_Event_By_User(self):
-        """ test python app can send/receive events by user"""
+        """ test python app can send/receive events by user
+        @fn test_appFW_Python_Send_Recevie_Event_By_User
+        @param self
+        @return
+        """
         
         command = r"""python %s -e a,b,c -D '{"k":"v"}' -u root -dddd """ % (self.send_app_path)
 
         self._test_appFW_Python_Send_Receive_Event(command)
 
     def test_appFW_Python_Send_Recevie_Event_By_Binary(self):
-        """ test python app can send/receive events by binary"""
+        """ test python app can send/receive events by binary
+        @fn test_appFW_Python_Send_Recevie_Event_By_Binary
+        @param self
+        @return
+        """
         
         command = r"""python %s -e a,b,c -D '{"k":"v"}' -b %s -dddd """ % (self.send_app_path, self.catch_app_path)
 
         self._test_appFW_Python_Send_Receive_Event(command)
 
     def test_appFW_Python_Send_Recevie_Event_Negative(self):
-        """ test python app should not receive un-subscribed events """
+        """ test python app should not receive un-subscribed events 
+        @fn test_appFW_Python_Send_Recevie_Event_Negative
+        @param self
+        @return
+        """
 
         (status,output) = self.target.run("python %s -s -e a,b,c -d  &" % self.catch_app_path)
         
         PID = self._getPID(self.catch_app)
+        ##
+        # TESTPOINT: #1, test_appFW_Python_Send_Recevie_Event_Negative
+        #
         self.assertTrue(PID!=None, 'unable to get PID of catch app')
         (status,output) = self.target.run(r"""python %s -e e,f,g -D '{"k":"v"}' -p %s -dddd """ % (self.send_app_path,PID))
         expected_outputs = [
@@ -121,11 +190,18 @@ class AppFwTestPython(oeRuntimeTest):
                             ]
         for res in expected_outputs:
             (status,catch_app_output) = self.target.run(r"""cat %s | grep "%s" """ % (self.appfw_test_log, res))
+            ##
+            # TESTPOINT: #2, test_appFW_Python_Send_Recevie_Event_Negative
+            #
             self.assertTrue(self._getPID(self.catch_app) != None and status !=0 ,
                         "Receive event %s fail" % res )
 
     def tearDown(self):
-        """ Stop catch app , stop launcher daemon and clean up testing log """
+        """ Stop catch app , stop launcher daemon and clean up testing log 
+        @fn tearDown
+        @param self
+        @return
+        """
 
         PID  = self._getPID(self.catch_app)
         if PID :
@@ -136,3 +212,9 @@ class AppFwTestPython(oeRuntimeTest):
         self.target.run("systemctl stop iot-launch")
         (status,output) = self.target.run("rm -f %s" % self.appfw_test_log)
         time.sleep(2)
+
+##
+# @}
+# @}
+##
+

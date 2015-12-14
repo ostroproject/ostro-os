@@ -1,3 +1,16 @@
+"""
+@file iotivity.py
+"""
+
+##
+# @addtogroup sanity sanity
+# @brief This is sanity component
+# @{
+# @addtogroup iotivity iotivity
+# @brief This is iotivity module
+# @{
+##
+
 import os
 import time
 import string
@@ -7,9 +20,16 @@ from oeqa.utils.decorators import tag
 
 @tag(TestType="Functional Positive", FeatureID="IOTOS-498")
 class IOtvtClient(oeRuntimeTest):
+    """
+    @class IOtvtClient
+    """
     @classmethod
     def setUpClass(cls):
-        '''Test simpleserver and simpleclient.'''
+        '''Test simpleserver and simpleclient.
+        @fn setUpClass
+        @param cls
+        @return
+        '''
         cls.tc.target.run("killall simpleserver")
         cls.tc.target.run("killall simpleclient")
         # start server
@@ -36,54 +56,99 @@ class IOtvtClient(oeRuntimeTest):
 
     @classmethod
     def tearDownClass(cls):
-        '''kill on Target'''
+        '''kill on Target
+        @fn tearDownClass
+        @param cls
+        @return
+        '''
         cls.tc.target.run("killall simpleserver")
         cls.tc.target.run("killall simpleclient")
 
     def test_iotvt_findresource(self):
-        '''Target finds resource, registered by Host'''
+        '''Target finds resource, registered by Host
+        @fn test_iotvt_findresource
+        @param self
+        @return
+        '''
         (status, output) = self.target.run('cat /tmp/output')
         ret = 0
         if "DISCOVERED Resource" in output:
             pass
         else:
            ret = 1
+        ##
+        # TESTPOINT: #1, test_iotvt_findresource
+        #
         self.assertEqual(ret, 0, msg="Error messages: %s" % output)
 
     def test_iotvt_getstate(self):
-        '''Target gets resource state'''
+        '''Target gets resource state
+        @fn test_iotvt_getstate
+        @param self
+        @return
+        '''
         (status, output) = self.target.run('cat /tmp/output')
         ret = 0
         if "GET request was successful" in output:
             pass
         else:
            ret = 1
+        ##
+        # TESTPOINT: #1, test_iotvt_getstate
+        #
         self.assertEqual(ret, 0, msg="Error messages: %s" % output)
 
     def test_iotvt_observer(self):
-        '''Target sets observer'''
+        '''Target sets observer
+        @fn test_iotvt_observer
+        @param self
+        @return
+        '''
         (status, output) = self.target.run('cat /tmp/output')
         ret = 0
         if "Observe is used." in output:
             pass
         else:
            ret = 1
+        ##
+        # TESTPOINT: #1, test_iotvt_observer
+        #
         self.assertEqual(ret, 0, msg="Error messages: %s" % output)
 
     def test_iotvt_setstate(self):
-        '''Target sets resource state'''
+        '''Target sets resource state
+        @fn test_iotvt_setstate
+        @param self
+        @return
+        '''
         (status, output) = self.target.run('cat /tmp/output')
         ret = 0
         if "PUT request was successful" in output:
             pass
         else:
            ret = 1
+        ##
+        # TESTPOINT: #1, test_iotvt_setstate
+        #
         self.assertEqual(ret, 0, msg="Error messages: %s" % output)
 
     def test_iotvt_regresource(self):
-        '''After several seconds, server should not crash'''
+        '''After several seconds, server should not crash
+        @fn test_iotvt_regresource
+        @param self
+        @return
+        '''
         time.sleep(2)
         # check if simpleserver is there
         (status, output) = self.target.run('ps | grep simpleserver -c')
         number = string.atoi(output)
+        ##
+        # TESTPOINT: #1, test_iotvt_regresource
+        #
         self.assertEqual(number, 3, msg="Error messages: %s" % output)
+
+##
+# @}
+# @}
+##
+
