@@ -82,12 +82,30 @@ class ISA_CVEChecker:
                 flog.write("Plugin hasn't initialized! Not performing the call.\n")
 
     def process_report(self):
+        print("Creating report in HTML format.")
+        with open(self.logdir + log, 'a') as flog:
+            flog.write("Creating report in HTML format.\n")
+        self.process_report_type("html")
+
+        print("Creating report in CSV format.")
+        with open(self.logdir + log, 'a') as flog:
+            flog.write("Creating report in CSV format.\n")
+        self.process_report_type("csv")
+
+        pkglist_faux = pkglist + "_" + self.timestamp + ".faux"
+        os.remove(self.reportdir + pkglist_faux)
+
+    def process_report_type(self, rtype):
         # now faux file is ready and we can process it
         args = ""
         if self.proxy:
             args += "https_proxy=%s http_proxy=%s " % (self.proxy, self.proxy)
+        args += "cve-check-tool "
+        if rtype != "html":
+            args += "-c "
+            rtype = "csv"
         pkglist_faux = pkglist + "_" + self.timestamp + ".faux"
-        args += "cve-check-tool -c -a -t faux '" + self.reportdir + pkglist_faux  + "'"
+        args += "-a -t faux '" + self.reportdir + pkglist_faux  + "'"
         try:
             popen = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE)
             popen.wait()
@@ -98,10 +116,9 @@ class ISA_CVEChecker:
             with open(self.logdir + log, 'a') as flog:
                 flog.write("Error in executing cve-check-tool: " + sys.exc_info())
         else:
-            report = cve_report + "_" + self.timestamp + ".csv"
+            report = cve_report + "_" + self.timestamp + "." + rtype
             with open(self.reportdir + report, 'w') as freport:
                 freport.write(output)
-        os.remove(self.reportdir + pkglist_faux)
 
     def process_patch_list(self, patch_files):
         patch_info = ""
