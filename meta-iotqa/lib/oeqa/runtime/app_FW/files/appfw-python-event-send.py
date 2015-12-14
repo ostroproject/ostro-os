@@ -1,3 +1,16 @@
+"""
+@file appfw-python-event-send.py
+"""
+
+##
+# @addtogroup app_FW app_FW
+# @brief This is app_FW component
+# @{
+# @addtogroup appfw-python-event-send appfw-python-event-send
+# @brief This is appfw-python-event-send module
+# @{
+##
+
 import argparse
 import json
 import logging
@@ -6,6 +19,13 @@ import appfw
 logger = logging.getLogger("__event-send__")
 
 def send_status(id, status, msg, callback_data):
+	"""
+	@fn send_status
+	@param id
+	@param  msg
+	@param  callback_data
+	@return
+	"""
 	if status == 0:
 		logger.debug("Event request #" + str(id) + " succesfully delivered.")
 	else:
@@ -15,6 +35,12 @@ def send_status(id, status, msg, callback_data):
 		             str(id) + ": " + msg)
 
 def simple_event_sender(app, args):
+	"""
+	@fn simple_event_sender
+	@param app
+	@param  args
+	@return
+	"""
 	event_data = args.data
         if ',' in args.events:
             events = args.events.split(',')
@@ -27,6 +53,10 @@ def simple_event_sender(app, args):
 	           user=args.user, process=args.process)
 
 def main():
+	"""
+	@fn main
+	@return
+	"""
 	#Parse arguments
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-l", "--label", type=str, help="target application label")
@@ -64,3 +94,9 @@ def main():
 
 if __name__ == "__main__":
 	main()
+
+##
+# @}
+# @}
+##
+

@@ -1,3 +1,16 @@
+"""
+@file comm_wifi_connect.py
+"""
+
+##
+# @addtogroup sanity sanity
+# @brief This is sanity component
+# @{
+# @addtogroup comm_wifi_connect comm_wifi_connect
+# @brief This is comm_wifi_connect module
+# @{
+##
+
 import time
 import os
 import string
@@ -12,14 +25,28 @@ ssid_config.readfp(open(config_path))
 
 @tag(TestType="Functional Positive")
 class CommWiFiConect(oeRuntimeTest):
+    """
+    @class CommWiFiConect
+    """
     service = ""
     log = ""
     def target_collect_info(self, cmd):
+        """
+        @fn target_collect_info
+        @param self
+        @param  cmd
+        @return
+        """
         (status, output) = self.target.run(cmd)
         self.log = self.log + "\n\n[Debug] Command output --- %s: \n" % cmd
         self.log = self.log + output
 
     def setUp(self):
+        """
+        @fn setUp
+        @param self
+        @return
+        """
         # un-block software rfkill lock
         self.target.run('rfkill unblock all')
         # Enable WiFi
@@ -66,12 +93,20 @@ class CommWiFiConect(oeRuntimeTest):
             self.service = services.strip()
 
     def tearDown(self):
-        ''' disable wifi after testing '''
+        ''' disable wifi after testing 
+        @fn tearDown
+        @param self
+        @return
+        '''
         self.target.run('connmanctl disable wifi')
 
     @tag(FeatureID="IOTOS-458")
     def test_wifi_connect(self):
-        '''connmanctl to connect WPA2-PSK wifi AP'''
+        '''connmanctl to connect WPA2-PSK wifi AP
+        @fn test_wifi_connect
+        @param self
+        @return
+        '''
         target_ip = self.target.ip 
         ssid = ssid_config.get("Connect","ssid")
         pwd = ssid_config.get("Connect","passwd")
@@ -85,6 +120,9 @@ class CommWiFiConect(oeRuntimeTest):
             exp = os.path.join(os.path.dirname(__file__), "files/wifi_hidden_connect.exp")
             cmd = "expect %s %s %s %s %s %s" % (exp, target_ip, "connmanctl", self.service, ssid, pwd)
         status, output = shell_cmd_timeout(cmd, timeout=60)
+        ##
+        # TESTPOINT: #1, test_wifi_connect
+        #
         self.assertEqual(status, 2, msg="Error messages: %s" % output)
         # Check ip address by ifconfig command
         time.sleep(3)
@@ -93,4 +131,13 @@ class CommWiFiConect(oeRuntimeTest):
 
         # Collect info
         self.target_collect_info("ifconfig")
+        ##
+        # TESTPOINT: #2, test_wifi_connect
+        #
         self.assertEqual(status, 0, msg="IP check failed" + self.log)
+
+##
+# @}
+# @}
+##
+

@@ -1,3 +1,16 @@
+"""
+@file iotvt_wifi.py
+"""
+
+##
+# @addtogroup iotivity iotivity
+# @brief This is iotivity component
+# @{
+# @addtogroup iotvt_wifi iotvt_wifi
+# @brief This is iotvt_wifi module
+# @{
+##
+
 import os
 import time
 import string
@@ -12,9 +25,16 @@ ssid_config.readfp(open(config_path))
 
 @tag(TestType="Functional Positive", FeatureID="IOTOS-499")
 class IOtvtWiFi(oeRuntimeTest):
+    """
+    @class IOtvtWiFi
+    """
     @classmethod
     def setUpClass(cls):
-        '''Connect to WiFi AP, which contains simpleserver running on it'''
+        '''Connect to WiFi AP, which contains simpleserver running on it
+        @fn setUpClass
+        @param cls
+        @return
+        '''
         # Connect to WiFi
         cls.tc.target.run('rfkill unblock all')
         cls.tc.target.run('connmanctl enable wifi')
@@ -73,45 +93,83 @@ class IOtvtWiFi(oeRuntimeTest):
 
     @classmethod
     def tearDownClass(cls):
-        '''disable wifi, it will block ethernet connection when rebooting'''
+        '''disable wifi, it will block ethernet connection when rebooting
+        @fn tearDownClass
+        @param cls
+        @return
+        '''
         cls.tc.target.run("connmanctl disable wifi")
 
     def test_iotvt_wifi_findresource(self):
-        '''Target finds resource, registered by Host'''
+        '''Target finds resource, registered by Host
+        @fn test_iotvt_wifi_findresource
+        @param self
+        @return
+        '''
         (status, output) = self.target.run('cat /tmp/output')
         ret = 0
         if "DISCOVERED Resource" in output:
             pass
         else:
            ret = 1
+        ##
+        # TESTPOINT: #1, test_iotvt_wifi_findresource
+        #
         self.assertEqual(ret, 0, msg="Error messages: %s" % output)
 
     def test_iotvt_wifi_getstate(self):
-        '''Target gets resource state'''
+        '''Target gets resource state
+        @fn test_iotvt_wifi_getstate
+        @param self
+        @return
+        '''
         (status, output) = self.target.run('cat /tmp/output')
         ret = 0
         if "GET request was successful" in output:
             pass
         else:
            ret = 1
+        ##
+        # TESTPOINT: #1, test_iotvt_wifi_getstate
+        #
         self.assertEqual(ret, 0, msg="Error messages: %s" % output)
 
     def test_iotvt_wifi_observer(self):
-        '''Target sets observer'''
+        '''Target sets observer
+        @fn test_iotvt_wifi_observer
+        @param self
+        @return
+        '''
         (status, output) = self.target.run('cat /tmp/output')
         ret = 0
         if "Observe is used." in output:
             pass
         else:
            ret = 1
+        ##
+        # TESTPOINT: #1, test_iotvt_wifi_observer
+        #
         self.assertEqual(ret, 0, msg="Error messages: %s" % output)
 
     def test_iotvt_wifi_setstate(self):
-        '''Target sets resource state'''
+        '''Target sets resource state
+        @fn test_iotvt_wifi_setstate
+        @param self
+        @return
+        '''
         (status, output) = self.target.run('cat /tmp/output')
         ret = 0
         if "PUT request was successful" in output:
             pass
         else:
            ret = 1
+        ##
+        # TESTPOINT: #1, test_iotvt_wifi_setstate
+        #
         self.assertEqual(ret, 0, msg="Error messages: %s" % output)
+
+##
+# @}
+# @}
+##
+

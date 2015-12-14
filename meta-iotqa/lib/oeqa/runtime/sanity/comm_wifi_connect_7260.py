@@ -1,3 +1,16 @@
+"""
+@file comm_wifi_connect_7260.py
+"""
+
+##
+# @addtogroup sanity sanity
+# @brief This is sanity component
+# @{
+# @addtogroup comm_wifi_connect_7260 comm_wifi_connect_7260
+# @brief This is comm_wifi_connect_7260 module
+# @{
+##
+
 import time
 import os
 import string
@@ -13,8 +26,16 @@ ssid_config.readfp(open(config_path))
 
 @tag(TestType="Functional Positive")
 class CommWiFiConect(oeRuntimeTest):
+    """
+    @class CommWiFiConect
+    """
     service = ""
     def setUp(self):
+        """
+        @fn setUp
+        @param self
+        @return
+        """
         # un-block software rfkill lock
         self.target.run('rfkill unblock all')
         # Enable WiFi
@@ -61,12 +82,20 @@ class CommWiFiConect(oeRuntimeTest):
             self.service = services.strip()
 
     def tearDown(self):
-        ''' disable wifi after testing '''
+        ''' disable wifi after testing 
+        @fn tearDown
+        @param self
+        @return
+        '''
         self.target.run('connmanctl disable wifi')
 
     @tag(FeatureID="IOTOS-458")
     def test_wifi_connect(self):
-        '''connmanctl to connect WPA2-PSK wifi AP'''
+        '''connmanctl to connect WPA2-PSK wifi AP
+        @fn test_wifi_connect
+        @param self
+        @return
+        '''
         target_ip = self.target.ip 
         ssid = ssid_config.get("Connect","ssid")
         pwd = ssid_config.get("Connect","passwd")
@@ -80,9 +109,21 @@ class CommWiFiConect(oeRuntimeTest):
             exp = os.path.join(os.path.dirname(__file__), "files/wifi_hidden_connect_7260.exp")
             cmd = "expect %s %s %s %s %s %s" % (exp, target_ip, "connmanctl", self.service, ssid, pwd)
         status, output = shell_cmd_timeout(cmd, timeout=60)
+        ##
+        # TESTPOINT: #1, test_wifi_connect
+        #
         self.assertEqual(status, 2, msg="Error messages: %s" % output)
         # Check ip address by ifconfig command
         time.sleep(3)
         (status, wifi_interface) = self.target.run("ifconfig | grep '^wlp' | awk '{print $1}'")
         (status, output) = self.target.run("ifconfig %s | grep 'inet addr:'" % wifi_interface)
+        ##
+        # TESTPOINT: #2, test_wifi_connect
+        #
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
+
+##
+# @}
+# @}
+##
+

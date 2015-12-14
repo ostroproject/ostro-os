@@ -1,3 +1,16 @@
+"""
+@file apprt_nodejs_runtime.py
+"""
+
+##
+# @addtogroup nodejs nodejs
+# @brief This is nodejs component
+# @{
+# @addtogroup apprt_nodejs_runtime apprt_nodejs_runtime
+# @brief This is apprt_nodejs_runtime module
+# @{
+##
+
 import os
 import sys
 import time
@@ -22,6 +35,12 @@ def get_nodejs_repo(
     Get the latest repo of node.js from github.com
     If the repo directory doesn't exist, git clone it.
     If the repo directory already exists, git pull it.
+    @fn get_nodejs_repo
+    @param          local_nodejs_path
+    @param          config_file
+    @param          node_version
+    @param          store_output
+    @return
     '''
     git_cmd = ['git']
     p = None
@@ -115,6 +134,10 @@ def checkout_nodejs(local_nodejs_path, node_version='v0.12.7'):
     For example, if the node version of target device is v0.12.7, we need to
     git checkout v0.12.7-release
     branch.
+    @fn checkout_nodejs
+    @param local_nodejs_path
+    @param  node_version
+    @return
     '''
     apprt_files_dir = os.path.dirname(local_nodejs_path)
     if os.path.exists(os.path.join(apprt_files_dir, '%s.zip' % node_version)):
@@ -155,6 +178,10 @@ def choose_test_files_and_tar(local_nodejs_path, node_version):
     1. Generate a new temporary directory
     2. Copy all the files and directories to the temporary directory.
     3. tar -cjf node-<version>-release.tar.gz
+    @fn choose_test_files_and_tar
+    @param local_nodejs_path
+    @param  node_version
+    @return
     '''
     apprt_files_dir = os.path.abspath(os.path.dirname(local_nodejs_path))
 
@@ -191,6 +218,9 @@ def choose_test_files_and_tar(local_nodejs_path, node_version):
 
 @tag(TestType = 'Functional Positive', FeatureID = 'IOTOS-332')
 class NodejsRuntimeTest(oeRuntimeTest):
+    """
+    @class NodejsRuntimeTest
+    """
 
     target_node_version = None
     target_node_path = None
@@ -213,6 +243,9 @@ class NodejsRuntimeTest(oeRuntimeTest):
             target device
         3. Change some configuration that before the test start.
         4. Upload the necessary files and directories on the target device.
+        @fn setUp
+        @param self
+        @return
         '''
 
         # Get the node information of target device
@@ -382,6 +415,9 @@ class NodejsRuntimeTest(oeRuntimeTest):
     def test_apprt_nodejs_runtime(self):
         '''
         Execute the node.js upstream test cases.
+        @fn test_apprt_nodejs_runtime
+        @param self
+        @return
         '''
         sys.stdout.write('Executing node.js upstream test cases...\n');
         sys.stdout.flush()
@@ -414,6 +450,9 @@ class NodejsRuntimeTest(oeRuntimeTest):
         '''
         Clean work: remove all the files downloaded on host and 
         copied to the target device during the test.
+        @fn tearDown
+        @param self
+        @return
         '''
         node_test_dir = os.path.join(
             self.files_dir,
@@ -464,3 +503,9 @@ class NodejsRuntimeTest(oeRuntimeTest):
             'rm -f /tmp/node_%s_test.tar.gz on target DONE\n' %
             self.target_node_version)
         sys.stdout.flush()
+
+##
+# @}
+# @}
+##
+
