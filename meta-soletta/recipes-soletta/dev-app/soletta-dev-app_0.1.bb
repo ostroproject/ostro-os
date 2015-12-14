@@ -1,18 +1,19 @@
 DESCRIPTION = "Soletta Development Application"
-DEPENDS = "soletta nodejs systemd graphviz git"
+DEPENDS = "nodejs-native"
+RDEPENDS_${PN} = "soletta nodejs systemd graphviz libmicrohttpd avahi-daemon git"
 LICENSE = "BSD-3-Clause"
 PV = "1_beta4"
 
-LIC_FILES_CHKSUM = "file://LICENSE;md5=dbf9699ab0f60ec50f52ce70fcd07caf"
-SRC_URI[archive.md5sum] = "577fcd77b8de7121a22be3f02707395c"
-SRC_URI[archive.sha256sum] = "f4419a643ef16ed376de2f0550ceb281f937fb0f67528e7efe72098880e2597f"
-SRC_URI = "https://github.com/solettaproject/soletta-dev-app/releases/download/v${PV}/soletta-dev-app_standalone_v${PV}.tar.gz;name=archive \
+LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=dbf9699ab0f60ec50f52ce70fcd07caf"
+
+SRCREV = "5389b18efb75d21bcc593bb059917af27cb82b4b"
+SRC_URI = "git://git@github.com/solettaproject/soletta-dev-app.git;protocol=https \
            file://soletta-dev-app.service \
            file://soletta-dev-app-mac.sh \
            file://soletta-dev-app-avahi-discover.service \
 "
 
-S = "${WORKDIR}/${PN}"
+S = "${WORKDIR}/git"
 
 INSANE_SKIP_${PN} += "file-rdeps debug-files arch"
 
@@ -30,6 +31,60 @@ FILES_${PN} += " \
     ${SYSTEMD_PATH}soletta-dev-app-avahi-discover.service \
     /soletta-dev-app/scripts/soletta-dev-app-mac.sh \
 "
+
+do_compile() {
+
+    # changing the home directory to the working directory, the .npmrc will be created in this directory
+    export HOME=${WORKDIR}
+
+    # does not build dev packages
+    npm config set dev false
+
+    # access npm registry using http
+    npm set strict-ssl false
+    npm config set registry http://registry.npmjs.org/
+
+    # configure http proxy if neccessary
+    if [ -n "${http_proxy}" ]; then
+        npm config set proxy ${http_proxy}
+        export bower_https_proxy=${http_proxy}
+    fi
+    if [ -n "${HTTP_PROXY}" ]; then
+        npm config set proxy ${HTTP_PROXY}
+        export bower_https_proxy=${HTTP_PROXY}
+    fi
+
+    # configure cache to be in working directory
+    npm set cache ${WORKDIR}/npm_cache
+
+    # clear local cache prior to each compile
+    npm cache clear
+
+    case ${TARGET_ARCH} in
+        i?86) targetArch="ia32"
+            echo "targetArch = 32"
+            ;;
+        x86_64) targetArch="x64"
+            echo "targetArch = 64"
+            ;;
+        arm) targetArch="arm"
+            ;;
+        mips) targetArch="mips"
+            ;;
+        sparc) targetArch="sparc"
+            ;;
+        *) echo "unknown architecture"
+           exit 1
+            ;;
+    esac
+
+    npm install --arch=${targetArch} --production --verbose -g bower@v1.6.8
+
+    # compile and install node modules in source directory
+    npm --arch=${targetArch} --production --verbose install
+
+    bower -V install
+}
 
 do_install() {
   install -d ${D}{INSTALLATION_PATH}
