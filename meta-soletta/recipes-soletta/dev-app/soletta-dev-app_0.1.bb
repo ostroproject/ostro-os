@@ -15,7 +15,10 @@ SRC_URI = "git://git@github.com/solettaproject/soletta-dev-app.git;protocol=http
 
 S = "${WORKDIR}/git"
 
-INSANE_SKIP_${PN} += "file-rdeps debug-files arch"
+# We provide only one package
+PACKAGES = " \
+	${PN} \
+"
 
 INSTALLATION_PATH = "/opt/"
 SYSTEMD_PATH = "${systemd_unitdir}/system/"
