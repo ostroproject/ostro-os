@@ -1,9 +1,9 @@
 [Unit]
 Description=CAN startup service
 After=network.target
-Type=oneshot
 
 [Service]
+Type=oneshot
 ExecStart=/usr/bin/start-can
 
 [Install]
