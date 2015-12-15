@@ -1,6 +1,6 @@
 DESCRIPTION = "Soletta Development Application"
 DEPENDS = "nodejs-native"
-RDEPENDS_${PN} = "soletta nodejs systemd graphviz libmicrohttpd avahi-daemon git"
+RDEPENDS_${PN} = "soletta nodejs systemd graphviz libmicrohttpd avahi-daemon bash git"
 LICENSE = "BSD-3-Clause"
 PV = "1_beta4"
 
