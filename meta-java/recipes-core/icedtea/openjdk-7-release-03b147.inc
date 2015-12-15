@@ -71,6 +71,7 @@ ICEDTEA_PATCHES = " \
         file://build-hacks-native.patch \
         file://icedtea-sane-x86-arch-name.patch \
 	file://fix-checksums.patch \
+        file://ecj-3.8.2-build-hack.patch \
         "
 
 OPENJDK_PATCHES = " \
@@ -83,6 +84,7 @@ OPENJDK_PATCHES = " \
 	file://icedtea-openjdk-remove-currency-data-generation-expi.patch;apply=no \
 	file://icedtea-change-to-gdb-debug-format.patch;apply=no \
         file://icedtea-fix-zero-mode-undefined-behaviour.patch;apply=no \
+        file://icedtea-ecj-3.8.2-build-hacks.patch;apply=no \
         "
 
 export DISTRIBUTION_PATCHES = " \
@@ -95,4 +97,5 @@ export DISTRIBUTION_PATCHES = " \
 	patches/icedtea-openjdk-remove-currency-data-generation-expi.patch \
 	patches/icedtea-change-to-gdb-debug-format.patch \
         patches/icedtea-fix-zero-mode-undefined-behaviour.patch \
+        patches/icedtea-ecj-3.8.2-build-hacks.patch \
         "
