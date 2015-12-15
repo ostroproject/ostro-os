@@ -140,12 +140,11 @@ class IOtvtClient(oeRuntimeTest):
         '''
         time.sleep(2)
         # check if simpleserver is there
-        (status, output) = self.target.run('ps | grep simpleserver -c')
-        number = string.atoi(output)
+        (status, output) = self.target.run('ps')
         ##
         # TESTPOINT: #1, test_iotvt_regresource
         #
-        self.assertEqual(number, 3, msg="Error messages: %s" % output)
+        self.assertEqual(output.count("simpleserver"), 1, msg="Error messages: %s" % output)
 
 ##
 # @}
