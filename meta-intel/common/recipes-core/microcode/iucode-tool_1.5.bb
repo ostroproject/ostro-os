@@ -17,8 +17,8 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe \
                     file://iucode_tool.c;beginline=1;endline=15;md5=f65c2be08bfd462331cadff25869588e"
 
 SRC_URI = "https://gitlab.com/iucode-tool/releases/raw/master/iucode-tool_${PV}.tar.xz"
-SRC_URI[md5sum] = "ad5aa3ed5eee2f9ef58a291fe7ca711d"
-SRC_URI[sha256sum] = "c6e134fc63ac7e765f729c500adc9e154da57b02e991be35b421acf9c7eb0ea9"
+SRC_URI[md5sum] = "5bc0e08276bc49efe6a949bb7611763e"
+SRC_URI[sha256sum] = "33271652032f20f866a212bc98ea01a8db65c4ac839fa820aa23da974fd6ff62"
 
 S = "${WORKDIR}/iucode_tool-${PV}"
 
