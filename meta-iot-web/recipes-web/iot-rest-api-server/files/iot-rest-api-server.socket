@@ -1,0 +1,9 @@
+[Unit]
+Description=Iot REST API server socket
+
+[Socket]
+ListenStream=8000
+Accept=false
+
+[Install]
+WantedBy=sockets.target
