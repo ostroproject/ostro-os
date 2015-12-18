@@ -37,6 +37,14 @@ file://0005-tizen-smack-Handling-network-v225.patch \
 file://0006-tizen-smack-Tuning-user-.service.m4.in.patch \
 file://0007-tizen-smack-Runs-systemd-journald-with.patch \
 "
+SYSTEMD_SMACK_PATCHES_228 = " \
+file://0002-tizen-smack-Handling-of-tmp-v228.patch \
+file://0003-tizen-smack-Handling-of-run-and-sys-fs-cgroup-v228.patch \
+file://0004-tizen-smack-Handling-of-dev-v228.patch \
+file://0005-tizen-smack-Handling-network-v228.patch \
+file://0006-tizen-smack-Tuning-user-.service.m4.in.patch \
+file://0007-tizen-smack-Runs-systemd-journald-with-v228.patch \
+"
 
 # From Tizen .spec file.
 EXTRA_OECONF_append_smack = " --with-smack-run-label=System"
