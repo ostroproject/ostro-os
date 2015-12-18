@@ -24,7 +24,7 @@ ssid_config = ConfigParser.ConfigParser()
 config_path = os.path.join(os.path.dirname(__file__), "files/config.ini")
 ssid_config.readfp(open(config_path))
 
-@tag(TestType="Functional Positive")
+@tag(TestType="FVT")
 class CommWiFiConect(oeRuntimeTest):
     """
     @class CommWiFiConect

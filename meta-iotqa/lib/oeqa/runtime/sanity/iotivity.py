@@ -18,7 +18,7 @@ from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import shell_cmd_timeout
 from oeqa.utils.decorators import tag
 
-@tag(TestType="Functional Positive", FeatureID="IOTOS-498")
+@tag(TestType="FVT", FeatureID="IOTOS-498,IOTOS-450")
 class IOtvtClient(oeRuntimeTest):
     """
     @class IOtvtClient

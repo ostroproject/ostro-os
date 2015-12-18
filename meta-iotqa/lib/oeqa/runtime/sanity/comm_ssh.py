@@ -14,7 +14,9 @@
 import subprocess
 import time
 from oeqa.oetest import oeRuntimeTest
+from oeqa.utils.decorators import tag
 
+@tag(TestType="FVT", FeatureID="IOTOS-489")
 class CommSshTest(oeRuntimeTest):
     '''Ssh to logon target device
     @class CommSshTest
