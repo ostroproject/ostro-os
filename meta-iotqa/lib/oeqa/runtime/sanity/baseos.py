@@ -43,6 +43,11 @@ class BaseOsTest(oeRuntimeTest):
         ##
         # TESTPOINT: #1, test_baseos_lsmod
         #
+        # lsmod should show at least 1 module
+        if output.count('\n') > 0:
+            pass
+        else:
+            status=1
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
 
     def test_baseos_ps(self):
@@ -55,6 +60,11 @@ class BaseOsTest(oeRuntimeTest):
         ##
         # TESTPOINT: #1, test_baseos_ps
         #
+        # ps should show at least 1 process
+        if output.count('\n') > 0:
+            pass
+        else:
+            status=1
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
 
     def test_baseos_df(self):
@@ -67,6 +77,11 @@ class BaseOsTest(oeRuntimeTest):
         ##
         # TESTPOINT: #1, test_baseos_df
         #
+        # df should show at least 1 mounting point
+        if output.count('\n') > 0:
+            pass
+        else:
+            status=1
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
 
     def test_baseos_systemd_process(self):
@@ -75,23 +90,29 @@ class BaseOsTest(oeRuntimeTest):
         @param self
         @return
         '''
-        (status, output) = self.target.run("ls -l /proc/1/exe | grep 'systemd'")
+        (status, output) = self.target.run("ls -l /proc/1/exe")
         ##
         # TESTPOINT: #1, test_baseos_systemd_process
         #
+        if output.endswith("systemd"):
+            pass
+        else:
+            status=1
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
 
-    def test_baseos_sensord_process(self):
-        '''check sensord process
-        @fn test_baseos_sensord_process
-        @param self
-        @return
-        '''
-        (status, output) = self.target.run("ps | grep -v grep | grep sensord")
-        ##
-        # TESTPOINT: #1, test_baseos_sensord_process
-        #
-        self.assertEqual(status, 0, msg="Error messages: %s" % output)
+    # Remove sensord case since there is no sensord in IoT now. 
+    #def test_baseos_sensord_process(self):
+    #    '''check sensord process
+    #    @fn test_baseos_sensord_process
+    #    @param self
+    #    @return
+    #    '''
+    #    (status, output) = self.target.run("ps | grep -v grep | grep sensord")
+    #    ##
+    #    # TESTPOINT: #1, test_baseos_sensord_process
+    #    #
+    #    self.assertEqual(status, 0, msg="Error messages: %s" % output)
+    # Sensord case removed with MaYan's suggestion
 
 ##
 # @}
