@@ -1,8 +1,0 @@
-oeqa.runtime.app_FW.appFW.AppFwTest.test_appFW_install_pkg_during_img_creation
-oeqa.runtime.app_FW.appFW.AppFwTest.test_appFW_start_app_on_device_startup 
-oeqa.runtime.app_FW.appFW.AppFwTest.test_appFW_app_running_with_Dedicated_User
-oeqa.runtime.app_FW.appFW.AppFwTest.test_appFW_start_app_ondemand
-oeqa.runtime.app_FW.appFW.AppFwTest.test_appFW_stop_app_service
-oeqa.runtime.app_FW.appFW.AppFwTest.test_appFW_app_event_TERM
-oeqa.runtime.app_FW.appFW_python_binding
-oeqa.runtime.app_FW.appFW_M2
