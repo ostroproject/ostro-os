@@ -23,7 +23,7 @@ eth_config = ConfigParser.ConfigParser()
 config_path = os.path.join(os.path.dirname(__file__), "files/config.ini")
 eth_config.readfp(open(config_path))
 
-@tag(TestType="Functional Positive")
+@tag(TestType="EFT")
 class CommEthernet(oeRuntimeTest):
     """
     @class CommEthernet

@@ -19,7 +19,7 @@ from oeqa.utils.helper import shell_cmd_timeout
 from oeqa.utils.helper import get_files_dir
 from oeqa.utils.decorators import tag
 
-@tag(TestType="Functional Positive")
+@tag(TestType="FVT")
 class CommBTTest(oeRuntimeTest):
     """
     @class CommBTTest

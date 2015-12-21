@@ -23,7 +23,7 @@ ssid_config = ConfigParser.ConfigParser()
 config_path = os.path.join(os.path.dirname(__file__), "../sanity/files/config.ini")
 ssid_config.readfp(open(config_path))
 
-@tag(TestType="Functional Positive", FeatureID="IOTOS-499")
+@tag(TestType="FVT", FeatureID="IOTOS-499")
 class IOtvtWiFi(oeRuntimeTest):
     """
     @class IOtvtWiFi
