@@ -44,6 +44,7 @@ file://0004-tizen-smack-Handling-of-dev-v228.patch \
 file://0005-tizen-smack-Handling-network-v228.patch \
 file://0006-tizen-smack-Tuning-user-.service.m4.in.patch \
 file://0007-tizen-smack-Runs-systemd-journald-with-v228.patch \
+file://mount-setup.c-fix-handling-of-symlink-Smack-labellin-v228.patch \
 "
 
 # From Tizen .spec file.
