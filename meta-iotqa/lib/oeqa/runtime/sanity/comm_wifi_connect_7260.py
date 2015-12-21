@@ -17,7 +17,6 @@ import string
 import ConfigParser
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import shell_cmd_timeout
-from oeqa.utils.helper import get_files_dir
 from oeqa.utils.decorators import tag
 
 ssid_config = ConfigParser.ConfigParser()
@@ -30,6 +29,18 @@ class CommWiFiConect(oeRuntimeTest):
     @class CommWiFiConect
     """
     service = ""
+    log = ""
+    def target_collect_info(self, cmd):
+        """
+        @fn target_collect_info
+        @param self
+        @param  cmd
+        @return
+        """
+        (status, output) = self.target.run(cmd)
+        self.log = self.log + "\n\n[Debug] Command output --- %s: \n" % cmd
+        self.log = self.log + output
+
     def setUp(self):
         """
         @fn setUp
@@ -60,7 +71,11 @@ class CommWiFiConect(oeRuntimeTest):
                 retry = retry + 1
                 if (status == 0):
                     break
-            self.assertEqual(status, 0, msg="Not found AP service")
+                else:
+                    self.target_collect_info("connmanctl services")
+            # Collect info
+            self.target_collect_info("ifconfig")
+            self.assertEqual(status, 0, msg="Not found AP service" + self.log)
             self.service = output.split(" ")[-1]
         else:
             # Scan nearby to get service of none-encryption broadcasting ssid
@@ -78,7 +93,11 @@ class CommWiFiConect(oeRuntimeTest):
                 retry = retry + 1
                 if (status == 0):
                     break
-            self.assertEqual(status, 0, msg="Not found hidden AP service")
+                else:
+                    self.target_collect_info("connmanctl services")
+            # Collect info
+            self.target_collect_info("ifconfig")
+            self.assertEqual(status, 0, msg="Not found hidden AP service" + self.log)
             self.service = services.strip()
 
     def tearDown(self):
@@ -117,10 +136,13 @@ class CommWiFiConect(oeRuntimeTest):
         time.sleep(3)
         (status, wifi_interface) = self.target.run("ifconfig | grep '^wlp' | awk '{print $1}'")
         (status, output) = self.target.run("ifconfig %s | grep 'inet addr:'" % wifi_interface)
+
+        # Collect info
+        self.target_collect_info("ifconfig")
         ##
         # TESTPOINT: #2, test_wifi_connect
         #
-        self.assertEqual(status, 0, msg="Error messages: %s" % output)
+        self.assertEqual(status, 0, msg="IP check failed" + self.log)
 
 ##
 # @}
