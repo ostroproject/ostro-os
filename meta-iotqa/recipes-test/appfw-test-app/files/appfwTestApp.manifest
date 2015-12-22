@@ -1,9 +1,0 @@
-[
-  {
-    "application": "appfwTestApp",
-    "description": "To test appfw",
-    "privileges": [ "LocalNetworkAccess", "ConfigurationQuery" ],
-    "execute": [ "/bin/bash","/home/appfwtest/apps_rw/appfwTestApp/appfwTestApp.sh" ]
-  }
-]
-
