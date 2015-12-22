@@ -100,19 +100,6 @@ class BaseOsTest(oeRuntimeTest):
             status=1
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
 
-    # Remove sensord case since there is no sensord in IoT now. 
-    #def test_baseos_sensord_process(self):
-    #    '''check sensord process
-    #    @fn test_baseos_sensord_process
-    #    @param self
-    #    @return
-    #    '''
-    #    (status, output) = self.target.run("ps | grep -v grep | grep sensord")
-    #    ##
-    #    # TESTPOINT: #1, test_baseos_sensord_process
-    #    #
-    #    self.assertEqual(status, 0, msg="Error messages: %s" % output)
-    # Sensord case removed with MaYan's suggestion
 
 ##
 # @}
