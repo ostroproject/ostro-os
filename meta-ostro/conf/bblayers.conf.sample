@@ -23,7 +23,6 @@ OSTRO_LAYERS = " \
   ##OEROOT##/meta-iotqa \
   ##OEROOT##/meta-user-management \
   ##OEROOT##/meta-appfw \
-  ##OEROOT##/meta-sensor-framework \
   ##OEROOT##/meta-java \
   ##OEROOT##/meta-security-isafw \
   "

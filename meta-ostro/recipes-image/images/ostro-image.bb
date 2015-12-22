@@ -23,7 +23,6 @@ IMAGE_FEATURES[validitems] += " \
     java-jdk \
     node-runtime \
     python-runtime \
-    sensors \
     tools-develop \
 "
 
@@ -52,14 +51,12 @@ IMAGE_VARIANT[dev] = " \
 # Default list of features in "ostro-image" images. Additional
 # image variations modify this list, see BBCLASSEXTEND below.
 IMAGE_FEATURES += " \
-                        app-privileges \
                         can \
                         connectivity \
                         devkit \
                         ${@bb.utils.contains('DISTRO_FEATURES', 'ima', 'ima', '', d)} \
                         iotivity \
                         package-management \
-                        sensors \
                         ssh-server-dropbear \
                         node-runtime \
                         python-runtime \
@@ -89,9 +86,6 @@ BBCLASSEXTEND = "imagevariant:dev ${OSTRO_EXTRA_IMAGE_VARIANTS}"
 # added. Right now, users need to do that in their local.conf:
 # OSTRO_EXTRA_IMAGE_VARIANTS = "imagevariant:noima imagevariant:dev,noima"
 
-# TODO: app-privileges depends on enabled Smack. Add it only
-# when Smack is enabled, or warn when enabled without Smack?
-
 # The AppFW depends on the security framework and user management, and these frameworks
 # (currently?) make little sense without apps, therefore a single image feature is used
 # for all of these.
@@ -108,7 +102,6 @@ FEATURE_PACKAGES_can = "packagegroup-core-can"
 # really unmodified.
 FEATURE_PACKAGES_ima = "packagegroup-ima-evm-utils"
 
-FEATURE_PACKAGES_sensors = "packagegroup-sensor-framework"
 FEATURE_PACKAGES_iotivity = "packagegroup-iotivity"
 
 FEATURE_PACKAGES_node-runtime = "packagegroup-node-runtime"
@@ -222,7 +215,7 @@ inherit extrausers
 EXTRA_USERS_PARAMS += " \
     useradd --system --home ${localstatedir}/lib/empty --no-create-home --shell /bin/false sqlite; \
 "
-ROOTFS_POSTPROCESS_COMMAND_append = " set_sqlite_owner; "
+ROOTFS_POSTPROCESS_COMMAND_append = "${@bb.utils.contains('IMAGE_FEATURES', 'app-privileges', ' set_sqlite_owner; ', '', d)}"
 set_sqlite_owner () {
     # Both the groupadd and the security-manager postinst are expected
     # to have completed by now. If this command fails, something in
