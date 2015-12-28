@@ -38,8 +38,8 @@ class CommEthernet(oeRuntimeTest):
         # Check ip address by ifconfig command
         interface = "nothing"
         (status, interface) = self.target.run("ifconfig | grep '^enp' | awk '{print $1}'")
-        (status, output) = self.target.run("ifconfig %s | grep 'inet6 addr:' | awk '{print $3}' | cut -d'/' -f1" % interface)
-        return output
+        (status, output) = self.target.run("ifconfig %s | grep 'inet6 addr:' | awk '{print $3}'" % interface)
+        return output.split('%')[0]
 
     @tag(FeatureID="IOTOS-489")
     def test_ethernet_ipv6_ping(self):
