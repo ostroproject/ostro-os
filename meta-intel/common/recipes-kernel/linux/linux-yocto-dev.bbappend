@@ -2,25 +2,18 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 KERNEL_FEATURES_INTEL_COMMON += "features/amt/mei/mei.scc"
 
-#LINUX_VERSION_core2-32-intel-common = "3.14-rc8"
 COMPATIBLE_MACHINE_core2-32-intel-common = "${MACHINE}"
 KMACHINE_core2-32-intel-common = "intel-core2-32"
-KBRANCH_core2-32-intel-common = "standard/base"
 KERNEL_FEATURES_append_core2-32-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}"
 
-#LINUX_VERSION_corei7-64-intel-common = "3.14-rc8"
 COMPATIBLE_MACHINE_corei7-64-intel-common = "${MACHINE}"
 KMACHINE_corei7-64-intel-common = "intel-corei7-64"
-KBRANCH_corei7-64-intel-common = "standard/base"
 KERNEL_FEATURES_append_corei7-64-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}"
 
 # Quark / X1000 BSP Info
-LINUX_VERSION_i586-nlp-32-intel-common = "4.1"
 COMPATIBLE_MACHINE_i586-nlp-32-intel-common = "${MACHINE}"
 KMACHINE_i586-nlp-32-intel-common = "intel-quark"
-KBRANCH_i586-nlp-32-intel-common = "standard/base"
 KERNEL_FEATURES_append_i586-nlp-32-intel-common = ""
-#KCONFIG_MODE_i586-nlp-32-intel-common = "--allnoconfig"
 
 # NOTE: We do not set SRCREVs here as -dev is intended to be built with AUTOREV
 # and setting them here breaks the default mechanism to use AUTOREV if the
