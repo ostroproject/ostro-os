@@ -10,7 +10,7 @@ RDEPENDS_${PN} += "bash iotivity-node"
 SRC_URI = "git://git@github.com/01org/iot-rest-api-server.git;protocol=https \
            file://0001-Remove-iotivity-node-dependency.patch \
           "
-SRCREV = "942bc1c445472f94983f6c5b81f864b5a064d301"
+SRCREV = "8bc7fcfa4a58968f473169f636397db649f78887"
 
 S = "${WORKDIR}/git"
 
