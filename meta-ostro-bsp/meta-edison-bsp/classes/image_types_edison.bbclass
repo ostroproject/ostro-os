@@ -1,6 +1,6 @@
 inherit image_types
 
-IMAGE_DEPENDS_boot = "virtual/kernel dosfstools-native mtools-native"
+IMAGE_DEPENDS_boot = "virtual/kernel:do_deploy dosfstools-native mtools-native"
 IMAGE_TYPEDEP_boot = "ext4 tar"
 
 IMAGE_CMD_boot () {
