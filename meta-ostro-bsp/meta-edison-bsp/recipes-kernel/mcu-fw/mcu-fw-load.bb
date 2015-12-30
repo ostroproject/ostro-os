@@ -1,11 +1,14 @@
 DESCRIPTION = "This is intel mcu app download daemon."
 HOMEPAGE = "http://www.intel.com"
-LICENSE = "CLOSED"
+
+LICENSE = "Intel-OBL-Binary-Firmware-License"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=41b172554812bbdd8ef5b0711639b69b"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/files/:"
 
 SRC_URI = "file://mcu_fw_loader.service \
-		   file://mcu_fw_loader.sh"
+           file://mcu_fw_loader.sh \
+           file://LICENSE"
 
 SYSTEMD_SERVICE_${PN} = "mcu_fw_loader.service"
 
