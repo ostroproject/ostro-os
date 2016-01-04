@@ -100,8 +100,11 @@ DISTRO ?= "ostro"
 #  - 'package_ipk' for ipk files are used by opkg (a debian style embedded package manager)
 #  - 'package_rpm' for rpm style packages
 # E.g.: PACKAGE_CLASSES ?= "package_rpm package_deb package_ipk"
-# We default to rpm:
-PACKAGE_CLASSES ?= "package_rpm"
+# We default to ipk because it is faster/smaller and good enough for
+# image creation. On-device package management is disabled by default
+# and thus the additional features offered for that by rpm/deb do not
+# matter.
+PACKAGE_CLASSES ?= "package_ipk"
 
 #
 # SDK/ADT target architecture
