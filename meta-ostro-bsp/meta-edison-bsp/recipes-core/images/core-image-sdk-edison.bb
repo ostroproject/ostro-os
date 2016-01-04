@@ -6,6 +6,3 @@ the full meta-toolchain, plus development headers and libraries to form a standa
 IMAGE_FEATURES += "tools-sdk dev-pkgs tools-debug tools-profile"
 
 IMAGE_INSTALL += "kernel-dev"
-
-require ../../conf/machine/include/edison-image-config.inc
-
