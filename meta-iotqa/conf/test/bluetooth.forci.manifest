@@ -1,0 +1,2 @@
+oeqa.runtime.bluetooth.comm_bt_command.CommBTTest.test_bt_power_on
+oeqa.runtime.bluetooth.comm_bt_command.CommBTTest.test_bt_visable_on
