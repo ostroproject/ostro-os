@@ -103,6 +103,7 @@ FEATURE_PACKAGES_can = "packagegroup-core-can"
 FEATURE_PACKAGES_ima = "packagegroup-ima-evm-utils"
 
 FEATURE_PACKAGES_iotivity = "packagegroup-iotivity"
+FEATURE_PACKAGES_devkit = "packagegroup-devkit"
 
 FEATURE_PACKAGES_node-runtime = "packagegroup-node-runtime"
 FEATURE_PACKAGES_python-runtime = "packagegroup-python-runtime"
