@@ -23,8 +23,8 @@ do_install() {
         install -d ${D}/${systemd_unitdir}/system
         install -d ${D}/etc
         install -m 0755 ${S}/start-can ${D}/${bindir}/start-can
-        install -m 0755 ${S}/can-init.service ${D}/${systemd_unitdir}/system/can-init.service
-        install -m 0755 ${S}/can-init ${D}/etc/can-init
+        install -m 0644 ${S}/can-init.service ${D}/${systemd_unitdir}/system/can-init.service
+        install -m 0644 ${S}/can-init ${D}/etc/can-init
 }
 
 FILES_${PN} = " \
