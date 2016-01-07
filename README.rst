@@ -21,6 +21,7 @@ Ostro OS:
 - meta-sensor-framework
 - meta-appfw
 - meta-java
+- meta-soletta
 
 The top-level directory comes from openembedded-core and meta-ostro
 (including this README.rst), everything else is in its own

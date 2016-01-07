@@ -48,6 +48,7 @@ OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-python"
 # OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-xfce"
 # OSTRO_LAYERS += "##OEROOT##/meta-openembedded/toolchain-layer"
 OSTRO_LAYERS += "##OEROOT##/meta-java"
+OSTRO_LAYERS += "##OEROOT##/meta-soletta"
 
 BBLAYERS ?= "${OSTRO_LAYERS}"
 
