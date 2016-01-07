@@ -1,8 +1,9 @@
-About this repository
-=====================
+About the ostro-os repository
+===========================
 
-This repository is a combination of several different components in a
-single repository:
+The ostro-os repository is a combination of several different components
+in a single repository. It contains everything that is needed to build
+Ostro OS:
 
 - bitbake
 - openembedded-core
@@ -21,23 +22,38 @@ single repository:
 - meta-appfw
 - meta-java
 
-The top-level directory comes from openembedded-core, everything else
-is in its own sub-directory. This repository gets updated by importing
-commits from the component's repostories. It is convenient to make
-changes in this repository and then publish the result, for example in
-a sandbox or clone of the repository. However, to get changes merged,
-please submit them against the upstream components.
+The top-level directory comes from openembedded-core and meta-ostro
+(including this README.rst), everything else is in its own
+sub-directory. The ostro-os repository gets updated by importing
+commits from the component's repostories.
 
 Updating the repository
 =======================
 
 Everyone with a copy of the repository can use ``scripts/combo-layer`` to
-import commits from the components. That works because the
+import commits from the components. However, typically this happens
+automatically as part of the continous integration setup and only core
+maintainers will ever need to do that manually.
+
+Normal developers can either:
+
+1. Make changes in a fork of the ostro-os repository. Submitting a pull
+   request is okay and will trigger a test build with the modification.
+   However, the pull request typically cannot be merged and must be
+   split up into pull requests into the component repositories.
+2. Directly modify component repositories and switch to them in a local
+   build by replacing the paths to them in ``conf/bblayers.conf`` of
+   the build.
+
+The first approach is more suitable for changes affecting many
+different repositories, the second more for localized changes.
+
+Shared maintenance of ostro-os via combo-layer works because the
 ``last_revision`` property which gets changed after each import gets
 committed to the combined repostory.
 
-First, copy ``conf/combo-layer-local-sample.conf`` into
-conf/combo-layer-local.conf and set the paths for each component
+To do this, first copy ``conf/combo-layer-local-sample.conf`` into
+``conf/combo-layer-local.conf`` and set the paths for each component
 repository to a suitable location.
 
 Then run:
