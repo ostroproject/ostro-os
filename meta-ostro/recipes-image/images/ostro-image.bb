@@ -61,6 +61,7 @@ IMAGE_FEATURES += " \
                         node-runtime \
                         python-runtime \
                         java-jdk \
+                        soletta \
                         "
 
 # Create variants of the base recipe where certain features are
