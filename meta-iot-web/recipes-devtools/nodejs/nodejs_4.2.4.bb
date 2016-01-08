@@ -1,19 +1,22 @@
 DESCRIPTION = "nodeJS Evented I/O for V8 JavaScript"
 HOMEPAGE = "http://nodejs.org"
 LICENSE = "MIT & BSD-2-Clause & BSD-3-Clause & ISC & AFL-2.0 & Apache-2.0 & OpenSSL & Zlib & Artistic-2.0 & (BSD-3-Clause | GPLv2)"
-LIC_FILES_CHKSUM = "file://LICENSE;md5=14115ff11211df04b031ec7d40b6d31b"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=963ca39eebcb15ac618bc3006504ae3f"
 
 DEPENDS = "openssl"
 DEPENDS_append_class-target = " nodejs-native"
 
+COMPATIBLE_MACHINE_armv4 = "(!.*armv4).*"
+COMPATIBLE_MACHINE_armv5 = "(!.*armv5).*"
+COMPATIBLE_MACHINE_mips64 = "(!.*mips64).*"
+
 SRC_URI = "http://nodejs.org/dist/v${PV}/node-v${PV}.tar.gz \
-           file://enable-armv5e-build.patch \
            file://0002-generate-pkg-config-file-for-node-and-install.patch \
 "
 SRC_URI_append_quark = "file://0001-nodejs-add-compile-flag-options-for-quark.patch"
 SRC_URI_append_intel-quark = "file://0001-nodejs-add-compile-flag-options-for-quark.patch"
-SRC_URI[md5sum] = "5523ec4347d7fe6b0f6dda1d1c7799d5"
-SRC_URI[sha256sum] = "b23d64df051c9c969b0c583f802d5d71de342e53067127a5061415be7e12f39d"
+SRC_URI[md5sum] = "86e4d0d8b626f6e60ca7bef02f2543d2"
+SRC_URI[sha256sum] = "4ee244ffede7328d9fa24c3024787e71225b7abaac49fe2b30e68b27460c10ec"
 
 S = "${WORKDIR}/node-v${PV}"
 
@@ -23,10 +26,11 @@ CCACHE = ""
 def map_nodejs_arch(a, d):
     import re
 
-    if   re.match('p(pc|owerpc)(|64)', a): return 'ppc'
-    elif re.match('i.86$', a): return 'ia32'
+    if   re.match('i.86$', a): return 'ia32'
     elif re.match('x86_64$', a): return 'x64'
-    elif re.match('arm64$', a): return 'arm'
+    elif re.match('aarch64$', a): return 'arm64'
+    elif re.match('powerpc64$', a): return 'ppc64'
+    elif re.match('powerpc$', a): return 'ppc'
     return a
 
 ARCHFLAGS_arm = "${@bb.utils.contains('TUNE_FEATURES', 'callconvention-hard', '--with-arm-float-abi=hard', '--with-arm-float-abi=softfp', d)}"
@@ -46,7 +50,7 @@ do_configure () {
 
 do_compile () {
     export LD="${CXX}"
-    make BUILDTYPE=Release
+    oe_runmake BUILDTYPE=Release
 }
 
 do_install () {
@@ -107,6 +111,4 @@ RDEPENDS_${PN}-npm = "bash python-shell python-datetime python-subprocess python
 PACKAGES =+ "${PN}-systemtap"
 FILES_${PN}-systemtap = "${datadir}/systemtap"
 
-
 BBCLASSEXTEND = "native"
-
