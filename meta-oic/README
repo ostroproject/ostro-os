@@ -35,6 +35,9 @@ symbols.
 -- iotivity-resource-samples : Sample IoTivity resource applications.
 -- iotivity-resource-samples-dbg : Debug builds of sample IoTivity
 applications.
+-- iotivity-plugins-staticdev : Non OIC protocol plugin framework in C
+   with a plugin instance supporting ZigBee.
+-- iotivity-plugins-samples : IoTivity-ZigBee plugin sample applications.
 -- iotivity-service : IoTivity service runtimes (Resource Encapsulation,
 Things Manager, Soft Sensor Manager, Notification Manager) and plug-in
 implementations.
