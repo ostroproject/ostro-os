@@ -9,10 +9,24 @@ RDEPENDS_${PN} += "bash iotivity-node"
 
 SRC_URI = "git://git@github.com/01org/iot-rest-api-server.git;protocol=https \
            file://0001-Remove-iotivity-node-dependency.patch \
+           file://iot-rest-api-server.service \
+           file://iot-rest-api-server.socket \
           "
 SRCREV = "8bc7fcfa4a58968f473169f636397db649f78887"
 
 S = "${WORKDIR}/git"
+
+inherit systemd useradd
+
+SYSTEMD_SERVICE_${PN} = "iot-rest-api-server.socket"
+
+USERADD_PACKAGES = "${PN}"
+GROUPADD_PARAM_${PN} = "-r restful"
+USERADD_PARAM_${PN} = "\
+--system --home ${localstatedir}/lib/empty \
+--no-create-home --shell /bin/false \
+--gid restful restful \
+"
 
 INSANE_SKIP_${PN} += "ldflags staticdev"
 
@@ -67,17 +81,23 @@ do_compile () {
             ;;
     esac
 
-    # compile and install  node modules in source directory
+    # Compile and install node modules in source directory
     npm --arch=${targetArch} --production --verbose install
 }
 
 do_install () {
     install -d ${D}${libdir}/node_modules/iot-rest-api-server/
     cp -r ${S}/* ${D}${libdir}/node_modules/iot-rest-api-server/
+
+    # Install iot-rest-api-server service script
+    install -d ${D}/${systemd_unitdir}/system
+    install -m 0644 ${WORKDIR}/iot-rest-api-server.service ${D}/${systemd_unitdir}/system/
+    install -m 0644 ${WORKDIR}/iot-rest-api-server.socket ${D}/${systemd_unitdir}/system/
 }
 
 FILES_${PN} = "${libdir}/node_modules/iot-rest-api-server/ \
-"
+               ${systemd_unitdir}/system/ \
+              "
 
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 

@@ -1,0 +1,13 @@
+[Unit]
+Description=Iot REST API server startup service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/node /usr/lib/node_modules/iot-rest-api-server/index.js
+Environment='NODE_PATH=/usr/lib/node_modules/'
+Restart=on-failure
+User=restful
+Group=restful
+
+[Install]
+WantedBy=multi-user.target
