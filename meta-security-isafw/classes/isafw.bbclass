@@ -118,8 +118,14 @@ do_analyse_sources_all() {
 }
 
 python() {
-    # We probably don't need to scan native/cross
-    if bb.data.inherits_class('native', d) or bb.data.inherits_class('cross', d):
+    # We probably don't need to scan these
+    if bb.data.inherits_class('native', d) or \
+       bb.data.inherits_class('nativesdk', d) or \
+       bb.data.inherits_class('cross', d) or \
+       bb.data.inherits_class('crosssdk', d) or \
+       bb.data.inherits_class('cross-canadian', d) or \
+       bb.data.inherits_class('packagegroup', d) or \
+       bb.data.inherits_class('image', d):
         bb.build.deltask('do_analysesource', d)
 }
 
