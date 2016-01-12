@@ -1,25 +1,25 @@
-From 3112250f6452215890fc7db73c8127e111af956f Mon Sep 17 00:00:00 2001
+From 893d208cc66fbe533ab4e3e66907c5f63266579b Mon Sep 17 00:00:00 2001
 From: Ong Boon Leong <boon.leong.ong@intel.com>
 Date: Thu, 2 Jul 2015 23:51:01 +0800
-Subject: [PATCH] dpdk v1.8.0: add --sysroot option within app makefile
+Subject: [PATCH] dpdk: add --sysroot option within app makefile
 
 Upstream-Status: Inappropriate [configuration]
 
-in DPDK v1.8.0, rte.app.mk has been changed to add -Wl, to
-all items listed under EXTRA_LDFLAGS. It causes --sysroot=
-<path> to not setup correctly when we depends on gcc to setup
-for GNU ld.
+rte.app.mk has been changed to add -Wl, to all items listed
+under EXTRA_LDFLAGS. It causes --sysroot=<path> to not setup
+correctly when we depends on gcc to setup for GNU ld.
 
 Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+Signed-off-by: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
 ---
- mk/rte.app.mk |    2 +-
+ mk/rte.app.mk | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/mk/rte.app.mk b/mk/rte.app.mk
-index e1a0dbf..9528588 100644
+index 8ecab41..35fcd8d 100644
 --- a/mk/rte.app.mk
 +++ b/mk/rte.app.mk
-@@ -259,7 +259,7 @@ ifeq ($(LINK_USING_CC),1)
+@@ -186,7 +186,7 @@ ifeq ($(LINK_USING_CC),1)
  override EXTRA_LDFLAGS := $(call linkerprefix,$(EXTRA_LDFLAGS))
  O_TO_EXE = $(CC) $(CFLAGS) $(LDFLAGS_$(@)) \
  	-Wl,-Map=$(@).map,--cref -o $@ $(OBJS-y) $(call linkerprefix,$(LDFLAGS)) \
@@ -29,5 +29,5 @@ index e1a0dbf..9528588 100644
  O_TO_EXE = $(LD) $(LDFLAGS) $(LDFLAGS_$(@)) $(EXTRA_LDFLAGS) \
  	-Map=$(@).map --cref -o $@ $(OBJS-y) $(LDLIBS)
 -- 
-1.7.9.5
+1.9.1
 

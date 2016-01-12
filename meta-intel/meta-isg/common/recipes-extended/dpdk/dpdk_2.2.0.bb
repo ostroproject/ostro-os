@@ -1,8 +1,8 @@
 include dpdk.inc
 
 SRC_URI += "\
-            file://dpdk-2.1.0-add-config-variable-to-enable-disable-dpdk_qat.patch \
-            file://dpdk-2.0.0-dpdk-enable-ip_fragmentation-in-common_linuxapp.patch \
+            file://dpdk-2.2.0-add-config-variable-to-enable-disable-dpdk_qat.patch \
+            file://dpdk-2.2.0-dpdk-enable-ip_fragmentation-in-common_linuxapp.patch \
             "
 
 SRC_URI[dpdk.md5sum] = "22e2fd68cd5504f43fe9a5a6fd6dd938"
