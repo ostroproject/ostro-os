@@ -501,7 +501,7 @@ FILES_${JDKPN}-jdk = " \
                       "
 RDEPENDS_${JDKPN}-jre = "${JDKPN}-java ${JDKPN}-common"
 RDEPENDS_${JDKPN}-java = "${JDKPN}-common"
-RPROVIDES_${JDKPN}-jre = "java-runtime"
+RPROVIDES_${JDKPN}-jre = "java-runtime java2-runtime"
 
 RDEPENDS_${JDKPN}-jdk = "${JDKPN}-jre"
 
