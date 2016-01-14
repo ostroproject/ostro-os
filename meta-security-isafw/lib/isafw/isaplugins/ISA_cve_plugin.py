@@ -66,7 +66,10 @@ class ISA_CVEChecker:
                 cve_patch_info = self.process_patch_list(ISA_pkg.patch_files)
                 with os.fdopen(fhandle[0], 'w') as fauxfile:
                     fauxfile.write(ISA_pkg.name + "," + ISA_pkg.version + "," + cve_patch_info + ",")
-                args = "https_proxy=%s http_proxy=%s cve-check-tool -N -c -a -t faux %s" % (self.proxy, self.proxy, ffauxfile)
+                args = ""
+                if self.proxy:
+                        args += "https_proxy=%s http_proxy=%s " % (self.proxy, self.proxy)
+                args += "cve-check-tool -N -c -a -t faux '" + ffauxfile + "'"
                 with open(self.logdir + log, 'a') as flog:
                     flog.write("\n\nArguments for calling cve-check-tool: " + args)
                 try:

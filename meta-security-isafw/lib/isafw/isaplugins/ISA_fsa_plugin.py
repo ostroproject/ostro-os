@@ -48,16 +48,17 @@ class ISA_FSChecker():
         self.no_sticky_bit_ww_dirs = []
         print("Plugin ISA_FSChecker initialized!")
         with open(self.logdir + log, 'w') as flog:
-            flog.write("Plugin ISA_FSChecker initialized!\n")
+            flog.write("\nPlugin ISA_FSChecker initialized!\n")
 
     def process_filesystem(self, ISA_filesystem):
         if (self.initialized == True):
             if (ISA_filesystem.img_name and ISA_filesystem.path_to_fs):
                 with open(self.logdir + log, 'a') as flog:
-                    flog.write("Analyzing filesystem at: " + ISA_filesystem.path_to_fs + " for the image: " + ISA_filesystem.img_name)
+                    flog.write("Analyzing filesystem at: " + ISA_filesystem.path_to_fs +
+                               " for the image: " + ISA_filesystem.img_name + "\n")
                 self.files = self.find_fsobjects(ISA_filesystem.path_to_fs)
                 with open(self.logdir + log, 'a') as flog:
-                    flog.write("\n\nFilelist is: " + str(self.files))
+                    flog.write("\nFilelist is: " + str(self.files))
                 with open(self.reportdir + full_report + ISA_filesystem.img_name + "_" + self.timestamp, 'w') as ffull_report:
                     ffull_report.write("Report for image: " + ISA_filesystem.img_name + '\n')
                     ffull_report.write("With rootfs location at " + ISA_filesystem.path_to_fs + "\n\n")

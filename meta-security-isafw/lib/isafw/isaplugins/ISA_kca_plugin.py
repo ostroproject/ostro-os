@@ -159,14 +159,14 @@ class ISA_KernelChecker():
         self.initialized = True
         print("Plugin ISA_KernelChecker initialized!")
         with open(self.logdir + log, 'w') as flog:
-            flog.write("Plugin ISA_KernelChecker initialized!\n")
+            flog.write("\nPlugin ISA_KernelChecker initialized!\n")
 
     def process_kernel(self, ISA_kernel):
         if (self.initialized == True):
             if (ISA_kernel.img_name and ISA_kernel.path_to_config):
                 with open(self.logdir + log, 'a') as flog:
                     flog.write("Analyzing kernel config file at: " + ISA_kernel.path_to_config +
-                                 "for the image: " + ISA_kernel.img_name)
+                               " for the image: " + ISA_kernel.img_name + "\n")
                 with open(ISA_kernel.path_to_config, 'r') as fkernel_conf:
                     for line in fkernel_conf:
                         line = line.strip('\n')

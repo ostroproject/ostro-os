@@ -26,34 +26,9 @@ do_analyse_sources[cleandirs] = "${ISAFW_WORKDIR}"
 
 python do_analyse_sources() {
 
-    import re, errno
     from isafw import *
-    isafw_config = isafw.ISA_config()
-    
-    isafw_config.proxy = d.getVar('HTTP_PROXY', True)
-    if not isafw_config.proxy :
-        isafw_config.proxy = d.getVar('http_proxy', True)
-    bb.debug(1, 'isafw: proxy is %s' % isafw_config.proxy)
 
-    isafw_config.timestamp = d.getVar('DATETIME', True)
-    isafw_config.reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + isafw_config.timestamp
-    if not os.path.exists(os.path.dirname(isafw_config.reportdir + "/test")):
-        try:
-            os.makedirs(os.path.dirname(isafw_config.reportdir + "/test"))
-        except OSError as exc:
-            if exc.errno == errno.EEXIST and os.path.isdir(isafw_config.reportdir):
-                pass
-            else: raise
-    isafw_config.logdir = d.getVar('ISAFW_LOGDIR', True)
-
-    whitelist = d.getVar('ISAFW_PLUGINS_WHITELIST', True)
-    blacklist = d.getVar('ISAFW_PLUGINS_BLACKLIST', True)
-    if whitelist: 
-        isafw_config.plugin_whitelist = re.split(r'[,\s]*', whitelist)
-    if blacklist:
-        isafw_config.plugin_blacklist = re.split(r'[,\s]*', blacklist)
-
-    imageSecurityAnalyser = isafw.ISA(isafw_config)
+    imageSecurityAnalyser = isafw_init(isafw, d)
 
     if not d.getVar('SRC_URI', True):
         # Recipe didn't fetch any sources, nothing to do here I assume?
@@ -86,7 +61,7 @@ python do_analyse_sources() {
         spdlicense.append(canonical_license(d, l))
     recipe.licenses = spdlicense
     recipe.path_to_sources = workdir
-    
+
     for patch in src_patches(d):
         _,_,local,_,_,_=bb.fetch.decodeurl(patch)
         recipe.patch_files.append(os.path.basename(local))
@@ -119,40 +94,14 @@ python() {
 
 python analyse_image() {
 
-    import re, errno
+    from isafw import *
+
+    imageSecurityAnalyser = isafw_init(isafw, d)
 
     # Directory where the image's entire contents can be examined
     rootfsdir = d.getVar('IMAGE_ROOTFS', True)
 
     imagebasename = d.getVar('IMAGE_BASENAME', True)
-
-    from isafw import *
-    isafw_config = isafw.ISA_config()
-
-    isafw_config.timestamp = d.getVar('DATETIME', True)
-    isafw_config.reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + isafw_config.timestamp
-    if not os.path.exists(os.path.dirname(isafw_config.reportdir + "/test")):
-        try:
-            os.makedirs(os.path.dirname(isafw_config.reportdir + "/test"))
-        except OSError as exc:
-            if exc.errno == errno.EEXIST and os.path.isdir(isafw_config.reportdir):
-                pass
-            else: raise
-    isafw_config.logdir = d.getVar('ISAFW_LOGDIR', True)
-
-    isafw_config.proxy = d.getVar('HTTP_PROXY', True)
-    if not isafw_config.proxy :
-        isafw_config.proxy = d.getVar('http_proxy', True)
-    bb.debug(1, 'isafw: proxy is %s' % isafw_config.proxy)
-
-    whitelist = d.getVar('ISAFW_PLUGINS_WHITELIST', True)
-    blacklist = d.getVar('ISAFW_PLUGINS_BLACKLIST', True)
-    if whitelist: 
-        isafw_config.plugin_whitelist = re.split(r'[,\s]*', whitelist)
-    if blacklist:
-        isafw_config.plugin_blacklist = re.split(r'[,\s]*', blacklist)
-
-    imageSecurityAnalyser = isafw.ISA(isafw_config)
 
     pkglist = manifest2pkglist(d)
 
@@ -182,6 +131,36 @@ python analyse_image() {
 
 do_rootfs[depends] += "checksec-native:do_populate_sysroot"
 analyse_image[fakeroot] = "1"
+
+def isafw_init(isafw, d):
+    import re, errno
+
+    isafw_config = isafw.ISA_config()
+
+    isafw_config.proxy = d.getVar('HTTP_PROXY', True)
+    if not isafw_config.proxy :
+        isafw_config.proxy = d.getVar('http_proxy', True)
+    bb.debug(1, 'isafw: proxy is %s' % isafw_config.proxy)
+
+    isafw_config.timestamp = d.getVar('DATETIME', True)
+    isafw_config.reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + isafw_config.timestamp
+    if not os.path.exists(os.path.dirname(isafw_config.reportdir + "/test")):
+        try:
+            os.makedirs(os.path.dirname(isafw_config.reportdir + "/test"))
+        except OSError as exc:
+            if exc.errno == errno.EEXIST and os.path.isdir(isafw_config.reportdir):
+                pass
+            else: raise
+    isafw_config.logdir = d.getVar('ISAFW_LOGDIR', True)
+
+    whitelist = d.getVar('ISAFW_PLUGINS_WHITELIST', True)
+    blacklist = d.getVar('ISAFW_PLUGINS_BLACKLIST', True)
+    if whitelist:
+        isafw_config.plugin_whitelist = re.split(r'[,\s]*', whitelist)
+    if blacklist:
+        isafw_config.plugin_blacklist = re.split(r'[,\s]*', blacklist)
+
+    return isafw.ISA(isafw_config)
 
 def manifest2pkglist(d):
 
@@ -215,7 +194,7 @@ python isafwreport_handler () {
 
     import shutil
 
-    logdir = d.getVar('ISAFW_LOGDIR', True)
+    logdir = e.data.getVar('ISAFW_LOGDIR', True)
     if os.path.exists(os.path.dirname(logdir+"/test")):
         shutil.rmtree(logdir)
     os.makedirs(os.path.dirname(logdir+"/test"))
