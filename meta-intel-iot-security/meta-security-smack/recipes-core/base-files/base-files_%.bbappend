@@ -38,6 +38,11 @@ pkg_postinst_${PN}_smack() {
     # https://review.tizen.org/gerrit/gitweb?p=platform/upstream/filesystem.git;a=blob;f=packaging/filesystem.manifest:
     # <filesystem path="/etc" label="System::Shared" type="transmutable" />
     mkdir -p $D${sysconfdir}
+    # This has no effect on files installed into /etc during image construction
+    # because pseudo does not know the special semantic of SMACK::TRANSMUTE.
+    # To avoid having different xattrs on files inside /etc when pre-installed
+    # in an image vs. installed on a device, the xattr-images.bbclass has
+    # a workaround for this deficiency in pseudo.
     chsmack -t $D${sysconfdir}
     chsmack -a 'System::Shared' $D${sysconfdir}
 
