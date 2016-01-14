@@ -1,6 +1,6 @@
 FILESEXTRAPATHS_prepend_edison := "${THISDIR}/files:"
 
-SRC_URI_append_edison = "file://wlan0.network"
+SRC_URI_append_edison = " file://wlan0.network"
 
 FILES_${PN} += "${sysconfdir}/systemd/network"
 
