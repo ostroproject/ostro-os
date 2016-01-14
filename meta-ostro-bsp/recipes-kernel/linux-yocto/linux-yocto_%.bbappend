@@ -130,3 +130,16 @@ KERNEL_MODULE_AUTOLOAD_append_intel-quark = " g_acm_ms"
 KERNEL_MODULE_PROBECONF_append_intel-quark = " g_acm_ms"
 
 module_conf_g_acm_ms_intel-quark = "options g_acm_ms file=/dev/mmcblk0p1 removable=1 idVendor=0x8086 idProduct=0xDEAD"
+
+# Backport ambient capabilities support
+SRC_URI_append_intel-quark = " file://0001-capabilities-ambient-capabilities.patch"
+SRC_URI_append_intel-quark = " file://0002-capabilities-add-a-securebit-to-disable-PR_CAP_AMBIE.patch"
+SRC_URI_append_intel-core2-32 = " file://0001-capabilities-ambient-capabilities.patch"
+SRC_URI_append_intel-core2-32 = " file://0002-capabilities-add-a-securebit-to-disable-PR_CAP_AMBIE.patch"
+SRC_URI_append_intel-beaglebone = " file://0001-capabilities-ambient-capabilities.patch"
+SRC_URI_append_intel-beaglebone = " file://0002-capabilities-add-a-securebit-to-disable-PR_CAP_AMBIE.patch"
+SRC_URI_append_intel-corei7-64 = " file://0001-capabilities-ambient-capabilities.patch"
+SRC_URI_append_intel-corei7-64 = " file://0002-capabilities-add-a-securebit-to-disable-PR_CAP_AMBIE.patch"
+
+SRC_URI_append_edison = " file://0001-edison-capabilities-ambient-capabilities.patch"
+SRC_URI_append_edison = " file://0002-edison-capabilities-add-a-securebit-to-disable-PR_CAP_AMBIE.patch"
