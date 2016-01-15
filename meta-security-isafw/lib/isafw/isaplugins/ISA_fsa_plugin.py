@@ -118,12 +118,12 @@ class ISA_FSChecker():
             failrs2 = etree.SubElement(tcase2, 'failure', msg = 'Non-compliant files found', type = 'violation')                    
             for item in self.setgid_files:
                 etree.SubElement(failrs2, 'value').text = item
-        sec3 = etree.SubElement(root, 'testase', classname = 'ISA_FSChecker', name = 'World-writable_files')
+        tcase3 = etree.SubElement(root, 'testase', classname = 'ISA_FSChecker', name = 'World-writable_files')
         if self.ww_files:
             failrs3 = etree.SubElement(tcase3, 'failure', msg = 'Non-compliant files found', type = 'violation')
             for item in self.ww_files:
                 etree.SubElement(failrs3, 'value').text = item
-        sec4 = etree.SubElement(root, 'testcase', classname = 'ISA_FSChecker', name = 'World-writable_dirs_with_no_sticky_bit')
+        tcase4 = etree.SubElement(root, 'testcase', classname = 'ISA_FSChecker', name = 'World-writable_dirs_with_no_sticky_bit')
         if self.no_sticky_bit_ww_dirs:
             failrs4 = etree.SubElement(tcase4, 'failure', msg = 'Non-compliant directories found', type = 'violation')            
             for item in self.no_sticky_bit_ww_dirs:
