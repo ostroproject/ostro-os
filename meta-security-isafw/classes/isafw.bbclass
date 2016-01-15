@@ -83,8 +83,6 @@ addtask do_analysesource after do_unpack before do_build
 PR_ORIG_TASK := "${BB_DEFAULT_TASK}"
 BB_DEFAULT_TASK = "process_reports"
 
-do_process_reports[recrdeptask] = "do_analysesource"
-do_process_reports[recideptask] = "do_${PR_ORIG_TASK}"
 do_process_reports[nostamp] = "1"
 
 python do_process_reports() {
