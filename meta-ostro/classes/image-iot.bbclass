@@ -33,7 +33,7 @@ EXTRA_IMAGEDEPENDS += " \
 # This expects the presence of an initramfs, defined by setting INITRD_IMAGE.
 INITRD ?= "${DEPLOY_DIR_IMAGE}/${INITRD_IMAGE}-${MACHINE}.cpio.gz"
 do_image[depends] += " \
-                      ${INITRD_IMAGE}:do_rootfs \
+                      ${INITRD_IMAGE}:do_image_complete \
                       ${PN}:do_rootfs \
                      "
 # XXX If this class is used for non x86 devices, the microcode part needs to
