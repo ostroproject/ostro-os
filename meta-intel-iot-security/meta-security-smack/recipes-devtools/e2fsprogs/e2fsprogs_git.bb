@@ -1,5 +1,16 @@
 COREDIR = "${COREBASE}/meta/recipes-devtools/e2fsprogs"
 
+# This recipe only works with e2fsprogs.inc written for e2fsprogs 1.42.9
+# as included up to Yocto 2.0 = jethro. Yocto 2.1 will ship a pre-release
+# of e2fsprogs 1.43 which supports xattrs out of the box, in which
+# case this recipe can be skipped.
+python () {
+    import os
+    upstream = os.path.join(d.getVar('COREDIR', True), 'e2fsprogs_1.42.9.bb')
+    if not os.path.exists(upstream):
+        raise bb.parse.SkipRecipe("This recipe replaces e2fsprogs 1.42.9 in OE-core. e2fsprogs from OE-core is something else and thus either recent enough to have xattr support or (less likely) too old to build this recipe.")
+}
+
 FILESEXTRAPATHS_append := ":${COREDIR}/e2fsprogs"
 
 require ${COREDIR}/e2fsprogs.inc
