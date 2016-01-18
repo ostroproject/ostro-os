@@ -35,7 +35,7 @@ IMAGE_FEATURES[validitems] += " \
 IMAGE_FEATURES[validitems] += " \
     package-management \
     ptest-pkgs \
-    ssh-server-dropbear \
+    ssh-server-openssh \
     tools-debug \
     tools-profile \
 "
@@ -78,7 +78,7 @@ IMAGE_FEATURES += " \
                         devkit \
                         ${@bb.utils.contains('DISTRO_FEATURES', 'ima', 'ima', '', d)} \
                         iotivity \
-                        ssh-server-dropbear \
+                        ssh-server-openssh \
                         node-runtime \
                         qatests \
                         python-runtime \
