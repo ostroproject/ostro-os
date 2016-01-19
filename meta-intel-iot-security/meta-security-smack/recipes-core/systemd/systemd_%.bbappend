@@ -104,6 +104,9 @@ EOF
 # Will get installed in ${sysconfdir}/udev/rules.d/ by base systemd recipe.
 SRC_URI += "file://udev-smack-default.rules"
 
+# A workaround for a missing space in a SRC_URI_append in a private layer elsewhere:
+SRC_URI += ""
+
 # Maintaining trivial, non-upstreamable configuration changes as patches
 # is tedious. But in same cases (like early mounting of special directories)
 # the configuration has to be in code. We make these changes here directly.
