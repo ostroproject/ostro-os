@@ -69,7 +69,8 @@ python do_analysesource() {
         recipe.aliases = aliases.split()
         faliases = []
         for a in recipe.aliases:
-            faliases.append(a.split('=', 1)[-1])
+            if (a != "OSPDT") and (not (a.startswith("upstream="))):
+                faliases.append(a.split('=', 1)[-1])
         # remove possible duplicates in pkg names
         faliases = list(set(faliases))
         recipe.aliases = faliases
