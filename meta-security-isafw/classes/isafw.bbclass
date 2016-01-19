@@ -9,6 +9,8 @@
 
 LICENSE = "MIT"
 
+require conf/distro/include/distro_alias.inc
+
 ISAFW_WORKDIR = "${WORKDIR}/isafw"
 ISAFW_REPORTDIR ?= "${LOG_DIR}/isafw-report"
 ISAFW_LOGDIR ?= "${LOG_DIR}/isafw-logs"
@@ -46,6 +48,8 @@ python do_analysesource() {
     recipe = isafw.ISA_package()
     recipe.name = d.getVar('PN', True)
     recipe.version = d.getVar('PV', True)
+    recipe.version = recipe.version.split('+git', 1)[0]
+
     licenses = d.getVar('LICENSE', True)
     licenses = licenses.replace("(", "")
     licenses = licenses.replace(")", "")
@@ -59,6 +63,17 @@ python do_analysesource() {
     for l in recipe.licenses:
         spdlicense.append(canonical_license(d, l))
     recipe.licenses = spdlicense
+
+    aliases = d.getVar('DISTRO_PN_ALIAS', True)
+    if aliases:
+        recipe.aliases = aliases.split()
+        faliases = []
+        for a in recipe.aliases:
+            faliases.append(a.split('=', 1)[-1])
+        # remove possible duplicates in pkg names
+        faliases = list(set(faliases))
+        recipe.aliases = faliases
+
     recipe.path_to_sources = workdir
 
     for patch in src_patches(d):
