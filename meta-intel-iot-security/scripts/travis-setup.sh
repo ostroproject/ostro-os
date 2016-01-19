@@ -97,6 +97,9 @@ IMA_EVM_KEY_DIR = "${IMA_EVM_BASE}/data/debug-keys"
 # Dump information about sstate usage.
 INHERIT += "buildstats-summary"
 
+# Ensures that Smack xattrs are handled correctly.
+INHERIT += "xattr-images"
+
 # For testing...
 EXTRA_IMAGE_FEATURES = "debug-tweaks ssh-server-dropbear"
 CORE_IMAGE_EXTRA_INSTALL_append_pn-core-image-minimal = " python"
