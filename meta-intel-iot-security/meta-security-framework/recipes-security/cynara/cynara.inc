@@ -82,7 +82,7 @@ do_install_append () {
    chmod a+rx ${D}/${sbindir}/cynara-db-migration
 
    install -d ${D}${sysconfdir}/cynara/
-   install ${S}/conf/creds.conf ${D}/${sysconfdir}/cynara/creds.conf
+   install -m 644 ${S}/conf/creds.conf ${D}/${sysconfdir}/cynara/creds.conf
 
    # No need to create empty directories except for those which
    # Cynara expects to find.
