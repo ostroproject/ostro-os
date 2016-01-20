@@ -18,18 +18,18 @@ src="cpu,cpuacct" which fails to find the entry because the current
 directory is not inside /sys/fs/cgroup. The absolute path to the existing
 entry must be used instead.
 
-Upstream-Status: Submitted [https://github.com/systemd/systemd/pull/2205]
+Upstream-Status: Accepted [https://github.com/systemd/systemd/pull/2205]
 
 Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
 ---
- src/core/mount-setup.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ src/core/mount-setup.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
 diff --git a/src/core/mount-setup.c b/src/core/mount-setup.c
-index 2b8d590..7381512 100644
+index 2b8d590..d73b319 100644
 --- a/src/core/mount-setup.c
 +++ b/src/core/mount-setup.c
-@@ -304,13 +304,15 @@ int mount_cgroup_controllers(char ***join_controllers) {
+@@ -304,13 +304,18 @@ int mount_cgroup_controllers(char ***join_controllers) {
                                          return log_oom();
  
                                  r = symlink(options, t);
@@ -40,7 +40,10 @@ index 2b8d590..7381512 100644
 -                                r = mac_smack_copy(t, options);
 -                                if (r < 0 && r != -EOPNOTSUPP)
 -                                        return log_error_errno(r, "Failed to copy smack label from %s to %s: %m", options, t);
-+                                        _cleanup_free_ char *src = strappend("/sys/fs/cgroup/", options);
++                                        _cleanup_free_ char *src;
++                                        src = strappend("/sys/fs/cgroup/", options);
++                                        if (!src)
++                                                return log_oom();
 +                                        r = mac_smack_copy(t, src);
 +                                        if (r < 0 && r != -EOPNOTSUPP)
 +                                                return log_error_errno(r, "Failed to copy smack label from %s to %s: %m", src, t);
