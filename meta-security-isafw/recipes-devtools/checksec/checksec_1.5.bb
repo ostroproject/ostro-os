@@ -15,6 +15,6 @@ do_install() {
     install -m 0755 ${WORKDIR}/checksec.sh    ${D}${bindir}
 }
 
-RDEPENDS_${PN} = "bash"
+RDEPENDS_${PN} = "bash binutils"
 
 BBCLASSEXTEND = "native"
