@@ -20,7 +20,7 @@ inherit autotools pkgconfig gtk-doc
 
 PACKAGES =+ "${PN}-tests"
 
-EXTRA_OECONF += "--with-gstreamer-api=${GST_API_VERSION} --disable-builtin-libvpx"
+EXTRA_OECONF += "--disable-builtin-libvpx"
 
 PACKAGECONFIG ??= "drm \
                    ${@base_contains("DISTRO_FEATURES", "opengl x11", "glx", "", d)} \
