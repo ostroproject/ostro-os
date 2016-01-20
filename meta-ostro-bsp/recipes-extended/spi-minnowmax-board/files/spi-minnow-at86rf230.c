@@ -16,48 +16,47 @@
 #define pr_fmt(fmt) "MinnowBoard Max: " fmt
 
 #include "spi-minnow-board.h"
-#include <linux/spi/cc2520.h>
 
-#define CC2520_SPI_MASTER 0
+#include <linux/spi/at86rf230.h>
 
-#define CC2520_SPI_CS 0
-#define CC2520_MAX_CLK_HZ  8000000
+#define AT86RF_SPI_MASTER 0
 
-static struct cc2520_platform_data cc2520_data = {
-	.fifo = 338,
-	.fifop = 339,
-	.cca = 340,
-	.sfd = 504,
-	.reset = 505,
-	.vreg  = 464,
+#define AT86RF_SPI_CS 0
+#define AT86RF_MAX_CLK_HZ  5000000
+#define AT86RF_IRQ 504
+
+static struct at86rf230_platform_data at86rf230_data = {
+	.rstn = 338,
+	.slp_tr = 339,
+	.xtal_trim = 0x2,
+	.dig2 = 0,
 };
 
 void set_spi_minnow_board_value(struct spi_board_info *spi_minnow_board_info,
 				unsigned int *spi_board_irq, u16 *spi_board_master)
 {
-	strcpy(spi_minnow_board_info->modalias, "cc2520");
-	spi_minnow_board_info->max_speed_hz = CC2520_MAX_CLK_HZ;
-	spi_minnow_board_info->bus_num = CC2520_SPI_MASTER;
-	spi_minnow_board_info->chip_select = CC2520_SPI_CS;
-	spi_minnow_board_info->platform_data  = &cc2520_data;
-
-	*spi_board_irq = 0;
-	*spi_board_master = CC2520_SPI_MASTER;
+	strcpy(spi_minnow_board_info->modalias, "at86rf212b");
+	spi_minnow_board_info->max_speed_hz = AT86RF_MAX_CLK_HZ;
+	spi_minnow_board_info->bus_num = AT86RF_SPI_MASTER;
+	spi_minnow_board_info->chip_select = AT86RF_SPI_CS;
+	spi_minnow_board_info->platform_data = &at86rf230_data;
+	*spi_board_irq = AT86RF_IRQ;
+	*spi_board_master = AT86RF_SPI_MASTER;
 }
 EXPORT_SYMBOL(set_spi_minnow_board_value);
 
-static int __init cc2520_module_init(void)
+static int __init at86rf230_module_init(void)
 {
 	pr_info("module init\n");
 	return 0;
 }
 
-static void __exit cc2520_module_exit(void)
+static void __exit at86rf230_module_exit(void)
 {
 	pr_info("module exit\n");
 }
 
-module_init(cc2520_module_init);
-module_exit(cc2520_module_exit);
+module_init(at86rf230_module_init);
+module_exit(at86rf230_module_exit);
 
 MODULE_LICENSE("GPL");

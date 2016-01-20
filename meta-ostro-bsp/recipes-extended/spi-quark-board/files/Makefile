@@ -1,4 +1,4 @@
-obj-m := spi-minnow-at86rf230.o spi-minnow-board.o spi-minnow-cc2520.o
+obj-m := spi-quark-at86rf230.o spi-quark-board.o
 
 SRC := $(shell pwd)
 
