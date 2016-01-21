@@ -19,8 +19,8 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=2e48940f94acb0af582e5ef03537800f"
 
 SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/libva/${BP}.tar.bz2"
 
-SRC_URI[md5sum] = "7a5eb1fdf531f987211b7228a6a46428"
-SRC_URI[sha256sum] = "7fa2c23fb4431ed8590a52173db18e8760fabb7321d14110c574cc8674594e2e"
+SRC_URI[md5sum] = "430cc2742df60204f121409c06039d09"
+SRC_URI[sha256sum] = "c417f09cdeef549e54f4be5f9876026513afeac395c5be28750b431d848c8bd0"
 
 DEPENDS = "libdrm virtual/mesa virtual/libgles1 virtual/libgles2 virtual/egl"
 
