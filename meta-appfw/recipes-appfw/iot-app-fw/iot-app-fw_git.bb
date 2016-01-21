@@ -10,7 +10,7 @@ SRC_URI = " \
     git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh;branch=kli/devel/systemd-generator \
   "
 
-SRCREV = "b558c68a21f2649713cbeca3cf1fb6ac3199f9f8"
+SRCREV = "35f309156ac552514564051e4925b917d7cf0e04"
 
 inherit autotools pkgconfig systemd
 
@@ -23,5 +23,6 @@ PACKAGECONFIG ??= ""
 PACKAGECONFIG[glib-2.0] = "--enable-glib,--disable-glib,glib-2.0"
 PACKAGECONFIG[shave]    = "--enable-shave,--disable-shave"
 
-FILES_${PN}     =  "/lib/systemd/system-generators/iot-service-generator"
-FILES_${PN}-dbg =+ "/lib/systemd/system-generators/.debug"
+FILES_${PN} = "${base_libdir}/systemd/system-generators/iot-service-generator \
+               ${libexecdir}/iot-app-fw/service.jmpl"
+FILES_${PN}-dbg =+ "${base_libdir}/systemd/system-generators/.debug"
