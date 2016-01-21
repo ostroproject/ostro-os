@@ -53,3 +53,9 @@ TestStep,,,,3,"In the 2 IoT devices, start light-server with different id:
 > export SOL_MACHINE_ID=""580a3d6a9d194a23b90a24573558d2f4""
 > ./light-server.fbp","On 2 devices, the light-server is able to be setup. And no anything output.",,,,,,,
 TestStep,,,,4,"In another terminal, run: ./light-client-scan.fbp to scan all resources. ",The 2 light-server should be found. ,,,,,,,
+TestScript,eSDK installation,eSDK,"Install eSDK on host machine (host OS: Ubuntu, Debian, Fedora, CentOS, OpenSUSE)",1,run esdk-test.sh to download and install the latest eSDK release,eSDK installation and environment preparation are successful,EFT,ready,IOTOS-439,,,,
+TestScript,eSDK build ostro image,eSDK,Build ostro image with default configuration from eSDK,1,"run ""source environment-setup-{target platform}-ostro-linux"" under sdk installation folder",SDK toolkit devtool exec path added,EFT,ready,IOTOS-439,,,,
+,,,,2,"run ""devtool build-image ostro-image"" to build out ostro image",Ostro image can be built out,,,,,,,
+TestScript,eSDK build user app,eSDK,,1,"run ""devtool add {testapp recipe} {test recipe source tree}",new recipe added in workspace/appends,EFT,ready,IOTOS-439,,,,
+,,,,2,"edit the appended recipe about how to build and installation parts, then run ""devtool {testapp}""",the testapp can be built out by eSDK.,,,,,,,
+TestScript,eSDK update,eSDK,,1,"run ""devtool sdk-update {latest eSDK url}""",eSDK installed should be upgrade if new version published,EFT,ready,IOTOS-439,,,,
