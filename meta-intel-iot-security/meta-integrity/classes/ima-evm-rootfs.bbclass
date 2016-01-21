@@ -1,10 +1,20 @@
-# Use keys included in layer by default.
-IMA_EVM_KEY_DIR ?= "${IMA_EVM_BASE}/data/debug-keys"
+# No default! Either this or IMA_EVM_PRIVKEY/IMA_EVM_X509 have to be
+# set explicitly in a local.conf before activating ima-evm-rootfs.
+# To use the insecure (because public) example keys, use
+# IMA_EVM_KEY_DIR = "${IMA_EVM_BASE}/data/debug-keys"
+IMA_EVM_KEY_DIR ?= "IMA_EVM_KEY_DIR_NOT_SET"
+
+# Private key for IMA signing. The default is okay when
+# using the example key directory.
 IMA_EVM_PRIVKEY ?= "${IMA_EVM_KEY_DIR}/privkey_ima.pem"
 
 # Public part of certificates (used for both IMA and EVM).
+# The default is okay when using the example key directory.
 IMA_EVM_X509 ?= "${IMA_EVM_KEY_DIR}/x509_ima.der"
-IMA_EVM_ROOT_CA ?= "${IMA_EVM_KEY_DIR}/ima-local-ca.x509"
+
+# Root CA to be compiled into the kernel, none by default.
+# ima-local-ca.x509 is what ima-gen-local-ca.sh creates.
+IMA_EVM_ROOT_CA ?= ""
 
 # Sign all regular files by default.
 IMA_EVM_ROOTFS_SIGNED ?= ". -type f"
