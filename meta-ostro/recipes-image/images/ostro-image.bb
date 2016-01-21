@@ -56,7 +56,6 @@ IMAGE_FEATURES += " \
                         devkit \
                         ${@bb.utils.contains('DISTRO_FEATURES', 'ima', 'ima', '', d)} \
                         iotivity \
-                        package-management \
                         ssh-server-dropbear \
                         node-runtime \
                         python-runtime \
@@ -169,7 +168,9 @@ IMAGE_NAME = "${IMAGE_BASENAME}-${MACHINE}-${BUILD_ID}"
 
 OSTRO_PACKAGE_FEED_URI="${OSTRO_PACKAGE_FEED_BASEURL}/${OSTRO_PACKAGE_FEED_PUBLISHDIR}/${OSTRO_PACKAGE_FEED_BUILDID}"
 
-# Ask package-manager to configure the package feeds
+# Ask package-manager to configure the package feeds.
+# Only applicable when the "package-management" image
+# feature is enabled (off by default).
 PACKAGE_FEED_URIS="${OSTRO_PACKAGE_FEED_URI}"
 PACKAGE_FEED_PREFIX="${OSTRO_PACKAGE_FEED_PREFIX}"
 
