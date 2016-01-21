@@ -32,13 +32,13 @@ EXTRA_IMAGEDEPENDS += " \
 
 # This expects the presence of an initramfs, defined by setting INITRD_IMAGE.
 INITRD ?= "${DEPLOY_DIR_IMAGE}/${INITRD_IMAGE}-${MACHINE}.cpio.gz"
-do_image[depends] += " \
+do_image_dsk[depends] += " \
                       ${INITRD_IMAGE}:do_image_complete \
-                      ${PN}:do_rootfs \
+                      ${PN}:do_image \
                      "
 # XXX If this class is used for non x86 devices, the microcode part needs to
 # be made specific to x86 devices.
-do_image[depends] += " \
+do_image_dsk[depends] += " \
                       gummiboot:do_deploy \
                       virtual/kernel:do_deploy \
                       initramfs-framework:do_populate_sysroot \
@@ -228,7 +228,7 @@ vdi_from_raw() {
 
 
 # Entry point for generating the disk image.
-python do_image() {
+python do_image_dsk() {
     import random, string, json, uuid
     # Helper function for converting the json data to utf8.
     # Bitbake is allergic to the strings as loaded by json.
@@ -313,5 +313,5 @@ IMAGE_TYPES_MASKED += "ext4"
 IMAGE_TYPES_MASKED += "ostro"
 
 addtask do_rootfs before do_build
-addtask do_image after do_rootfs
-addtask do_image before do_build
+addtask do_image_dsk after do_image
+addtask do_image_dsk before do_build
