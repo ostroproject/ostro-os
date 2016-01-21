@@ -39,3 +39,16 @@ TestScript,documentation_Getting_Started_Guide _Download_getting_help,Documentat
 TestScript,documentation_How to build/modify Ostro OS,Documentation,To check the Instruction correctness,1,Check the doc mentioned in this Requirement,The doc instruction is correct,FVT,ready,IOTOS-835,,,,
 TestScript,documentation_Contributing_to_Ostro_OS,Documentation,To check the Instruction correctness,1,Check the doc mentioned in this Requirement,The doc instruction is correct,FVT,ready,IOTOS-836,,,,
 TestScript,documentation_Supported_HW_platforms,Documentation,To check the Instruction correctness,1,make sure platform description is accurate and the links provided are correct,The doc is correct,FVT,ready,IOTOS-837,,,,
+TestScript,sol_oic_find_single_resource,COMMS/Iotivity,Use soletta node type API to find single oic resource,1,"Put 3 test files ('light-client.fbp', 'light-server.fbp' and 'sol-flow.json' from soletta source src/examples/flow/oic/) to IoT device /home/root/ folder. ",,EFT,ready,IOTOS-1019,,,,
+TestStep,,,,2,"In the IoT device, it should be able to run fbp file. Then, run: 
+> export SOL_MACHINE_ID=""580a3d6a9d194a23b90a24573558d2f4""
+> ./light-server.fbp",The light-server is able to be setup. And no anything output.,,,,,,,
+TestStep,,,,3,"In another terminal, run: ./light-client.fbp","After client running, both client and server part will output continousely:
+LightState true (boolean)
+LightState false (boolean)",,,,,,,
+TestScript,sol_oic_find_multiple_resource,COMMS/Iotivity,Use soletta node type API to scan multiple oic resource,1,Put 2 test files ('light-scan/light-client-scan.fbp' and 'light-scan/sol-flow.json' from soletta source src/examples/flow/oic/) to IoT device /home/root/ folder. ,,EFT,ready,IOTOS-1019,,,,
+TestStep,,,,2,Put light-server.fbp to at least 2 IoT devices. ,,,,,,,,
+TestStep,,,,3,"In the 2 IoT devices, start light-server with different id: 
+> export SOL_MACHINE_ID=""580a3d6a9d194a23b90a24573558d2f4""
+> ./light-server.fbp","On 2 devices, the light-server is able to be setup. And no anything output.",,,,,,,
+TestStep,,,,4,"In another terminal, run: ./light-client-scan.fbp to scan all resources. ",The 2 light-server should be found. ,,,,,,,
