@@ -295,3 +295,6 @@ APPEND_append = " init_fatal_sh"
 
 # Ensure that images preserve Smack labels and IMA/EVM.
 inherit xattr-images
+
+# Create all users and groups normally created only at runtime already at build time.
+inherit systemd-sysusers
