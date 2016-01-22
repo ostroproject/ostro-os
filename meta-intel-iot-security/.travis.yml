@@ -20,8 +20,8 @@ addons:
     # Not needed, sdl removed from qemu below.
     # - libsdl1.2-dev
 install:
-  - git clone --depth=1 --single-branch --branch=$OE_CORE git://git.openembedded.org/openembedded-core
-  - ( cd openembedded-core && git clone --depth=1 --single-branch --branch=$BITBAKE git://git.openembedded.org/bitbake )
+  - git clone --depth=1 --single-branch --branch=$OE_CORE https://github.com/openembedded/openembedded-core.git
+  - ( cd openembedded-core && git clone --depth=1 --single-branch --branch=$BITBAKE https://github.com/openembedded/bitbake.git )
 script:
   # The container environment has an limit of 2 hours per run. Everything else
   # only gets 50 minutes.
