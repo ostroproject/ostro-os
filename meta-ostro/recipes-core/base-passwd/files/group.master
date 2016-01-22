@@ -38,4 +38,5 @@ staff:*:50:
 games:*:60:
 shutdown:*:70:
 users:*:100:
+nobody:*:65533:
 nogroup:*:65534:
