@@ -50,6 +50,9 @@ SRC_URI_append_intel-corei7-64 = " file://nfc-i2c.cfg"
 # USB-serial interface support and drivers
 SRC_URI_append = " file://usb-serial.cfg"
 
+# USB-ethernet support and drivers for Edison
+SRC_URI_append_edison = " file://edison-usb-ethernet.cfg"
+
 # CAN-bus support and drivers
 SRC_URI_append = " file://can.cfg"
 SRC_URI_append_intel-quark = " file://can-spi.cfg"
@@ -113,3 +116,11 @@ SRC_URI_append_intel-quark = " file://0001-gpio-pca953x-add-drive-property.patch
 # Disable GFX console and support
 SRC_URI_append_intel-core2-32 = " file://no-gfx.cfg"
 SRC_URI_append_intel-corei7-64 = " file://no-gfx.cfg"
+
+# enable usb gadget
+SRC_URI_append_intel-quark = " file://usb-gadget.cfg"
+
+KERNEL_MODULE_AUTOLOAD_append_intel-quark = " g_acm_ms"
+KERNEL_MODULE_PROBECONF_append_intel-quark = " g_acm_ms"
+
+module_conf_g_acm_ms_intel-quark = "options g_acm_ms file=/dev/mmcblk0p1 removable=1 idVendor=0x8086 idProduct=0xDEAD"
