@@ -1,13 +1,14 @@
-DESCRIPTION = "Example Node application"
+DESCRIPTION = "Example native application"
 HOMEPAGE = "http://example.com"
 LICENSE = "MIT"
 
 LIC_FILES_CHKSUM = "file://COPYING.MIT;md5=838c366f69b72c5df05c96dff79b35f2"
 
-IOT_APP_PROVIDER = "yoyodine"
+OSTRO_USER_NAME = "yoyodine"
+OSTRO_APP_NAME = "nativetest"
 
 PACKAGECONFIG ??= "default"
-PACKAGECONFIG[default] = "--with-package-name=${PN} --with-install-path=${IOT_APP_INSTALLATION_PATH} --with-manifest-path=${IOT_APP_MANIFEST_PATH},--without-app-provider"
+PACKAGECONFIG[default] = "--with-package-name=${PN} --with-install-path=${OSTRO_APP_ROOT}/bin --with-manifest-path=${OSTRO_APP_ROOT},--without-app-provider"
 
 SRC_URI = "file://aclocal.m4                    \
            file://bootstrap                     \
@@ -22,18 +23,17 @@ SRC_URI = "file://aclocal.m4                    \
            file://m4/ltversion.m4               \
            file://m4/shave.m4                   \
            file://src/hello-world.c             \
-           file://src/hello-world.manifest.in   \
+           file://src/manifest.in               \
            file://src/Makefile.am               \
            file://COPYING.MIT"
 
-inherit autotools iot-app
+inherit autotools ostro-app
 
 S = "${WORKDIR}"
 
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
-
-FILES_${PN} = "${IOT_APP_INSTALLATION_PATH}/hello-world"
-FILES_${PN} =+ "${IOT_APP_MANIFEST_PATH}/${PN}.manifest"
+FILES_${PN} = "${OSTRO_APP_ROOT}/bin"
+FILES_${PN} =+ "${OSTRO_APP_ROOT}/manifest"
 
 PACKAGES = "${PN}"

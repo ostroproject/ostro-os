@@ -1,8 +1,0 @@
-[
-  {
-    "application": "example-app",
-    "description": "test application to see if the infra worked",
-    "privileges": [ "LocalNetworkAccess", "ConfigurationQuery" ],
-    "execute": [ "/usr/bin/node", "/home/iodine/apps_rw/example-app/lib/node_modules/example-app/example.js" ]
-  }
-]

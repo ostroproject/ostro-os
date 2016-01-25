@@ -1,5 +1,5 @@
 SUBDIRS = .
-MANIFEST_FILE = @PACKAGE_NAME@.manifest
+MANIFEST_FILE = manifest
 
 example_PROGRAMS = hello-world
 exampledir = @INSTALL_PATH@
@@ -12,7 +12,7 @@ manifestdir = @MANIFEST_PATH@
 
 BUILT_SOURCES = $(MANIFEST_FILE)
 
-$(MANIFEST_FILE): hello-world.manifest
+$(MANIFEST_FILE): manifest
 	cp $< $(MANIFEST_FILE)
 
 # cleanup
