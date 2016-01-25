@@ -78,6 +78,7 @@ class ISA_CVEChecker:
             else:
                 print("Mandatory arguments such as pkg name, version and list of patches are not provided!")
                 print("Not performing the call.")
+                self.initialized = False
                 with open(self.logdir + log, 'a') as flog:
                     flog.write("Mandatory arguments such as pkg name, version and list of patches are not provided!\n")
                     flog.write("Not performing the call.\n")
@@ -87,18 +88,38 @@ class ISA_CVEChecker:
                 flog.write("Plugin hasn't initialized! Not performing the call.\n")
 
     def process_report(self):
-        print("Creating report in HTML format.")
-        with open(self.logdir + log, 'a') as flog:
-            flog.write("Creating report in HTML format.\n")
-        self.process_report_type("html")
+        if (self.initialized == True):
+            print("Creating report in HTML format.")
+            with open(self.logdir + log, 'a') as flog:
+                flog.write("Creating report in HTML format.\n")
+            self.process_report_type("html")
 
-        print("Creating report in CSV format.")
-        with open(self.logdir + log, 'a') as flog:
-            flog.write("Creating report in CSV format.\n")
-        self.process_report_type("csv")
+            print("Creating report in CSV format.")
+            with open(self.logdir + log, 'a') as flog:
+                flog.write("Creating report in CSV format.\n")
+            self.process_report_type("csv")
 
-        pkglist_faux = pkglist + "_" + self.timestamp + ".faux"
-        os.remove(self.reportdir + pkglist_faux)
+            pkglist_faux = pkglist + "_" + self.timestamp + ".faux"
+            os.remove(self.reportdir + pkglist_faux)
+
+            print("Creating report in XML format.")
+            with open(self.logdir + log, 'a') as flog:
+                flog.write("Creating report in XML format.\n")
+            self.write_report_xml()
+
+    def write_report_xml(self):
+        from lxml import etree
+        root = etree.Element('testsuite', name='CVE_Plugin', tests='1')
+        tcase1 = etree.SubElement(root, 'testcase', classname='ISA_CVEChecker', name='found_CVEs')
+        with open(self.reportdir + cve_report + "_" + self.timestamp + ".csv", 'r') as f:
+            for line in f:
+                line = line.strip()
+                line2 = line.split(',', 2)
+                if line2[2].startswith('CVE'):
+                    failrs1 = etree.SubElement(tcase1, 'failure', message=line, type='violation')
+        tree = etree.ElementTree(root)
+        output = self.reportdir +  cve_report + "_" + self.timestamp + '.xml' 
+        tree.write(output, encoding= 'UTF-8', pretty_print=True, xml_declaration=True)
 
     def process_report_type(self, rtype):
         # now faux file is ready and we can process it

@@ -67,6 +67,7 @@ class ISA_LicenseChecker():
                         if (not ISA_pkg.path_to_sources):
                             print("No path to sources or source file list is provided!")
                             print("Not able to determine licenses for package: ", ISA_pkg.name)
+                            self.initialized = False
                             with open(self.logdir + log, 'a') as flog:
                                 flog.write("No path to sources or source file list is provided!")
                                 flog.write("\nNot able to determine licenses for package: " + ISA_pkg.name)
@@ -83,6 +84,7 @@ class ISA_LicenseChecker():
                             except:
                                 print("Error in executing rpm query: ", sys.exc_info())
                                 print("Not able to process package: ", ISA_pkg.name)
+                                self.initialized = False
                                 with open(self.logdir + log, 'a') as flog:
                                     flog.write("Error in executing rpm query: " + sys.exc_info())
                                     flog.write("\nNot able to process package: " + ISA_pkg.name)
@@ -92,12 +94,12 @@ class ISA_LicenseChecker():
                     and not self.check_license(l, fapproved_non_osi)
                     and not self.check_exceptions(ISA_pkg.name, l, fexceptions)):
                         # log the package as not following correct license
-                        report = self.reportdir + "/license_report"
-                        with open(report + "_" + self.timestamp, 'a') as freport:
+                        with open(self.reportdir + "/la_problems_report_" + self.timestamp, 'a') as freport:
                             freport.write(ISA_pkg.name + ": " + l + "\n")
             else:
                 print("Mandatory argument package name is not provided!")
                 print("Not performing the call.")
+                self.initialized = False
                 with open(self.logdir + log, 'a') as flog:
                     flog.write("Mandatory argument package name is not provided!\n")
                     flog.write("Not performing the call.\n")
@@ -105,6 +107,26 @@ class ISA_LicenseChecker():
             print("Plugin hasn't initialized! Not performing the call.")
             with open(self.logdir + log, 'a') as flog:
                 flog.write("Plugin hasn't initialized! Not performing the call.")
+
+    def process_report(self):
+        if (self.initialized == True):
+            print("Creating report in XML format.")
+            with open(self.logdir + log, 'a') as flog:
+                flog.write("Creating report in XML format.\n")
+            self.write_report_xml()
+
+    def write_report_xml(self):
+        from lxml import etree
+        root = etree.Element('testsuite', name='LA_Plugin', tests='1')
+        tcase1 = etree.SubElement(root, 'testcase', classname='ISA_LAChecker', name='license_violations')
+        with open(self.reportdir + "/la_problems_report_" + self.timestamp, 'r') as f:
+            for line in f:
+                line = line.strip()
+                failrs1 = etree.SubElement(tcase1, 'failure', message=line, type='violation')
+        tree = etree.ElementTree(root)
+        output = self.reportdir + "/la_problems_report_" + self.timestamp + '.xml' 
+        tree.write(output, encoding= 'UTF-8', pretty_print=True, xml_declaration=True)
+
 
     def find_files(self, init_path):
         list_of_files = []
@@ -140,5 +162,8 @@ def getPluginName():
 def process_package(ISA_pkg):
     global LicenseChecker 
     return LicenseChecker.process_package(ISA_pkg)
+def process_report():
+    global LicenseChecker 
+    return LicenseChecker.process_report()
 
 #====================================================#
