@@ -1,6 +1,6 @@
 From 178d0624120748a8625bb1169a9c65d2dfbc76aa Mon Sep 17 00:00:00 2001
 From: Krisztian Litkey <krisztian.litkey@intel.com>
-Date: Tue, 22 Sep 2015 16:05:37 +0300
+Date: Fri, 8 Jan 2016 12:43:09 +0200
 Subject: [PATCH] nodejs: generate pkg-config file for node and install it
  during make install.
 
@@ -12,10 +12,10 @@ Signed-off-by: Sudarsana Nagineni <sudarsana.nagineni@intel.com>
  2 files changed, 109 insertions(+), 1 deletion(-)
 
 diff --git a/Makefile b/Makefile
-index f9c8322..53f5c4d 100644
+index 02619fa..8363801 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -65,7 +65,7 @@ config.gypi: configure
+@@ -59,7 +59,7 @@ config.gypi: configure
  		$(error No $@, please run ./configure first)
  	fi
  
@@ -24,9 +24,9 @@ index f9c8322..53f5c4d 100644
  	$(PYTHON) tools/install.py $@ '$(DESTDIR)' '$(PREFIX)'
  
  uninstall:
-@@ -382,6 +382,17 @@ wrk: tools/wrk/wrk
- tools/wrk/wrk:
- 	$(MAKE) -C tools/wrk/
+@@ -462,6 +462,17 @@ ifneq ($(haswrk), 0)
+ 	@exit 1
+ endif
  
 +install-pkgconfig:
 +	if [ -n "$(LIBDIR)" ]; then \
@@ -43,10 +43,10 @@ index f9c8322..53f5c4d 100644
  	@$(NODE) benchmark/common.js net
  
 diff --git a/configure b/configure
-index 66cb312..ec463df 100755
+index 0e83d8a..b9671c0 100755
 --- a/configure
 +++ b/configure
-@@ -50,6 +50,11 @@ parser.add_option('--gdb',
+@@ -75,6 +75,11 @@ parser.add_option('--gdb',
      dest='gdb',
      help='add gdb support')
  
@@ -55,10 +55,10 @@ index 66cb312..ec463df 100755
 +    dest='libdir',
 +    help='select the libdir to install pkgconfig file')
 +
- parser.add_option('--ninja',
+ parser.add_option('--no-ifaddrs',
      action='store_true',
-     dest='use_ninja',
-@@ -1020,9 +1025,16 @@ config = {
+     dest='no_ifaddrs',
+@@ -1125,9 +1130,16 @@ config = {
    'PYTHON': sys.executable,
  }
  
@@ -75,9 +75,9 @@ index 66cb312..ec463df 100755
  config = '\n'.join(map('='.join, config.iteritems())) + '\n'
  
  write('config.mk',
-@@ -1041,4 +1053,89 @@ else:
- 
- gyp_args += args
+@@ -1147,4 +1159,89 @@ gyp_args += args
+ if warn.warned:
+   warn('warnings were emitted in the configure phase')
  
 +
 +
