@@ -346,7 +346,7 @@ do_install() {
 
         install -m644 ${WORKDIR}/jvm.cfg  ${D}${JDK_HOME}/jre/lib/${JDK_ARCH}/
         # workaround for shared libarary searching
-        ln -sf ${JDK_HOME}/jre/lib/${JDK_ARCH}/server/libjvm.so ${D}${JDK_HOME}/jre/lib/${JDK_ARCH}/
+        ln -sf server/libjvm.so ${D}${JDK_HOME}/jre/lib/${JDK_ARCH}/
 }
 
 # Notes about the ideas behind packaging:
