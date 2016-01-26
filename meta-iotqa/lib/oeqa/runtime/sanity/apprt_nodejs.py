@@ -58,7 +58,7 @@ class SanityTestNodejs(oeRuntimeTest):
     def test_node_version(self):
         '''
         Test if the version of node executable is OK.
-        The expected version of node must be greater than or equal to v0.12.7
+        The expected version of node must be greater than or equal to v4.2.4
         @fn test_node_version
         @param self
         @return
@@ -86,8 +86,8 @@ class SanityTestNodejs(oeRuntimeTest):
         # TESTPOINT: #3, test_node_version
         #
         self.assertTrue(
-            version_num >= 1207,
-            msg='node version must not be less than 0.12.7!')
+            version_num >= 40204,
+            msg='node version must not be less than 4.2.4!')
 
 
     def test_node_helloworld(self):
