@@ -51,6 +51,21 @@ IMAGE_VARIANT[dev] = " \
     tools-profile \
 "
 
+# "minimal" images are the opposite of the "dev" images:
+# all non-essential features are turned off, while keeping
+# security features turned on.
+IMAGE_VARIANT[minimal] = " \
+    no-can \
+    no-devkit \
+    no-iotivity \
+    no-node-runtime \
+    no-python-runtime \
+    no-qatests \
+    no-java-jdk \
+    ${OSTRO_EXTRA_MINIMAL_IMAGE_FEATURES} \
+"
+OSTRO_EXTRA_MINIMAL_IMAGE_FEATURES ?= ""
+
 # Default list of features in "ostro-image" images. Additional
 # image variations modify this list, see BBCLASSEXTEND below.
 # OSTRO_EXTRA_IMAGE_FEATURES can be used to add more features
@@ -90,7 +105,11 @@ OSTRO_EXTRA_IMAGE_FEATURES ?= ""
 # be useful and (more important) supported. Users can still enable
 # unsupported variations in the local.conf via OSTRO_EXTRA_IMAGE_VARIANTS.
 OSTRO_EXTRA_IMAGE_VARIANTS ?= ""
-BBCLASSEXTEND = "imagevariant:dev ${OSTRO_EXTRA_IMAGE_VARIANTS}"
+BBCLASSEXTEND = " \
+    imagevariant:dev \
+    imagevariant:minimal \
+    ${OSTRO_EXTRA_IMAGE_VARIANTS} \
+"
 
 # Once officially supported, variations with IMA disabled can be
 # added. Right now, users need to do that in their local.conf:
