@@ -22,7 +22,7 @@ from oeqa.utils.decorators import tag
 from oeqa.utils.helper import get_files_dir
 
 
-@tag(TestType = 'Functional Positive', FeatureID = 'IOTOS-343')
+@tag(TestType='EFT', FeatureID='IOTOS-343')
 class RESTAPIAppTest(oeRuntimeTest):
     """
     @class RESTAPIAppTest
