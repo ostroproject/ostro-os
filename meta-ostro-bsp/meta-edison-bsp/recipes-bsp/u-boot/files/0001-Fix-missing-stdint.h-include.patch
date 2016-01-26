@@ -1,0 +1,25 @@
+From 12f254de22bd9695b2052f112ec2695470c23be2 Mon Sep 17 00:00:00 2001
+From: Jussi Laako <jussi.laako@linux.intel.com>
+Date: Mon, 25 Jan 2016 17:18:29 +0200
+Subject: [PATCH] Fix missing stdint.h include
+
+Signed-off-by: Jussi Laako <jussi.laako@linux.intel.com>
+---
+ tools/env/fw_env.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tools/env/fw_env.c b/tools/env/fw_env.c
+index d228cc3..3613d3b 100644
+--- a/tools/env/fw_env.c
++++ b/tools/env/fw_env.c
+@@ -15,6 +15,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stddef.h>
++#include <stdint.h>
+ #include <string.h>
+ #include <sys/types.h>
+ #include <sys/ioctl.h>
+-- 
+2.7.0.rc3
+
