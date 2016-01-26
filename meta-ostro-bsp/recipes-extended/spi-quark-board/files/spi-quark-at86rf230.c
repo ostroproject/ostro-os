@@ -39,7 +39,7 @@ static struct at86rf230_platform_data at86rf230_data = {
 void set_spi_quark_board_value(struct spi_board_info *spi_quark_board_info,
 				unsigned int *spi_board_irq, u16 *spi_board_master)
 {
-	strcpy(spi_quark_board_info->modalias, "at86rf212b");
+	strcpy(spi_quark_board_info->modalias, "at86rf230");
 	spi_quark_board_info->max_speed_hz = AT86RF_MAX_CLK_HZ;
 	spi_quark_board_info->bus_num = AT86RF_SPI_MASTER;
 	spi_quark_board_info->chip_select = AT86RF_SPI_CS;
