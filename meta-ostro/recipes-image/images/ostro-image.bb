@@ -23,6 +23,7 @@ IMAGE_FEATURES[validitems] += " \
     java-jdk \
     node-runtime \
     python-runtime \
+    qatests \
     tools-develop \
     soletta \
     swupd \
@@ -62,6 +63,7 @@ IMAGE_FEATURES += " \
                         iotivity \
                         ssh-server-dropbear \
                         node-runtime \
+                        qatests \
                         python-runtime \
                         java-jdk \
                         soletta \
