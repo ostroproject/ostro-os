@@ -1,14 +1,13 @@
 DESCRIPTION = "A UEFI OS loader"
 LICENSE = "BSD-2-Clause"
-LIC_FILES_CHKSUM = "file://efilinux.h;beginline=5;endline=31;md5=2316abda893ef24e6cd55cef33aa0edd"
+LIC_FILES_CHKSUM = "file://efilinux.h;beginline=5;endline=27;md5=f8d56e644672ac63fd81b55c205283ad"
 
 DEPENDS = "gnu-efi"
 
 inherit deploy
 
-SRCREV = "75b62111f83dab433e901c1a7b0f05e058aa29de"
-PV = "1.0+git${SRCPV}"
-PR = "r0"
+SRCREV = "a995826f9e43f1134baea61610eafd8c173bb776"
+PV = "1.1+git${SRCPV}"
 
 SRC_URI = "git://git.kernel.org/pub/scm/boot/efilinux/efilinux.git"
 
