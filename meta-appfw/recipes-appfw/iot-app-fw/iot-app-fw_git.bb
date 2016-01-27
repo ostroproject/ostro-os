@@ -28,7 +28,8 @@ PACKAGECONFIG[shave]    = "--enable-shave,--disable-shave"
 FILES_${PN} = "${base_libdir}/systemd/system-generators/iot-service-generator \
                ${libexecdir}/iot-app-fw/service.jmpl \
                ${libdir}/systemd/network/80-container-host0.network \
-               ${libdir}/systemd/network/80-container-ve.network"
+               ${libdir}/systemd/network/80-container-ve.network \
+"
 
 FILES_${PN}-dbg =+ "${base_libdir}/systemd/system-generators/.debug"
 
