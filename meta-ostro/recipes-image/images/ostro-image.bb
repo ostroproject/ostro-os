@@ -15,6 +15,7 @@ IMAGE_INSTALL = " \
 # TODO: document IoT specific image feature somewhere. Here?
 IMAGE_FEATURES[validitems] += " \
     app-privileges \
+    autologin \
     can \
     connectivity \
     devkit \
@@ -335,3 +336,14 @@ inherit xattr-images
 
 # Create all users and groups normally created only at runtime already at build time.
 inherit systemd-sysusers
+
+# Enable local auto-login of the root user (local = serial port and
+# virtual console by default, can be configured).
+OSTRO_LOCAL_GETTY ?= " \
+    ${IMAGE_ROOTFS}${systemd_system_unitdir}/serial-getty@.service \
+    ${IMAGE_ROOTFS}${systemd_system_unitdir}/getty@.service \
+"
+local_autologin () {
+    sed -i -e 's/^\(ExecStart *=.*getty \)/\1--autologin root /' ${OSTRO_LOCAL_GETTY}
+}
+ROOTFS_POSTPROCESS_COMMAND += "${@bb.utils.contains('IMAGE_FEATURES', 'autologin', 'local_autologin;', '', d)}"
