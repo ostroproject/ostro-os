@@ -8,6 +8,8 @@ DEPENDS = "json-c systemd"
 
 SRC_URI = " \
     git://git@github.com/ostroproject/iot-app-fw.git;protocol=ssh;branch=kli/devel/systemd-generator \
+    file://80-container-host0.network \
+    file://80-container-ve.network \
   "
 
 SRCREV = "35f309156ac552514564051e4925b917d7cf0e04"
@@ -24,5 +26,14 @@ PACKAGECONFIG[glib-2.0] = "--enable-glib,--disable-glib,glib-2.0"
 PACKAGECONFIG[shave]    = "--enable-shave,--disable-shave"
 
 FILES_${PN} = "${base_libdir}/systemd/system-generators/iot-service-generator \
-               ${libexecdir}/iot-app-fw/service.jmpl"
+               ${libexecdir}/iot-app-fw/service.jmpl \
+               ${libdir}/systemd/network/80-container-host0.network \
+               ${libdir}/systemd/network/80-container-ve.network"
+
 FILES_${PN}-dbg =+ "${base_libdir}/systemd/system-generators/.debug"
+
+do_install_append () {
+    mkdir -p ${D}${libdir}/systemd/network
+    cp ../80-container-host0.network ${D}${libdir}/systemd/network
+    cp ../80-container-ve.network ${D}${libdir}/systemd/network
+}
