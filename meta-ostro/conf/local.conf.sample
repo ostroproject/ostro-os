@@ -246,6 +246,14 @@ CONF_VERSION = "1"
 #
 #INHERIT += "isafw"
 
+# Ostro OS development images get built when uncommenting
+# the following line.
+#
+# Do not do this in production! The resulting images
+# are not secure. See doc/building-images.rst for further
+# instructions.
+#
+# require conf/distro/include/ostro-os-development.inc
 
 #
 # Misc configuration
