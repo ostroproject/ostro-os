@@ -30,7 +30,7 @@ IMAGE_CMD_boot () {
 }
 
 IMAGE_DEPENDS_update = "dosfstools-native mtools-native"
-IMAGE_TYPEDEP_update = "tar.bz2"
+IMAGE_TYPEDEP_update = "tar.bz2 boot"
 
 IMAGE_CMD_update () {
 
