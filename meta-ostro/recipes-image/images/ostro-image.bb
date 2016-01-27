@@ -24,6 +24,7 @@ IMAGE_FEATURES[validitems] += " \
     node-runtime \
     python-runtime \
     tools-develop \
+    soletta \
 "
 
 # These features come from base recipes, but are not added to
@@ -60,6 +61,7 @@ IMAGE_FEATURES += " \
                         node-runtime \
                         python-runtime \
                         java-jdk \
+                        soletta \
                         "
 
 # Create variants of the base recipe where certain features are
@@ -107,6 +109,7 @@ FEATURE_PACKAGES_devkit = "packagegroup-devkit"
 FEATURE_PACKAGES_node-runtime = "packagegroup-node-runtime"
 FEATURE_PACKAGES_python-runtime = "packagegroup-python-runtime"
 FEATURE_PACKAGES_java-jdk = "packagegroup-java-jdk"
+FEATURE_PACKAGES_soletta = "packagegroup-soletta"
 
 # git is not essential for compiling software, but include it anyway
 # because it is the most common source code management tool.

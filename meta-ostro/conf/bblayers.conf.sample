@@ -23,7 +23,6 @@ OSTRO_LAYERS = " \
   ##OEROOT##/meta-iotqa \
   ##OEROOT##/meta-user-management \
   ##OEROOT##/meta-appfw \
-  ##OEROOT##/meta-java \
   ##OEROOT##/meta-security-isafw \
   "
 
@@ -48,6 +47,8 @@ OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-python"
 # OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-webserver"
 # OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-xfce"
 # OSTRO_LAYERS += "##OEROOT##/meta-openembedded/toolchain-layer"
+OSTRO_LAYERS += "##OEROOT##/meta-java"
+OSTRO_LAYERS += "##OEROOT##/meta-soletta"
 
 BBLAYERS ?= "${OSTRO_LAYERS}"
 
