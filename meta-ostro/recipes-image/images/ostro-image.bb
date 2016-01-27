@@ -52,6 +52,8 @@ IMAGE_VARIANT[dev] = " \
 
 # Default list of features in "ostro-image" images. Additional
 # image variations modify this list, see BBCLASSEXTEND below.
+# OSTRO_EXTRA_IMAGE_FEATURES can be used to add more features
+# to the default list.
 IMAGE_FEATURES += " \
                         can \
                         connectivity \
@@ -64,7 +66,10 @@ IMAGE_FEATURES += " \
                         java-jdk \
                         soletta \
                         swupd \
+                        ${OSTRO_EXTRA_IMAGE_FEATURES} \
                         "
+OSTRO_EXTRA_IMAGE_FEATURES ?= ""
+
 
 # Create variants of the base recipe where certain features are
 # turned on or off. The name of these modified recipes are
