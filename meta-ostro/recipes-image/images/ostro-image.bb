@@ -43,6 +43,26 @@ IMAGE_FEATURES[validitems] += " \
     tools-profile \
 "
 
+# Temporary variant for swupd.
+# Currently swupd is not compatible with ima and smack,
+# so disable them. This can be removed once they can coexist.
+IMAGE_VARIANT[swupd] = " \
+    no-smack \
+    no-ima \
+"
+
+# Temporary variant for swupd.
+# Currently swupd is not compatible with ima and smack,
+# so disable them. This can be removed once they can coexist.
+IMAGE_VARIANT[swupddev] = " \
+    no-smack \
+    no-ima \
+    ptest-pkgs \
+    tools-debug \
+    tools-develop \
+    tools-profile \
+"
+
 # "dev" images have the following features turned on.
 # ptests are enabled because (platform) developers might want
 # to run them and because it is a relatively small change which
@@ -114,6 +134,8 @@ OSTRO_EXTRA_IMAGE_VARIANTS ?= ""
 BBCLASSEXTEND = " \
     imagevariant:dev \
     imagevariant:minimal \
+    imagevariant:swupd \
+    imagevariant:swupddev \
     ${OSTRO_EXTRA_IMAGE_VARIANTS} \
 "
 
@@ -167,15 +189,12 @@ ostro_root_authorized_keys () {
     chmod -R go-rwx ${IMAGE_ROOTFS}${ROOT_HOME}/.ssh
 }
 
-# Set the location where to fetch json files describing the disk layout
-IOT_DISK_LAYOUT_DIR="${THISDIR}/files/iot-cfg/"
-
 # Do not create ISO images by default, only HDDIMG will be created (if it gets created at all).
 NOISO = "1"
 
 # Replace the default "live" (aka HDDIMG) images with whole-disk images
 # XXX Drop the VM hack after taking care also of the non UEFI devices (those using U-Boot: edison and beaglebone)
-OSTRO_VM_IMAGE_TYPES ?= "${@bb.utils.contains_any('MACHINE', 'intel-core2-32 intel-corei7-64 intel-quark', 'ostro', 'vdi vmdk qcow2', d)}"
+OSTRO_VM_IMAGE_TYPES ?= "dsk dsk_xz dsk.vdi"
 IMAGE_FSTYPES_remove_intel-core2-32 = "live"
 IMAGE_FSTYPES_append_intel-core2-32 = " ${OSTRO_VM_IMAGE_TYPES}"
 IMAGE_FSTYPES_remove_intel-corei7-64 = "live"
@@ -183,14 +202,15 @@ IMAGE_FSTYPES_append_intel-corei7-64 = " ${OSTRO_VM_IMAGE_TYPES}"
 IMAGE_FSTYPES_remove_intel-quark = "live"
 IMAGE_FSTYPES_append_intel-quark = " ${OSTRO_VM_IMAGE_TYPES}"
 
+# Activate "dsk" image type.
+# Currently this supports only EFI-based booting, so let's enable it only for the EFI platforms.
+IMAGE_CLASSES += "${@bb.utils.contains_any('MACHINE', 'intel-core2-32 intel-corei7-64 intel-quark', 'image-dsk', '', d)}"
+
 # Inherit after setting variables that get evaluated when importing
 # the classes. In particular IMAGE_FSTYPES is relevant because it causes
 # other classes to be imported.
 
-# XXX Drop the check after taking care also of the non UEFI devices (those using U-Boot: edison and beaglebone)
-# and make image-iot a fixed import, to override some of the core-image methods
-IMAGE_INHERIT_CLASS="${@bb.utils.contains_any('MACHINE', 'intel-core2-32 intel-corei7-64 intel-quark', ' image-iot ', '', d)}"
-inherit core-image extrausers image-buildinfo ${IMAGE_INHERIT_CLASS}
+inherit core-image extrausers image-buildinfo
 
 BUILD_ID ?= "${DATETIME}"
 IMAGE_BUILDINFO_VARS_append = " BUILD_ID"
@@ -218,6 +238,11 @@ INITRD_IMAGE_intel-quark = "${OSTRO_INITRAMFS}"
 # HDD places the rootfs as loop file in a VFAT partition (UEFI),
 # while the rootfs is expected to be in its own partition.
 NOHDD = "1"
+
+# Image creation: add here the desired value for the PARTUUID of
+# the rootfs. WARNING: any change to this value will trigger a
+# rebuild (and re-sign, if enabled) of the combo EFI application.
+ROOTFS_PARTUUID_VALUE = "12345678-9abc-def0-0fed-cba987654321"
 
 # Exception for /usr/dbspace/.security-manager.db: we set the owner
 # to a special "sqlite" user and then rely on the IMA policy only

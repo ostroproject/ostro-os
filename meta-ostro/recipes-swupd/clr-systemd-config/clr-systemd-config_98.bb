@@ -6,6 +6,7 @@ SUMMARY = "Clear systemd config files for swupd"
 SRC_URI = " \
   file://clr-systemd-config-${PV}.tar.gz \
   file://0001-change-clear-path-to-Ostro-path.patch \
+  file://0002-systemd-service-for-updating-the-efi-combo.patch \
 "
 
 SRC_URI[md5sum] = "bc2fa9e8728c774d779edc094c9018d2"
@@ -52,6 +53,9 @@ do_install_append () {
   rmdir ${D}/usr
   rmdir ${D}/${base_prefix}/lib/udev/rules.d
   rmdir ${D}/${base_prefix}/lib/udev
+
+
+  cp  --preserve=mode,timestamp ${S}/system/efi-combo-trigger.service ${D}${systemd_unitdir}/system/
 }
 
 FILES_${PN} += " \
