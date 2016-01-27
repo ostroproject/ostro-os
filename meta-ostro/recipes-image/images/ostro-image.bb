@@ -347,3 +347,11 @@ local_autologin () {
     sed -i -e 's/^\(ExecStart *=.*getty \)/\1--autologin root /' ${OSTRO_LOCAL_GETTY}
 }
 ROOTFS_POSTPROCESS_COMMAND += "${@bb.utils.contains('IMAGE_FEATURES', 'autologin', 'local_autologin;', '', d)}"
+
+# Extends the /etc/motd message that is shown on each login.
+# Normally it is empty.
+OSTRO_EXTRA_MOTD ?= ""
+extra_motd () {
+    echo "${OSTRO_EXTRA_MOTD}" >>${IMAGE_ROOTFS}${sysconfdir}/motd
+}
+ROOTFS_POSTPROCESS_COMMAND += "${@'extra_motd;' if '${OSTRO_EXTRA_MOTD}' else ''}"
