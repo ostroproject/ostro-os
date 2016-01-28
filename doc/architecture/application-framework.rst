@@ -176,15 +176,13 @@ inherit to your application to make things little bit easier::
   GROUPMEMS_PARAM_${PN} = ""
   
   IOT_APP_DIR ??= "/apps"
-  IOT_APP_HOME ??= "${IOT_APP_DIR}/${IOT_USER_NAME}/${IOT_APP_NAME}"
+  IOT_APP_ROOT ??= "${IOT_APP_DIR}/${IOT_USER_NAME}/${IOT_APP_NAME}"
   
-  export IOT_APP_HOME
+  export IOT_APP_ROOT
   RDEPENDS_${PN} = "iot-app-fw"
   
   do_install_append () {
-    if [ -d "${D}${IOT_APP_HOME}" ] ; then
-       chown -R ${IOT_USER_APP_NAME}.${IOT_USER_APP_NAME} ${D}${IOT_APP_HOME}
-    fi
+    chmod -R 755 ${D}${IOT_APP_ROOT}/
   }
 
 Basically this class is inheriting from yocto oe-core useradd class
@@ -194,7 +192,7 @@ your application recipe. Also a home directory will be created for the
 user. What this means in practive is that we have a dedicated user for
 each app running in the system. The class will also create the
 dedicated "apps" directory for the user/app combination and export
-IOT_APP_HOME variable for you to use in your recipe to install
+IOT_APP_ROOT variable for you to use in your recipe to install
 applications to correct place.
 
 Here is the simplified recipe for the sample "hello-world" C program::
@@ -206,8 +204,8 @@ Here is the simplified recipe for the sample "hello-world" C program::
   
   inherit iot-app
   
-  FILES_${PN} = "${IOT_APP_HOME}/bin"
-  FILES_${PN} =+ "${IOT_APP_HOME}/manifest"
+  FILES_${PN} = "${IOT_APP_ROOT}/bin"
+  FILES_${PN} =+ "${IOT_APP_ROOT}/manifest"
   
   PACKAGES = "${PN}"
 
