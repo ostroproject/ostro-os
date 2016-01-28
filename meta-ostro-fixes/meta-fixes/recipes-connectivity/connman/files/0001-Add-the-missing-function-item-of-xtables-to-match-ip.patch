@@ -1,0 +1,41 @@
+From 01d646d57cd1bb50b72e7001a91215e0308fc1aa Mon Sep 17 00:00:00 2001
+From: Wu Zheng <wu.zheng@intel.com>
+Date: Thu, 28 Jan 2016 23:43:40 +0800
+Subject: [PATCH] Add the missing function item of xtables to match iptables1.6
+
+The struct of xtables_globals has been modified in iptables1.6.
+If connman runs with iptables1.6, it can crash.
+
+Program received signal SIGSEGV, Segmentation fault.
+0x00000000 in ?? ()
+0xb7dea89c in xtables_find_target () from /usr/lib/libxtables.so.11
+0xb7deac1c in ?? () from /usr/lib/libxtables.so.11
+0xb7dea793 in xtables_find_target () from /usr/lib/libxtables.so.11
+
+The the missing function item of xtables is added to xtables_globals.
+It can fix the above issue.
+
+Upstream-Status: Backport
+
+Signed-off-by: Wu zheng <wu.zheng@intel.com>
+---
+ src/iptables.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/iptables.c b/src/iptables.c
+index fa2f05b..6ac8e95 100644
+--- a/src/iptables.c
++++ b/src/iptables.c
+@@ -1566,6 +1566,9 @@ struct xtables_globals iptables_globals = {
+ 	.option_offset = 0,
+ 	.opts = iptables_opts,
+ 	.orig_opts = iptables_opts,
++#if XTABLES_VERSION_CODE > 10
++	.compat_rev = xtables_compatible_revision,
++#endif
+ };
+ 
+ static struct xtables_target *prepare_target(struct connman_iptables *table,
+-- 
+2.1.4
+
