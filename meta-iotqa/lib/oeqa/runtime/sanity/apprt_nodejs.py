@@ -14,7 +14,7 @@
 import os
 from oeqa.oetest import oeRuntimeTest
 
-
+@tag(TestType='FVT', FeatureID='IOTOS-332,IOTOS-1068')
 class SanityTestNodejs(oeRuntimeTest):
     """
     @class SanityTestNodejs
