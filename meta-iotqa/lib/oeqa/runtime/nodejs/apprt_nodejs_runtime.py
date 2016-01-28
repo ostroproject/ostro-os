@@ -216,7 +216,7 @@ def choose_test_files_and_tar(local_nodejs_path, node_version):
     return p.returncode
 
 
-@tag(TestType = 'Functional Positive', FeatureID = 'IOTOS-332')
+@tag(TestType='EFT', FeatureID='IOTOS-332')
 class NodejsRuntimeTest(oeRuntimeTest):
     """
     @class NodejsRuntimeTest

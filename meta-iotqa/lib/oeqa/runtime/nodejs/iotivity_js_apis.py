@@ -18,7 +18,7 @@ from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.decorators import tag
 
 
-@tag(TestType = 'Functional Positive', FeatureID = 'IOTOS-764')
+@tag(TestType='FVT', FeatureID='IOTOS-764')
 class IotivityJSAPITest(oeRuntimeTest):
     '''
     The test suite checks whether the iotivity node binding APIs work well.

@@ -23,7 +23,7 @@ from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.decorators import tag
 
 
-@tag(TestType = 'Functional Positive', FeatureID = 'IOTOS-343')
+@tag(TestType='FVT', FeatureID='IOTOS-343')
 class RESTAPITest(oeRuntimeTest):
     '''
     The test case checks whether the REST APIs for Ostro OS works well.
