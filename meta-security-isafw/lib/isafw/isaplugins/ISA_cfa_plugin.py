@@ -45,6 +45,8 @@ class ISA_CFChecker():
     no_canary = []
     no_pie = []
     no_nx = []
+    execstack = []
+    execstack_not_defined = []
 
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
@@ -54,16 +56,21 @@ class ISA_CFChecker():
         # check that checksec is installed
         rc = subprocess.call(["which", "checksec.sh"])
         if rc == 0:
-            self.initialized = True
-            print("Plugin ISA_CFChecker initialized!")
-            with open(self.logdir + log, 'w') as flog:
-                flog.write("\nPlugin ISA_CFChecker initialized!\n")
-        else:
-            print("checksec tool is missing!")
-            print("Please install it from http://www.trapkit.de/tools/checksec.html")
-            with open(self.logdir + log, 'w') as flog:
-                flog.write("checksec tool is missing!\n")
-                flog.write("Please install it from http://www.trapkit.de/tools/checksec.html\n")
+            # check that execstack is installed
+            rc = subprocess.call(["which", "execstack"])
+            if rc == 0:
+                self.initialized = True
+                print("Plugin ISA_CFChecker initialized!")
+                with open(self.logdir + log, 'w') as flog:
+                    flog.write("\nPlugin ISA_CFChecker initialized!\n")
+                return
+        print("checksec or execstack tools are missing!")
+        print("Please install checksec from http://www.trapkit.de/tools/checksec.html")
+        print("Please install execstack from prelink package")
+        with open(self.logdir + log, 'w') as flog:
+            flog.write("checksec or execstack tools are missing!\n")
+            flog.write("Please install checksec from http://www.trapkit.de/tools/checksec.html\n")
+            flog.write("Please install execstack from prelink package\n")
 
     def process_filesystem(self, ISA_filesystem):
         if (self.initialized == True):
@@ -110,9 +117,17 @@ class ISA_CFChecker():
             for item in self.no_nx:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
                 fproblems_report.write(item + '\n')
+            fproblems_report.write("\n\nFiles with executable stack enabled:\n")
+            for item in self.execstack:
+                item = item.replace(ISA_filesystem.path_to_fs, "")
+                fproblems_report.write(item + '\n')
+            fproblems_report.write("\n\nFiles with no ability to fetch executable stack status:\n")
+            for item in self.execstack_not_defined:
+                item = item.replace(ISA_filesystem.path_to_fs, "")
+                fproblems_report.write(item + '\n')
 
     def write_report_xml(self, ISA_filesystem):
-        root = etree.Element('testsuite', name='CFA_Plugin', tests='4')
+        root = etree.Element('testsuite', name='CFA_Plugin', tests='6')
         tcase1 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_no_RELO')
         if self.no_relo:
             for item in self.no_relo:
@@ -133,6 +148,16 @@ class ISA_CFChecker():
             for item in self.no_nx:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
                 failrs4 = etree.SubElement(tcase4, 'failure', message=item, type='violation')
+        tcase5 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_execstack')
+        if self.execstack: 
+            for item in self.execstack:
+                item = item.replace(ISA_filesystem.path_to_fs, "")
+                failrs4 = etree.SubElement(tcase5, 'failure', message=item, type='violation')
+        tcase6 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_execstack_not_defined')
+        if self.execstack_not_defined: 
+            for item in self.execstack_not_defined:
+                item = item.replace(ISA_filesystem.path_to_fs, "")
+                failrs4 = etree.SubElement(tcase6, 'failure', message=item, type='violation')
         tree = etree.ElementTree(root)
         output = self.reportdir + problems_report + ISA_filesystem.img_name + "_" + self.timestamp + '.xml' 
         tree.write(output, encoding= 'UTF-8', pretty_print=True, xml_declaration=True)
@@ -143,6 +168,19 @@ class ISA_CFChecker():
             for f in filenames:
                 list_of_files.append(str(dirpath+"/"+f)[:])
         return list_of_files
+
+    def get_execstack(self, file_name):
+        cmd = ['execstack', '-q', file_name]
+        try:
+            result = subprocess.check_output(cmd).decode("utf-8")
+        except:
+            return "Not able to fetch execstack status"
+        else:
+            if result.startswith("X "):
+                self.execstack.append(file_name[:])
+            if result.startswith("? "):
+                self.execstack_not_defined.append(file_name[:])             
+            return result
 
     def get_security_flags(self, file_name):
         SF = {
@@ -228,12 +266,14 @@ class ISA_CFChecker():
                         sec_field = "File is pdf"
                     else:
                         sec_field = self.get_security_flags(real_file)
+                        execstack = self.get_execstack(real_file)
                         with open(self.reportdir + full_report + img_name + "_" + self.timestamp, 'a') as ffull_report:
                             real_file = real_file.replace(path_to_fs, "")
                             ffull_report.write(real_file + ": ")
                             for s in sec_field:
                                 line = ' '.join(str(x) for x in s)
                                 ffull_report.write(line + ' ')
+                            ffull_report.write('\nexecstack: ' + execstack +' ')
                             ffull_report.write('\n')                            
                 else:
                     continue

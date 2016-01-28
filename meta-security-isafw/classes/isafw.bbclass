@@ -181,6 +181,7 @@ python analyse_image() {
 }
 
 do_rootfs[depends] += "checksec-native:do_populate_sysroot"
+do_rootfs[depends] += "prelink-native:do_populate_sysroot"
 analyse_image[fakeroot] = "1"
 
 def isafw_init(isafw, d):
