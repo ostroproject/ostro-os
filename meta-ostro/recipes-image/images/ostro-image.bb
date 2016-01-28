@@ -25,6 +25,7 @@ IMAGE_FEATURES[validitems] += " \
     python-runtime \
     tools-develop \
     soletta \
+    swupd \
 "
 
 # These features come from base recipes, but are not added to
@@ -62,6 +63,7 @@ IMAGE_FEATURES += " \
                         python-runtime \
                         java-jdk \
                         soletta \
+                        swupd \
                         "
 
 # Create variants of the base recipe where certain features are
@@ -114,6 +116,8 @@ FEATURE_PACKAGES_soletta = "packagegroup-soletta"
 # git is not essential for compiling software, but include it anyway
 # because it is the most common source code management tool.
 FEATURE_PACKAGES_tools-develop = "packagegroup-core-buildessential git"
+
+FEATURE_PACKAGES_swupd = "packagegroup-swupd"
 
 # Use gummiboot as the EFI bootloader.
 EFI_PROVIDER = "gummiboot"
