@@ -15,6 +15,7 @@ IMAGE_INSTALL = " \
 # TODO: document IoT specific image feature somewhere. Here?
 IMAGE_FEATURES[validitems] += " \
     app-privileges \
+    autologin \
     can \
     connectivity \
     devkit \
@@ -23,6 +24,7 @@ IMAGE_FEATURES[validitems] += " \
     java-jdk \
     node-runtime \
     python-runtime \
+    qatests \
     tools-develop \
     soletta \
     swupd \
@@ -50,8 +52,25 @@ IMAGE_VARIANT[dev] = " \
     tools-profile \
 "
 
+# "minimal" images are the opposite of the "dev" images:
+# all non-essential features are turned off, while keeping
+# security features turned on.
+IMAGE_VARIANT[minimal] = " \
+    no-can \
+    no-devkit \
+    no-iotivity \
+    no-node-runtime \
+    no-python-runtime \
+    no-qatests \
+    no-java-jdk \
+    ${OSTRO_EXTRA_MINIMAL_IMAGE_FEATURES} \
+"
+OSTRO_EXTRA_MINIMAL_IMAGE_FEATURES ?= ""
+
 # Default list of features in "ostro-image" images. Additional
 # image variations modify this list, see BBCLASSEXTEND below.
+# OSTRO_EXTRA_IMAGE_FEATURES can be used to add more features
+# to the default list.
 IMAGE_FEATURES += " \
                         can \
                         connectivity \
@@ -60,11 +79,15 @@ IMAGE_FEATURES += " \
                         iotivity \
                         ssh-server-dropbear \
                         node-runtime \
+                        qatests \
                         python-runtime \
                         java-jdk \
                         soletta \
                         swupd \
+                        ${OSTRO_EXTRA_IMAGE_FEATURES} \
                         "
+OSTRO_EXTRA_IMAGE_FEATURES ?= ""
+
 
 # Create variants of the base recipe where certain features are
 # turned on or off. The name of these modified recipes are
@@ -83,7 +106,11 @@ IMAGE_FEATURES += " \
 # be useful and (more important) supported. Users can still enable
 # unsupported variations in the local.conf via OSTRO_EXTRA_IMAGE_VARIANTS.
 OSTRO_EXTRA_IMAGE_VARIANTS ?= ""
-BBCLASSEXTEND = "imagevariant:dev ${OSTRO_EXTRA_IMAGE_VARIANTS}"
+BBCLASSEXTEND = " \
+    imagevariant:dev \
+    imagevariant:minimal \
+    ${OSTRO_EXTRA_IMAGE_VARIANTS} \
+"
 
 # Once officially supported, variations with IMA disabled can be
 # added. Right now, users need to do that in their local.conf:
@@ -309,3 +336,22 @@ inherit xattr-images
 
 # Create all users and groups normally created only at runtime already at build time.
 inherit systemd-sysusers
+
+# Enable local auto-login of the root user (local = serial port and
+# virtual console by default, can be configured).
+OSTRO_LOCAL_GETTY ?= " \
+    ${IMAGE_ROOTFS}${systemd_system_unitdir}/serial-getty@.service \
+    ${IMAGE_ROOTFS}${systemd_system_unitdir}/getty@.service \
+"
+local_autologin () {
+    sed -i -e 's/^\(ExecStart *=.*getty \)/\1--autologin root /' ${OSTRO_LOCAL_GETTY}
+}
+ROOTFS_POSTPROCESS_COMMAND += "${@bb.utils.contains('IMAGE_FEATURES', 'autologin', 'local_autologin;', '', d)}"
+
+# Extends the /etc/motd message that is shown on each login.
+# Normally it is empty.
+OSTRO_EXTRA_MOTD ?= ""
+extra_motd () {
+    echo "${OSTRO_EXTRA_MOTD}" >>${IMAGE_ROOTFS}${sysconfdir}/motd
+}
+ROOTFS_POSTPROCESS_COMMAND += "${@'extra_motd;' if '${OSTRO_EXTRA_MOTD}' else ''}"
