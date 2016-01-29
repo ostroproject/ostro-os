@@ -135,9 +135,40 @@ PACKAGE_CLASSES ?= "package_ipk"
 #  "debug-tweaks"   - make an image suitable for development
 #                     e.g. ssh root access has a blank password
 # There are other application targets that can be used here too, see
-# meta/classes/image.bbclass and meta/classes/core-image.bbclass for more details.
-# We default to enabling the debugging tweaks.
-EXTRA_IMAGE_FEATURES = "debug-tweaks"
+# meta/classes/image.bbclass,  meta/classes/core-image.bbclass and
+# meta-ostro/recipes-images/images/ostro-image.bb for more details.
+# EXTRA_IMAGE_FEATURES = "debug-tweaks"
+
+# By default, the root account has no password set and thus cannot
+# be logged into from outside. Local root access can be enabled
+# as described in doc/howtos/building-images.rst.
+#
+# To enable access as root via ssh, the recommended approach for
+# personal development images is to install an authorized ssh key
+# as part of image creation, by setting OSTRO_ROOT_AUTHORIZED_KEYS
+# in local.conf. Its content will be installed as ~root/.ssh/authorized_keys.
+#
+# OSTRO_ROOT_AUTHORIZED_KEYS = "ssh-rsa AAA...== john@example.com\nssh-dss AA...FPaQ== joan@example.com"
+
+# When using ssh to access such a developer image, ssh will typically
+# complain about the ssh host key because it gets re-created anew on
+# the device the first time ssh is used. To avoid this, one can
+# disable this check when invoking ssh (example IP address is from
+# local networking with qemu):
+#
+# ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@192.168.7.2
+#
+# On devices with little entropy, generating the ssh host key can take
+# some time. This can be avoided by copying a generated host key off the
+# device and having it copied into the image during the next image build.
+#
+# In this example, the dropbear_rsa_host_key was copied into the conf
+# directory of the build directory. If it does not exist there yet, the
+# ROOTFS_DEBUG_FILES entry will be silently ignored, so it is okay to set
+# this in local.conf before placing the file there.
+#
+# INHERIT += "rootfsdebugfiles"
+# ROOTFS_DEBUG_FILES += "${TOPDIR}/conf/dropbear_rsa_host_key ${IMAGE_ROOTFS}/etc/dropbear/dropbear_rsa_host_key ;"
 
 #
 # Additional image features
