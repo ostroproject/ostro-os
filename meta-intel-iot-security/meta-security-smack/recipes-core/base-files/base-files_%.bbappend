@@ -37,7 +37,7 @@ pkg_postinst_${PN}_smack() {
 
     # https://review.tizen.org/gerrit/gitweb?p=platform/upstream/filesystem.git;a=blob;f=packaging/filesystem.manifest:
     # <filesystem path="/etc" label="System::Shared" type="transmutable" />
-    mkdir -p $D${sysconfdir}
+    install -d $D${sysconfdir}
     # This has no effect on files installed into /etc during image construction
     # because pseudo does not know the special semantic of SMACK::TRANSMUTE.
     # To avoid having different xattrs on files inside /etc when pre-installed
@@ -45,6 +45,12 @@ pkg_postinst_${PN}_smack() {
     # a workaround for this deficiency in pseudo.
     chsmack -t $D${sysconfdir}
     chsmack -a 'System::Shared' $D${sysconfdir}
+
+    # Same for /var. Any daemon running as "System" will get write access
+    # to everything.
+    install -d $D${localstatedir}
+    chsmack -t $D${localstatedir}
+    chsmack -a 'System::Shared' $D${localstatedir}
 
     # <filesystem path="/tmp" label="*" />
     mkdir -p $D/tmp
