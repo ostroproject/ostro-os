@@ -125,7 +125,7 @@ def get_nodejs_repo(
     return p.returncode
 
 
-def checkout_nodejs(local_nodejs_path, node_version='v0.12.7'):
+def checkout_nodejs(local_nodejs_path, node_version='v4.2.4'):
     '''
     Switch the right branch from the local nodejs repo.
     We need to checkout the branch because of different branches of nodejs
