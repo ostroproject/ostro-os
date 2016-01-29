@@ -154,11 +154,11 @@ Porting your application for Ostro application framework couple of
 simple steps:
 
 1. Write yocto recipe for your application
-2. Inherit from iot-app class in your recipe
-3. Define IOT_USER_NAME and IOT_APP_NAME in your recipe
+2. Inherit from ostro-app class in your recipe
+3. Define OSTRO_USER_NAME and OSTRO_APP_NAME in your recipe
 4. Write a manifest for your application and include it to your recipe
 
-We have a simple helper yocto class called "iot-app" which you can
+We have a simple helper yocto class called "ostro-app" which you can
 inherit to your application to make things little bit easier::
   
   inherit useradd
@@ -167,45 +167,46 @@ inherit to your application to make things little bit easier::
   USERADD_PACKAGES = "${PN}"
   
   # Set the defaults
-  IOT_USER_SHELL ??= "/sbin/nologin"
-  IOT_USER_APP_NAME ??= "${IOT_USER_NAME}-${IOT_APP_NAME}"
+  OSTRO_USER_SHELL ??= "/sbin/nologin"
+  OSTRO_USER_APP_NAME ??= "${OSTRO_USER_NAME}-${OSTRO_APP_NAME}"
   
   # Create the user with disallowed login and no extra groups.
-  USERADD_PARAM_${PN} = "-s ${IOT_USER_SHELL} ${IOT_USER_APP_NAME}"
+  USERADD_PARAM_${PN} = "-s ${OSTRO_USER_SHELL} ${OSTRO_USER_APP_NAME}"
   GROUPADD_PARAM_${PN} = ""
   GROUPMEMS_PARAM_${PN} = ""
   
-  IOT_APP_DIR ??= "/apps"
-  IOT_APP_ROOT ??= "${IOT_APP_DIR}/${IOT_USER_NAME}/${IOT_APP_NAME}"
+  OSTRO_APP_DIR ??= "/apps"
+  OSTRO_APP_ROOT ??= "${OSTRO_APP_DIR}/${OSTRO_USER_NAME}/${OSTRO_APP_NAME}"
   
-  export IOT_APP_ROOT
-  RDEPENDS_${PN} = "iot-app-fw"
+  export OSTRO_APP_ROOT
+  RDEPENDS_${PN} += "iot-app-fw"
   
   do_install_append () {
-    chmod -R 755 ${D}${IOT_APP_ROOT}/
+    chmod -R 755 ${D}${OSTRO_APP_ROOT}/
   }
 
 Basically this class is inheriting from yocto oe-core useradd class
 which helps to create users on the first boot of the device. User name
-is a catenation from the IOT_USER_NAME and IOT_APP_NAME you give in
+is a catenation from the OSTRO_USER_NAME and OSTRO_APP_NAME you give in
 your application recipe. Also a home directory will be created for the
 user. What this means in practive is that we have a dedicated user for
 each app running in the system. The class will also create the
 dedicated "apps" directory for the user/app combination and export
-IOT_APP_ROOT variable for you to use in your recipe to install
+OSTRO_APP_ROOT variable for you to use in your recipe to install
 applications to correct place.
 
 Here is the simplified recipe for the sample "hello-world" C program::
   
-  IOT_USER_NAME = "yoyodine"
-  IOT_APP_NAME = "nativetest"
+  OSTRO_USER_NAME = "yoyodine"
+  OSTRO_APP_NAME = "nativetest"
   
   SRC_URI = "file://hello-world.c"
+  SRC_URI = "file://manifest"
   
-  inherit iot-app
+  inherit ostro-app
   
-  FILES_${PN} = "${IOT_APP_ROOT}/bin"
-  FILES_${PN} =+ "${IOT_APP_ROOT}/manifest"
+  FILES_${PN} = "${OSTRO_APP_ROOT}/bin"
+  FILES_${PN} =+ "${OSTRO_APP_ROOT}/manifest"
   
   PACKAGES = "${PN}"
 
