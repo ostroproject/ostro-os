@@ -47,6 +47,7 @@ class ISA_CFChecker():
     no_nx = []
     execstack = []
     execstack_not_defined = []
+    nodrop_groups = []
 
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
@@ -59,16 +60,19 @@ class ISA_CFChecker():
             # check that execstack is installed
             rc = subprocess.call(["which", "execstack"])
             if rc == 0:
-                self.initialized = True
-                print("Plugin ISA_CFChecker initialized!")
-                with open(self.logdir + log, 'w') as flog:
-                    flog.write("\nPlugin ISA_CFChecker initialized!\n")
-                return
-        print("checksec or execstack tools are missing!")
+                # check that execstack is installed
+                rc = subprocess.call(["which", "readelf"])
+                if rc == 0:
+                    self.initialized = True
+                    print("Plugin ISA_CFChecker initialized!")
+                    with open(self.logdir + log, 'w') as flog:
+                        flog.write("\nPlugin ISA_CFChecker initialized!\n")
+                    return
+        print("checksec, execstack or readelf tools are missing!")
         print("Please install checksec from http://www.trapkit.de/tools/checksec.html")
         print("Please install execstack from prelink package")
         with open(self.logdir + log, 'w') as flog:
-            flog.write("checksec or execstack tools are missing!\n")
+            flog.write("checksec, execstack or readelf tools are missing!\n")
             flog.write("Please install checksec from http://www.trapkit.de/tools/checksec.html\n")
             flog.write("Please install execstack from prelink package\n")
 
@@ -125,39 +129,48 @@ class ISA_CFChecker():
             for item in self.execstack_not_defined:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
                 fproblems_report.write(item + '\n')
+            fproblems_report.write("\n\nFiles that don't initialize groups while using setuid/setgid:\n")
+            for item in self.nodrop_groups:
+                item = item.replace(ISA_filesystem.path_to_fs, "")
+                fproblems_report.write(item + '\n')
 
     def write_report_xml(self, ISA_filesystem):
-        root = etree.Element('testsuite', name='CFA_Plugin', tests='6')
+        root = etree.Element('testsuite', name='CFA_Plugin', tests='7')
         tcase1 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_no_RELO')
         if self.no_relo:
             for item in self.no_relo:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
-                failrs1 = etree.SubElement(tcase1, 'failure', message=item, type='violation')
+                etree.SubElement(tcase1, 'failure', message=item, type='violation')
         tcase2 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_no_canary')
         if self.no_canary: 
             for item in self.no_canary:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
-                failrs2 = etree.SubElement(tcase2, 'failure', message=item, type='violation')
+                etree.SubElement(tcase2, 'failure', message=item, type='violation')
         tcase3 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_no_PIE')
         if self.no_pie: 
             for item in self.no_pie:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
-                failrs3 = etree.SubElement(tcase3, 'failure', message=item, type='violation')
+                etree.SubElement(tcase3, 'failure', message=item, type='violation')
         tcase4 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_no_NX')
         if self.no_nx: 
             for item in self.no_nx:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
-                failrs4 = etree.SubElement(tcase4, 'failure', message=item, type='violation')
+                etree.SubElement(tcase4, 'failure', message=item, type='violation')
         tcase5 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_execstack')
         if self.execstack: 
             for item in self.execstack:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
-                failrs4 = etree.SubElement(tcase5, 'failure', message=item, type='violation')
+                etree.SubElement(tcase5, 'failure', message=item, type='violation')
         tcase6 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_execstack_not_defined')
         if self.execstack_not_defined: 
             for item in self.execstack_not_defined:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
-                failrs4 = etree.SubElement(tcase6, 'failure', message=item, type='violation')
+                etree.SubElement(tcase6, 'failure', message=item, type='violation')
+        tcase7 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_nodrop_groups')
+        if self.nodrop_groups: 
+            for item in self.nodrop_groups:
+                item = item.replace(ISA_filesystem.path_to_fs, "")
+                etree.SubElement(tcase7, 'failure', message=item, type='violation')
         tree = etree.ElementTree(root)
         output = self.reportdir + problems_report + ISA_filesystem.img_name + "_" + self.timestamp + '.xml' 
         tree.write(output, encoding= 'UTF-8', pretty_print=True, xml_declaration=True)
@@ -180,6 +193,19 @@ class ISA_CFChecker():
                 self.execstack.append(file_name[:])
             if result.startswith("? "):
                 self.execstack_not_defined.append(file_name[:])             
+            return result
+
+    def get_nodrop_groups(self, file_name):
+        cmd = ['readelf', '-s', file_name]
+        try:
+            result = subprocess.check_output(cmd).decode("utf-8")
+        except:
+            return "Not able to fetch nodrop groups status"
+        else:
+            if ("setgid@GLIBC" in result) or ("setegid@GLIBC" in result) or ("setresgid@GLIBC" in result):
+                if ("setuid@GLIBC" in result) or ("seteuid@GLIBC" in result) or ("setresuid@GLIBC" in result):
+                    if ("setgroups@GLIBC" not in result) and ("initgroups@GLIBC" not in result):
+                        self.nodrop_groups.append(file_name[:])       
             return result
 
     def get_security_flags(self, file_name):
@@ -267,6 +293,7 @@ class ISA_CFChecker():
                     else:
                         sec_field = self.get_security_flags(real_file)
                         execstack = self.get_execstack(real_file)
+                        nodrop_groups = self.get_nodrop_groups(real_file)
                         with open(self.reportdir + full_report + img_name + "_" + self.timestamp, 'a') as ffull_report:
                             real_file = real_file.replace(path_to_fs, "")
                             ffull_report.write(real_file + ": ")
@@ -274,6 +301,7 @@ class ISA_CFChecker():
                                 line = ' '.join(str(x) for x in s)
                                 ffull_report.write(line + ' ')
                             ffull_report.write('\nexecstack: ' + execstack +' ')
+                            ffull_report.write('\nnodrop_groups: ' + nodrop_groups +' ')
                             ffull_report.write('\n')                            
                 else:
                     continue
