@@ -23,6 +23,9 @@ syslogd
 udevd --daemon
 udevadm trigger --action=add
 
+# start watchdog daemon to avoid reboot while recovering
+watchdog
+
 # mount update partition and do recovery
 if losetup -o 1048576 /dev/loop0 /dev/mmcblk0p9; then
 	mount -t vfat /dev/loop0 /update
