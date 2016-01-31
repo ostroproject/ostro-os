@@ -4,7 +4,7 @@
 
 AC_PREREQ(2.59)
 
-AC_INIT([example-app-native], [0.1])
+AC_INIT([example-app-c], [0.1])
 
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_MACRO_DIR([m4])
@@ -65,7 +65,7 @@ AC_CONFIG_FILES([build-aux/shave
                  build-aux/shave-libtool
                  Makefile
                  src/Makefile
-                 src/hello-world.manifest
+                 src/manifest
 		 ])
 AC_OUTPUT
 

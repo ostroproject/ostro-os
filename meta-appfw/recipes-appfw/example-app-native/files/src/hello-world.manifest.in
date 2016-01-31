@@ -1,8 +1,0 @@
-[
-  {
-    "application": "hello-world",
-    "description": "test application to see if the infra worked",
-    "privileges": [ "LocalNetworkAccess", "ConfigurationQuery" ],
-    "execute": [ "@INSTALL_PATH@/hello-world" ]
-  }
-]

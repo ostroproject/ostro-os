@@ -1,7 +1,8 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 # We want/need systemd-networkd
-PACKAGECONFIG += "networkd"
+PACKAGECONFIG += "iptc networkd"
+DEPENDS += "iptables"
 
 # Patch systemd-nspawn to
 #   - delay binary/OS-tree check after mounts
