@@ -91,3 +91,9 @@ TestScript,appfw_container_status,AppFW/app,Read container status ,1,systemctl s
 TestStep,,,,2,Check 'machinectl status iodine-nodetest' to see container information,"Check 'Leader', it should show the correct PID of the app",,,,,,,
 TestScript,appfw_nonroot_uid,AppFW/app,check application is launched by non-root UID,1,systemctl start iodine-nodetest.service,,FVT,design,IOTOS-339,,,,
 TestStep,,,,2,"Run 'ps', check /lib/node_modules/nodetest/example.js daemon's uid",The uid of the daemon should not be root,,,,,,,
+TestScript,appfw_neg_app_impersonation,AppFW/app,one app's user should not pretend to be another's user,1,Install at least two example applications into image.,,FVT,ready,IOTOS-416,,,,
+TestStep,,,,2,"After system boots up, find two user id of the two example apps under /home folder. ",The two new user name should be found under /home/,,,,,,,
+TestStep,,,,3,"By root account do: 
+# su App1    (App1 is the user name string of 1st example app)","Now, you are in App1 account.",,,,,,,
+TestStep,,,,4,"Try to switch to another's user:
+# su App2   (App2 is the 2nd user name)",It will fail to switch.,,,,,,,
