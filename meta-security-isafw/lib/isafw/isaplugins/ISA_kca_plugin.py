@@ -54,8 +54,9 @@ class ISA_KernelChecker():
                        'CONFIG_ARCH_BINFMT_ELF_RANDOMIZE_PIE'           : 'not set',
                        'CONFIG_DEBUG_KERNEL'                            : 'not set',
                        'CONFIG_DEBUG_FS'                                : 'not set',
-                       'CONFIG_MODULE_SIG_FORCE'                        : 'not set'
-                     }
+                       'CONFIG_MODULE_SIG_FORCE'                        : 'not set',
+                       'CONFIG_X86_INTEL_MPX'                           : 'not set'                     
+    }
 
     hardening_kco_ref={'CONFIG_CC_STACKPROTECTOR'                       : 'y', 
                        'CONFIG_DEFAULT_MMAP_MIN_ADDR'                   : '65536', # x86 specific
@@ -75,7 +76,8 @@ class ISA_KernelChecker():
                        'CONFIG_ARCH_BINFMT_ELF_RANDOMIZE_PIE'           : 'y',
                        'CONFIG_DEBUG_KERNEL'                            : 'not set',
                        'CONFIG_DEBUG_FS'                                : 'not set',
-                       'CONFIG_MODULE_SIG_FORCE'                        : 'y'
+                       'CONFIG_MODULE_SIG_FORCE'                        : 'y',
+                       'CONFIG_X86_INTEL_MPX'                           : 'y'   # x86 and certain HW variants specific                  
                      }
 
     keys_kco =       { 'CONFIG_KEYS'                                    : 'not set',
@@ -287,7 +289,7 @@ class ISA_KernelChecker():
         tcase1 = etree.SubElement(root, 'testcase', classname ='ISA_KernelChecker', name = 'Hardening_options_that_need_improvement')
         for key in sorted(self.hardening_kco) :
             if (self.hardening_kco[key] != self.hardening_kco_ref[key]) :
-                valid == False
+                valid = False
                 if (key == "CONFIG_DEBUG_STRICT_USER_COPY_CHECKS") :
                     if (self.hardening_kco['CONFIG_ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS'] == 'y'):
                         valid = True
