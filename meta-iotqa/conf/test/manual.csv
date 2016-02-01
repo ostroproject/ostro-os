@@ -89,5 +89,5 @@ TestScript,appfw_container_autolaunch,AppFW/app,The container is automatically l
 TestStep,,,,2,Check 'journalctl -a' to see if the container is launched,"There is ""Started Container iodine-nodetest"" in the journeyctl log",,,,,,,
 TestScript,appfw_container_status,AppFW/app,Read container status ,1,systemctl start iodine-nodetest.service,,FVT,design,IOTOS-342,,,,
 TestStep,,,,2,Check 'machinectl status iodine-nodetest' to see container information,"Check 'Leader', it should show the correct PID of the app",,,,,,,
-TestScript,appfw_neg_twoapps_sameuid,AppFW/app,negatively check two application should not use same uid,1,"In ostro-os code, cd meta-appfw/recipes-appfw/. And copy example-app-node to example-app-node1 (modify .bb name to example-app-node1.bb accordingly)",,FVT,design,IOTOS-342,,,,
-TestStep,,,,2,"In example-app-node1 folder, modify example-app-node1.bb. ","Check 'Leader', it should show the correct PID of the app",,,,,,,
+TestScript,appfw_nonroot_uid,AppFW/app,check application is launched by non-root UID,1,systemctl start iodine-nodetest.service,,FVT,design,IOTOS-339,,,,
+TestStep,,,,2,"Run 'ps', check /lib/node_modules/nodetest/example.js daemon's uid",The uid of the daemon should not be root,,,,,,,
