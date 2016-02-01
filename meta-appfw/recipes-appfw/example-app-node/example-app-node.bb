@@ -28,12 +28,7 @@ INSANE_SKIP_${PN} = "staticdev"
 # manual install before npm-install.bbclass lands
 
 do_install () {
-    mkdir -p ${D}${OSTRO_APP_ROOT}/lib/node_modules/${OSTRO_APP_NAME}
-    cp example.js package.json COPYING.MIT ${D}${OSTRO_APP_ROOT}/lib/node_modules/${OSTRO_APP_NAME}/
-    cp manifest ${D}${OSTRO_APP_ROOT}/manifest
+    install -d ${D}${OSTRO_APP_ROOT}/lib/node_modules/${OSTRO_APP_NAME}
+    install -m 0644 example.js package.json COPYING.MIT ${D}${OSTRO_APP_ROOT}/lib/node_modules/${OSTRO_APP_NAME}/
+    install -m 0644 manifest ${D}${OSTRO_APP_ROOT}/manifest
 }
-
-FILES_${PN} = "${OSTRO_APP_ROOT}/lib/node_modules/${OSTRO_APP_NAME}"
-FILES_${PN} += "${OSTRO_APP_ROOT}/manifest"
-
-PACKAGES = "${PN}"

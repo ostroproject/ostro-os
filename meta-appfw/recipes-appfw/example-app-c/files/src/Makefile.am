@@ -1,8 +1,7 @@
 SUBDIRS = .
 MANIFEST_FILE = manifest
 
-example_PROGRAMS = hello-world
-exampledir = @INSTALL_PATH@
+bin_PROGRAMS = hello-world
 
 hello_world_SOURCES = hello-world.c
 

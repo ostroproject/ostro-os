@@ -8,7 +8,7 @@ OSTRO_USER_NAME = "yoyodine"
 OSTRO_APP_NAME = "nativetest"
 
 PACKAGECONFIG ??= "default"
-PACKAGECONFIG[default] = "--with-package-name=${PN} --with-install-path=${OSTRO_APP_ROOT}/bin --with-manifest-path=${OSTRO_APP_ROOT},--without-app-provider"
+PACKAGECONFIG[default] = "--with-package-name=${PN} --with-manifest-path=${OSTRO_APP_ROOT},--without-app-provider"
 
 SRC_URI = "file://aclocal.m4                    \
            file://bootstrap                     \
@@ -32,8 +32,5 @@ inherit autotools ostro-app
 S = "${WORKDIR}"
 
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
-
-FILES_${PN} = "${OSTRO_APP_ROOT}/bin"
-FILES_${PN} =+ "${OSTRO_APP_ROOT}/manifest"
 
 PACKAGES = "${PN}"
