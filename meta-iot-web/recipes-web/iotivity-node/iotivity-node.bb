@@ -64,8 +64,8 @@ do_compile () {
             ;;
     esac
 
-    # compile and install node modules in source directory
-    npm --arch=${targetArch} --verbose install
+    # Compile and install node modules in source directory
+    npm --arch=${targetArch} --production --verbose install
 }
 
 do_install () {
@@ -78,9 +78,6 @@ do_install () {
 
     cp -r ${S}/lib/ ${D}${libdir}/node_modules/iotivity-node/
     cp -r ${S}/node_modules/ ${D}${libdir}/node_modules/iotivity-node/
-
-    # removing the test suite as of now.
-    rm -rf ${D}${libdir}/node_modules/iotivity-node/node_modules/ffi/deps/libffi/testsuite/
 
     install -d ${D}${libdir}/node_modules/iotivity-node/build/Release/
     install -m 0755 ${S}/build/Release/iotivity.node ${D}${libdir}/node_modules/iotivity-node/build/Release/
