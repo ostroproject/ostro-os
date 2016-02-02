@@ -48,6 +48,7 @@ class ISA_CFChecker():
     execstack = []
     execstack_not_defined = []
     nodrop_groups = []
+    no_mpx = []
 
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
@@ -133,9 +134,13 @@ class ISA_CFChecker():
             for item in self.nodrop_groups:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
                 fproblems_report.write(item + '\n')
+            fproblems_report.write("\n\nFiles that don't have MPX protection enabled:\n")
+            for item in self.no_mpx:
+                item = item.replace(ISA_filesystem.path_to_fs, "")
+                fproblems_report.write(item + '\n')
 
     def write_report_xml(self, ISA_filesystem):
-        root = etree.Element('testsuite', name='CFA_Plugin', tests='7')
+        root = etree.Element('testsuite', name='CFA_Plugin', tests='8')
         tcase1 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_no_RELO')
         if self.no_relo:
             for item in self.no_relo:
@@ -171,6 +176,11 @@ class ISA_CFChecker():
             for item in self.nodrop_groups:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
                 etree.SubElement(tcase7, 'failure', message=item, type='violation')
+        tcase8 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_no_mpx')
+        if self.no_mpx: 
+            for item in self.no_mpx:
+                item = item.replace(ISA_filesystem.path_to_fs, "")
+                etree.SubElement(tcase8, 'failure', message=item, type='violation')
         tree = etree.ElementTree(root)
         output = self.reportdir + problems_report + ISA_filesystem.img_name + "_" + self.timestamp + '.xml' 
         tree.write(output, encoding= 'UTF-8', pretty_print=True, xml_declaration=True)
@@ -206,6 +216,17 @@ class ISA_CFChecker():
                 if ("setuid@GLIBC" in result) or ("seteuid@GLIBC" in result) or ("setresuid@GLIBC" in result):
                     if ("setgroups@GLIBC" not in result) and ("initgroups@GLIBC" not in result):
                         self.nodrop_groups.append(file_name[:])       
+            return result
+
+    def get_mpx(self, file_name):
+        cmd = ['objdump', '-d', file_name]
+        try:
+            result = subprocess.check_output(cmd).decode("utf-8")
+        except:
+            return "Not able to fetch mpx status"
+        else:
+            if ("bndcu" not in result) and ("bndcl" not in result) and ("bndmov" not in result):
+                self.no_mpx.append(file_name[:])       
             return result
 
     def get_security_flags(self, file_name):
@@ -294,6 +315,7 @@ class ISA_CFChecker():
                         sec_field = self.get_security_flags(real_file)
                         execstack = self.get_execstack(real_file)
                         nodrop_groups = self.get_nodrop_groups(real_file)
+                        no_mpx = self.get_mpx(real_file)
                         with open(self.reportdir + full_report + img_name + "_" + self.timestamp, 'a') as ffull_report:
                             real_file = real_file.replace(path_to_fs, "")
                             ffull_report.write(real_file + ": ")
@@ -302,6 +324,7 @@ class ISA_CFChecker():
                                 ffull_report.write(line + ' ')
                             ffull_report.write('\nexecstack: ' + execstack +' ')
                             ffull_report.write('\nnodrop_groups: ' + nodrop_groups +' ')
+                            ffull_report.write('\nno mpx: ' + no_mpx +' ')
                             ffull_report.write('\n')                            
                 else:
                     continue
