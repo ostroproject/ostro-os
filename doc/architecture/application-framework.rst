@@ -189,7 +189,7 @@ Basically this class is inheriting from yocto oe-core useradd class
 which helps to create users on the first boot of the device. User name
 is a catenation from the OSTRO_USER_NAME and OSTRO_APP_NAME you give in
 your application recipe. Also a home directory will be created for the
-user. What this means in practive is that we have a dedicated user for
+user. What this means in practice is that we have a dedicated user for
 each app running in the system. The class will also create the
 dedicated "apps" directory for the user/app combination and export
 OSTRO_APP_ROOT variable for you to use in your recipe to install
