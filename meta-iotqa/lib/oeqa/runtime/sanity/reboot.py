@@ -33,7 +33,9 @@ class RebootTest(oeRuntimeTest):
         @param self
         @return
         '''
-        ret = shell_cmd_timeout("ping -c 1 %s" % self.target.ip, 4)[0]
+        #ret = shell_cmd_timeout("ssh -o ConnectTimeout=5 -o UserKnownHostsFile=/dev/null \
+        #                             -o StrictHostKeyChecking=no root@%s '/bin/true'" % self.target.ip)[0]
+        (ret, output) = self.target.run('/bin/true', 10)
         return True if ret == 0 else False
 
     def _wait_offline(self):
@@ -57,6 +59,7 @@ class RebootTest(oeRuntimeTest):
         for _ in range(60):
             if self._alive():
                 return True
+            time.sleep(1)
         return False
 
     def test_reboot(self):
