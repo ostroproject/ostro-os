@@ -5,5 +5,4 @@ inherit packagegroup
 
 RDEPENDS_${PN} = " \
     soletta \
-    lss \
 "
