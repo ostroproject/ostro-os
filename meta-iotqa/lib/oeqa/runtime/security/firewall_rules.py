@@ -52,7 +52,13 @@ class TestFirewallRules(oeRuntimeTest):
         output, error = p.communicate()
         # get first ipv6 address
         ipv6 = output.split("\n")[0].split()[1].split("/")[0]
+        status1 = 1
+        if ipv6:
+            status1, output = self.target.run("ping6 -c 3 %s" %ipv6)
 
-        status, output = self.target.run("ping6 -c 3 %s" %ipv6)
-        self.assertEqual(status, 0,
+        status2, output = self.target.run("ping6 -c 3 ipv6.google.com")
+
+        # we need either one to succeed, in case the host
+        # does not support ipv6
+        self.assertEqual(status1 * status2, 0,
                         "Outgoing ipv6 packets should be sent")

@@ -87,7 +87,7 @@ class AppMemoryProtection(oeRuntimeTest):
         shm_create_cmd = "/tmp/shm-util -m 2048 -p 0600"
         status, shm_id = self.target.run("su %s -c -- sh -c '%s'" \
                                             %(user1, shm_create_cmd))
-
+        shm_id = shm_id.split(":")[1]
         self.assertEqual(status, 0, "Unable to create shared memory segment")
 
         shm_remove_cmd = "/tmp/shm-util -r %s" %shm_id
