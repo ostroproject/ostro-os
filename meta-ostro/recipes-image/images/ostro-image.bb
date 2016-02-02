@@ -61,6 +61,7 @@ IMAGE_VARIANT[minimal] = " \
     no-iotivity \
     no-node-runtime \
     no-python-runtime \
+    no-soletta \
     no-qatests \
     no-java-jdk \
     ${OSTRO_EXTRA_MINIMAL_IMAGE_FEATURES} \
