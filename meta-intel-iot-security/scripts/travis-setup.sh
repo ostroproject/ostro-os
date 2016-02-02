@@ -93,6 +93,9 @@ VIRTUAL-RUNTIME_initscripts = ""
 CORE_IMAGE_EXTRA_INSTALL_append_pn-core-image-minimal = " smack-userspace security-manager security-manager-policy cynara app-runas"
 INHERIT_append_pn-core-image-minimal = " ima-evm-rootfs"
 
+# Dump information about sstate usage.
+INHERIT += "buildstats-summary"
+
 # For testing...
 EXTRA_IMAGE_FEATURES = "debug-tweaks ssh-server-dropbear"
 CORE_IMAGE_EXTRA_INSTALL_append_pn-core-image-minimal = " python"
