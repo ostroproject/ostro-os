@@ -101,6 +101,18 @@ EOF
 # Use Amazon S3 bucket as sstate cache if available.
 if [ -n "$AWS_BUCKET" ]; then
     echo "SSTATE_MIRRORS = \"file://.* http://$AWS_BUCKET.s3-website-${AWS_BUCKET_REGION:-us-east-1}.amazonaws.com/PATH\"" >>conf/local.conf
+
+    # Make sstate less dependent on the build host.
+    # The URL must contain the x86_64-nativesdk-libc.tar.bz2
+    # that gets produced by "bitbake uninative-tarball".
+    # That needs to be done manually.
+    if [ -e $SRC_DIR/openembedded-core/meta/classes/uninative.bbclass ]; then
+        cat >>conf/local.conf <<EOF
+INHERIT += "uninative"
+UNINATIVE_URL = "http://$AWS_BUCKET.s3-website-${AWS_BUCKET_REGION:-us-east-1}.amazonaws.com/"
+UNINATIVE_CHECKSUM[x86_64] = "2d27033971da00c294b4b1dceee9c36e"
+EOF
+    fi
 fi
 
 case $buildenv in
