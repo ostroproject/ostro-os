@@ -25,9 +25,9 @@ IMAGE_FEATURES[validitems] += " \
     node-runtime \
     python-runtime \
     qatests \
-    tools-develop \
     soletta \
     swupd \
+    tools-develop \
 "
 
 # These features come from base recipes, but are not added to
