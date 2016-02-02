@@ -36,6 +36,19 @@ OSTRO_APP_ROOT ??= "${OSTRO_APP_DIR}/${OSTRO_USER_NAME}/${OSTRO_APP_NAME}"
 export OSTRO_APP_ROOT
 RDEPENDS_${PN} += "iot-app-fw"
 
-do_install_append () {
-    chmod -R 755 ${D}${OSTRO_APP_ROOT}/
+do_install[postfuncs] += "ostro_app_install"
+ostro_app_install () {
+    # Move everything outside of OSTRO_APP_DIR into the expected location.
+    # At runtime, AppFW will overlay that on top of the normal / directory.
+    # Assumes that $OSTRO_APP_DIR already differs at the root level from
+    # application files.
+    apps_root=$(echo ${OSTRO_APP_DIR} | sed -e 's;//*;/;g' -e 's;^/\([^/]*\);\1;')
+    for i in $(ls -1 ${D}); do
+        if [ "$i" != $apps_root ]; then
+            mv "${D}/$i" "${D}/${OSTRO_APP_ROOT}"
+        fi
+    done
 }
+
+# Package app files by default.
+FILES_${PN} += "${OSTRO_APP_ROOT}"

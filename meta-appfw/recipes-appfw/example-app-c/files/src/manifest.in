@@ -7,7 +7,7 @@
         "FROB": "nicate",
         "FOOBAR": "xyzzy",
     },
-    "command": [ "/bin/hello-world" ],
+    "command": [ "@bindir@/hello-world" ],
     "autostart": "false",
      "container": {
         "type": "nspawn",
