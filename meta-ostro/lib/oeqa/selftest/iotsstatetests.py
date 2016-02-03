@@ -4,12 +4,14 @@ import os
 import re
 import shutil
 import glob
+import subprocess
 
 import oeqa.utils.ftools as ftools
 from oeqa.selftest.base import oeSelfTest
 from oeqa.utils.commands import runCmd, bitbake, get_bb_var, get_test_layer
 from oeqa.selftest.sstate import SStateBase
 from oeqa.utils.decorators import testcase
+import oeqa.utils.ftools as ftools
 
 class SStateTests(SStateBase):
 
@@ -34,21 +36,33 @@ class SStateTests(SStateBase):
         machines = "edison intel-quark intel-core2-32 intel-corei7-64 beaglebone".split()
         # machines = "edison intel-core2-32".split()
         first = machines[0]
-        for machine in machines:
-            self.write_config("""
-TMPDIR = \"${TOPDIR}/tmp-sstatesamehash-%s\"
+        workdir = os.getcwd()
+        try:
+            pending = []
+            for machine in machines:
+                builddir = '%s/build-%s' % (topdir, machine)
+                os.mkdir(builddir)
+                self.track_for_cleanup(builddir)
+                os.chdir(builddir)
+                shutil.copytree('../conf', 'conf')
+                ftools.write_file('conf/selftest.inc', """
+TMPDIR = \"%s/tmp-sstatesamehash-%s\"
 MACHINE = \"%s\"
-""" % (machine, machine))
-            # Comment out to debug with bitbake-diffstat after running the test.
-            # In that case, remember to "rm -r tmp-*" before the next run.
-            self.track_for_cleanup(topdir + "/tmp-sstatesamehash-%s%s" % (machine, libcappend))
-            # Replace build targets with individual recipes to investigate just those.
-            try:
-                bitbake("world meta-toolchain -S none")
-            except:
-                import traceback
-                raise AssertionError("bitbake failed for machine %s:\n%s" %
-                                     (machine, traceback.format_exc()))
+""" % (topdir, machine, machine))
+                # Comment out to debug with bitbake-diffstat after running the test.
+                # In that case, remember to "rm -r tmp-*" before the next run.
+                self.track_for_cleanup(topdir + "/tmp-sstatesamehash-%s%s" % (machine, libcappend))
+                # Replace build targets with individual recipes to investigate just those.
+                pending.append((machine, subprocess.Popen('bitbake world meta-toolchain -S none'.split(),
+                                                          stdout=open('%s/bitbake.log' % builddir, 'w'),
+                                                          stderr=subprocess.STDOUT)))
+            for machine, p in pending:
+                returncode = p.wait()
+                if returncode:
+                    raise AssertionError("bitbake failed for machine %s with return code %d:\n%s" %
+                                         (machine, returncode, open('%s/build-%s/bitbake.log' % (topdir, machine)).read()))
+        finally:
+            os.chdir(workdir)
 
         def get_hashes(d, subdir):
             f = {}
