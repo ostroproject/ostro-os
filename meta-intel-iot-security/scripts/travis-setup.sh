@@ -109,10 +109,17 @@ if [ -n "$AWS_BUCKET" ]; then
     # The URL must contain the x86_64-nativesdk-libc.tar.bz2
     # that gets produced by "bitbake uninative-tarball".
     # That needs to be done manually.
+    #
+    # Older OE-core branches expect the file in the openembedded-core root
+    # directory and ignore UNINATIVE_URL. To support both approaches,
+    # we pre-download the file and put it there, then point to it with
+    # a local file URL.
     if [ -e $SRC_DIR/openembedded-core/meta/classes/uninative.bbclass ]; then
+        nativesdkarchive="$SRC_DIR/openembedded-core/x86_64-nativesdk-libc.tar.bz2"
+        wget -O $nativesdkarchive http://$AWS_BUCKET.s3-website-${AWS_BUCKET_REGION:-us-east-1}.amazonaws.com/x86_64-nativesdk-libc.tar.bz2
         cat >>conf/local.conf <<EOF
 INHERIT += "uninative"
-UNINATIVE_URL = "http://$AWS_BUCKET.s3-website-${AWS_BUCKET_REGION:-us-east-1}.amazonaws.com/"
+UNINATIVE_URL = "file://$SRC_DIR/openembedded-core/"
 UNINATIVE_CHECKSUM[x86_64] = "2d27033971da00c294b4b1dceee9c36e"
 EOF
     fi
