@@ -1,17 +1,42 @@
-Building Images
-###############
+.. _Building Images:
+
+Building Ostro |trade| OS Images
+################################
+
+This technical note describes the basic instructions for building an Ostro |trade| OS image
+from source using the Yocto Project tools.  You should already be familiar with these Yocto
+Project tools, as explained in the `Yocto Project Quick Start Guide`_. 
+
+.. _`Yocto Project Quick Start Guide`: http://www.yoctoproject.org/docs/current/yocto-project-qs/yocto-project-qs.html
 
 Initial Steps
 =============
 
-1. Check out the ``ostro-os`` repository.
-2. In the repository, run ``. oe-init-build-env``.
-3. Update the ``conf/local.conf`` (see next section)
-4. ``bitbake ostro-image``
-5. Install and boot as described in `booting-and-installation`_
+1. Check out the ``ostro-os`` repository from git.  This will retrieve the Ostro OS source code
+   and necessary Yocto Project tools and configuration files. The Ostro OS code is a combination of
+   several different components in a single repository.  (See the README in the cloned copy you just made 
+   for up-to-date details on what’s included.)
+2. In the repository, run :command:`source oe-init-build-env` to setup the Yocto Project build environment.
+3. Update the :file:`conf/local.conf` configuration file (more details about this in the sections below)
+4. Generate an Ostro OS image using :command:`bitbake ostro-image` (additional build target options are explained
+   in the sections below.)
+5. Install and boot as described in the :ref:`booting-and-installation` tech note.
 
-.. _`booting-and-installation`: booting-and-installation.md
+Depending on your development machine’s performance, building an image from source 
+(the :command:`bitbake ostro-image` command) may take a few hours to complete the first time. 
+It will download and compile all 
+the source code needed to create the binary image, including the Linux kernel, 
+compiler tools, upstream components and Ostro OS-specific patches.  (If you haven't 
+done so yet, this might be a good time to read through 
+the `Yocto Project Quick Start Guide`_.)
 
+When the build process completes, the generated image will be in the folder 
+:file:`build/tmp-glibc/deploy/images/$(MACHINE)`
+       
+If errors occur during the build, refer to the `Yocto Project Errors and Warnings`_ documentation to help 
+resolve the issues and repeat the :command:`bitbake ostro-image` command to continue.
+
+.. _`Yocto Project Errors and Warnings`: http://www.yoctoproject.org/docs/current/mega-manual/mega-manual.html#ref-qa-checks
 
 Image Configuration
 ===================
@@ -26,6 +51,28 @@ logging into the running system is impossible. Some way of interacting
 with the system after booting it has to be chosen before building
 images.
 
+Target MACHINE Architecture
+----------------------------
+
+The build's default target architecture ``MACHINE`` is ``intel-corei7-64``, 
+as configured in :file:`build/conf/local.conf`. 
+You can edit the :file:`local.conf` file to change this to a different machine appropriate for your platform. 
+
+For currently :ref:`platforms`, the appropriate ``MACHINE`` selections are:
+
+.. table:: Yocto MACHINE selection for Supported Hardware platforms
+
+    ============  ====================================
+    Platform      Yocto Project MACHINE selection
+    ============  ====================================
+    GigaByte      intel-core2-32, intel-corei7-64
+    Galileo       intel-quark
+    MinnowBoard   intel-core2-32, intel-corei7-64
+    Edison        edison
+    ============  ====================================
+
+Virtual machine images (a :file:`.vdi` file) are created for each of these builds hardware platforms as part 
+of the build process (and included in the prebuilt image folders too).
 
 Base Images
 -----------
@@ -69,7 +116,8 @@ Developers building their own images for personal use can follow these
 instructions to replicate the published Ostro images. All necessary
 private keys are provided in the ``ostro-os`` repository.
 
-To do that, in step 3. above, edit ``conf/local.conf``, find the line
+To do this, before building,  edit the :file:`conf/local.conf` configuration file, 
+find the line
 with ``# require conf/distro/include/ostro-os-development.inc`` and
 uncomment it.
 
@@ -78,7 +126,7 @@ Production Images
 -----------------
 
 When building production images, first follow the instructions
-provided in meta-integrity/doc/README.md for creating your own
+provided in :file:`meta-integrity/doc/README.md` for creating your own
 keys. Then set ``IMA_EVM_KEY_DIR`` to the directory containing
 these keys or set the individual variables for each required
 key (see ``ima-evm-rootfs.bbclass``).
@@ -88,7 +136,7 @@ the following example, which adds ``strace`` to the ``ostro-image``::
 
     CORE_IMAGE_EXTRA_INSTALL_append_pn-ostro-image = " strace"
 
-This example assumes that ``bitbake ostro-image`` is used to build
+This example assumes that :command:`bitbake ostro-image` is used to build
 an image. By making the append conditional on the name of the image,
 different images can be built with different content inside the same
 build configuration.
