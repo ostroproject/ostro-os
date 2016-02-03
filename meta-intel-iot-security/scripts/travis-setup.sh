@@ -114,7 +114,13 @@ if [ -n "$AWS_BUCKET" ]; then
     # directory and ignore UNINATIVE_URL. To support both approaches,
     # we pre-download the file and put it there, then point to it with
     # a local file URL.
-    if [ -e $SRC_DIR/openembedded-core/meta/classes/uninative.bbclass ]; then
+    #
+    # However, several relevant fixes have only happened on OE-core
+    # master after jethro. Therefore using the feature is disabled
+    # there. As a crude check, support for UNINATIVE_URL is used
+    # to determine "recent enough".
+    if [ -e $SRC_DIR/openembedded-core/meta/classes/uninative.bbclass ] &&
+           grep -q UNINATIVE_URL $SRC_DIR/openembedded-core/meta/classes/uninative.bbclass; then
         nativesdkarchive="$SRC_DIR/openembedded-core/x86_64-nativesdk-libc.tar.bz2"
         wget -O $nativesdkarchive http://$AWS_BUCKET.s3-website-${AWS_BUCKET_REGION:-us-east-1}.amazonaws.com/x86_64-nativesdk-libc.tar.bz2
         cat >>conf/local.conf <<EOF
