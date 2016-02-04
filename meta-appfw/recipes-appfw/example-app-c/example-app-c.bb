@@ -8,7 +8,7 @@ OSTRO_USER_NAME = "yoyodine"
 OSTRO_APP_NAME = "nativetest"
 
 PACKAGECONFIG ??= "default"
-PACKAGECONFIG[default] = "--with-package-name=${PN} --with-manifest-path=${OSTRO_APP_ROOT},--without-app-provider"
+PACKAGECONFIG[default] = "--with-manifest-path=${OSTRO_APP_ROOT}"
 
 SRC_URI = "file://aclocal.m4                    \
            file://bootstrap                     \
