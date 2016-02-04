@@ -107,22 +107,23 @@ class ISA_FSChecker():
                 fproblems_report.write(item + '\n')
 
     def write_problems_report_xml(self, ISA_filesystem):
-        root = etree.Element('testsuite', name = 'FSA_Plugin', tests = '4')
-        tcase1 = etree.SubElement(root, 'testcase', classname = 'ISA_FSChecker', name = 'Files_with_SETUID_bit_set')
+        numTests = len(self.setuid_files) + len(self.setgid_files) + len(self.ww_files) + len(self.no_sticky_bit_ww_dirs)
+        root = etree.Element('testsuite', name = 'FSA_Plugin', tests = str(numTests))
         if self.setuid_files:
             for item in self.setuid_files:
+                tcase1 = etree.SubElement(root, 'testcase', classname = 'Files_with_SETUID_bit_set', name = item)
                 failrs1 = etree.SubElement(tcase1, 'failure', message = item, type = 'violation')                    
-        tcase2 = etree.SubElement(root, 'testacase', classname = 'ISA_FSChecker', name = 'Files_with_SETGID_bit_set')
         if self.setgid_files:
             for item in self.setgid_files:
+                tcase2 = etree.SubElement(root, 'testacase', classname = 'Files_with_SETGID_bit_set', name = item)
                 failrs2 = etree.SubElement(tcase2, 'failure', message = item, type = 'violation')                    
-        tcase3 = etree.SubElement(root, 'testase', classname = 'ISA_FSChecker', name = 'World-writable_files')
         if self.ww_files:
             for item in self.ww_files:
+                tcase3 = etree.SubElement(root, 'testase', classname = 'World-writable_files', name = item)
                 failrs3 = etree.SubElement(tcase3, 'failure', message = item, type = 'violation')
-        tcase4 = etree.SubElement(root, 'testcase', classname = 'ISA_FSChecker', name = 'World-writable_dirs_with_no_sticky_bit')
         if self.no_sticky_bit_ww_dirs:
             for item in self.no_sticky_bit_ww_dirs:
+                tcase4 = etree.SubElement(root, 'testcase', classname = 'World-writable_dirs_with_no_sticky_bit', name = item)
                 failrs4 = etree.SubElement(tcase4, 'failure', message = item, type = 'violation')            
         tree = etree.ElementTree(root)
         output = self.reportdir + problems_report + ISA_filesystem.img_name + "_" + self.timestamp + '.xml' 

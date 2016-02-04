@@ -109,14 +109,18 @@ class ISA_CVEChecker:
 
     def write_report_xml(self):
         from lxml import etree
+        numTests = 0
         root = etree.Element('testsuite', name='CVE_Plugin', tests='1')
-        tcase1 = etree.SubElement(root, 'testcase', classname='ISA_CVEChecker', name='found_CVEs')
         with open(self.reportdir + cve_report + "_" + self.timestamp + ".csv", 'r') as f:
             for line in f:
+                numTests += 1
                 line = line.strip()
-                line2 = line.split(',', 2)
-                if line2[2].startswith('CVE'):
-                    failrs1 = etree.SubElement(tcase1, 'failure', message=line, type='violation')
+                if (line.split(',', 2))[2].startswith('CVE'):
+                    tcase = etree.SubElement(root, 'testcase', classname='ISA_CVEChecker', name=line.split(',',1)[0])
+                    failrs1 = etree.SubElement(tcase, 'failure', message=line, type='violation')
+                else:
+                    tcase = etree.SubElement(root, 'testcase', classname='ISA_CVEChecker', name=line.split(',',1)[0])
+        root.set('tests', str(numTests))
         tree = etree.ElementTree(root)
         output = self.reportdir +  cve_report + "_" + self.timestamp + '.xml' 
         tree.write(output, encoding= 'UTF-8', pretty_print=True, xml_declaration=True)
