@@ -1,3 +1,15 @@
+COREDIR = "${COREBASE}/meta/recipes-devtools/e2fsprogs"
+
+# This recipe is a copy of a e2fsprogs 1.42.99+1.43 from OE-core master and
+# only meant to be used when the current OE-core does not have that version yet.
+python () {
+    import os
+    upstream = os.path.join(d.getVar('COREDIR', True), 'e2fsprogs_1.42.9.bb')
+    if not os.path.exists(upstream):
+        raise bb.parse.SkipRecipe("This recipe replaces e2fsprogs 1.42.9 in OE-core. e2fsprogs from OE-core is something else and thus either recent enough to have xattr support or (less likely) something unexpected.")
+}
+
+
 require e2fsprogs.inc
 
 SRC_URI += "file://acinclude.m4 \
