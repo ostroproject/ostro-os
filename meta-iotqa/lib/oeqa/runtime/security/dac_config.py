@@ -31,7 +31,8 @@ class DacTestConfig(oeRuntimeTest):
 
         self.groupA = "groupA"
         self.groupB = "groupB"
-        
+        status, output = self.target.run("addgroup %s" %self.groupA)
+        status, output = self.target.run("addgroup %s" %self.groupB)
         self._add_user(self.user1, self.groupA)
         self._add_user(self.user2, self.groupA)
         self._add_user(self.user3, self.groupB)
