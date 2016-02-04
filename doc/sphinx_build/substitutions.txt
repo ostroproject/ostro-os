@@ -1,0 +1,10 @@
+.. These are replacement strings for non-ASCII characters used within the project 
+   using the same name as the html entity names (e.g., &copy;) for that character
+
+
+.. |copy|   unicode:: U+000A9 .. COPYRIGHT SIGN
+   :ltrim:
+.. |trade|  unicode:: U+02122 .. TRADEMARK SIGN
+   :ltrim:
+.. |reg|    unicode:: U+000AE .. REGISTERED TRADEMARK SIGN
+   :ltrim:
