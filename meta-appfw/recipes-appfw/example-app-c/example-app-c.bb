@@ -27,7 +27,7 @@ SRC_URI = "file://aclocal.m4                    \
            file://src/Makefile.am               \
            file://COPYING.MIT"
 
-inherit autotools ostro-app
+inherit autotools pkgconfig ostro-app
 
 S = "${WORKDIR}"
 
