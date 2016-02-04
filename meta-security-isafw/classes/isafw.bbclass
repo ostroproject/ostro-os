@@ -46,7 +46,7 @@ python do_analysesource() {
         fetch.unpack(workdir, (url,))
 
     recipe = isafw.ISA_package()
-    recipe.name = d.getVar('PN', True)
+    recipe.name = d.getVar('BPN', True)
     recipe.version = d.getVar('PV', True)
     recipe.version = recipe.version.split('+git', 1)[0]
 
