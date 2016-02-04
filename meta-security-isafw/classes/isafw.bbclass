@@ -116,6 +116,7 @@ addtask do_process_reports after do_${PR_ORIG_TASK}
 # These tasks are intended to be called directly by the user (e.g. bitbake -c)
 
 addtask do_analyse_sources after do_analysesource
+do_analyse_sources[doc] = "Produce ISAFW reports based on given package without building it"
 do_analyse_sources[nostamp] = "1"
 do_analyse_sources[postfuncs] = "do_process_reports"
 do_analyse_sources() {
@@ -123,6 +124,7 @@ do_analyse_sources() {
 }
 
 addtask do_analyse_sources_all after do_analysesource
+do_analyse_sources_all[doc] = "Produce ISAFW reports for all packages in given target without building them"
 do_analyse_sources_all[recrdeptask] = "do_analyse_sources_all do_analysesource"
 do_analyse_sources_all[recideptask] = "do_${PR_ORIG_TASK}"
 do_analyse_sources_all[nostamp] = "1"
