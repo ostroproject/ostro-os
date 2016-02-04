@@ -14,29 +14,35 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-GENKEY=ima-local-ca.genkey
+GENKEY=ima.genkey
+CA=${1:-ima-local-ca.pem}
+CAKEY=${2:-ima-local-ca.priv}
 
 cat << __EOF__ >$GENKEY
 [ req ]
-default_bits = 2048
+default_bits = 1024
 distinguished_name = req_distinguished_name
 prompt = no
 string_mask = utf8only
-x509_extensions = v3_ca
+x509_extensions = v3_usr
 
 [ req_distinguished_name ]
 O = example.com
-CN = meta-intel-iot-security example certificate signing key
+CN = meta-intel-iot-security example signing key
 emailAddress = john.doe@example.com
 
-[ v3_ca ]
-basicConstraints=CA:TRUE
+[ v3_usr ]
+basicConstraints=critical,CA:FALSE
+#basicConstraints=CA:FALSE
+keyUsage=digitalSignature
+#keyUsage = nonRepudiation, digitalSignature, keyEncipherment
 subjectKeyIdentifier=hash
-authorityKeyIdentifier=keyid:always,issuer
-# keyUsage = cRLSign, keyCertSign
+authorityKeyIdentifier=keyid
+#authorityKeyIdentifier=keyid,issuer
 __EOF__
 
-openssl req -new -x509 -utf8 -sha1 -days 3650 -batch -config $GENKEY \
-        -outform DER -out ima-local-ca.x509 -keyout ima-local-ca.priv
-
-openssl x509 -inform DER -in ima-local-ca.x509 -out ima-local-ca.pem
+openssl req -new -nodes -utf8 -sha1 -days 365 -batch -config $GENKEY \
+        -out csr_ima.pem -keyout privkey_ima.pem
+openssl x509 -req -in csr_ima.pem -days 365 -extfile $GENKEY -extensions v3_usr \
+        -CA $CA -CAkey $CAKEY -CAcreateserial \
+        -outform DER -out x509_ima.der

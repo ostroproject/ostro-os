@@ -73,12 +73,15 @@ compilation of the Linux kernel. To also activate it when building
 the image, enable image signing in the local.conf like this:
 
     INHERIT += "ima-evm-rootfs"
+    IMA_EVM_KEY_DIR = "${IMA_EVM_BASE}/data/debug-keys"
 
 This uses the default keys provided in the "data" directory of the layer.
 Because everyone has access to these private keys, such an image
-should never be used in production. For that, create your own keys
-first. All tools and scripts required for that are included in the
-layer:
+should never be used in production!
+
+For that, create your own keys first. All tools and scripts required
+for that are included in the layer. This is also how the
+``debug-keys`` were generated:
 
     # Choose a directory for storing keys. Preserve this
     # across builds and keep its private keys secret!
@@ -88,15 +91,39 @@ layer:
     bitbake openssl-native
     # Set up shell for use of the tools.
     bitbake -c devshell openssl-native
-    # In that shell, create the keys. When asked for a PEM pass phrase,
-    # that will be for the root CA. Signing images then will not
-    # require entering that passphrase, only creating new certificates
-    # does. Most likely the default attributes for these certificates
-    # need to be adapted; modify the scripts as needed.
     cd $IMA_EVM_KEY_DIR
-    $IMA_EVM_BASE/scripts/ima-gen-local-ca.sh
-    $IMA_EVM_BASE/scripts/ima-gen.sh
+    # In that shell, create the keys. Several options exist:
+
+    # 1. Self-signed keys.
+    $IMA_EVM_BASE/scripts/ima-gen-self-signed.sh
+
+    # 2. Keys signed by a new CA.
+    # When asked for a PEM pass phrase, that will be for the root CA.
+    # Signing images then will not require entering that passphrase,
+    # only creating new certificates does. Most likely the default
+    # attributes for these certificates need to be adapted; modify
+    # the scripts as needed.
+    # $IMA_EVM_BASE/scripts/ima-gen-local-ca.sh
+    # $IMA_EVM_BASE/scripts/ima-gen-CA-signed.sh
+
+    # 3. Keys signed by an existing CA.
+    # $IMA_EVM_BASE/scripts/ima-gen-CA-signed.sh <CA .pem> <CA .priv>
     exit
+
+When using ``ima-self-signed.sh`` as described above, self-signed keys
+are created. Alternatively, one can also use keys signed by a CA.  The
+``ima-gen-local-ca.sh`` and ``ima-gen.sh`` scripts create a root CA
+and sign the signing keys with it. The ``ima-evm-rootfs.bbclass`` then
+supports adding tha CA's public key to the kernel's system keyring by
+compiling it directly into the kernel. Because it is unknown whether
+that is necessary (for example, the CA might also get added to the
+system key ring via UEFI Secure Boot), one has to enable compilation
+into the kernel explicitly in a local.conf with:
+
+    IMA_EVM_ROOT_CA = "<path to .x509 file, for example the ima-local-ca.x509 created by ima-gen-local-ca.sh>"
+
+
+
 
 To use the personal keys, override the default IMA_EVM_KEY_DIR in your
 local.conf and/or override the individual variables from
