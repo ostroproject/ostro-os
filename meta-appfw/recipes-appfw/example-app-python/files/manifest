@@ -1,0 +1,18 @@
+{
+    "application": "pythontest",
+    "description": "test Python application to see if the infra worked",
+    "provider": "foodine",
+    "groups": "foodine-pythontest",
+    "environment": {
+        "FROB": "nicate",
+        "FOOBAR": "xyzzy",
+    },
+    "command": [  "/usr/bin/python", "/lib/python/pythontest/example.py" ],
+    "autostart": "yes",
+     "container": {
+        "type": "nspawn",
+        "network": "VirtualEthernet",
+        "sharedsystem": false,
+        "portmap": 27279
+    },
+}
