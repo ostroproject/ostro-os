@@ -1,7 +1,7 @@
 .. _doc_guidelines:
 
-Ostro |trade| Project Documentation Guidelines
-##############################################
+Documentation Guidelines for the Ostro |trade| Project
+######################################################
 
 Ostro Project content is written using the `reStructuredText`_ markup language (.rst file extension)
 with sphinx extensions, and processed using sphinx to create a formatted

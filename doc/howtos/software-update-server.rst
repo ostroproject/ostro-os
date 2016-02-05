@@ -1,27 +1,29 @@
-How to use software updates
-###########################
+.. _software-update-server:
 
-These instructions help to generate a repository needed to make software updates
-work with Ostro.
+Software Update: Building an Ostro |trade| OS  Repository
+#########################################################
+
+This technical note provides instructions to help you build a repository 
+used to make software updates work with the Ostro OS.
 
 Prerequisites
 =============
 
  - a linux host with docker and util-linux installed (e.g. Fedora 23);
- - signing keys (alternatively testing keys from the `swupd-server` project can
+ - signing keys (alternatively testing keys from the :file:`swupd-server` project can
    be used).
 
-Creating a Docker image
+Creating a Docker Image
 =======================
 
-We have already created a Docker image for your convenience, so all you need is
+We've already created a :file:`swupd-server` Docker image for your convenience, so all you need is
 to type in::
 
   $ docker pull ostroproject/ostro-swupd-server
 
-But you can create your own image with the following instructions:
+If you prefer, you can also create your own :file:`swupd-server` Socker image with these steps:
 
-1. Clone the git repo `git@github.com:ostroproject/ostro-docker.git` to your host::
+1. Clone the git repo :file:`git@github.com:ostroproject/ostro-docker.git` to your host::
 
      $ git clone git@github.com:ostroproject/ostro-docker.git
 
@@ -29,26 +31,35 @@ But you can create your own image with the following instructions:
 
      $ docker build -t ostro-swupd-server ostro-docker/swupd
 
-If your host can't access Internet directly then you need to provide an
+If your host requires a proxy to access the internet, you need to provide an
 additional `--build-arg` argument for your HTTP proxy::
 
   $ docker build --build-arg http_proxy=http://<you_proxy_host>:<proxy_port> -t ostro-swupd-server ostro-docker/swupd
 
-Creating software update repo
-=============================
+Creating a Software Update Repo
+===============================
 
-The main selling point of ClearLinux's software updates is the per-file
+The main selling point of Clear Linux's software updates (which we're using for
+Ostro OS software updates), is the per-file update
 granularity and the ability to use binary deltas for updates. But this
 comes at a price: previous builds need to be preserved in order to
-calculate the diffs. You must have a big enough storage mounted to your
-host to keep the history. Let's assume the path to the storage is in
+calculate the diffs. You must have a large enough storage device mounted to your
+host to keep the history. 
+
+Let's assume the path to the storage is in
 `STORAGE_DIR` and the initial version of your distribution is `NEW_VERSION`.
-Then do the following steps:
 
-1. Using the script `doc/howtos/extras/extract_rootfs.sh` of this repository
-   extract the content of the latest rootfs to `$STORAGE_DIR/image/10/os-core`::
+Here is a script that will extract the contents of the latest rootfs:
 
-     $ sudo sh doc/howtos/extras/extract_rootfs.sh \
+.. literalinclude:: extras/extract_rootfs.sh
+   :language: sh 
+
+
+There's a copy of this script saved as :file:`extract_rootfs.sh`, do the following steps:
+
+1. Extract the content of the latest rootfs to `$STORAGE_DIR/image/10/os-core`::
+
+     $ sudo sh extract_rootfs.sh \
          ${OSTRO_SDK_DIR}/tmp-glibc/deploy/images/${MACHINE}/ostro-image-${MACHINE}.dsk \
          $STORAGE_DIR $NEW_VERSION $PARTITION_NUM
 
@@ -80,16 +91,16 @@ Now you can expose the new repo with an HTTP server::
      $ cd ${STORAGE_DIR}/www
      $ python -m SimpleHTTPServer 8000
 
-And test with the `swupd` client on a device::
+And test with the :file:`swupd` client on a device::
 
-    # swupd verify -V --log=info --url=http://<you_host>:8000
+    # swupd verify -V --log=info --url=http://<your_host>:8000
 
 .. note:: swupd client on the device must be aware of its OS' current version:
           the file `/usr/lib/os-release` should contain something like::
 
               VERSION_ID=10
 
-As such the initial repository is of limited use since devices are initially
-flashed with the first version of OS. Hence let's assume there is a new build
+As such, the initial repository is of limited use since devices are initially
+flashed with the first version of OS. Let's assume there is a new build
 that devices need to be upgraded to. In this case just increment `NEW_VERSION`
 by 10 and repeat the steps above on the same host.

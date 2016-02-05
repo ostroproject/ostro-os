@@ -65,7 +65,8 @@ Here are the steps for booting the Ostro OS:
     #. Enter :command:`exit` to return to the boot option screen
     #. Use the arrow keys to select Boot Manager, press return, then select EFI USB Device, and press return
     #. The Ostro OS will begin booting
-    #. Debug information about the boot will display, then an Ostro OS identification line, followed by a login prompt.  Login as ``root``, with the password ``ostro``.
+    #. Debug information about the boot will display, then an Ostro OS identification line, followed by a login prompt.  Login as ``root``, 
+       no password is required.
 
 
 .. _MinnowBoard MAX: http://wiki.minnowboard.org
