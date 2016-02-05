@@ -9,7 +9,10 @@ SRC_URI_append_intel-quark = " file://security-x86.cfg"
 SRC_URI_append_intel-core2-32 = " file://security-x86.cfg"
 SRC_URI_append_intel-corei7-64 = " file://security-x64.cfg"
 SRC_URI_append_edison = " file://edison-iptables.cfg"
-SRC_URI_append = " file://KEYS_Fix_keyring_ref_leak_in-join_session_keyring.patch"
+SRC_URI_append_edison = " file://KEYS_Fix_keyring_ref_leak_in-join_session_keyring.patch"
+SRC_URI_append_intel-quark = " file://KEYS_Fix_keyring_ref_leak_in-join_session_keyring.patch"
+SRC_URI_append_intel-core2-32 = " file://KEYS_Fix_keyring_ref_leak_in-join_session_keyring.patch"
+SRC_URI_append_intel-corei7-64 = " file://KEYS_Fix_keyring_ref_leak_in-join_session_keyring.patch"
 
 ### Hardware support fragments
 
