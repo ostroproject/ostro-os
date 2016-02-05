@@ -1,0 +1,15 @@
+{
+    "application": "bad-groups",
+    "description": "test bad app requesting root group",
+    "provider": "evil",
+    "groups": ["root","rfkill","nobody","nogroup","restful","netdev","messagebus","lock","systemd-journal","systemd-journal-gateway","systemd-timesync","adm","wheel","kmem","tty","utmp","audio","cdrom","dialout","disk","input","lp","tape","video","users","systemd-bus-proxy","systemd-network","sqlite","nonexistent1","nonexistent2"],
+    "environment": {
+    },
+    "command": [ "/bin/bad-groups" ],
+    "autostart": "false",
+     "container": {
+        "type": "nspawn",
+        "network": "VirtualEthernet",
+        "sharedsystem": false,
+    },
+}

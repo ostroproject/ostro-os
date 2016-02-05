@@ -1,1 +1,6 @@
 oeqa.runtime.smack
+oeqa.runtime.security.app_impersonation
+oeqa.runtime.security.appmemoryprotection
+oeqa.runtime.security.ca_certificate
+oeqa.runtime.security.dac_config
+oeqa.runtime.security.firewall_rules
