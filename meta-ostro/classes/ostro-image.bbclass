@@ -10,6 +10,10 @@ IMAGE_INSTALL = " \
                 ${OSTRO_IMAGE_EXTRA_INSTALL} \
 		"
 
+# In Ostro OS, /bin/sh is always dash, even if bash is installed for
+# interactive use.
+IMAGE_INSTALL += "dash"
+
 # Certain keywords, like "iotivity" are used in different contexts:
 # - as image feature name
 # - as bundle name
@@ -41,6 +45,7 @@ OSTRO_IMAGE_PKG_FEATURES = " \
     soletta-tools \
     tools-debug \
     tools-develop \
+    tools-interactive \
 "
 
 # Here is the complete list of image features, also including
@@ -106,6 +111,7 @@ BUNDLE_CONTENTS[soletta] = "${FEATURE_PACKAGES_soletta}"
 BUNDLE_CONTENTS[soletta-tools] = "${FEATURE_PACKAGES_soletta-tools}"
 BUNDLE_CONTENTS[tools-debug] = "${FEATURE_PACKAGES_tools-debug}"
 BUNDLE_CONTENTS[tools-develop] = "${FEATURE_PACKAGES_tools-develop}"
+BUNDLE_CONTENTS[tools-interactive] = "${FEATURE_PACKAGES_tools-interactive}"
 
 # Defining bundles as above is currently too slow (build times in the CI
 # of more than three hours despite reused sstate cache). Let's cut down
@@ -132,6 +138,7 @@ BUNDLE_CONTENTS[full] = " \
     ${FEATURE_PACKAGES_soletta-tools} \
     ${FEATURE_PACKAGES_tools-debug} \
     ${FEATURE_PACKAGES_tools-develop} \
+    ${FEATURE_PACKAGES_tools-interactive} \
 "
 
 # When swupd bundles are enabled, choose explicitly which images
@@ -266,6 +273,22 @@ FEATURE_PACKAGES_soletta-tools = "soletta-dev-app"
 # git is not essential for compiling software, but include it anyway
 # because it is the most common source code management tool.
 FEATURE_PACKAGES_tools-develop = "packagegroup-core-buildessential git"
+
+# Add bash because it is more convenient to use than dash.
+# This does not change /bin/sh due to re-organized update-alternative
+# priorities.
+FEATURE_PACKAGES_tools-interactive = "packagegroup-tools-interactive bash"
+
+# We could make bash the login shell for interactive accounts as shown
+# below, but that would have to be done also in the os-core and thus
+# tools-interactive would have to be set in all swupd images.
+# TODO (?): introduce a bash-login-shell image feature?
+# ROOTFS_POSTPROCESS_COMMAND_append = "${@bb.utils.contains('IMAGE_FEATURES', 'tools-interactive', ' root_bash_shell; ', '', d)}"
+# root_bash_shell () {
+#     sed -i -e 's;/bin/sh;/bin/bash;' \
+#        ${IMAGE_ROOTFS}${sysconfdir}/passwd \
+#        ${IMAGE_ROOTFS}${sysconfdir}/default/useradd
+# }
 
 FEATURE_PACKAGES_qatests = "packagegroup-qa-tests"
 
