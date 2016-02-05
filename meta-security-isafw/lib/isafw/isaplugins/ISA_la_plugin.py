@@ -117,12 +117,19 @@ class ISA_LicenseChecker():
 
     def write_report_xml(self):
         from lxml import etree
+        numTests = 0
         root = etree.Element('testsuite', name='LA_Plugin', tests='1')
-        tcase1 = etree.SubElement(root, 'testcase', classname='ISA_LAChecker', name='license_violations')
-        with open(self.reportdir + "/la_problems_report_" + self.timestamp, 'r') as f:
-            for line in f:
-                line = line.strip()
-                failrs1 = etree.SubElement(tcase1, 'failure', message=line, type='violation')
+        if os.path.isfile (self.reportdir + "/la_problems_report_" + self.timestamp):
+            with open(self.reportdir + "/la_problems_report_" + self.timestamp, 'r') as f:
+                for line in f:
+                    numTests += 1
+                    line = line.strip()
+                    tcase1 = etree.SubElement(root, 'testcase', classname='ISA_LAChecker', name=line.split(':',1)[0])
+                    failrs1 = etree.SubElement(tcase1, 'failure', message=line, type='violation')
+        else:
+            tcase1 = etree.SubElement(root, 'testcase', classname='ISA_LAChecker', name='none')
+            numTests = 1
+        root.set('tests', str(numTests))
         tree = etree.ElementTree(root)
         output = self.reportdir + "/la_problems_report_" + self.timestamp + '.xml' 
         tree.write(output, encoding= 'UTF-8', pretty_print=True, xml_declaration=True)

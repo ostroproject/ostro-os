@@ -285,9 +285,10 @@ class ISA_KernelChecker():
                         freport.write("Recommended value:\n")
                         freport.write(key + ' : ' + str(self.integrity_kco_ref[key]) + '\n')
         # write_problems_report_xml 
-        root = etree.Element('testsuite', name = 'KCA_Plugin', tests='4')
-        tcase1 = etree.SubElement(root, 'testcase', classname ='ISA_KernelChecker', name = 'Hardening_options_that_need_improvement')
+        numTests = len(self.hardening_kco) + len(self.keys_kco) + len(self.security_kco) + len(self.integrity_kco)
+        root = etree.Element('testsuite', name = 'KCA_Plugin', tests=str(numTests))
         for key in sorted(self.hardening_kco) :
+            tcase1 = etree.SubElement(root, 'testcase', classname ='Hardening options', name = key)
             if (self.hardening_kco[key] != self.hardening_kco_ref[key]) :
                 valid = False
                 if (key == "CONFIG_DEBUG_STRICT_USER_COPY_CHECKS") :
@@ -302,13 +303,13 @@ class ISA_KernelChecker():
                 if valid == False:
                     msg1 = 'current=' + key + ' is ' + str(self.hardening_kco[key]) + ', recommended=' + key + ' is ' + str(self.hardening_kco_ref[key]) 
                     failrs1 = etree.SubElement(tcase1, 'failure', message = msg1, type = 'violation')
-        tcase2 = etree.SubElement(root, 'testcase', classname = 'ISA_KernelChecker', name = 'Key-related_options_that_need_improvement')
         for key in sorted(self.keys_kco):
+            tcase2 = etree.SubElement(root, 'testcase', classname = 'Key-related options', name = key)
             if (self.keys_kco[key] != self.keys_kco_ref[key]) :               
                 msg2 = 'current=' + key + ' is ' + str(self.keys_kco[key] + ', recommended=' + key + ' is ' + str(self.keys_kco_ref[key])) 
                 failrs2 = etree.SubElement(tcase2, 'failure', message = msg2, type = 'violation')
-        tcase3 = etree.SubElement(root, 'testcase', classname = 'ISA_KernelChecker', name = 'Security_options_that_need_improvement')
         for key in sorted(self.security_kco):
+            tcase3 = etree.SubElement(root, 'testcase', classname = 'Security options', name = key)
             if (self.security_kco[key] != self.security_kco_ref[key]) :
                 valid = False
                 if (key == "CONFIG_DEFAULT_SECURITY"):
@@ -329,8 +330,8 @@ class ISA_KernelChecker():
                 if valid == False:
                     msg3 = 'current=' + key + ' is ' + str(self.security_kco[key]) + ', recommended=' + key + ' is ' + str(self.security_kco_ref[key])
                     failrs3 = etree.SubElement(tcase3, 'failure', message = msg3, type ='violation')
-        tcase4 = etree.SubElement(root, 'testcase', classname = 'ISA_KernelChecker', name = 'Integrity_options_that_need_improvement')
         for key in sorted(self.integrity_kco):
+            tcase4 = etree.SubElement(root, 'testcase', classname = 'Integrity options', name = key)
             if (self.integrity_kco[key] != self.integrity_kco_ref[key]) :
                 valid = False
                 if ((key == "CONFIG_IMA_DEFAULT_HASH_SHA1") or 

@@ -140,46 +140,47 @@ class ISA_CFChecker():
                 fproblems_report.write(item + '\n')
 
     def write_report_xml(self, ISA_filesystem):
-        root = etree.Element('testsuite', name='CFA_Plugin', tests='8')
-        tcase1 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_no_RELO')
+        numTests = len(self.no_relo) + len(self.no_canary) + len(self.no_pie) + len(self.no_nx) + len(self.execstack) + len(self.execstack_not_defined) + len(self.nodrop_groups) + len(self.no_mpx) 
+        root = etree.Element('testsuite', name='ISA_CFChecker', tests=str(numTests))
         if self.no_relo:
             for item in self.no_relo:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
+                tcase1 = etree.SubElement(root, 'testcase', classname='files_with_no_RELO', name=item)
                 etree.SubElement(tcase1, 'failure', message=item, type='violation')
-        tcase2 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_no_canary')
         if self.no_canary: 
             for item in self.no_canary:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
+                tcase2 = etree.SubElement(root, 'testcase', classname='files_with_no_canary', name=item)
                 etree.SubElement(tcase2, 'failure', message=item, type='violation')
-        tcase3 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_no_PIE')
         if self.no_pie: 
             for item in self.no_pie:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
+                tcase3 = etree.SubElement(root, 'testcase', classname='files_with_no_PIE', name=item)
                 etree.SubElement(tcase3, 'failure', message=item, type='violation')
-        tcase4 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_no_NX')
         if self.no_nx: 
             for item in self.no_nx:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
+                tcase4 = etree.SubElement(root, 'testcase', classname='files_with_no_NX', name=item)
                 etree.SubElement(tcase4, 'failure', message=item, type='violation')
-        tcase5 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_execstack')
         if self.execstack: 
             for item in self.execstack:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
+                tcase5 = etree.SubElement(root, 'testcase', classname='files_with_execstack', name=item)
                 etree.SubElement(tcase5, 'failure', message=item, type='violation')
-        tcase6 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_execstack_not_defined')
         if self.execstack_not_defined: 
             for item in self.execstack_not_defined:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
+                tcase6 = etree.SubElement(root, 'testcase', classname='files_with_execstack_not_defined', name=item)
                 etree.SubElement(tcase6, 'failure', message=item, type='violation')
-        tcase7 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_nodrop_groups')
         if self.nodrop_groups: 
             for item in self.nodrop_groups:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
+                tcase7 = etree.SubElement(root, 'testcase', classname='files_with_nodrop_groups', name=item)
                 etree.SubElement(tcase7, 'failure', message=item, type='violation')
-        tcase8 = etree.SubElement(root, 'testcase', classname='ISA_CFChecker', name='files_with_no_mpx')
         if self.no_mpx: 
             for item in self.no_mpx:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
+                tcase8 = etree.SubElement(root, 'testcase', classname='files_with_no_mpx', name=item)
                 etree.SubElement(tcase8, 'failure', message=item, type='violation')
         tree = etree.ElementTree(root)
         output = self.reportdir + problems_report + ISA_filesystem.img_name + "_" + self.timestamp + '.xml' 
