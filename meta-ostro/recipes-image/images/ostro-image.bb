@@ -154,25 +154,17 @@ IMAGE_LINGUAS = " "
 
 LICENSE = "MIT"
 
-# Set root password to "ostro" if not set
-OSTRO_ROOT_PASSWORD ?= "ostro"
+# See local.conf.sample for explanations.
+OSTRO_ROOT_AUTHORIZED_KEYS ?= ""
+ROOTFS_POSTPROCESS_COMMAND += "ostro_root_authorized_keys; "
+ostro_root_authorized_keys () {
+    mkdir ${IMAGE_ROOTFS}${ROOT_HOME}/.ssh
+    echo "${OSTRO_ROOT_AUTHORIZED_KEYS}" >>${IMAGE_ROOTFS}${ROOT_HOME}/.ssh/authorized_keys
+    chmod -R go-rwx ${IMAGE_ROOTFS}${ROOT_HOME}/.ssh
+}
 
 # Set the location where to fetch json files describing the disk layout
 IOT_DISK_LAYOUT_DIR="${THISDIR}/files/iot-cfg/"
-
-def crypt_pass(d):
-    import crypt, string, random
-    character_set = string.letters + string.digits
-    plaintext = d.getVar('OSTRO_ROOT_PASSWORD', True)
-
-    if plaintext == "":
-        return plaintext
-    else:
-        return crypt.crypt(plaintext, random.choice(character_set) + random.choice(character_set))
-
-EXTRA_USERS_PARAMS = "\
-usermod -p '${@crypt_pass(d)}' root; \
-"
 
 # Do not create ISO images by default, only HDDIMG will be created (if it gets created at all).
 NOISO = "1"
