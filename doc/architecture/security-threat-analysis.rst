@@ -18,7 +18,7 @@ This document defines the main security threats and solutions to
 them. It also describes additional security mechanisms that can be
 used for device types that have different requirements.
 
-For a more general introduction to Ostro OS and its architecure see
+For a more general introduction to Ostro OS and its architecture see
 the `System and Security Architecture`_ document.
 
 .. _`System and Security Architecture`: system-and-security-architecture.rst
