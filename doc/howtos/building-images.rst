@@ -131,13 +131,31 @@ keys. Then set ``IMA_EVM_KEY_DIR`` to the directory containing
 these keys or set the individual variables for each required
 key (see ``ima-evm-rootfs.bbclass``).
 
-Then add your custom applications and services by listing them as in
-the following example, which adds ``strace`` to the ``ostro-image``::
+Then add your custom applications and services by listing them as
+additional packages as described in the next section.
 
-    CORE_IMAGE_EXTRA_INSTALL_append_pn-ostro-image = " strace"
+
+Installing Additional Packages
+------------------------------
+
+Extend ``OSTRO_IMAGE_EXTRA_INSTALL`` to install additional packages
+into all Ostro OS image variants, for example with::
+
+    OSTRO_IMAGE_EXTRA_INSTALL += "strace"
+
+It is possible to limit the change to specific images. Let's assume
+for example that you want to add strace to your development image (and
+only that one), here is how you can proceed::
+
+    OSTRO_IMAGE_EXTRA_INSTALL_append_pn-ostro-image-dev = " strace"
+
+Beware of the leading space, it is needed when using ``_append``.
 
 This example assumes that :command:`bitbake ostro-image` is used to build
 an image. By making the append conditional on the name of the image,
 different images can be built with different content inside the same
 build configuration.
 
+Alternatively, ``CORE_IMAGE_EXTRA_INSTALL`` can also be used. The
+difference is that this will also affect the initramfs images, which is
+often not intended.
