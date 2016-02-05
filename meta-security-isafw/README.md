@@ -31,16 +31,20 @@ Usage
 In order to enable the isafw during the image build, please add 
 the following line to your build/conf/local.conf file:
 
+```python
 INHERIT += "isafw"
+```
 
 Next you need to update your build/conf/bblayers.conf file with the
 location of meta-security-isafw layer on your filesystem along with
 any other layers needed. e.g.:
 
+```python
 BBLAYERS ?= " \
   /OE/oe-core/meta \
   /OE/meta-security-isafw \
   "
+```
  
 Also, some isafw plugins require network connection, so in case of a
 proxy setup please make sure to export http_proxy variable into your 
@@ -49,12 +53,16 @@ environment.
 In order to produce image reports, you can execute image build 
 normally. For example:
 
+```shell
 bitbake core-image-minimal
+```
 
 If you are only interested to produce a report based on packages 
 and without building an image, please use:
 
+```shell
 bitbake -c analyse_sources_all core-image-minimal
+```
 
 
 Logs
