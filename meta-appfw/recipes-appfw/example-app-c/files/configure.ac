@@ -32,15 +32,7 @@ PKG_PROG_PKG_CONFIG
 AC_PATH_X
 AC_CHECK_HEADERS([stdio.h])
 
-AC_ARG_WITH(package-name,
-            [  --with-package-name      package name],
-            [pkg_name=${with_package_name}], AC_MSG_ERROR([no package-name specified]))
-AC_SUBST(PACKAGE_NAME, [$pkg_name])
-
-AC_ARG_WITH(install-path, 
-            [  --with-install-path      where the app. files should go],
-            [install_path="${with_install_path}"], AC_MSG_ERROR([no install-path provided]))
-AC_SUBST(INSTALL_PATH, [$install_path])
+AC_SUBST(PACKAGE_NAME, [example-app-c])
 
 AC_ARG_WITH(manifest-path, 
             [  --with-manifest-path      where the manifest file should go],

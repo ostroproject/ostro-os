@@ -13,5 +13,6 @@
         "type": "nspawn",
         "network": "VirtualEthernet",
         "sharedsystem": false,
+        "portmap": 12345,
     },
 }
