@@ -9,7 +9,11 @@ LICENSE = "MIT"
 inherit packagegroup
 
 RDEPENDS_${PN} = " \
+    atop \
     gawk \
+    htop \
+    iftop \
+    iotop \
     iputils-arping \
     iputils-clockdiff \
     iputils-ping \
