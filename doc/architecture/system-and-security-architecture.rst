@@ -1,25 +1,29 @@
-================================================
- Ostro (TM) OS System and Security Architecture
-================================================
+.. _system-and-security-architecture:
+
+
+Ostro |trade| OS System and Security Architecture
+#################################################
 
 Introduction
 ============
 
-Ostro (TM) OS is a Linux(TM) based operating system for Internet of
+The Ostro |trade| OS is a Linux\*-based operating system for Internet of
 Things (IoT). It provides the basis for building innovative, secure
 IoT devices. Because security is crucial for IoT, security mechanisms
 are tightly integrated into the system architecture. The primary
 customers for Ostro OS are considered to be OEMs, OSVs, Service
 Providers, and developers building their own devices.
 
-This document introduces key concepts in Ostro OS and how they fit
-together. The target audience are developers who want to learn about
+This document introduces key concepts in the Ostro OS and how they fit
+together. The target audience is developers who want to learn about
 Ostro OS and/or use the OS in their own product. Application
-developers will also find useful background information. However,
-there will also be a dedicated document more focused on application
-development and installation.
+developers will also find this to be useful background information. 
+There will also be documentation more focused on application
+development and installation.  The :ref:`Building Images` tech note 
+will also help get you started.
 
-It is understood that there is no “one solution that fits all” when
+
+There is no “one solution that fits all” when
 talking about IoT security. Thus, what Ostro OS provides are
 (pre-configured) mechanisms and templates for supported use cases. The
 recommended configuration is delivered pre-compiled, so building a
@@ -35,34 +39,29 @@ access). However, the security is planned to be scalable. If there is
 a problem that the default security setup does not cover, the security
 can be stepped up by adding components and configuration.
 
-In addition, supporting multiple real users of the same device is less
+Supporting multiple real users of the same device is less
 important and left to applications to support. Therefore the security
 model can use Unix users to distinguish between different
-applications. All interaction with the device is supposed to be done
+applications. All interaction with the device is done
 through applications, not by logging into the core system directly.
 
 This architecture documentation explains how the security is currently
-integrated. It does not attempt to explain alternative or future
-implementations, and therefore can be used as documentation of the
-current revision of Ostro OS that the documentation is shipped
-with. Some items that are likely to be added soon are already
+integrated into the Ostro OS. Some items that may be added are also
 documented, but clearly marked as *TODO*. Especially covered are the
 places where the security model differs from baseline Linux security
 that can be expected from any mainstream desktop Linux distribution.
 
 For a discussion of potential other security mechanisms see the
-`threat analysis document`_.
-
-.. _`threat analysis document`: security-threat-analysis.rst
+:ref:`security-threat-analysis` documenentation.
 
 
 Key Security Concepts
 =====================
 
-* scalable security: protection mechanisms can be turned on to
-  increase security (defence in depth) or turned off to decrease
+* Scalable Security: Protection mechanisms can be turned on to
+  increase security (defense in depth) or turned off to decrease
   overhead and/or complexity. However, not all combinations are
-  tested, see `Production and Development Images`_
+  tested, see `Production and Development Images`_ later in this document.
 
 * Unix DAC is used to separate applications. Each application runs
   under a different uid. Supporting multiple real users of the same
@@ -140,7 +139,7 @@ ensure that as follows:
   is also included in the hashed data, to prevent copying security.evm
   from one inode to another. Because the update mechanism is file
   based, inode numbers vary between devices and therefore signing the
-  EVM hash on the build host is impossible. Instead, Ostro OS relies
+  EVM hash on the build host is impossible. Instead, the Ostro OS relies
   on a per-device secret key stored in a TPM, with a less secure
   software-only solution as fallback (see below). That key is used to
   encrypt and decrypt the EVM hash. Because the key is sealed in the
@@ -167,14 +166,14 @@ ensure that as follows:
 Filesystem Layout
 =================
 
-Ostro OS needs to protect data differently, depending on sensitivity
+The Ostro OS needs to protect data differently, depending on sensitivity
 and usage patterns. Files used by the core system change infrequently
 and can be protected by IMA/EVM. But IMA/EVM changes the performance,
 semantic and error handling of the filesystem and thus is less
 suitable for application data with unknown usage patterns.
 
 Here is an overview of the different parts of the virtual file
-system. Specific Ostro devices will likely map this to different
+system. Specific devices will likely map this to different
 partitions because that way the filesystem UID can be used in the IMA
 policy to treat files differently depending on their
 location. However, a simpler Ostro OS configuration could also drop
@@ -209,13 +208,13 @@ the same writable partition.
 /etc and the files in it are part of the core OS and thus considered
 read-only. However, there are a few noteworthy exceptions:
 
-/etc/ld.so.cache
+``/etc/ld.so.cache``
  Its content depends on the currently installed shared libraries,
  which may vary by device. Therefore it needs to be updated on the
  device after system software installation or updates. Its real
  location thus is in /var (*TODO*).
 
-/etc/machineid
+``/etc/machineid``
  Currently systemd creates a machine ID when booting and writes it to
  /etc/machineid when /etc becomes writeable. When moving to the strict
  IMA policy, we need to prevent that (because the file would become
@@ -278,9 +277,10 @@ controlling processes.
 Applications
 ============
 
-At the moment, applications are only supported when integrated already
-into the image (“pre-installed applications”) that gets installed on a
-device. Such applications can use the normal mechanisms for creating
+At the moment, applications are only supported when built
+into the image (“pre-installed applications”) that is installed on a
+device. Such applications can use the normal Yocto Project configuration
+tools for creating
 the user they run under, install files in the normal root file system,
 cause additional system packages they depend on to be added to the
 image, etc.
@@ -323,7 +323,7 @@ same container, or when the containers do not isolate IPC
 namespaces. The applications can, for instance, use abstract Unix
 domain sockets, loopback network interface, or System V message queues
 for connecting to each other. Note that this behavior is not as such
-encouraged or documented by Ostro -- it’s just not explicitly
+encouraged or documented by the Ostro OS -- it’s just not explicitly
 disallowed. If the system integrator wants to prevent this behavior,
 using MAC or containers for application isolation is recommended.
 
@@ -331,18 +331,18 @@ using MAC or containers for application isolation is recommended.
 System Updates
 ==============
 
-Ostro OS binaries are delivered as bundles, as in Clear(TM) OS.
+Ostro OS binaries are delivered as bundles, as in the Clear Linux OS.
 Bundles are a bit like traditional packages, but can overlap with
-other bundles and come with less meta data. Instead of thousands of
-packages, the entire distro consist of about 10 to 20 (*TODO*:
+other bundles and come with less metadata. Instead of thousands of
+packages, the entire distro consists of about 10 to 20 (*TODO*:
 double-check this guess) bundles. There is a core bundle with all the
 essential files required to boot the system. Several optional bundles
 contain individual runtimes and applications that were built together
 with the OS.
 
 Installing bundles must not change files contained in other bundles,
-i.e. if a file is contained in more than one bundle, it must have
-exactly the same content and attributes in all those bundles.. So
+i.e., if a file is contained in more than one bundle, it must have
+exactly the same content and attributes in all those bundles. So
 conceptually, one can imagine the bundle creation as installing all
 components of the OS in an image, configuring the image and then
 splitting up the installed files and their attributes as found in that
@@ -379,10 +379,10 @@ Core OS Hardening
 Network Security
 ================
 
-Ostro has a firewall that out-of-the-box protects the system services
+Ostro OS has a firewall that out-of-the-box protects the system services
 using both IPv4 and IPv6. The applications and services need to open
 holes into the firewall if they require to be accessible from the
-network, that is to offer services to the network. If the Ostro device
+network, that is to offer services to the network. If the device running Ostro OS
 is meant to be an Internet gateway or otherwise have a complex network
 setup, the system integrator has to change the initial firewall
 ruleset. *TODO*: finalize the iptables/nftables transition question
@@ -442,6 +442,4 @@ SSH                           Installed, but disabled (*TODO*) Installed and run
                                                                must be set up before it becomes usable
 ============================= ================================ ==========================================
 
-For more information about signing, see the `certificate handling`_ document.
-
-.. _`certificate handling`: ../howtos/certificate-handling.rst
+For more information about signing, see the :ref:`certificate-handling` how-to tech note.
