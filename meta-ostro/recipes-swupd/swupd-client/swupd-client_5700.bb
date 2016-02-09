@@ -10,6 +10,7 @@ SRC_URI = " \
   file://Right-usage-of-AC_ARG_ENABLE-on-bzip2.patch \
   file://Change-systemctl-path-to-Ostro-systemctl-path.patch \
   file://efi_combo_updater.c \
+  file://workaround-version-id-quotas.patch \
   "
 SRC_URI[md5sum] = "58671adf559dd18620f11caf4ccf83dd"
 SRC_URI[sha256sum] = "09a70a423d10a6bf71f8675b7430c29a56f41f93493331c9ae515011713c229b"
