@@ -9,7 +9,9 @@ used to make software updates work with the Ostro OS.
 Prerequisites
 =============
 
- - a linux host with docker and util-linux installed (e.g. Fedora 23);
+ - a linux host with docker (>= 1.9.1) and util-linux installed (Fedora 23 and
+   OpenSUSE 13.2 are known to be working well for this purpose, but the outdated
+   docker packages in Ubuntu 14.04 might have connectivity issues);
  - signing keys (alternatively testing keys from the :file:`swupd-server` project can
    be used).
 
