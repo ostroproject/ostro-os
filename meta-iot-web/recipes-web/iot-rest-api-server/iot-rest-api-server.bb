@@ -5,12 +5,14 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSE;md5=fa818a259cbed7ce8bc2a22d35a464fc"
 
 DEPENDS = "nodejs-native iotivity iotivity-node"
-RDEPENDS_${PN} += "bash iotivity-node"
+RDEPENDS_${PN} += "bash iotivity-node iptables"
 
 SRC_URI = "git://git@github.com/01org/iot-rest-api-server.git;protocol=https \
            file://0001-Remove-iotivity-node-dependency.patch \
            file://iot-rest-api-server.service \
            file://iot-rest-api-server.socket \
+           file://${PN}-ipv4.conf \
+           file://${PN}-ipv6.conf \
           "
 SRCREV = "66486405fc534bfa84b7dd29e6437f866a609424"
 
@@ -93,10 +95,20 @@ do_install () {
     install -d ${D}/${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/iot-rest-api-server.service ${D}/${systemd_unitdir}/system/
     install -m 0644 ${WORKDIR}/iot-rest-api-server.socket ${D}/${systemd_unitdir}/system/
+
+    # copy the firewall configuration fragments in place
+    install -d ${D}${systemd_unitdir}/system/${PN}.socket.d
+    install -m 0644 ${WORKDIR}/${PN}-ipv4.conf ${D}${systemd_unitdir}/system/${PN}.socket.d
+    if ${@bb.utils.contains('DISTRO_FEATURES', 'ipv6', 'true', 'false', d)}; then
+        install -m 0644 ${WORKDIR}/${PN}-ipv6.conf ${D}${systemd_unitdir}/system/${PN}.socket.d
+    fi
 }
 
 FILES_${PN} = "${libdir}/node_modules/iot-rest-api-server/ \
                ${systemd_unitdir}/system/ \
+               ${systemd_unitdir}/system/${PN}.socket.d/${PN}-ipv4.conf \
+               ${@bb.utils.contains('DISTRO_FEATURES', 'ipv6', \
+                   '${systemd_unitdir}/system/${PN}.socket.d/${PN}-ipv6.conf', '', d)} \
               "
 
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
