@@ -1,36 +1,45 @@
-Ostro Application Framework
-===========================
+.. _application-framework:
 
-1. Background
--------------
-The application framework tries to be bare minimalistic, mostly built
-around systemd services and containers.  It should be possible to lift
-over existing code or applications to Ostro with minimal effort. No
-mandatory changes should be necessary to code. Ideally it should be
-enough to slam a small piece of additional Ostro-specific metadata
-(the so-called application manifest) to an application and be done
-with it.
+Ostro |trade| Application Framework
+###################################
 
 
-2. Framework
-------------
-The 'Application Framework' consists of two actual components: an
+Background
+==========
+
+The Ostro Application Framework is minimalistic and mostly built
+around systemd services and containers.  Porting
+over your existing code or applications to the Ostro OS should need
+only minimal effort and no 
+mandatory changes to your code. Ideally, you'll only need to provide 
+a small piece of additional Ostro OS-specific "application manifest" metadata
+for your application and you're done.
+
+
+Framework
+=========
+
+The Application Framework has two actual components: an
 installer and a systemd generator. The details of the installer are
 still open, since it is undecided in which format 3rd-party
-applications will be delivered. At least `ClearLinux
-<https://clearlinux.org/>`_ bundles and XDG-APPs are being considered
-as alternatives. In either case, the current understanding is that the
+applications will be delivered. At least `Clear Linux\* bundles`_  
+and `XDG-APPs`_ are being considered
+as alternatives. In either case, the
 installer will be a simple wrapper script with minimal additional
 functionality around a utility that takes care of installing an
-application in the eventually chosen format.
+application (in the eventually chosen format).
 
 The systemd generator component produces systemd service files for the
-applications using the application manifests as its primary source of
-information.
+applications using information from the application manifest.
+
+.. _Clear Linux\* bundles: https://clearlinux.org/documentation/index_bundles.html
+.. _XDG-APPs: https://wiki.gnome.org/Projects/SandboxedApps
 
 
-3. Usage of Containers
-----------------------
+
+Usage of Containers
+====================
+
 Containers are used for filesystem 'virtualization' and for isolating
 applications from each other. Applications can be packed together with
 libraries they depend on. Application specific libraries are visible
@@ -39,47 +48,49 @@ system. While applications are installed in non-standard locations
 ``(/apps/*)``, the runtime view of the filesystem provided to an
 application looks like a standard one (configuration files in
 ``/etc``, libraries in ``/usr/lib[64]``, binaries in ``/usr/[s]bin,
-etc``), application- specific and system-wide bits blended together
-using a combination of bind- and overlay-mounts.
+etc``), application-specific and system-wide bits blended together
+using a combination of bind-mounts and overlay-mounts.
 
 
-4. Container Types
-------------------
-Ostro supports systemd-nspawned containers and (we're looking into
+Container Types
+================
+
+The Ostro OS supports systemd-nspawned containers and (we're looking into
 supporting) XDG-APPs inside containers. If configured so in the
-manifest, applications can be started without containers, simply
+manifest, applications can be started without containers by
 augmenting ``$LD_LIBRARY_PATH``, ``$PATH``, and overriding ``$HOME``
-appropriately.  We were also asked to consider supporting the addition
-of new container types by simple plugins in the generator. The plugin
-would get fed the container-specific fragments of the manifests and
+appropriately.  We may also support adding 
+new container types through simple plugins in the generator. The plugin
+would receive the container-specific fragments of the manifests and
 generate the necessary bits (mostly the ``ExecStart*`` parts) in the
 systemd service as it sees fit. This is how the nspawn-specific code
-actually already works in Ostro, the only difference being that it is
-not loaded as a DSO, rather it is compiled statically into the
+already works in the Ostro OS, the only difference being that it is
+not loaded as a Dynamic Shared Object (DSO), rather it is compiled statically into the
 generator.
 
 
-5. Manifests
-------------
-Sometimes it might be necessary or desirable to be able to limit the
+Manifests
+=========
+
+Sometimes it might be necessary or desirable to limit the
 available functionality and configurability exposed to
 applications. In other words, it might be necessary or desirable to
 present a simplified manifest to the applications with less
-configurability (or possibility for errors). For instance, it might be
-good idea to have a limited set of predefined application classes from
-which an application provider must choose one that best fits its
+configurability (and less possibility for errors). For instance, we may have a 
+limited set of predefined application classes from
+which an application provider must choose; one that best fits its
 application. In this case, most of the configuration for the
 application comes implicitly by selecting the application class,
 instead of being explicitly stated in the manifest. The idea of having
-such a possibility is good. However, at the moment nobody can say for
-sure how many and what such classes would be.
+such a possibility is good. However, we have not defined
+how many and what such classes would be.
 
-Therefore we want to support both the limited and simplified and full
+For now, we'll support both the "limited and simplified" and the "full"
 configurability and let end-users choose which one they go with.
-To be able to do this, we'll allow the user-visible manifest to be fed
+To enable this, we'll allow the user-visible manifest to be fed
 to a 'preprocessor' (again a simple plugin/DSO) before it is passed on
 to the core of the systemd service generator. The preprocessor can do
-arbitrary translations (JSON-in-JSON-out) of the manifest. Ostro contains
+arbitrary translations (JSON-in-JSON-out) of the manifest. The Ostro OS contains
 a sample preprocessor which can currently interpret the following
 manifest format::
 
@@ -143,23 +154,28 @@ manifest format::
   }
 
 
-6. Building an application using Ostro application framework
-------------------------------------------------------------
-Ostro application framework includes a set of very simple sample
-applications, which show you how to bind your application to the
+Building an Application Using the Ostro Application Framework
+==============================================================
+
+The Ostro Application Framework includes a set of very simple sample
+applications illustrating how to bind your application to the
 framework. There's a "hello world" application in native C with
-autotools and similar server application in NodeJS.
+autotools and a similar server application in NodeJS.
 
-Porting your application for Ostro application framework couple of
-simple steps:
+Porting your application to the Ostro Application Framework requires only
+a few simple steps:
 
-1. Write yocto recipe for your application
-2. Inherit from ostro-app class in your recipe
-3. Define OSTRO_USER_NAME and OSTRO_APP_NAME in your recipe
-4. Write a manifest for your application and include it to your recipe
+   1. Write the `Yocto Project recipe`_ for your application
+   2. Inherit from ostro-app class in your recipe
+   3. Define OSTRO_USER_NAME and OSTRO_APP_NAME in your recipe
+   4. Write a manifest for your application and include it to your recipe
 
-We have a simple helper yocto class called "ostro-app" which you can
-inherit to your application to make things little bit easier::
+.. _Yocto Project recipe: http://www.yoctoproject.org/docs/current/dev-manual/dev-manual.html#new-recipe-writing-a-new-recipe
+.. _Yocto Project class: http://www.yoctoproject.org/docs/current/ref-manual/ref-manual.html#ref-classes
+.. _useradd class: http://www.yoctoproject.org/docs/current/ref-manual/ref-manual.html#ref-classes-useradd
+
+We have a simple helper `Yocto Project class`_ called "ostro-app" which you can
+inherit to your application to make things a bit easier::
   
   inherit useradd
 
@@ -185,8 +201,8 @@ inherit to your application to make things little bit easier::
     chmod -R 755 ${D}${OSTRO_APP_ROOT}/
   }
 
-Basically this class is inheriting from yocto oe-core useradd class
-which helps to create users on the first boot of the device. User name
+Basically this class is inheriting from the Yocto Project oe-core `useradd class`_
+which helps create users on the first boot of the device. User name
 is a catenation from the OSTRO_USER_NAME and OSTRO_APP_NAME you give in
 your application recipe. Also a home directory will be created for the
 user. What this means in practice is that we have a dedicated user for
@@ -230,10 +246,10 @@ And here is the manifest for the hello-world C program::
     },
   }
 
-When this application is added to the image user
+When this application is added to the image, user
 ``yoyodine-nativetest`` is created in the first boot or when
 installing the application. Also application framework systemd service
-file generator is running at boot and generating a service file for
+file generator is running at boot and generates a service file for
 the application.  You should see the application under
 ``/apps/yoyodine/nativetest`` and you can see the user
 ``yoyodine-nativetest`` for example in ``/etc/passwd``. The generated
@@ -243,5 +259,5 @@ systemd service file should be in
 You can now start and stop your application with ``systemctl`` (like
 ``systemctl start yoyodine-nativetest.service``). From the service
 file you can see what happens: systemd-nspawn container is created
-with defined user, your application directory is overlay mounted and
+with the defined user, your application directory is overlay mounted, and
 the applications is started in the container.
