@@ -27,6 +27,7 @@ IMAGE_FEATURES[validitems] += " \
     node-runtime \
     python-runtime \
     qatests \
+    smack \
     soletta \
     swupd \
     tools-develop \
@@ -86,6 +87,7 @@ IMAGE_FEATURES += " \
                         python-runtime \
                         java-jdk \
                         soletta \
+                        ${@bb.utils.contains('DISTRO_FEATURES', 'smack', 'smack', '', d)} \
                         swupd \
                         ${OSTRO_EXTRA_IMAGE_FEATURES} \
                         "
@@ -317,6 +319,21 @@ inherit ima-evm-rootfs
 ima_evm_sign_rootfs_prepend () {
     ${@bb.utils.contains('IMAGE_FEATURES', 'ima', '', 'return', d)}
 }
+
+# The logic for the "smack" image feature is reversed: when enabled,
+# the boot parameters are not modified, which leads to "Smack is
+# enabled". Removing the feature disables security and thus also
+# Smack. This is relies on only supporting one MAC mechanism. Should
+# we ever support more than one, the handling needs to be revised.
+#
+# When Smack is disabled via the distro feature, the image feature is
+# also off, but security=none gets added anyway despite being redundant.
+# It is kept as an additional indicator that the system boots without a MAC
+# mechanism.
+#
+# The Edison BSP does not support APPEND, some other solution is needed
+# for that machine.
+APPEND_append = "${@bb.utils.contains('IMAGE_FEATURES', 'smack', '', ' security=none', d)}"
 
 # Debug option:
 # in case of problems during the transition from initramfs to rootfs, spawn a shell.
