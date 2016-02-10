@@ -7,7 +7,7 @@ Ostro |trade| OS Quick Start Guide
 This quick start guide explains how to install the Ostro OS development environment on your
 development system and to install and run applications on :ref:`platforms`.
 
-Refer to the Ostro OS Release Notes for specific details about capabilities and status
+Refer to the Ostro OS Release Notes in the Image Release area for specific details about capabilities and status
 of features for the current release. 
 
 This guide describes two ways to get started with your investigation and use of the Ostro OS: 
@@ -44,14 +44,15 @@ documentation, and support systems:
 
 * Software Updates
    The Ostro OS uses a rolling updates development and release process using "bundle"  
-   technology developed by the Clear Linux OS for Intel |reg| Architecture team.  You 
+   technology developed by the Clear Linux\* OS for Intel |reg| Architecture team.  You 
    can read more about bundles at `Clear Linux Project Software Update`_
 
 .. _`Clear Linux Project Software Update`: https://clearlinux.org/features/software-update
    
 * Source Code on GitHub
    Ostro OS source code is maintained on a public GitHub repository at
-   https://github.com/ostroproject 
+   https://github.com/ostroproject. Check out the README there for more information
+   about the repository and its organization.
 
 * Documentation
    Project techical documentation is under development and the document sources are
@@ -104,7 +105,7 @@ Ostro OS images, ready to run on :ref:`platforms` (or emulated using a Virtual
 Machine). Ostro OS images are available from  https://download.ostroproject.org
 
 Within each of the hardware-specific release folders you’ll find an :file:`images` folder,
-and in that folde, you'll find a :file:`.dsk` file that can be directly written to a hard disk 
+and in that folder, you'll find a :file:`.dsk` file that can be directly written to a hard disk 
 or booted on a USB thumb drive (written there with :command:`dd`). This
 :file:`.dsk` file contains a raw full-disk image with boot partition and rootfs
 with sizes fixed at compile time.
@@ -122,7 +123,9 @@ Setting up and Building an Ostro OS Image
 =========================================
 
 If you don’t want to use one of the pre-built images, you can get the Ostro OS sources and make your 
-own image. To do this, you should be familiar with the `Yocto Project`_ build tools as 
+own image. We've written a :ref:`Building Images` tech note that explains this procedure. 
+
+You should be familiar with the `Yocto Project`_ build tools as 
 explained in the `Yocto Project Quick Start Guide`_.  This guide has step-by-step instructions 
 and system requirements for setting up your host computer’s development environment and 
 tools needed to build an Ostro OS image.
@@ -152,8 +155,8 @@ The `Yocto Project Quick Start Guide`_ offers detailed instructions and explanat
 environment and processes. 
 
 Briefly, you start by setting up the environment for building the Ostro OS by cloning the 
-ostroproject GitHub repo, editing configuration files, and then starting the build.  We've written
-a  :ref:`Building Images` tech note that explains this procedure.  
+ostroproject GitHub repo, editing configuration files, and then starting the build.  Refer to 
+the :ref:`Building Images` tech note for more information.  
 
 If you made no changes, you should end up with a binary :file:`.dsk` file 
 that is functionally equivalent to an image in the Ostro Project binary release folder.
