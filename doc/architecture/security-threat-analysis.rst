@@ -1,30 +1,32 @@
-========================
-Security Threat Analysis
-========================
+.. _security-threat-analysis:
+
+Ostro |trade| OS Security Threat Analysis
+##########################################
 
 Introduction
 ============
 
-The Ostro(TM) OS security model aims to utilize standard components,
+The Ostro |trade| OS security model aims to utilize standard components,
 be simple and easy to understand, and allow extensibility and
-scalability. Compared to the earlier approach, the focus is now more
+scalability. Our focus is more
 on protecting the IoT device from network attacks and less on
 protecting against malicious users and application developers.
 
 Document Scope
 --------------
 
-This document defines the main security threats and solutions to
+This document defines the main security threats and our solutions to
 them. It also describes additional security mechanisms that can be
 used for device types that have different requirements.
 
 For a more general introduction to Ostro OS and its architecture see
-the `System and Security Architecture`_ document.
+the :ref:`system-and-security-architecture` document.
 
-.. _`System and Security Architecture`: system-and-security-architecture.rst
 
 Glossary
 --------
+
+Here are some terms used within this document.
 
 ========== =============================================
  Acronym   Description
@@ -52,44 +54,45 @@ OEM        Original Equipment Manufacturer
 Security Principles
 ===================
 
-The consensus for the security design was that there is no "one
-solution that fits all" when talking about IoT security. The Ostro
-devices will vary greatly depending on their planned use, and there
-will be many Ostro use cases that we cannot even see yet. Also many
-devices will have secondary and tertiary use cases outside of their
-originally planned environment. Thus, what we can do is to provide
-(pre-configured) mechanisms and templates for supported use cases. The
-idea is to help our customers to provide systems with maximum security
+There is no "one
+solution that fits all" when talking about IoT security. 
+Devices using the Ostro OS will vary greatly depending on their 
+planned use, and there
+will be many Ostro OS use cases that we cannot even see yet. 
+Devices may also have secondary and tertiary use cases outside of their
+originally planned environment. Thus, we will provide
+(pre-configured) mechanisms and templates for supported use cases and
+help our customers provide systems with maximum security
 and minimum hassle.
 
 Most IoT devices will have just a single application and not have
-access to an application store. This is also the use case that Ostro
-security is optimized for. Compared to, say, a mobile phone OS, the
-security focus is moved from application security to network
+access to an application store. This is also the use case that Ostro OS
+security is optimized for. Compared to say, a mobile phone OS, the
+Ostro OS security focus is moved from application security to network
 security. However, the security is planned to be scalable. If there is
 a problem that the default security setup does not cover, the security
 can be stepped up by adding components and configuration.
 
 In addition, supporting multiple real users of the same device is less
-important and left to applications to support. Therefore the security
+important and left to applications to support. Therefore the Ostro OS security
 model can use Unix users to distinguish between different
 applications.
 
-Ostro will also provide clear documentation on how the security is
+The Ostro OS will also provide clear documentation on how the security is
 done and how it is expected to be extended or scaled. Especially
 covered are the places where the security model differs from baseline
 Linux security that can be expected from any mainstream desktop Linux
 distribution.
 
-Extensions to the support that is already planned to be included in
-Ostro itself is also listed, primarily to document which additional
-methods were also considered and excluded from the Ostro scope. If
+Extensions to the support included in the
+Ostro OS itself is also listed, primarily to document which additional
+methods were also considered and excluded from the Ostro OS scope. If
 desired, an OEM can add these additional methods, for example by
-recompiling or reconfiguring Ostro, but Ostro itself will not provide
+recompiling or reconfiguring the Ostro OS, but the Ostro OS itself will not provide
 additional hooks for all of them.
 
 
-Top-level security challenges
+Top-Level Security Challenges
 =============================
 
 Adversaries
@@ -104,7 +107,7 @@ Adversaries
                                                                           privilege  potential
                                                                           level      effort level
 ======= ================== ======================= ====================== ========== ==============
-1.      Ostro              Damage Intel            Network adversary      Low        High
+1.      Ostro OS           Damage Intel            Network adversary      Low        High
         download and       brand;
         update             personal
         infrastructure     reputation;
@@ -156,7 +159,7 @@ System data and files      Credentials/keys,      Medium        System component
 Access                     Privileged API         Medium        System components and applications   Device
                            access                               according to their manifest
                                                                 privileges
-Releases and tools         Ostro releases,        Medium        Release manager, developers          Hosting
+Releases and tools         Ostro OS releases,     Medium        Release manager, developers          Hosting
                                                                                                      web sites
 Local network              UPnP protocol,         Medium        Authorized users and applications    Device
                            other devices
@@ -185,10 +188,10 @@ Cloud service, other trusted devices             Data modification            Ap
 Threats
 -------
 
-===== ================== ===================== ===================================================================
+===== ================== ===================== ======================================================================
 Name  Adversary          Asset                 Attack method and pre-conditions
-===== ================== ===================== ===================================================================
-Lib-1 Malware developer/ System code and files Exploiting a local or remote vulnerability in privileged Ostro code
+===== ================== ===================== ======================================================================
+Lib-1 Malware developer/ System code and files Exploiting a local or remote vulnerability in privileged Ostro OS code
       Network attacker
 Lib-2 Malware developer/ Application data      Exploiting a local or remote vulnerability in an application or
       Network attacker                         Ostro libraries the application uses
@@ -196,10 +199,10 @@ Lib-2 Malware developer/ Application data      Exploiting a local or remote vuln
 Lib-3 Network attacker   Application data,     Pre-condition: attacker is able to upload a binary or runnable code
                          sensor data, system   to the system. Method: attacker executes a malicious binary or
                          data                  runnable code in the system
-Lib-4 Network attacker   System data           An attacker can access the Ostro device when it’s being provisioned
+Lib-4 Network attacker   System data           An attacker can access the device when it’s being provisioned
                                                (taken into use) because of insecure network provisioning or
                                                insecure default configuration
-Lib-5 Ostro download and Releases and tools    Attacker has managed to compromise an Ostro update server
+Lib-5 Download and       Releases and tools    Attacker has managed to compromise an Ostro OS update server
       Infrastructure
       attacker
 Lib-6 Authorized device  System data,          Authorized or unauthorized user interferes with device boot and
@@ -213,7 +216,7 @@ Net-1 Network attacker / Local network         A malicious or compromised applic
 Net-2 Network attacker   Application / system  Man-in-the-middle attack
                          / sensor data going
                          over the network
-Net-3 Malware developer  Sensor data           An Ostro-based network gateway is configured to collect sensor
+Net-3 Malware developer  Sensor data           An Ostro OS-based network gateway is configured to collect sensor
                                                data, but a networked sensor bypasses the gateway to transmit
                                                data directly to Internet
 App-1 Malware developer  Application data      A malicious or compromised application reads another application’s
@@ -230,7 +233,7 @@ API-1 Malware developer  System or             Pre-condition: attacker is able t
                                                escalation
 API-2 Malware developer  System data           Unauthorized access to middleware APIs
 API-3 Malware developer  Application data      Application misrepresents another application towards cloud
-===== ================== ===================== ===================================================================
+===== ================== ===================== ======================================================================
 
 Threat details and mitigation
 =============================
@@ -246,10 +249,10 @@ Lib-1
 *Solution*:
 
  The most important thing is getting the security bug fix to the
- actual client devices as quickly as possible. We need to set up a
+ client devices as quickly as possible. We need to set up a
  process for tracking CVEs. If an upstream bug fix doesn’t get to
- oe-core or is otherwise delayed, we need to do the fix directly in
- Ostro. The security fixes need to be communicated quickly to the
+ oe-core or is otherwise delayed, we need to do the fix directly in the
+ Ostro OS. The security fixes need to be communicated quickly to the
  customers, so that they will understand the real impact of the
  problem. The Ostro component selection should be partially based on
  the component security track record. This means we should avoid
@@ -265,10 +268,10 @@ Lib-1
  the rest of the service as user privileges. Systemd can be used to
  drop unneeded capabilities, thus limiting the potential damage. For
  services which don’t need admin capabilities, Systemd can also be
- configured to prevent service from accessing /home, /root, and
- /run/user by setting ProtectHome=true, thus protecting user data. In
- addition, systemd ProtectSystem=full should be used to mount /usr
- and /etc read-only when possible.
+ configured to prevent service from accessing ``/home``, ``/root``, and
+ ``/run/user`` by setting ``ProtectHome=true``, thus protecting user data. In
+ addition, systemd ``ProtectSystem=full`` should be used to mount ``/usr``
+ and ``/etc`` read-only when possible.
 
  Select the outward facing services carefully. Use well-tested
  libraries, have sensible configuration for services, pay attention to
@@ -276,15 +279,15 @@ Lib-1
 
 *Extensions*:
 
- Use an HIDS to detect intrusions in the system. An example of such
+ Use a HIDS to detect intrusions in the system. An example of such a
  tool is Samhain (http://www.la-samhna.de/samhain/) or even IMA with
  log file monitoring. In case of a detected intrusion, reboot the
  device to a predefined fault target, which can for example restore
  the device to factory settings or alert the user.
 
- Use systemd’s support for service-private /tmp directory.
+ Use systemd’s support for service-private ``/tmp`` directory.
 
- Investigate Yocto support for various build-time security mechanisms,
+ Investigate Yocto Project support for various build-time security mechanisms,
  such as position-independent executables, FORTIFY_SOURCE, address
  space layout randomization, and glibc heap protector. Allow these to
  be turned on or off, depending on the performance characteristics of
@@ -293,7 +296,7 @@ Lib-1
  Use MAC for giving system services more fine-grained access to system
  files.
 
- Test the selected Ostro network services with fuzzing and static
+ Test the selected Ostro OS network services with fuzzing and static
  analysis to find the bugs.
 
 Lib-2
@@ -340,7 +343,7 @@ Lib-4
 
 *Threat*:
 
- An attacker can access the Ostro device when it’s being provisioned
+ An attacker can access the device running the Ostro OS when it’s being provisioned
  (taken into use) because of insecure network provisioning or insecure
  default configuration.
 
@@ -364,11 +367,11 @@ Lib-5
 
 *Threat*:
 
- Attacker has managed to compromise an Ostro update server.
+ Attacker has managed to compromise an Ostro OS update server.
 
 *Solution*:
 
- Clear Linux update mechanism signs each file, so updater sees if the
+ Clear Linux\* update mechanism (also used by the Ostro OS) signs each file, so updater sees if the
  files have been tampered with.
 
 *Extensions*:
@@ -421,7 +424,7 @@ Net-1
  container and the host can control routing packets from the interface
  with the firewall.
 
- systemd’s PrivateNetwork=yes can completely disable network access
+ systemd’s ``PrivateNetwork=yes`` can completely disable network access
  when it is not needed.
 
 *Extensions*:
@@ -433,7 +436,7 @@ Net-2
 
 *Threat*:
 
- Attacker is disguised as a trusted resource outside the Ostro device.
+ Attacker is disguised as a trusted resource outside the device running the Ostro OS.
 
 *Solution*:
 
@@ -456,14 +459,14 @@ Net-3
 
 *Threat*:
 
- An Ostro-based network gateway is configured to collect sensor data,
+ An Ostro OS-based network gateway is configured to collect sensor data,
  but a networked sensor bypasses the gateway to transmit data directly
  to Internet.
 
 *Solution*:
 
  Proper sensor provisioning helps to prevent accidental sending of
- data to the network. Ostro is not by default preventing sensors from
+ data to the network. The Ostro OS is not by default preventing sensors from
  accessing the Internet.
 
 *Extensions*:
@@ -533,9 +536,9 @@ App-3
 *Solution*:
 
  For local sensors, use DAC groups for controlling access to files
- in /dev and sysfs. Configure Udev to set proper owners, groups and
+ in ``/dev`` and ``sysfs``. Configure Udev to set proper owners, groups and
  permissions to the files controlling kernel access to local sensors,
- such as /sys/class/gpio.
+ such as ``/sys/class/gpio``.
 
  For remote sensors, use Soletta to access the sensors. OIC defines a
  security model which Soletta implements. The application can use
@@ -557,7 +560,7 @@ API-1
 
 *Solution*:
 
- DAC for sysfs and /dev files.
+ DAC for ``sysfs`` and ``/dev`` files.
 
 *Extensions*:
 
@@ -596,8 +599,8 @@ API-3
  Offer a secure storage mechanism that applications can use, for
  example gSSO or a TPM.
 
-Threats and attack vectors left out of Ostro 1.0 scope
-======================================================
+Threats and Attack Vectors Out of Scope for Ostro OS 1.0 Release
+================================================================
 
 * external DoS
 * attack from compromised cloud (actuation, configuration, …)
