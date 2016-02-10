@@ -9,9 +9,9 @@ used to make software updates work with the Ostro OS.
 Prerequisites
 =============
 
- - a linux host with docker (>= 1.9.1) and util-linux installed (Fedora 23 and
-   OpenSUSE 13.2 are known to be working well for this purpose, but the outdated
-   docker packages in Ubuntu 14.04 might have connectivity issues);
+ - a Linux host with Docker (>= 1.9.1) and util-linux installed (Fedora 23 and
+   OpenSUSE 13.2 are known to work well for this purpose, but the outdated
+   Docker packages in Ubuntu 14.04 might have connectivity issues);
  - signing keys (alternatively testing keys from the :file:`swupd-server` project can
    be used).
 
@@ -23,13 +23,13 @@ to type in::
 
   $ docker pull ostroproject/ostro-swupd-server
 
-If you prefer, you can also create your own :file:`swupd-server` Socker image with these steps:
+If you prefer, you can also create your own :file:`swupd-server` Docker image with these steps:
 
 1. Clone the git repo :file:`git@github.com:ostroproject/ostro-docker.git` to your host::
 
      $ git clone git@github.com:ostroproject/ostro-docker.git
 
-2. Build a new docker image using the Dockerfile from the repo::
+2. Build a new Docker image using the Dockerfile from the repo::
 
      $ docker build -t ostro-swupd-server ostro-docker/swupd
 
@@ -57,7 +57,9 @@ Here is a script that will extract the contents of the latest rootfs:
    :language: sh 
 
 
-There's a copy of this script saved as :file:`extract_rootfs.sh`, do the following steps:
+(There's a copy of this script saved as :file:`extract_rootfs.sh`.) 
+
+Do the following steps to setup your swupd server repository:
 
 1. Extract the content of the latest rootfs to `$STORAGE_DIR/image/10/os-core`::
 
