@@ -90,7 +90,9 @@ Do the following steps to setup your swupd server repository:
              Also please keep in mind that future versions of Yocto will
              have these steps integrated.
 
-Now you can expose the new repo with an HTTP server::
+Now you can expose the new repo with an HTTP server (python's
+SimpleHTTPServer is enough for verification, but never use it in production
+because it silently drops new requests when busy with serving a current one)::
 
      $ cd ${STORAGE_DIR}/www
      $ python -m SimpleHTTPServer 8000
@@ -100,7 +102,7 @@ And test with the :file:`swupd` client on a device::
     # swupd verify -V --log=info --url=http://<your_host>:8000
 
 .. note:: swupd client on the device must be aware of its OS' current version:
-          the file `/usr/lib/os-release` should contain something like::
+          the file `/etc/os-release` should contain something like::
 
               VERSION_ID=10
 
