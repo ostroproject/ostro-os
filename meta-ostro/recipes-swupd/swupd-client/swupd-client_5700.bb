@@ -9,13 +9,16 @@ SRC_URI = " \
   file://Fix-build-failure-on-Yocto.patch \
   file://Right-usage-of-AC_ARG_ENABLE-on-bzip2.patch \
   file://Change-systemctl-path-to-Ostro-systemctl-path.patch \
+  file://efi_combo_updater.c \
+  file://workaround-version-id-quotas.patch \
   "
 SRC_URI[md5sum] = "58671adf559dd18620f11caf4ccf83dd"
 SRC_URI[sha256sum] = "09a70a423d10a6bf71f8675b7430c29a56f41f93493331c9ae515011713c229b"
 
+inherit pkgconfig
 
-DEPENDS = "zlib curl openssl xz"
-RDEPENDS_${PN} = "xz tar"
+DEPENDS = "zlib curl openssl xz glib-2.0"
+RDEPENDS_${PN} = "xz tar gptfdisk glib-2.0"
 
 PACKAGECONFIG ??= "bzip2"
 PACKAGECONFIG[bzip2] = "--enable-bzip2,--disable-bzip2,bzip2"
@@ -28,3 +31,13 @@ FILES_${PN} += " \
   ${datadir}/clear/update-ca/ \
   ${base_libdir}/systemd/system/ \
 "
+
+do_compile() {
+  autotools_do_configure
+  ${CC} ${LDFLAGS} ${WORKDIR}/efi_combo_updater.c  -Os -o ${B}/efi_combo_updater `pkg-config --cflags --libs glib-2.0`
+}
+
+do_install_append() {
+  mkdir -p ${D}/usr/bin/
+  cp ${B}/efi_combo_updater ${D}/usr/bin/
+}
