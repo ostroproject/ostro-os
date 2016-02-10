@@ -88,7 +88,9 @@ There's a copy of this script saved as :file:`extract_rootfs.sh`, do the followi
              Also please keep in mind that future versions of Yocto will
              have these steps integrated.
 
-Now you can expose the new repo with an HTTP server::
+Now you can expose the new repo with an HTTP server (python's
+SimpleHTTPServer is enough for verification, but never use it in production
+because it silently drops new requests when busy with serving a current one)::
 
      $ cd ${STORAGE_DIR}/www
      $ python -m SimpleHTTPServer 8000
