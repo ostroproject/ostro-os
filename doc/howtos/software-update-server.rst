@@ -98,7 +98,7 @@ And test with the :file:`swupd` client on a device::
     # swupd verify -V --log=info --url=http://<your_host>:8000
 
 .. note:: swupd client on the device must be aware of its OS' current version:
-          the file `/usr/lib/os-release` should contain something like::
+          the file `/etc/os-release` should contain something like::
 
               VERSION_ID=10
 
