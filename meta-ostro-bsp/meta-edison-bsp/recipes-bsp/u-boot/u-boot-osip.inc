@@ -140,11 +140,11 @@ python do_osip_mkimage() {
     '000000000000000000000000000000000055aa'
 
     def main():
-        input_file = "${UBOOT_TMP_IMG}"
-        output_file = "${UBOOT_IMG}"
-        handoff_pointer =  ${OSIP_HANDOFF_POINTER}
-        destination_pointer = ${OSIP_DESTINATION_POINTER}
-        starting_lba = ${OSIP_STARTING_LBA}
+        input_file = d.getVar('UBOOT_TMP_IMG', True)
+        output_file = d.getVar('UBOOT_IMG', True)
+        handoff_pointer =  int(d.getVar('OSIP_HANDOFF_POINTER', True))
+        destination_pointer = int(d.getVar('OSIP_DESTINATION_POINTER', True))
+        starting_lba = int(d.getVar('OSIP_STARTING_LBA', True))
 
         in_file_data = open(input_file, 'rb').read()
 
