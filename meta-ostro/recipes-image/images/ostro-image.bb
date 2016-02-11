@@ -135,7 +135,6 @@ BBCLASSEXTEND = " \
     imagevariant:dev \
     imagevariant:minimal \
     imagevariant:swupd \
-    imagevariant:swupddev \
     ${OSTRO_EXTRA_IMAGE_VARIANTS} \
 "
 
