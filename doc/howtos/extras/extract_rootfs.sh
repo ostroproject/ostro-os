@@ -38,11 +38,17 @@ if [ -z "${PARTITION_NUM}" ]; then
 fi
 
 OS_CORE_DIR=${STORAGE_DIR}/image/${VER}/os-core
+IMG_FILE=`realpath $IMG_FILE`
 
-LOOPDEV=`losetup -f`
+losetup -f $IMG_FILE
+LOOPDEV=`losetup -a | grep $IMG_FILE | awk -F ":" '{print $1}' -`
+
+if [ -z "${LOOPDEV}" ]; then
+    echo "ERROR: Can't associate $IMG_FILE with a loop device"
+    exit 1
+fi
 
 mkdir -p $TMP_MOUNT_POINT
-losetup $LOOPDEV $IMG_FILE
 partprobe $LOOPDEV
 mount ${LOOPDEV}p${PARTITION_NUM} $TMP_MOUNT_POINT
 mkdir -p $OS_CORE_DIR
