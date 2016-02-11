@@ -33,10 +33,12 @@ If you prefer, you can also create your own :file:`swupd-server` Docker image wi
 
      $ docker build -t ostro-swupd-server ostro-docker/swupd
 
-If your host requires a proxy to access the internet, you need to provide an
-additional `--build-arg` argument for your HTTP proxy::
+If your host requires a proxy to access the internet, you need to provide
+additional `--build-arg` arguments for your HTTP and HTTPS proxies::
 
-  $ docker build --build-arg http_proxy=http://<you_proxy_host>:<proxy_port> -t ostro-swupd-server ostro-docker/swupd
+  $ docker build --build-arg http_proxy=http://<your_proxy_host>:<proxy_port> \
+                 --build-arg https_proxy=http://<your_proxy_host>:<proxy_port> \
+                 -t ostro-swupd-server ostro-docker/swupd
 
 Creating a Software Update Repo
 ===============================
