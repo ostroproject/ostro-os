@@ -5,10 +5,10 @@ TMP_MOUNT_POINT=/tmp/img_mount_point
 IMG_FILE=$1
 STORAGE_DIR=$2
 VER=$3
-PARTITION_NUM=$4
+PARTITION_LAYOUT=$4
 
 function usage {
-    echo "Usage: $0 <path_to_image_file> <storage_directory> <version> <rootfs_partition>"
+    echo "Usage: $0 <path_to_image_file> <storage_directory> <version> <path_to_partition_layout>"
 }
 
 if [ -z "${IMG_FILE}" ]; then
@@ -29,11 +29,18 @@ if [ -z "${VER}" ]; then
     exit 1
 fi
 
-if [ -z "${PARTITION_NUM}" ]; then
-    echo "ERROR: No partition number specified. You can find the number corresponding"
-    echo "       to the rootfs partition in the file"
-    echo "       meta-ostro/recipes-image/images/files/iot-cfg/disk-layout-<MACHINE>.json"
+if [ -z "${PARTITION_LAYOUT}" ]; then
+    echo "ERROR: No partition layout file specified. You can find it next to *.dsk image"
+    echo "       file inside you build directory, e.g."
+    echo "       build/tmp-glibc/deploy/images/<MACHINE>/ostro-image-<MACHINE>-disk-layout.json"
     usage
+    exit 1
+fi
+
+PARTITION_NUM=`cat $PARTITION_LAYOUT | python -c "import json, sys; print int([key for key in json.load(sys.stdin).keys() if key.endswith('_rootfs')][0].split('_')[1])"`
+
+if [ -z "${PARTITION_NUM}" ]; then
+    echo "ERROR: Can't fetch rootfs's partition number from the given layout file"
     exit 1
 fi
 
