@@ -18,7 +18,7 @@ SRC_URI[sha256sum] = "09a70a423d10a6bf71f8675b7430c29a56f41f93493331c9ae51501171
 inherit pkgconfig
 
 DEPENDS = "zlib curl openssl xz glib-2.0"
-RDEPENDS_${PN} = "xz tar gptfdisk glib-2.0"
+RDEPENDS_${PN} = "xz tar gptfdisk glib-2.0 bash"
 
 PACKAGECONFIG ??= "bzip2"
 PACKAGECONFIG[bzip2] = "--enable-bzip2,--disable-bzip2,bzip2"
