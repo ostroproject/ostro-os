@@ -379,13 +379,69 @@ Core OS Hardening
 Network Security
 ================
 
-Ostro OS has a firewall that out-of-the-box protects the system services
-using both IPv4 and IPv6. The applications and services need to open
-holes into the firewall if they require to be accessible from the
-network, that is to offer services to the network. If the device running Ostro OS
-is meant to be an Internet gateway or otherwise have a complex network
-setup, the system integrator has to change the initial firewall
-ruleset. *TODO*: finalize the iptables/nftables transition question
+Firewall design
+---------------
+
+Ostro OS has a firewall that out-of-the-box protects the system services using
+both IPv4 and IPv6. The applications and services need to open holes into the
+firewall if they require to be accessible from the network, that is to offer
+services to the network. If the device running Ostro OS is meant to be an
+Internet gateway or otherwise have a complex network setup, the system
+integrator has to change the initial firewall ruleset.
+
+Currently the firewall rules are composed of three parts:
+
+1. The initial default ruleset, loaded with ``iptables-restore``
+2. Service-specific rules, set from systemd configuration files using
+   ``iptables`` and ``ip6tables``, loaded when the service is started
+   and unloaded when the service is stopped
+3. Application-specific rules, set either from systemd configuration
+   files or by container launcher (such as ``systemd-nspawn``)
+
+At the moment there is no abstraction layer for the first two cases. The default
+ruleset needs to be set in ``iptables-restore`` compatible format and the
+services must use ``iptables`` and ``ip6tables`` commands for punching holes to
+the firewall and doing any other firewall configuration they might require.
+
+An example systemd socket extension file for opening IPv6 firewall port
+for sshd (this file is
+``/lib/systemd/system/sshd.socket.d/openssh-ipv6.conf``):
+
+::
+
+  [Unit]
+  After=ip6tables.service
+
+  [Socket]
+  ExecStartPre=/usr/sbin/ip6tables -w -A INPUT -p tcp --dport ssh -j ACCEPT
+  ExecStopPost=/usr/sbin/ip6tables -w -D INPUT -p tcp --dport ssh -j ACCEPT
+
+The ``-w`` switch is needed to both ``iptables`` and ``ip6tables`` commands to
+prevent race conditions with firewall locking.
+
+Current approach lets the firewall rules to be simple, and the writers of the
+service rules can use the extensive documentation available for iptables
+toolchain to write, debug, and verify the rules. Also, the iptables toolchain
+provides the system integrator the possibility to do almost any firewall setup
+imaginable, letting Ostro OS to be future-proof in this regard.
+
+Firewall default configuration
+------------------------------
+
+The default Ostro OS firewall configuration is a restrictive one. Briefly, all
+incoming packets are dropped, except for those belonging to already established
+connections or those that are coming from the loopback interface. Forwarding
+packets is not allowed. All outgoing packets are accepted. In addition to this,
+the IPv6 firewall is configured to accept incoming ICMPv6 packets.
+
+System services are not supposed to change the fundamental way the firewall is
+set up. They are meant to configure the firewall so that they can function
+properly, but the firewall settings they do must not compromise the firewall
+security or interfere with the operation of other services or applications.
+Ostro OS does not have a centralized firewall control, so the service writers
+must be careful about this.
+
+*TODO*: instructions for replacing the default firewall ruleset
 
 *TODO*: sensor security
 
