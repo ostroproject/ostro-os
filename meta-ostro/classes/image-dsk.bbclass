@@ -200,6 +200,11 @@ addtask do_uefiapp
 addtask do_uefiapp before do_rootfs
 addtask do_uefiapp_deploy after do_rootfs before do_image
 
+# Workaround for spurious execution of unrequested task
+# related to wic.
+# See: https://bugzilla.yoctoproject.org/show_bug.cgi?id=9095
+deltask do_rootfs_wicenv
+
 # All variables explicitly passed to image-iot.py.
 IMAGE_DSK_VARIABLES = " \
     APPEND \
