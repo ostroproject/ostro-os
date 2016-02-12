@@ -14,7 +14,7 @@ Getting Started
 ###############
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    quick_start/about
    quick_start/platforms
@@ -29,17 +29,10 @@ Architecture Guides
    architecture/architecture
 
 
-..  
-    All the how-to technical notes contained in the howtos folder are included
-    in alphabetic order (enabled by the :glob: attribute below.  Once we have more 
-    of these notes/articles written, we can look into reorganizing them by 
-    topics, but for now, this will do.
-
 How-To Technical Notes
 #######################
 
 .. toctree::
-   :maxdepth: 1
-   :glob:
-
-   howtos/*
+   :maxdepth: 2
+  
+   howtos/howtos
