@@ -186,7 +186,7 @@ python do_uefiapp_setscene () {
     sstate_setscene(d)
 }
 
-do_uefiapp_deploy() {
+uefiapp_deploy() {
   #Let's make sure that only what is needed stays in the /boot dir
   rm -rf ${IMAGE_ROOTFS}/boot/*
   cp -a ${DEPLOYDIR}/* ${IMAGE_ROOTFS}/boot/
@@ -198,7 +198,13 @@ addtask do_uefiapp_setscene
 addtask do_uefiapp
 
 addtask do_uefiapp before do_rootfs
-addtask do_uefiapp_deploy after do_rootfs before do_image
+
+ROOTFS_POSTPROCESS_COMMAND += " uefiapp_deploy; "
+
+# Workaround for spurious execution of unrequested task
+# related to wic.
+# See: https://bugzilla.yoctoproject.org/show_bug.cgi?id=9095
+deltask do_rootfs_wicenv
 
 # All variables explicitly passed to image-iot.py.
 IMAGE_DSK_VARIABLES = " \
