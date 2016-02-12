@@ -107,7 +107,7 @@ Adversaries
                                                                           privilege  potential
                                                                           level      effort level
 ======= ================== ======================= ====================== ========== ==============
-1.      Ostro OS           Damage Intel            Network adversary      Low        High
+1.      Ostro OS           Damage vendor's         Network adversary      Low        High
         download and       brand;
         update             personal
         infrastructure     reputation;
@@ -144,8 +144,8 @@ Group                      Description            Business      Who should have 
                                                   compromised
                                                   (worst case)
 ========================== ====================== ============= ==================================== =============
-Sensor data and actuators  Microphone, camera,    High          System components and applications   Device,
-                           temperature, heating                 according to their manifest          network
+Sensor data and actuators  Microphone, camera,    High          System components and applications   Device
+                           temperature, heating                 according to their manifest
                            control, lighting ...                privileges
 
 Application data           Log files, stored      Medium        Individual applications              Device
@@ -159,13 +159,18 @@ System data and files      Credentials/keys,      Medium        System component
 Access                     Privileged API         Medium        System components and applications   Device
                            access                               according to their manifest
                                                                 privileges
-Releases and tools         Ostro OS releases,     Medium        Release manager, developers          Hosting
+Releases and tools         Ostro OS releases      Medium        Release manager, developers          Hosting
                                                                                                      web sites
 Local network              UPnP protocol,         Medium        Authorized users and applications    Device
                            other devices
 Device resources           CPU, memory, disk      Medium        Applications and system components   Device
                            space
 ========================== ====================== ============= ==================================== =============
+
+The "Attack Points" column distinguishes between assets accessed
+through the device and thus where Ostro OS itselfs must protect the
+assets and other assets where mitigation must happen elsewhere.
+
 
 Attack surfaces
 ---------------
@@ -314,6 +319,9 @@ Lib-2
  system by only a limited IP address range, for example. Limit what
  the applications can do by using access control mechanisms, such as
  Unix groups, for accessing platform features.
+
+ Only enable required network protocols and avoid using networking
+ protocols that do not include security mechanisms.
 
 Lib-3
 -----
@@ -610,3 +618,7 @@ Threats and Attack Vectors Out of Scope for Ostro OS 1.0 Release
 * sensor DoS
 * unauthorized access to sensor (on server/sensor side)
 * attack using malicious data from a compromised sensor
+* attacks that can affect the hardware, like causing a device
+  to overheat
+* attack vectors based on hardware that is specific to
+  certain devices (like USB ports)
