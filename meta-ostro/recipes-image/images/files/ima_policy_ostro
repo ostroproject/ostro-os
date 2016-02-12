@@ -56,6 +56,11 @@ dont_measure fsmagic=0x27e0eb
 # EFIVARFS_MAGIC
 dont_appraise fsmagic=0xde5e81e4
 dont_measure fsmagic=0xde5e81e4
+# MSDOS_SUPER_MAGIC
+# Excluded for external USB sticks. Does not
+# support xattrs anyway.
+dont_appraise fsmagic=0x4d44
+dont_measure fsmagic=0x4d44
 
 # Special partition, no checking done.
 # dont_measure  fsuuid=a11234...
