@@ -73,11 +73,8 @@ Do the following steps to setup your swupd server repository:
 
      $ sudo sh extract_rootfs.sh \
          ${OSTRO_SDK_DIR}/tmp-glibc/deploy/images/${MACHINE}/ostro-image-${MACHINE}.dsk \
-         $STORAGE_DIR $NEW_VERSION $PARTITION_NUM
-
-   Where `PARTITION_NUM` is the number of rootfs partition in the .dsk image,
-   e.g. 5. You can find it in the file
-   `meta-ostro/recipes-image/images/files/iot-cfg/disk-layout-<MACHINE>.json`.
+         $STORAGE_DIR $NEW_VERSION \
+         ${OSTRO_SDK_DIR}/tmp-glibc/deploy/images/${MACHINE}/ostro-image-${MACHINE}-disk-layout.json
 
 2. Generate the first repo::
 
