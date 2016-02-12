@@ -103,6 +103,7 @@ MACHINE = \"%s\"
                 hashes[machine].update(get_hashes(topdir + ("/tmp-sstatesamehash-%s%s/stamps" % (machine, libcappend)), subdir))
             tasks.update(hashes[machine].keys())
         errors = ['Machines have different hashes:']
+        analysis = []
         tasks = list(tasks)
         tasks.sort()
         for task in tasks:
@@ -112,9 +113,21 @@ MACHINE = \"%s\"
                 value = hashes[machine].get(task, None)
                 if value:
                     values.setdefault(value, []).append(machine)
+            values = sorted(values.items())
             if len(values) > 1:
                 errors.append('Not the same hash for ' + task + ': ' +
-                              ' '.join(['/'.join(m) + '=' + v for v, m in values.iteritems()]))
+                              ' '.join(['/'.join(m) + '=' + v for v, m in values]))
+                # Pick the initial two values and the first machine in each where
+                # the task differed and compare the signatures.
+                cmd = "set -x; bitbake-diffsigs tmp-sstatesamehash-*%s*/stamps/*%s.* tmp-sstatesamehash-*%s*/stamps/*%s.*" % \
+                (values[0][1][0], task,
+                 values[1][1][0], task)
+                p = subprocess.Popen(cmd,
+                                     shell=True,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.STDOUT)
+                stdout, stderr = p.communicate()
+                analysis.append(stdout)
         if len(errors) > 1:
             # If this fails, it often fails for a whole range of tasks where one depends on
             # the other. In this example, only the original source file was different:
@@ -124,4 +137,4 @@ MACHINE = \"%s\"
             # ...
             # Not the same hash for all-ostro-linux/initramfs-boot/1.0-r2.do_fetch: edison=82a397e985e2c570714ab7dfa3e21a6c intel-core2-32=79b455328b0b298423cf52582cc12c7c
             # ...
-            self.assertTrue(False, msg='\n'.join(errors))
+            self.assertTrue(False, msg='\n'.join(errors) + '\n\n' + '\n\n'.join(analysis))
