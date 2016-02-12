@@ -7,9 +7,11 @@ Ostro |trade| OS System and Security Architecture
 Introduction
 ============
 
-The Ostro |trade| OS is a Linux\*-based operating system for Internet of
-Things (IoT). It provides the basis for building innovative, secure
-IoT devices. Because security is crucial for IoT, security mechanisms
+The Ostro |trade| OS is a pre-compiled, configured and secured base
+Internet of Things (IoT) Linux\* OS that supports creating custom images
+easily. For more information, see :ref:`_about_ostro`.
+
+Because security is crucial for IoT, security mechanisms
 are tightly integrated into the system architecture. The primary
 customers for Ostro OS are considered to be OEMs, OSVs, Service
 Providers, and developers building their own devices.
@@ -162,6 +164,7 @@ ensure that as follows:
   can limit access to the secret key) but is not sufficient to prevent
   offline attacks.
 
+.. _filesystem-layout:
 
 Filesystem Layout
 =================
@@ -205,7 +208,7 @@ the same writable partition.
   Persistent, read/write, no IMA/EVM. Each application gets its own
   home directory with access limited to the application.
 
-/etc and the files in it are part of the core OS and thus considered
+``/etc`` and the files in it are part of the core OS and thus considered
 read-only. However, there are a few noteworthy exceptions:
 
 ``/etc/ld.so.cache``
@@ -214,11 +217,11 @@ read-only. However, there are a few noteworthy exceptions:
  device after system software installation or updates. Its real
  location thus is in /var (*TODO*).
 
-``/etc/machineid``
+``/etc/machine-id``
  Currently systemd creates a machine ID when booting and writes it to
- /etc/machineid when /etc becomes writeable. When moving to the strict
+ ``/etc/machine-id`` when ``/etc`` becomes writeable. When moving to the strict
  IMA policy, we need to prevent that (because the file would become
- unreadable, which breaks several systemd services) or move it to /var
+ unreadable, which breaks several systemd services) or move it to ``/var``
  (*TODO*).
 
 
@@ -286,7 +289,11 @@ cause additional system packages they depend on to be added to the
 image, etc.
 
 What distinguishes applications from regular system services is that
-they provide a manifest file. That manifest file is translated by the
+they provide a manifest file which defines how to start them. In other
+words, applications on Ostro OS are essentially system services, they
+just get installed differently.
+
+That manifest file is translated by the
 application framework in Ostro OS into a systemd service file
 (``/run/systemd/system/app-$ID.service``). The long-term goal is to limit
 where applications can install files and rely exclusively on the
@@ -300,32 +307,25 @@ the access the application will have to different system resources. As
 applications run as different Unix users, ptrace-based attacks are
 prevented.
 
-Application manifest security content (*TODO*):
-
- * firewall configuration (ports that need to be open etc.)
- * user for running the application
- * groups that the user should belong to for access to system services
- * sensor provisioning information
- * container information
- * which namespaces should be isolated (systemd-nspawn: FS or everything)
- * which parts from system rootfs should be bind-mounted
- * Support for systemd’s security features, such as network isolation, apparently read-only directories, etc.
-
-Some applications can request to be run in containers. These
-applications bring with themselves a (complete or partial) root
-filesystem and systemd executes that container using a suitable
-container mechanism, probably systemd-nspawn.
+For more information about the application framework and the manifest
+content, see :ref:`_application-framework`.
 
 Since applications are run with different user accounts but MAC is
 optional, applications can arrange to share data between themselves in
 some cases when they are running outside of containers, inside the
-same container, or when the containers do not isolate IPC
+same container, or when the containers do not isolate IPC or network
 namespaces. The applications can, for instance, use abstract Unix
 domain sockets, loopback network interface, or System V message queues
 for connecting to each other. Note that this behavior is not as such
 encouraged or documented by the Ostro OS -- it’s just not explicitly
 disallowed. If the system integrator wants to prevent this behavior,
 using MAC or containers for application isolation is recommended.
+
+Applications provide the main interface to a device and thus have
+higher exposure to attacks than the OS itself. It is recommended that
+application providers perform strong application validation and run
+applications with minimal privileges and strong separation from the OS
+and other applications. Guidelines for that will be published later.
 
 
 System Updates
@@ -471,7 +471,8 @@ The Ostro Project provides two different pre-compiled images,
 ``ostro-os`` and ``ostro-os-dev``. Despite the name, currently *both*
 are compiled as development images. The only difference is that
 ``ostro-os-dev`` already includes development (gcc) and debugging
-tools (strace, valgrind, etc.).
+tools (strace, valgrind, etc.). There are no pre-compiled
+production images.
 
 The following table summarizes the differences between the default
 configuration for production images and images built with
@@ -499,3 +500,38 @@ SSH                           Installed, but disabled (*TODO*) Installed and run
 ============================= ================================ ==========================================
 
 For more information about signing, see the :ref:`certificate-handling` how-to tech note.
+
+
+Privacy Design
+==============
+
+By itself, Ostro OS collects and stores very little information
+related to the user of a device.
+
+In production and development images, connman stores information about
+(W)LANs that were seen or connected to under ``/var/lib/connman``.  On
+development images, developers have the possibility to enable remote
+access via ssh by creating a ``/home/root/.ssh/authorized_keys`` file
+and can also store arbitrary additional information under ``/home``.
+
+This private information is protected against offline modifications as
+explained under :ref:`_filesystem-layout`. However, that protection is
+still limited and there is no protection against offline read
+access.
+
+Most of the information about the user will be collected and stored by
+applications. It is the responsibility of the application developers
+to protect that information.
+
+Encryption support in the base Ostro OS like whole-disk encryption
+will be added in the future to protect files at the OS level. Right
+now, applications can use the normal cryptographic libraries available
+on Linux to encrypt data before storing it in files. Currently they
+also need to implement their own key handling when doing that.
+
+A device gets a unique ID when it boots, stored persistently under
+``/etc/machine-id`` by systemd. Applications can use that identifier
+when communicating with other devices or services. The OS itself only
+uses it internally. A device and thus indirectly the user can also be
+identified by the device's LAN and WLAN MAC addresses. Ostro OS
+provides no mechanism to obscure those.
