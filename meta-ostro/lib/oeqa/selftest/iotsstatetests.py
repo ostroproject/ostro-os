@@ -4,12 +4,14 @@ import os
 import re
 import shutil
 import glob
+import subprocess
 
 import oeqa.utils.ftools as ftools
 from oeqa.selftest.base import oeSelfTest
 from oeqa.utils.commands import runCmd, bitbake, get_bb_var, get_test_layer
 from oeqa.selftest.sstate import SStateBase
 from oeqa.utils.decorators import testcase
+import oeqa.utils.ftools as ftools
 
 class SStateTests(SStateBase):
 
@@ -34,21 +36,33 @@ class SStateTests(SStateBase):
         machines = "edison intel-quark intel-core2-32 intel-corei7-64 beaglebone".split()
         # machines = "edison intel-core2-32".split()
         first = machines[0]
-        for machine in machines:
-            self.write_config("""
-TMPDIR = \"${TOPDIR}/tmp-sstatesamehash-%s\"
+        workdir = os.getcwd()
+        try:
+            pending = []
+            for machine in machines:
+                builddir = '%s/build-%s' % (topdir, machine)
+                os.mkdir(builddir)
+                self.track_for_cleanup(builddir)
+                os.chdir(builddir)
+                shutil.copytree('../conf', 'conf')
+                ftools.write_file('conf/selftest.inc', """
+TMPDIR = \"%s/tmp-sstatesamehash-%s\"
 MACHINE = \"%s\"
-""" % (machine, machine))
-            # Comment out to debug with bitbake-diffstat after running the test.
-            # In that case, remember to "rm -r tmp-*" before the next run.
-            self.track_for_cleanup(topdir + "/tmp-sstatesamehash-%s%s" % (machine, libcappend))
-            # Replace build targets with individual recipes to investigate just those.
-            try:
-                bitbake("world meta-toolchain -S none")
-            except:
-                import traceback
-                raise AssertionError("bitbake failed for machine %s:\n%s" %
-                                     (machine, traceback.format_exc()))
+""" % (topdir, machine, machine))
+                # Comment out to debug with bitbake-diffstat after running the test.
+                # In that case, remember to "rm -r tmp-*" before the next run.
+                self.track_for_cleanup(topdir + "/tmp-sstatesamehash-%s%s" % (machine, libcappend))
+                # Replace build targets with individual recipes to investigate just those.
+                pending.append((machine, subprocess.Popen('bitbake world meta-toolchain -S none'.split(),
+                                                          stdout=open('%s/bitbake.log' % builddir, 'w'),
+                                                          stderr=subprocess.STDOUT)))
+            for machine, p in pending:
+                returncode = p.wait()
+                if returncode:
+                    raise AssertionError("bitbake failed for machine %s with return code %d:\n%s" %
+                                         (machine, returncode, open('%s/build-%s/bitbake.log' % (topdir, machine)).read()))
+        finally:
+            os.chdir(workdir)
 
         def get_hashes(d, subdir):
             f = {}
@@ -89,6 +103,7 @@ MACHINE = \"%s\"
                 hashes[machine].update(get_hashes(topdir + ("/tmp-sstatesamehash-%s%s/stamps" % (machine, libcappend)), subdir))
             tasks.update(hashes[machine].keys())
         errors = ['Machines have different hashes:']
+        analysis = []
         tasks = list(tasks)
         tasks.sort()
         for task in tasks:
@@ -98,9 +113,21 @@ MACHINE = \"%s\"
                 value = hashes[machine].get(task, None)
                 if value:
                     values.setdefault(value, []).append(machine)
+            values = sorted(values.items())
             if len(values) > 1:
                 errors.append('Not the same hash for ' + task + ': ' +
-                              ' '.join(['/'.join(m) + '=' + v for v, m in values.iteritems()]))
+                              ' '.join(['/'.join(m) + '=' + v for v, m in values]))
+                # Pick the initial two values and the first machine in each where
+                # the task differed and compare the signatures.
+                cmd = "set -x; bitbake-diffsigs tmp-sstatesamehash-*%s*/stamps/*%s.* tmp-sstatesamehash-*%s*/stamps/*%s.*" % \
+                (values[0][1][0], task,
+                 values[1][1][0], task)
+                p = subprocess.Popen(cmd,
+                                     shell=True,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.STDOUT)
+                stdout, stderr = p.communicate()
+                analysis.append(stdout)
         if len(errors) > 1:
             # If this fails, it often fails for a whole range of tasks where one depends on
             # the other. In this example, only the original source file was different:
@@ -110,4 +137,4 @@ MACHINE = \"%s\"
             # ...
             # Not the same hash for all-ostro-linux/initramfs-boot/1.0-r2.do_fetch: edison=82a397e985e2c570714ab7dfa3e21a6c intel-core2-32=79b455328b0b298423cf52582cc12c7c
             # ...
-            self.assertTrue(False, msg='\n'.join(errors))
+            self.assertTrue(False, msg='\n'.join(errors) + '\n\n' + '\n\n'.join(analysis))
