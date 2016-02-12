@@ -40,6 +40,12 @@ additional `--build-arg` arguments for your HTTP and HTTPS proxies::
                  --build-arg https_proxy=http://<your_proxy_host>:<proxy_port> \
                  -t ostro-swupd-server ostro-docker/swupd
 
+Also you may need to override the DNS configuration passed to containers,
+especially if your host has got 127.0.0.1 as your DNS server in :file:`/etc/resolv.conf`.
+Check the documentation for your system on how to do that. E.g. for OpenSUSE
+you'd need to add something like "--dns 8.8.8.8 --dns 8.8.4.4" to the
+`DOCKER_OPTS` variable in :file:`/etc/sysconfdir/docker`.
+
 Creating a Software Update Repo
 ===============================
 
@@ -99,7 +105,8 @@ because it silently drops new requests when busy with serving a current one)::
      $ cd ${STORAGE_DIR}/www
      $ python -m SimpleHTTPServer 8000
 
-And test with the :file:`swupd` client on a device::
+Make sure that your firewall doesn't block the port 8000 and test with
+the :file:`swupd` client on a device::
 
     # swupd verify -V --log=info --url=http://<your_host>:8000
 
