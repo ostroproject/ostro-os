@@ -6,7 +6,7 @@ Documentation Guidelines for the Ostro |trade| Project
 Ostro Project content is written using the `reStructuredText`_ markup language (.rst file extension)
 with sphinx extensions, and processed using sphinx to create a formatted
 standalone website.  Developers can view this content either in its raw form
-as .rst markup files, or (with sphinx installed) they can run the makefile to generate
+as .rst markup files, or (with sphinx installed) they can run the makefile (or make.bat on windows) to generate
 the HTML content and view it with a web browser directly
 from their workstation's drive.
 This same .rst content is also fed into the Ostro Project's public website documentation
@@ -111,55 +111,93 @@ for our use:
 
    ``:file:`filename.ext` :file:`path/or/directory```
 
+  You can also use the \`\`inline code\`\` markup (double backticks) to indicate filenames.
+
+
+.. _internal-linking:
 
 Internal Cross-Reference Linking
 ================================
 
 Normal ReST linking is only supported within the current file. With Sphinx however, we can create 
-and link to references anywhere within the Ostro Project documentation.  The only requirement is that 
-these reference labels must be unique.  Each file should have a reference label before its title so it may
-be referenced from another file.  For example:
+and link to references anywhere within the Ostro Project documentation.   
+Each file should have a reference label before its title so it may
+be referenced from another file. These reference labels must be unique.   For example the top
+of this .rst file is:
 
 
 .. code-block:: rst
 
-   .. _label_of_target:
+   .. _doc_guidelines:
 
-   This Is a Heading
-   -----------------
+   Documentation Guidelines for the Ostro |trade| Project
+   ######################################################
 
-   This creates a link to the :ref:`label_of_target` using the text of the
-   heading.
 
-   This creates a link to the :ref:`target <label_of_target>` using the word
-   'target' instead of the original heading.
+Other .rst documents can link to this document using the ``:ref:`doc_guidelines``` tag and
+it will show up as :ref:`doc_guidelines`.  This type of internal cross reference works across 
+multiple files, and the linking text is obtained from the document source so if the title changes,
+the link text will update as well.  (You should not link to the .rst file directly since this will
+fail when the content is converted to HTML for the website.)
 
-The template renders as:
+You can also link directly to a heading in a document using the same technique.  For example, this
+section uses this tagging:
 
-.. _label_of_target:
+.. code-block:: rst
 
-This Is a Heading
------------------
+   .. _internal-linking:
+   
+   Internal Cross-Reference Linking
+   ================================
 
-This creates a link to the :ref:`label_of_target` using the text of the
-heading.
-
-This creates a link to the :ref:`target <label_of_target>` using the word
-'target' instead of the original heading.
-
-.. important::
-
-   This type of internal cross reference works across multiple files, is
-   independent of changes in the text of the headings and works on all
-   Sphinx builders that support cross references.
-
+I can link to this section from any other .rst file in this document tree using ``:ref:`internal-linking``` 
+and it will show up as :ref:`internal-linking`.
 
 
 Non-ASCII Characters
 ====================
 
-For inserting non-ASCII characters such as a Trademark symbol, use the notation ``|trade|``.
+You can insert non-ASCII characters such as a Trademark symbol, use the notation ``|trade|``.
 These replacement names are defined in an include file used during the sphinx processing
 of the reST files.  The names of these replacement characters are the same as used in HTML
 entities used to insert characters in html, e.g., \&trade; and are defined in the
-file ``substitutions.txt``
+file ``sphinx_build/substitutions.txt`` and listed here:
+
+.. literalinclude:: ../sphinx_build/substitutions.txt
+   :language: rst
+
+
+We've kept the substitutions list small but others can be added as needed.  (Note the use of :ltrim: 
+in the substitutions include file to 
+remove the required space between the "Ostro" word and the ``|trade|`` replacement code.)
+
+Ostro |trade| Trademark
+=======================
+
+The Ostro |trade| name is a trademark of Intel Corporation and as such, there is a list of 
+approved nouns that must follow the Ostro name in our documentation 
+(and yes, "name" is one of the approved nouns). By far, the most common use is
+"Ostro OS" or "Ostro Project". (In source code, this rule need not be followed for 
+example, when using the Ostro name as part of a function of variable name.)
+
+Use of non-approved nouns (or no noun at all) must be avoided, for example:
+
+======================================  ========================================
+It's incorrect to say:                  Instead say:
+--------------------------------------  ----------------------------------------
+"an Ostro device"                       "a device running Ostro OS"
+"Ostro enables fast IoT development"    "Ostro OS enables fast IoT development"
+======================================  ========================================
+
+Here is a list of approved nouns:
+
+===============================  ===============================  ===============================  
+application framework            microkernel                      project
+architecture                     name                             SDK
+components                       nanokernel                       software
+DDK                              operating system                 software development kit
+device driver kit                OS                               tools
+kernel                           package                          trademark
+libraries                        platform
+mark                             programming interface
+===============================  ===============================  ===============================  
