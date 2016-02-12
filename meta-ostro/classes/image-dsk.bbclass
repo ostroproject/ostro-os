@@ -64,35 +64,35 @@ ROOTFS_PARTUUID_VALUE ?= "deadbeef-dead-beef-dead-beefdeadbeef"
 PARTITION_TYPE_EFI = "EF00"
 PARTITION_TYPE_EFI_BACKUP = "2700"
 
-DSK_IMAGE_LAYOUT ??= \
-'{ '\
-'    "gpt_initial_offset_mb": 3, '\
-'    "gpt_tail_padding_mb": 3, '\
-'    "partition_01_primary_uefi_boot": { '\
-'        "name": "primary_uefi", '\
-'        "uuid": 0, '\
-'        "size_mb": 15, '\
-'        "source": "${IMAGE_ROOTFS}/boot/", '\
-'        "filesystem": "vfat", '\
-'        "type": "${PARTITION_TYPE_EFI}" '\
-'    }, '\
-'    "partition_02_secondary_uefi_boot": { '\
-'        "name": "secondary_uefi", '\
-'        "uuid": 0, '\
-'        "size_mb": 15, '\
-'        "source": "${IMAGE_ROOTFS}/boot/", '\
-'        "filesystem": "vfat", '\
-'        "type": "${PARTITION_TYPE_EFI_BACKUP}" '\
-'    }, '\
-'    "partition_03_rootfs": { '\
-'        "name": "rootfs", '\
-'        "uuid": "${ROOTFS_PARTUUID_VALUE}", '\
-'        "size_mb": 5000, '\
-'        "source": "${IMAGE_ROOTFS}", '\
-'        "filesystem": "ext4", '\
-'        "type": "8300" '\
-'    } '\
-'}'
+DSK_IMAGE_LAYOUT ??= ' \
+{ \
+    "gpt_initial_offset_mb": 3, \
+    "gpt_tail_padding_mb": 3, \
+    "partition_01_primary_uefi_boot": { \
+        "name": "primary_uefi", \
+        "uuid": 0, \
+        "size_mb": 15, \
+        "source": "${IMAGE_ROOTFS}/boot/", \
+        "filesystem": "vfat", \
+        "type": "${PARTITION_TYPE_EFI}" \
+    }, \
+    "partition_02_secondary_uefi_boot": { \
+        "name": "secondary_uefi", \
+        "uuid": 0, \
+        "size_mb": 15, \
+        "source": "${IMAGE_ROOTFS}/boot/", \
+        "filesystem": "vfat", \
+        "type": "${PARTITION_TYPE_EFI_BACKUP}" \
+    }, \
+    "partition_03_rootfs": { \
+        "name": "rootfs", \
+        "uuid": "${ROOTFS_PARTUUID_VALUE}", \
+        "size_mb": 5000, \
+        "source": "${IMAGE_ROOTFS}", \
+        "filesystem": "ext4", \
+        "type": "8300" \
+    } \
+}'
 
 inherit deploy
 
@@ -107,9 +107,6 @@ inherit deploy
 #   - the initramfs
 #   There is a catch: all of these binary components must have the same word size as the BIOS:
 #   either 32 or 64 bit.
-# XXX TODO: remove the artificial split of variable names, like
-# '$' + '{varname}' that is meant to prevent bitbake from doing
-# bogus string replacements even within python strings.
 python do_uefiapp() {
     import random, string, json, uuid, shutil, glob, re
     from subprocess import check_call
@@ -119,19 +116,9 @@ python do_uefiapp() {
             with open(src) as source:
                 destination.write(source.read())
 
-    def expand(item):
-        item = str(item)
-        while re.search('.*\$\{(.*)\}.*', item):
-            match = re.search('.*\$\{(.*)\}.*', item)
-            sub = d.getVar(match.group(1), expand=True)
-            item = item.replace('${' + match.group(1) + '}', sub)
-        return item
-
-    def execute(item):
-        return check_call(expand(item).split())
-
-    d.setVar("IMAGE_NAME_LINK", expand('$' + '{BPN}-$' + '{MACHINE}'))
-    partition_table = json.loads(expand('${DSK_IMAGE_LAYOUT}'))
+    layout = d.getVar('DSK_IMAGE_LAYOUT', True)
+    bb.note("Parsing disk image JSON %s" % layout)
+    partition_table = json.loads(layout)
 
     full_image_size_mb = partition_table["gpt_initial_offset_mb"] + \
                          partition_table["gpt_tail_padding_mb"]
@@ -150,44 +137,44 @@ python do_uefiapp() {
             d.setVar("ROOTFS_SOURCE", partition_table[key]["source"])
             d.setVar("ROOTFS_PARTUUID", partition_table[key]["uuid"])
 
-    if os.path.exists(expand('$' + '{B}/initrd')):
-        os.remove(expand('$' + '{B}/initrd'))
+    if os.path.exists(d.expand('${B}/initrd')):
+        os.remove(d.expand('${B}/initrd'))
     # initrd is a concatenation of compressed cpio archives
     # (initramfs, microcode, etc.)
-    with open(expand('$' + '{B}/initrd'), 'w') as dst:
-        for cpio in expand('$' + '{INITRD}').split():
+    with open(d.expand('${B}/initrd'), 'w') as dst:
+        for cpio in d.getVar('INITRD', True).split():
             with open(cpio, 'rb') as src:
                 dst.write(src.read())
-    with open(expand('$' + '{B}/machine.txt'), 'w') as f:
-        f.write(expand('$' + '{MACHINE}'))
-    with open(expand('$' + '{B}/cmdline.txt'), 'w') as f:
-        f.write(expand('$' + '{APPEND} root=PARTUUID=$' + '{ROOTFS_PARTUUID} rootfstype=$' + '{ROOTFS_TYPE}'))
-    if '64' in expand('$' + '{MACHINE}'):
+    with open(d.expand('${B}/machine.txt'), 'w') as f:
+        f.write(d.expand('${MACHINE}'))
+    with open(d.expand('${B}/cmdline.txt'), 'w') as f:
+        f.write(d.expand('${APPEND} root=PARTUUID=${ROOTFS_PARTUUID} rootfstype=${ROOTFS_TYPE}'))
+    if '64' in d.getVar('MACHINE', True):
         executable = 'bootx64.efi'
     else:
         executable = 'bootia32.efi'
-    check_call(expand('objcopy ' +
-                      '--add-section .osrel=$' + '{B}/machine.txt ' +
+    check_call(d.expand('objcopy ' +
+                      '--add-section .osrel=${B}/machine.txt ' +
                           '--change-section-vma  .osrel=0x20000 ' +
-                      '--add-section .cmdline=$' + '{B}/cmdline.txt ' +
+                      '--add-section .cmdline=${B}/cmdline.txt ' +
                           '--change-section-vma .cmdline=0x30000 ' +
-                      '--add-section .linux=$' + '{DEPLOY_DIR_IMAGE}/bzImage ' +
+                      '--add-section .linux=${DEPLOY_DIR_IMAGE}/bzImage ' +
                           '--change-section-vma .linux=0x40000 ' +
-                      '--add-section .initrd=$' + '{B}/initrd ' +
+                      '--add-section .initrd=${B}/initrd ' +
                           '--change-section-vma .initrd=0x3000000 ' +
-                      glob.glob(expand('$' + '{DEPLOY_DIR_IMAGE}/linux*.efi.stub'))[0] +
-                      ' $' + '{B}/' + executable + '_tmp'
+                      glob.glob(d.expand('${DEPLOY_DIR_IMAGE}/linux*.efi.stub'))[0] +
+                      ' ${B}/' + executable + '_tmp'
                      ).split())
-    with open(expand('$' + '{B}/signature.txt'), 'w') as f:
+    with open(d.expand('${B}/signature.txt'), 'w') as f:
         f.write('Signature Placeholder.')
-    with open(expand('$' + '{B}/' + executable + '_tmp'), 'rb') as combo:
-        with open(expand('${B}/signature.txt'), 'rb') as signature:
-            with open(expand('$' + '{B}/' + executable), 'w') as signed_combo:
+    with open(d.expand('${B}/' + executable + '_tmp'), 'rb') as combo:
+        with open(d.expand('${B}/signature.txt'), 'rb') as signature:
+            with open(d.expand('${B}/' + executable), 'w') as signed_combo:
                 signed_combo.write(combo.read())
                 signed_combo.write(signature.read())
-    if not os.path.exists(expand('$' + '{DEPLOYDIR}/EFI/BOOT')):
-        os.makedirs(expand('$' + '{DEPLOYDIR}/EFI/BOOT'))
-    copy(expand('$' + '{B}/' + executable), expand('$' + '{DEPLOYDIR}/EFI/BOOT/' + executable))
+    if not os.path.exists(d.expand('${DEPLOYDIR}/EFI/BOOT')):
+        os.makedirs(d.expand('${DEPLOYDIR}/EFI/BOOT'))
+    copy(d.expand('${B}/' + executable), d.expand('${DEPLOYDIR}/EFI/BOOT/' + executable))
 }
 
 DEPLOYDIR = "${WORKDIR}/uefiapp-${PN}"
