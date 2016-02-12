@@ -17,9 +17,9 @@ Providers, and developers building their own devices.
 This document introduces key concepts in the Ostro OS and how they fit
 together. The target audience is developers who want to learn about
 Ostro OS and/or use the OS in their own product. Application
-developers will also find this to be useful background information. 
+developers will also find this to be useful background information.
 There will also be documentation more focused on application
-development and installation.  The :ref:`Building Images` tech note 
+development and installation.  The :ref:`Building Images` tech note
 will also help get you started.
 
 
@@ -422,7 +422,7 @@ configuration for production images and images built with
 ``ostro-os-development.inc``:
 
 ============================= ================================ ==========================================
-\                             production image                 development image 
+\                             production image                 development image
 ============================= ================================ ==========================================
 Target audience               End-customers                    Developers
 ----------------------------- -------------------------------- ------------------------------------------
