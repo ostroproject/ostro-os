@@ -387,7 +387,8 @@ ROOTFS_POSTPROCESS_COMMAND += "${@bb.utils.contains('IMAGE_FEATURES', 'autologin
 # Extends the /etc/motd message that is shown on each login.
 # Normally it is empty.
 OSTRO_EXTRA_MOTD ?= ""
-extra_motd () {
-    echo "${OSTRO_EXTRA_MOTD}" >>${IMAGE_ROOTFS}${sysconfdir}/motd
+python extra_motd () {
+    with open(d.expand('${IMAGE_ROOTFS}${sysconfdir}/motd'), 'a') as f:
+        f.write(d.getVar('OSTRO_EXTRA_MOTD', True))
 }
-ROOTFS_POSTPROCESS_COMMAND += "${@'extra_motd;' if '${OSTRO_EXTRA_MOTD}' else ''}"
+ROOTFS_POSTPROCESS_COMMAND += "${@'extra_motd;' if d.getVar('OSTRO_EXTRA_MOTD', True) else ''}"
