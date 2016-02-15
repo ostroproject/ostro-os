@@ -1,36 +1,37 @@
 COREDIR = "${COREBASE}/meta/recipes-devtools/e2fsprogs"
 
-# This recipe only works with e2fsprogs.inc written for e2fsprogs 1.42.9
-# as included up to Yocto 2.0 = jethro. Yocto 2.1 will ship a pre-release
-# of e2fsprogs 1.43 which supports xattrs out of the box, in which
-# case this recipe can be skipped.
+# This recipe is a copy of a e2fsprogs 1.42.99+1.43 from OE-core master and
+# only meant to be used when the current OE-core does not have that version yet.
 python () {
     import os
     upstream = os.path.join(d.getVar('COREDIR', True), 'e2fsprogs_1.42.9.bb')
     if not os.path.exists(upstream):
-        raise bb.parse.SkipRecipe("This recipe replaces e2fsprogs 1.42.9 in OE-core. e2fsprogs from OE-core is something else and thus either recent enough to have xattr support or (less likely) too old to build this recipe.")
+        raise bb.parse.SkipRecipe("This recipe replaces e2fsprogs 1.42.9 in OE-core. e2fsprogs from OE-core is something else and thus either recent enough to have xattr support or (less likely) something unexpected.")
 }
 
-FILESEXTRAPATHS_append := ":${COREDIR}/e2fsprogs"
 
-require ${COREDIR}/e2fsprogs.inc
+require e2fsprogs.inc
 
-SRC_URI = "git://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git \
-           file://acinclude.m4 \
-           file://mkdir.patch \
-           file://remove-ldconfig-call.patch \
-           file://quiet-debugfs.patch \
-           file://populate-fs-xattr.patch \
-           file://cross-compile.patch \
+SRC_URI += "file://acinclude.m4 \
+            file://remove.ldconfig.call.patch \
+            file://quiet-debugfs.patch \
+            file://run-ptest \
+            file://ptest.patch \
+            file://mkdir.patch \
 "
 
-SRCREV = "bb9cca2ca91b46e820f77dda38e01fb2860dc5d2"
-PV = "1.42.9+git${SRCPV}"
+SRCREV = "0f26747167cc9d82df849b0aad387bf824f04544"
+PV = "1.42.99+1.43+git${SRCPV}"
+UPSTREAM_CHECK_GITTAGREGEX = "v(?P<pver>\d+\.\d+(\.\d+)*)$"
 
-S = "${WORKDIR}/git"
+EXTRA_OECONF += "--libdir=${base_libdir} --sbindir=${base_sbindir} \
+                --enable-elf-shlibs --disable-libuuid --disable-uuidd \
+                --disable-libblkid --enable-verbose-makecmds"
 
-EXTRA_OECONF += "--libdir=${base_libdir} --sbindir=${base_sbindir} --enable-elf-shlibs --disable-libuuid --disable-uuidd --enable-verbose-makecmds"
 EXTRA_OECONF_darwin = "--libdir=${base_libdir} --sbindir=${base_sbindir} --enable-bsd-shlibs"
+
+PACKAGECONFIG ??= ""
+PACKAGECONFIG[fuse] = '--enable-fuse2fs,--disable-fuse2fs,fuse'
 
 do_configure_prepend () {
 	cp ${WORKDIR}/acinclude.m4 ${S}/
@@ -57,14 +58,23 @@ do_install () {
 	oe_multilib_header ext2fs/ext2_types.h
 	install -d ${D}${base_bindir}
 	mv ${D}${bindir}/chattr ${D}${base_bindir}/chattr.e2fsprogs
+
+	install -v -m 755 ${S}/contrib/populate-extfs.sh ${D}${base_sbindir}/
+}
+
+do_install_append_class-target() {
+	# Clean host path in compile_et, mk_cmds
+	sed -i -e "s,ET_DIR=\"${S}/lib/et\",ET_DIR=\"${datadir}/et\",g" ${D}${bindir}/compile_et
+	sed -i -e "s,SS_DIR=\"${S}/lib/ss\",SS_DIR=\"${datadir}/ss\",g" ${D}${bindir}/mk_cmds
 }
 
 RDEPENDS_e2fsprogs = "e2fsprogs-badblocks"
 RRECOMMENDS_e2fsprogs = "e2fsprogs-mke2fs e2fsprogs-e2fsck"
 
-PACKAGES =+ "e2fsprogs-e2fsck e2fsprogs-mke2fs e2fsprogs-tune2fs e2fsprogs-badblocks"
+PACKAGES =+ "e2fsprogs-e2fsck e2fsprogs-mke2fs e2fsprogs-tune2fs e2fsprogs-badblocks e2fsprogs-resize2fs"
 PACKAGES =+ "libcomerr libss libe2p libext2fs"
 
+FILES_e2fsprogs-resize2fs = "${base_sbindir}/resize2fs*"
 FILES_e2fsprogs-e2fsck = "${base_sbindir}/e2fsck ${base_sbindir}/fsck.ext*"
 FILES_e2fsprogs-mke2fs = "${base_sbindir}/mke2fs ${base_sbindir}/mkfs.ext* ${sysconfdir}/mke2fs.conf"
 FILES_e2fsprogs-tune2fs = "${base_sbindir}/tune2fs ${base_sbindir}/e2label"
@@ -75,11 +85,22 @@ FILES_libe2p = "${base_libdir}/libe2p.so.*"
 FILES_libext2fs = "${libdir}/e2initrd_helper ${base_libdir}/libext2fs.so.*"
 FILES_${PN}-dev += "${datadir}/*/*.awk ${datadir}/*/*.sed ${base_libdir}/*.so"
 
-BBCLASSEXTEND = "native"
-
-inherit update-alternatives
-
 ALTERNATIVE_${PN} = "chattr"
 ALTERNATIVE_PRIORITY = "100"
 ALTERNATIVE_LINK_NAME[chattr] = "${base_bindir}/chattr"
 ALTERNATIVE_TARGET[chattr] = "${base_bindir}/chattr.e2fsprogs"
+
+ALTERNATIVE_${PN}-doc = "fsck.8"
+ALTERNATIVE_LINK_NAME[fsck.8] = "${mandir}/man8/fsck.8"
+
+RDEPENDS_${PN}-ptest += "${PN} ${PN}-tune2fs coreutils procps bash"
+
+do_compile_ptest() {
+	oe_runmake -C ${B}/tests
+}
+
+do_install_ptest() {
+	cp -a ${B}/tests ${D}${PTEST_PATH}/test
+	cp -a ${S}/tests/* ${D}${PTEST_PATH}/test
+	sed -e 's!../e2fsck/e2fsck!e2fsck!g' -i ${D}${PTEST_PATH}/test/*/expect*
+}
