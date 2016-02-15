@@ -118,7 +118,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testHasOicDeviceSettingsAttr' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testHasOicDeviceSettingsAttr' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -138,7 +138,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceSettingsMemberUrl' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceSettingsMemberUrl' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -158,7 +158,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceSettingsMemberInfo' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceSettingsMemberInfo' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -178,7 +178,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceSettingsMemberRole' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceSettingsMemberRole' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -198,7 +198,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceSettingsMemberConnectionMode' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceSettingsMemberConnectionMode' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -218,7 +218,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberUuid' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberUuid' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -238,7 +238,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberName' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberName' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -258,7 +258,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberDataModels' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberDataModels' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -278,7 +278,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberOsVersion' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberOsVersion' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -298,7 +298,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberCoreSpecVersion' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberCoreSpecVersion' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -318,7 +318,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberModel' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberModel' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -338,7 +338,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberManufacturerName' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberManufacturerName' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -358,7 +358,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberManufacturerUrl' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberManufacturerUrl' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -378,7 +378,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberManufacturerDate' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberManufacturerDate' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -398,7 +398,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberPlatformVersion' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberPlatformVersion' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -418,7 +418,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberFirmwareVersion' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberFirmwareVersion' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -438,7 +438,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberFirmwareVersion' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberFirmwareVersion' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -458,7 +458,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceHasMemberClient' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceHasMemberClient' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -478,7 +478,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceHasMemberServer' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceHasMemberServer' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -498,7 +498,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceHasConfigurePromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceHasConfigurePromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -518,7 +518,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceHasFactoryResetPromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceHasFactoryResetPromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -538,7 +538,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceHasRebootPromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceHasRebootPromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
@@ -558,7 +558,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasFindResourcesPromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasFindResourcesPromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_client']
@@ -578,7 +578,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasFindDevicesPromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasFindDevicesPromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_client']
@@ -598,7 +598,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasCreateResourcePromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasCreateResourcePromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_client']
@@ -618,7 +618,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasRetrieveResourcePromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasRetrieveResourcePromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_client']
@@ -638,7 +638,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasUpdateResourcePromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasUpdateResourcePromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_client']
@@ -658,7 +658,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasDeleteResourcePromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasDeleteResourcePromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_client']
@@ -678,7 +678,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasStartObservingPromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasStartObservingPromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_client']
@@ -698,7 +698,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasCancelObservingPromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasCancelObservingPromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_client']
@@ -718,7 +718,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasOnresourcechange' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasOnresourcechange' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_client']
@@ -738,7 +738,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasStartOnresourcefound' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasStartOnresourcefound' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_client']
@@ -758,7 +758,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasCancelOndevicefound' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasCancelOndevicefound' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_client']
@@ -779,7 +779,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasRegisterResourcePromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasRegisterResourcePromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_server']
@@ -799,7 +799,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasUnregisterResourcePromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasUnregisterResourcePromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_server']
@@ -819,7 +819,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasEnablePresencePromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasEnablePresencePromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_server']
@@ -839,7 +839,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasDisablePresencePromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasDisablePresencePromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_server']
@@ -859,7 +859,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasNotifyPromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasNotifyPromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_server']
@@ -879,7 +879,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasMemberOnrequest' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasMemberOnrequest' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_server']
