@@ -119,9 +119,10 @@ def write_tc_name(tc_result, tc, mod_name):
     @fn write_tc_name
     @return
     '''
-    tc_name = tc_result[0]
-    tc_detailed_name = tc_result[1].strip('()').split('.')[-1]
-    tc.append('%s.%s.%s' % (mod_name, tc_detailed_name, tc_name))
+    if tc_result:
+        tc_name = tc_result[0]
+        tc_detailed_name = tc_result[1].strip('()').split('.')[-1]
+        tc.append('%s.%s.%s' % (mod_name, tc_detailed_name, tc_name))
 
 
 def write_tc_result(tc_result, tc):
