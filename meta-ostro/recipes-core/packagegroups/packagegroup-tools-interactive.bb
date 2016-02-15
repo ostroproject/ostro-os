@@ -10,6 +10,7 @@ inherit packagegroup
 
 RDEPENDS_${PN} = " \
     atop \
+    curl \
     gawk \
     htop \
     iftop \
@@ -22,6 +23,8 @@ RDEPENDS_${PN} = " \
     iputils-tracepath6 \
     iputils-traceroute6 \
     procps \
+    rsync \
     traceroute \
     vim \
+    wget \
 "
