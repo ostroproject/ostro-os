@@ -59,7 +59,7 @@ mkdir -p $TMP_MOUNT_POINT
 partprobe $LOOPDEV
 mount ${LOOPDEV}p${PARTITION_NUM} $TMP_MOUNT_POINT
 mkdir -p $OS_CORE_DIR
-cp -a $TMP_MOUNT_POINT/* $OS_CORE_DIR
+rsync -aX $TMP_MOUNT_POINT/ $OS_CORE_DIR
 umount $TMP_MOUNT_POINT
 losetup -d $LOOPDEV
 rm -r ${OS_CORE_DIR}/lost+found
