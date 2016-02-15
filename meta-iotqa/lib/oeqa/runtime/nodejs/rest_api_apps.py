@@ -174,8 +174,8 @@ class RESTAPIAppTest(oeRuntimeTest):
         @param name
         @return
         """
-        (status,output) = cls.tc.target.run("ps | grep -vE 'grep|sh -c' | grep '%s'"  % name)
-        (status,output) = cls.tc.target.run("ps | grep -vE 'grep|sh -c' | grep '%s' | awk 'NR==1 {print $1}'" % name)
+        (status,output) = cls.tc.target.run("ps | grep '%s'"  % name)
+        (status,output) = cls.tc.target.run("ps | grep '%s' | awk 'NR==1 {print $1}'" % name)
         if status == 0 and output:
              return output
         else:
