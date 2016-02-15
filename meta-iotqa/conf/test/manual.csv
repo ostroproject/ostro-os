@@ -4,11 +4,11 @@ TestStep,,,,2,Plug the other port to IoT device,,,,,,,,
 TestStep,,,,3,Check if wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.30.tar.xz,wget command works,,,,,,,
 TestScript,bt_gatt_write_handle,COMMS/Bluetooth,use gatttool to write IoT BLE handle value,1,IoT device does ble advertising. Command is: hciconfig hci0 leadv,,EFT,design,IOTOS-456,,,,
 TestStep,,,,2,"On Host, gatttool -b <iot BT MAC> --characteristics",,,,,,,,
-TestStep,,,,3,"In the characteristics list, use a handle to see its value. Command is: 
+TestStep,,,,3,"In the characteristics list, use a handle to see its value. Command is:
 gatttool -b <iot BT MAC> --char-read -a <handle>",,,,,,,,
 TestStep,,,,4,"Write new value into the handle by:
 gatttool -b <iot BT MAC> --char-write-req -a <handle> -n abcd",return write success,,,,,,,
-TestStep,,,,5,"Read this handle again. 
+TestStep,,,,5,"Read this handle again.
 gatttool -b <iot BT MAC> --char-read -a <handle>",the value has been modified to 'ab cd ...',,,,,,,
 TestScript,comm_can_can0,COMMS/CAN,enable CAN bus to recognize can0,1,Run ifconfig after system boots up.,There should be 'can0' interface,FVT,ready,IOTOS-385,,,,
 TestScript,comm_can_data_dump,COMMS/CAN,send data to can0 and dump data,1,Send message to can0 bus. Command is: ./cansend can0 500#1E.10.10,command return 0 (success),FVT,ready,IOTOS-385,,,,
@@ -35,7 +35,7 @@ TestScript,documentation_How to build/modify Ostro OS,Documentation,To check the
 TestScript,documentation_Contributing_to_Ostro_OS,Documentation,To check the Instruction correctness,1,Check the doc mentioned in this Requirement,The doc instruction is correct,FVT,ready,IOTOS-836,,,,
 TestScript,documentation_Supported_HW_platforms,Documentation,To check the Instruction correctness,1,make sure platform description is accurate and the links provided are correct,The doc is correct,FVT,ready,IOTOS-837,,,,
 TestScript,sol_oic_find_single_resource,COMMS/Iotivity,Use soletta node type API to find single oic resource,1,"Put 3 test files ('light-client.fbp', 'light-server.fbp' and 'sol-flow.json' from soletta source src/examples/flow/oic/) to IoT device /home/root/ folder. ",,EFT,design,IOTOS-1019,,,,
-TestStep,,,,2,"In the IoT device, it should be able to run fbp file. Then, run: 
+TestStep,,,,2,"In the IoT device, it should be able to run fbp file. Then, run:
 > export SOL_MACHINE_ID=""580a3d6a9d194a23b90a24573558d2f4""
 > ./light-server.fbp",The light-server is able to be setup. And no anything output.,,,,,,,
 TestStep,,,,3,"In another terminal, run: ./light-client.fbp","After client running, both client and server part will output continousely:
@@ -43,7 +43,7 @@ LightState true (boolean)
 LightState false (boolean)",,,,,,,
 TestScript,sol_oic_find_multiple_resource,COMMS/Iotivity,Use soletta node type API to scan multiple oic resource,1,Put 2 test files ('light-scan/light-client-scan.fbp' and 'light-scan/sol-flow.json' from soletta source src/examples/flow/oic/) to IoT device /home/root/ folder. ,,EFT,design,IOTOS-1019,,,,
 TestStep,,,,2,Put light-server.fbp to at least 2 IoT devices. ,,,,,,,,
-TestStep,,,,3,"In the 2 IoT devices, start light-server with different id: 
+TestStep,,,,3,"In the 2 IoT devices, start light-server with different id:
 > export SOL_MACHINE_ID=""580a3d6a9d194a23b90a24573558d2f4""
 > ./light-server.fbp","On 2 devices, the light-server is able to be setup. And no anything output.",,,,,,,
 TestStep,,,,4,"In another terminal, run: ./light-client-scan.fbp to scan all resources. ",The 2 light-server should be found. ,,,,,,,
@@ -93,7 +93,10 @@ TestScript,appfw_nonroot_uid,AppFW/app,check application is launched by non-root
 TestStep,,,,2,"Run 'ps', check /lib/node_modules/nodetest/example.js daemon's uid",The uid of the daemon should not be root,,,,,,,
 TestScript,appfw_neg_app_impersonation,AppFW/app,one app's user should not pretend to be another's user,1,Install at least two example applications into image.,,FVT,ready,IOTOS-416,,,,
 TestStep,,,,2,"After system boots up, find two user id of the two example apps under /home folder. ",The two new user name should be found under /home/,,,,,,,
-TestStep,,,,3,"By root account do: 
+TestStep,,,,3,"By root account do:
 # su App1    (App1 is the user name string of 1st example app)","Now, you are in App1 account.",,,,,,,
 TestStep,,,,4,"Try to switch to another's user:
 # su App2   (App2 is the 2nd user name)",It will fail to switch.,,,,,,,
+TestScript,appfw_neg_app_manifest,AppFW/app,app cannot get assigned to non-existent user,1,Install an application which request multiple groups (eg: bad-groups-app). At least one should be a non-existent group (eg: nonexitent1,nonexistent2),,FVT,ready,IOTOS-418,,,,
+TestStep,,,,2,"After system boots up, find the user name of the app under /home/ folder. ",The app user name should be found under /home/ (eg: evil-bad-groups),,,,,,,
+TestStep,,,,3, Command: root# grep SupplementaryGroups /run/systemd/generator/$APPNAME.service, Check that requested non-existent groups (eg: nonexistent1, nonexistent2) are not in the list of assigned groups,,,,,,,
