@@ -189,7 +189,7 @@ python do_uefiapp_setscene () {
 uefiapp_deploy() {
   #Let's make sure that only what is needed stays in the /boot dir
   rm -rf ${IMAGE_ROOTFS}/boot/*
-  cp -a ${DEPLOYDIR}/* ${IMAGE_ROOTFS}/boot/
+  cp  --preserve=timestamps -r ${DEPLOYDIR}/* ${IMAGE_ROOTFS}/boot/
   chown -R root:root ${IMAGE_ROOTFS}/boot
 }
 
