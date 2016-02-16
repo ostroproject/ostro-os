@@ -82,12 +82,6 @@ Do the following steps to setup your swupd server repository:
                   -v ${STORAGE_DIR}:/var/lib/update \
                   ostro-swupd-server /home/clrbuilder/projects/process_rootfs.sh ${NEW_VERSION}
 
-3. Check if everything went smoothly and if it did then update the latest version::
-
-     $ echo ${NEW_VERSION} > ${STORAGE_DIR}/image/latest.version
-     $ mkdir -p ${STORAGE_DIR}/www/version/format3
-     $ echo ${NEW_VERSION} > ${STORAGE_DIR}/www/version/format3/latest
-
 .. warning:: The steps above have been written with the assumption that your
              host system supports xattrs on the file system and doesn't
              interfere with them. For example you might need to disable SELinux.
