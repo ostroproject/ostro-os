@@ -33,10 +33,18 @@ If you prefer, you can also create your own :file:`swupd-server` Docker image wi
 
      $ docker build -t ostro-swupd-server ostro-docker/swupd
 
-If your host requires a proxy to access the internet, you need to provide an
-additional `--build-arg` argument for your HTTP proxy::
+If your host requires a proxy to access the internet, you need to provide
+additional `--build-arg` arguments for your HTTP and HTTPS proxies::
 
-  $ docker build --build-arg http_proxy=http://<you_proxy_host>:<proxy_port> -t ostro-swupd-server ostro-docker/swupd
+  $ docker build --build-arg http_proxy=http://<your_proxy_host>:<proxy_port> \
+                 --build-arg https_proxy=http://<your_proxy_host>:<proxy_port> \
+                 -t ostro-swupd-server ostro-docker/swupd
+
+Also you may need to override the DNS configuration passed to containers,
+especially if your host has got 127.0.0.1 as your DNS server in :file:`/etc/resolv.conf`.
+Check the documentation for your system on how to do that. E.g. for OpenSUSE
+you'd need to add something like "--dns 8.8.8.8 --dns 8.8.4.4" to the
+`DOCKER_OPTS` variable in :file:`/etc/sysconfdir/docker`.
 
 Creating a Software Update Repo
 ===============================
@@ -65,11 +73,8 @@ Do the following steps to setup your swupd server repository:
 
      $ sudo sh extract_rootfs.sh \
          ${OSTRO_SDK_DIR}/tmp-glibc/deploy/images/${MACHINE}/ostro-image-${MACHINE}.dsk \
-         $STORAGE_DIR $NEW_VERSION $PARTITION_NUM
-
-   Where `PARTITION_NUM` is the number of rootfs partition in the .dsk image,
-   e.g. 5. You can find it in the file
-   `meta-ostro/recipes-image/images/files/iot-cfg/disk-layout-<MACHINE>.json`.
+         $STORAGE_DIR $NEW_VERSION \
+         ${OSTRO_SDK_DIR}/tmp-glibc/deploy/images/${MACHINE}/ostro-image-${MACHINE}-disk-layout.json
 
 2. Generate the first repo::
 
@@ -97,7 +102,8 @@ because it silently drops new requests when busy with serving a current one)::
      $ cd ${STORAGE_DIR}/www
      $ python -m SimpleHTTPServer 8000
 
-And test with the :file:`swupd` client on a device::
+Make sure that your firewall doesn't block the port 8000 and test with
+the :file:`swupd` client on a device::
 
     # swupd verify -V --log=info --url=http://<your_host>:8000
 
