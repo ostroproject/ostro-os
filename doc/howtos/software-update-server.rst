@@ -79,15 +79,8 @@ Do the following steps to setup your swupd server repository:
 2. Generate the first repo::
 
      $ docker run --rm=true --privileged \
-                  -v ${STORAGE_DIR}/image:/var/lib/update/image \
-                  -v ${STORAGE_DIR}/www:/var/lib/update/www \
+                  -v ${STORAGE_DIR}:/var/lib/update \
                   ostro-swupd-server /home/clrbuilder/projects/process_rootfs.sh ${NEW_VERSION}
-
-3. Check if everything went smoothly and if it did then update the latest version::
-
-     $ echo ${NEW_VERSION} > ${STORAGE_DIR}/image/latest.version
-     $ mkdir -p ${STORAGE_DIR}/www/version/format3
-     $ echo ${NEW_VERSION} > ${STORAGE_DIR}/www/version/format3/latest
 
 .. warning:: The steps above have been written with the assumption that your
              host system supports xattrs on the file system and doesn't
