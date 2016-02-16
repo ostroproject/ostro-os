@@ -36,6 +36,9 @@ class IOtvtIntegration(oeRuntimeTest):
         cls.tc.target.run("killall fridgeserver fridgeclient garageserver garageclient groupserver groupclient")
         cls.tc.target.run("killall roomserver roomclient simpleserver simpleclient simpleserverHQ simpleclientHQ")
         cls.tc.target.run("killall simpleclientserver threadingsample")
+        # Setup firewall accept for multicast
+        cls.tc.target.run("/usr/sbin/iptables -w -A INPUT -p udp --dport 5683 -j ACCEPT")
+        cls.tc.target.run("/usr/sbin/iptables -w -A INPUT -p udp --dport 5684 -j ACCEPT")
 
     def presence_check(self, para):
         '''this is a function used by presence test
