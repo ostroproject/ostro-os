@@ -197,9 +197,7 @@ module.exports = {
             test.strictEqual(typeof this.apiSystem.apiResponse['cpus'][i]['speed'], 'number',
                             'cpus.speed proerty is not number!');
             test.strictEqual(this.apiSystem.apiResponse['cpus'][i]['model'], localCpus[i]['model'],
-                            'local cpus.model value differs from the one from /api/system!');
-            test.strictEqual(this.apiSystem.apiResponse['cpus'][i]['speed'], localCpus[i]['speed'],
-                            'local cpus.speed value differs from the one from /api/system!');                                                     
+                            'local cpus.model value differs from the one from /api/system!');                                                  
         }
         test.done();
     },
