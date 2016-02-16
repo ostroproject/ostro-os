@@ -32,7 +32,9 @@ python imagevariant_virtclass_handler () {
     # multilib.bbclass checks with "if ... return" for historic
     # reasons. Since OE-core 2.0, we are guaranteed to get called only
     # when these values are set, unless the user made a mistake.
-    if cls != 'imagevariant' or not variant:
+    if cls != 'imagevariant':
+	return
+    if not variant:
         bb.fatal('BBCLASSEXTEND=imagevariant must be used with parameters, as in BBCLASSEXTEND=imagevariant:no-debug-tweaks,tools-profile')
 
     parameters = variant.split(',')
