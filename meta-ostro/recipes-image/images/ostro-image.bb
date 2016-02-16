@@ -312,7 +312,7 @@ set_sqlite_owner () {
 #
 # At the moment, Ostro OS sets up IMA so that everything must be either
 # signed (thus becoming read-only) or hashed (writeable because the
-# kernel will updated hashes). Everything under /etc, /var and /usr/dbspace
+# kernel will updated hashes). Everything under /etc, /var, /home and /usr/dbspace
 # is writable. That policy gets loaded in the initramfs, see
 # core-image-minimal-initramfs.bbappend.
 #
@@ -330,7 +330,7 @@ set_sqlite_owner () {
 #   Alternatively, we could add a ostro-initramfs-noima, but the
 #   benefits of that (smaller initramfs) do not justify the downsides
 #   (building becomes slower).
-OSTRO_WRITABLE_FILES = "-path './etc/*' -o -path './var/*' -o -path './usr/dbspace/*'"
+OSTRO_WRITABLE_FILES = "-path './etc/*' -o -path './var/*' -o -path './home/*' -o -path './usr/dbspace/*'"
 IMA_EVM_ROOTFS_SIGNED = ". -type f -a -uid 0 -a ! \( ${OSTRO_WRITABLE_FILES} \)"
 IMA_EVM_ROOTFS_HASHED = ". -type f -a -uid 0 -a \( ${OSTRO_WRITABLE_FILES} \)"
 IMA_EVM_ROOTFS_IVERSION = "/"
