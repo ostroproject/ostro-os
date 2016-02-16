@@ -29,6 +29,10 @@ SRC_URI_append_intel-core2-32 = " file://0001-iio-light-add-support-for-ROHM-BH1
 SRC_URI_append_intel-corei7-64 = " file://bh1750.cfg"
 SRC_URI_append_intel-core2-32 = " file://bh1750.cfg"
 
+# backport BH1750 light sensor support on Galileo Gen 2
+SRC_URI_append_intel-quark = " file://bh1750.cfg"
+SRC_URI_append_intel-quark = " file://0001-iio-light-add-support-for-ROHM-BH1710-BH1715-BH1721-.patch"
+
 #  BeagleBone Black enable all I2Cs
 SRC_URI_append_beaglebone = " file://0001-v3.15.0-ARM-dts-am335x-boneblack-configure-i2c1-and-2.patch"
 
