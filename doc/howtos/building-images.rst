@@ -127,9 +127,16 @@ Production Images
 
 When building production images, first follow the instructions
 provided in :file:`meta-integrity/doc/README.md` for creating your own
-keys. Then set ``IMA_EVM_KEY_DIR`` to the directory containing
+keys. Then edit the :file:`conf/local.conf` configuration file and
+set ``IMA_EVM_KEY_DIR`` to the directory containing
 these keys or set the individual variables for each required
 key (see ``ima-evm-rootfs.bbclass``).
+
+In addition, find the line
+with ``# require conf/distro/include/ostro-os-production.inc`` and
+uncomment it. This documents that the intention really is to build
+production images and disables a sanity check that would otherwise
+abort a build.
 
 Then add your custom applications and services by listing them as
 additional packages as described in the next section.

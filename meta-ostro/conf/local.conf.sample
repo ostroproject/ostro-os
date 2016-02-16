@@ -277,14 +277,21 @@ CONF_VERSION = "1"
 #
 #INHERIT += "isafw"
 
-# Ostro OS development images get built when uncommenting
-# the following line.
-#
-# Do not do this in production! The resulting images
-# are not secure. See doc/building-images.rst for further
-# instructions.
+# An explicit choice must be made between building Ostro OS
+# development images and production images. See
+# doc/howtows/building-images.rst for further instructions.
+
+# Ostro OS development images get built when uncommenting the
+# following line. Do not do this in production! The resulting images
+# are not secure.
 #
 # require conf/distro/include/ostro-os-development.inc
+
+# When building production images, configure IMA signing
+# as described in meta-integrity/README.md if IMA is enabled
+# and uncomment the following line.
+#
+# require conf/distro/include/ostro-os-production.inc
 
 #
 # Misc configuration
