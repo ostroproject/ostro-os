@@ -373,6 +373,29 @@ inherit xattr-images
 # Create all users and groups normally created only at runtime already at build time.
 inherit systemd-sysusers
 
+# Disable images that are unbuildable, with an explanation why.
+# Attempts to build disabled images will show that explanation.
+python () {
+    if bb.utils.contains('IMAGE_FEATURES', 'ima', True, False, d):
+        # This is not a complete sanity check, because which settings
+        # are needed depends a lot on how signing is configured. But
+        # IMA_EVM_X509 is always expected to be a valid file, so we
+        # can test at least that.
+        x509 = d.getVar('IMA_EVM_X509', True)
+        import os
+        if not os.path.isfile(x509):
+            error = '''
+IMA_EVM_X509 is not set to the name of an existing file.
+Check whether IMA signing is configured correctly, see
+doc/howtos/building-images.rst.
+
+%s''' % '\n'.join(['%s = "%s"' % (x, d.getVar(x, True)) for x in ['IMA_EVM_KEY_DIR', 'IMA_EVM_PRIVKEY', 'IMA_EVM_X509', 'IMA_EVM_ROOT_CA']])
+            # It would be neat to show also the unexpanded variable values,
+            # but SkipRecipe or the code dumping it automatically expand
+            # variables, so we cannot do that at the moment.
+            raise bb.parse.SkipRecipe(error)
+}
+
 # Enable local auto-login of the root user (local = serial port and
 # virtual console by default, can be configured).
 OSTRO_LOCAL_GETTY ?= " \
