@@ -20,7 +20,7 @@ from oeqa.utils.helper import get_files_dir
 from oeqa.utils.helper import shell_cmd_timeout
 from oeqa.utils.decorators import tag
 
-@tag(TestType="FVT", FeatureID="IOTOS-754,IOTOS-1019")
+@tag(TestType="EFT", FeatureID="IOTOS-754,IOTOS-1019")
 class IOtvtIntegration(oeRuntimeTest):
     """
     @class IOtvtIntegration

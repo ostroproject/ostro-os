@@ -24,12 +24,17 @@ class CommNFCDaemonTest(oeRuntimeTest):
         @param self
         @return
         '''
-        (status, output) = self.target.run('ps | grep neard -c')
-        number = string.atoi(output)
+        (status, output) = self.target.run('systemctl status neard')
+        if 'Active: active' in output:
+            pass
+        else:
+            # Collect system information as log
+            status=1
+
         ##
         # TESTPOINT: #1, test_comm_nfcdaemoncheck
         #
-        self.assertEqual(number, 3, msg="Error messages: %s" % output)
+        self.assertEqual(status, 0, msg="Error messages: %s" % output)
 
 ##
 # @}
