@@ -1,7 +1,6 @@
-var oicDevice = require('iotivity-node');
+var device = require('iotivity-node');
 
-var device = new oicDevice();
-var OicClient = device.client;
+var OicClient = device.prototype;
 
 module.exports = {
 
@@ -42,28 +41,5 @@ module.exports = {
 		test.ok('deleteResource' in OicClient);
 		test.strictEqual(typeof(OicClient.deleteResource), 'function');
 		test.done();
-	},		
-	testOicClientHasStartObservingPromise: function(test) {
-		test.ok('startObserving' in OicClient);
-		test.strictEqual(typeof(OicClient.startObserving), 'function');
-		test.done();
-	},
-	testOicClientHasCancelObservingPromise: function(test) {
-		test.ok('cancelObserving' in OicClient);
-		test.strictEqual(typeof(OicClient.cancelObserving), 'function');
-		test.done();
-	},	
-
-	testOicClientHasOnresourcechange: function(test) {
-		test.ok('onresourcechange' in OicClient);
-		test.done();
-	},		
-	testOicClientHasStartOnresourcefound: function(test) {
-		test.ok('onresourcefound' in OicClient);
-		test.done();
-	},
-	testOicClientHasCancelOndevicefound: function(test) {
-		test.ok('ondevicefound' in OicClient);
-		test.done();
-	},		
+	}
 }	
