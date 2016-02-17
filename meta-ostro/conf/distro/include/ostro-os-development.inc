@@ -11,3 +11,7 @@ OSTRO_EXTRA_MOTD () {
 *** Do not use in production.    ***
 ************************************
 }
+
+# Everything ready, avoid initial sanity check.
+OSTRO_IMAGE_BUILD_MODE_SELECTED = "1"
+
