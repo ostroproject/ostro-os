@@ -1,8 +1,6 @@
-var oicDevice = require('iotivity-node');
+var device = require('iotivity-node');
 
-
-var device = new oicDevice();
-var OicServer = device.server;
+var OicServer = device.prototype;
 
 module.exports = {
 
@@ -37,9 +35,5 @@ module.exports = {
 		test.ok('notify' in OicServer);
 		test.strictEqual(typeof(OicServer.notify), 'function');
 		test.done();
-	},
-	testOicServerHasMemberOnrequest: function(test) {
-		test.ok('onrequest' in OicServer);
-		test.done();
-	},									
+	}								
 }

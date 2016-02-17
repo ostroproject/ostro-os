@@ -1,12 +1,4 @@
-var oicDevice = require('iotivity-node');
-
-var settings = {
-	role: "intermediary",
-	connectionMode: "acked"
-};
-
-var OicDevice = new oicDevice(settings);
-
+var OicDevice = require('iotivity-node')();
 
 module.exports = {
 
@@ -178,35 +170,27 @@ module.exports = {
 		test.done();
 	},
 
-	testOicDeviceHasMemberClient: function(test) {
-		test.ok('client' in OicDevice);
+	testOicDeviceHasaddEventListener: function(test) {
+		test.ok('addEventListener' in OicDevice);
+		test.strictEqual(typeof OicDevice.addEventListener, 'function');
 		test.done();
 	},
 
-	testOicDeviceHasMemberServer: function(test) {
-		test.ok('server' in OicDevice);
+	testOicDeviceHasremoveEventListener: function(test) {
+		test.ok('removeEventListener' in OicDevice);
+		test.strictEqual(typeof OicDevice.removeEventListener, 'function');
 		test.done();
-	},	
+	},
 
+	testOicDeviceHasdispatchEvent: function(test) {
+		test.ok('dispatchEvent' in OicDevice);
+		test.strictEqual(typeof OicDevice.dispatchEvent, 'function');
+		test.done();
+	},
+			
 	testOicDeviceHasConfigurePromise: function(test) {
 		test.ok('configure' in OicDevice);
 		test.strictEqual(typeof OicDevice.configure, 'function');
 		test.done();
-	},	
-
-	testOicDeviceHasFactoryResetPromise: function(test) {
-		test.ok('factoryReset' in OicDevice);
-		if ('factoryReset' in OicDevice) {
-			test.strictEqual(typeof OicDevice.factoryReset, 'function');
-		}
-		test.done();
-	},
-
-	testOicDeviceHasRebootPromise: function(test) {
-		test.ok('reboot' in OicDevice);
-		if ('reboot' in OicDevice) {
-			test.strictEqual(typeof OicDevice.reboot, 'function');
-		}		
-		test.done();
-	},
+	}
 }
