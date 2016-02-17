@@ -100,3 +100,7 @@ TestStep,,,,4,"Try to switch to another's user:
 TestScript,appfw_neg_app_manifest,AppFW/app,app cannot get assigned to non-existent user,1,Install an application which request multiple groups (eg: bad-groups-app). At least one should be a non-existent group (eg: nonexitent1,nonexistent2),,FVT,ready,IOTOS-418,,,
 TestStep,,,,2,"After system boots up, find the user name of the app under /home/ folder. ",The app user name should be found under /home/ (eg: evil-bad-groups),,,,,,,
 TestStep,,,,3, Command: root# grep SupplementaryGroups /run/systemd/generator/$APPNAME.service, Check that requested non-existent groups (eg: nonexistent1, nonexistent2) are not in the list of assigned groups,,,,,,
+TestScript,test_swupd_remote,Software Update,Full update using swupd,1,use "swupd verify" to make sure current flashed image is in good status for swupdate,no error should be shown in log,FVT,ready,IOTOS-970,,,
+TestStep,,,,2,do repo validation using blackbox tool or other tool at client side, verify repo is correct,repo should be correct,,,,,,
+TestStep,,,,3,apply update task using "swupd_update -v -c" and make sure update complete successfully, this will redownload the update repo,the update should complete successfully and corresponding files are changed,,,,,,
+TestStep,,,,4,do "swupd verify" to check system is correct,check system should be in good status,,,,,,
