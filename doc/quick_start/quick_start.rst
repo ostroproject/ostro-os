@@ -12,11 +12,11 @@ of features for the current release.
 
 This guide describes two ways to get started with your investigation and use of the Ostro OS: 
 
-   * Download one of the pre-built Ostro OS images, ready to run on a supported hardware platform, or 
-     emulated using a Virtual Machine.
+* Download one of the pre-built Ostro OS images, ready to run on a supported hardware platform, or 
+  emulated using a Virtual Machine.
 
-   * Download the source code, examine and customize the OS and packages, and use the `Yocto Project`_ tools 
-     to generate a new image that is tailored to your specific application needs.
+* Download the source code, examine and customize the OS and packages, and use the `Yocto Project`_ tools 
+  to generate a new image that is tailored to your specific application needs.
 
 .. _`Yocto Project`: http://yoctoproject.org
 
@@ -76,9 +76,9 @@ documentation, and support systems:
 
 * IRC Chatting
    You can chat online with the Ostro OS developer community and other users in
-   our IRC channel **#<need a name here>** on the **<need a name here>** IRC server.
-   Instructions for connecting are available at
-   <server name goes here> and you'll need a client-side application
+   our IRC channel ``#ostroproject`` on the freenode.net IRC server.  You can use
+   the http://webchat.freenode.net web client 
+   or use a client-side application
    such as :command:`pidgin`.  Communication on IRC is immediate but transient,
    making it good for meetings or a quick discussion.  (IRC discussions are
    not recorded so it's better to use the mailing list for open discussions
@@ -132,15 +132,15 @@ tools needed to build an Ostro OS image.
 
 Briefly (and as fully explained in the `Yocto Project Quick Start Guide`_), you’ll need:
 
-   *  A host system with a minimum of 50 Gbytes of free disk space that is running a supported 
-      Linux distribution (i.e. recent releases of Fedora, openSUSE, CentOS, Debian, or Ubuntu). 
-      If your host system supports multiple cores and threads, you can configure the Yocto Project
-      build system to take advantage of this and significantly decrease the time needed to build images.
+*  A host system with a minimum of 50 Gbytes of free disk space that is running a supported 
+   Linux distribution (i.e. recent releases of Fedora, openSUSE, CentOS, Debian, or Ubuntu). 
+   If your host system supports multiple cores and threads, you can configure the Yocto Project
+   build system to take advantage of this and significantly decrease the time needed to build images.
 
-   *  Appropriate developer packages (gawk, make, python, perl, patch, and others) 
-      installed on the system you are using for builds
+*  Appropriate developer packages (gawk, make, python, perl, patch, and others) 
+   installed on the system you are using for builds
 
-   *  A release of the Yocto Project (included when you clone the ostroproject repo from GitHub).
+*  A release of the Yocto Project (included when you clone the ostroproject repo from GitHub).
 
 Once you’ve followed the Yocto Project instructions to get your computer ready to host a project, 
 you may also need to set up proxy information if your sitting behind a firewall.

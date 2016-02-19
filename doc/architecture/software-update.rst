@@ -57,9 +57,10 @@ a bare-bones working system.
 Everything else is optional and can be either deployed or removed by using the
 software update client program.
 
-Ostro developers can also use bundles following the rule that each application is \
+Ostro developers can also use bundles following the rule that each application is
 contained in its own bundle.
 
 .. _bundles: https://clearlinux.org/documentation/bundles_overview.html
+
 XXX TODO: add here or in the howto some info on how to create bundles, once that part
 is working.
