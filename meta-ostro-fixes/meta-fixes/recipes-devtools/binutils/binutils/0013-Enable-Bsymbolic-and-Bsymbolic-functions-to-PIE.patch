@@ -1,10 +1,5 @@
-From d1f7f8205c306174136241c7e64df4d2d327c591 Mon Sep 17 00:00:00 2001
-From: Jussi Laako <jussi.laako@linux.intel.com>
-Date: Fri, 12 Feb 2016 14:27:11 +0200
+Author: H.J. Lu <hjl.tools@gmail.com>
 Subject: [PATCH] Enable -Bsymbolic and -Bsymbolic-functions to PIE
-
-Original patch from: H.J. Lu <hjl.tools@gmail.com>
-Adapted to apply on openembedded-core.
 
 Before binutils 2.26, -Bsymbolic and -Bsymbolic-functions were also
 applied to PIE so that "ld -pie -Bsymbolic -E" can be used to export
@@ -23,6 +18,8 @@ Backport from master
 	* testsuite/ld-i386/pr19615.s: Likewise.
 	* testsuite/ld-x86-64/pr19615.d: Likewise.
 	* testsuite/ld-x86-64/pr19615.s: Likewise.
+
+Adapted to apply on openembedded-core.
 
 Signed-off-by: Jussi Laako <jussi.laako@linux.intel.com>
 ---
