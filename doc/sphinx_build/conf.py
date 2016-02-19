@@ -136,7 +136,7 @@ html_title = "Ostro Project Documentation"
 # If None (or null string) permalinks will be added to each header.
 
 # html_add_permalinks = '¶'
-html_add_permalinks = '🔗'
+html_add_permalinks = u'🔗'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
