@@ -12,16 +12,15 @@ OSTRO_LAYERS = " \
   ##OEROOT##/meta-intel \
   ##OEROOT##/meta-ostro \
   ##OEROOT##/meta-oic \
-  ##OEROOT##/meta-security-smack \
-  ##OEROOT##/meta-security-framework \
-  ##OEROOT##/meta-integrity \
+  ##OEROOT##/meta-intel-iot-security/meta-security-smack \
+  ##OEROOT##/meta-intel-iot-security/meta-security-framework \
+  ##OEROOT##/meta-intel-iot-security/meta-integrity \
   ##OEROOT##/meta-intel-iot-middleware \
   ##OEROOT##/meta-ostro-bsp \
   ##OEROOT##/meta-ostro-bsp/meta-edison-bsp \
   ##OEROOT##/meta-iot-web \
-  ##OEROOT##/meta-yocto-bsp \
+  ##OEROOT##/meta-yocto/meta-yocto-bsp \
   ##OEROOT##/meta-iotqa \
-  ##OEROOT##/meta-user-management \
   ##OEROOT##/meta-appfw \
   ##OEROOT##/meta-security-isafw \
   "

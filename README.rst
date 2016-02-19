@@ -15,13 +15,12 @@ Ostro OS:
 - meta-ostro-fixes
 - meta-ostro-bsp
 - meta-iot-web
-- meta-yocto-bsp (from the meta-yocto git repository)
+- meta-yocto
 - meta-iotqa
-- meta-user-management
-- meta-sensor-framework
 - meta-appfw
 - meta-java
 - meta-soletta
+- meta-openembedded
 
 The top-level directory comes from openembedded-core and meta-ostro
 (including this README.rst), everything else is in its own
