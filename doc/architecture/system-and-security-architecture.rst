@@ -9,7 +9,7 @@ Introduction
 
 The Ostro |trade| OS is a pre-compiled, configured and secured base
 Internet of Things (IoT) Linux\* OS that supports creating custom images
-easily. For more information, see :ref:`_about_ostro`.
+easily. For more information, see :ref:`about_ostro`.
 
 Because security is crucial for IoT, security mechanisms
 are tightly integrated into the system architecture. The primary
@@ -234,17 +234,17 @@ users. It is not possible to set a root password.
 
 To become root in the core system:
 
-  * After installation and before booting for the first time, add a
-    public key to the ``~root/.ssh/authorized_keys`` file (*TODO*:
-    create the directory and file with correct permissions, document
-    the exact location, which may vary between development and
-    production image)
+* After installation and before booting for the first time, add a
+  public key to the ``~root/.ssh/authorized_keys`` file (*TODO*:
+  create the directory and file with correct permissions, document
+  the exact location, which may vary between development and
+  production image)
 
-  * *Only in the development image*: log in via a local console and or
-    serial port as root. A PAM module allows root to log in without
-    password. Because development and production image use different
-    signing keys (*TODO*), that module and its configuration cannot be
-    copied from a development image to a production image.
+* \*Only in the development image\*: log in via a local console and or
+  serial port as root. A PAM module allows root to log in without
+  password. Because development and production image use different
+  signing keys (*TODO*), that module and its configuration cannot be
+  copied from a development image to a production image.
 
 Most groups are used to control access to certain resources like
 files, devices or privileged operations in system daemons. Device node
@@ -308,7 +308,7 @@ applications run as different Unix users, ptrace-based attacks are
 prevented.
 
 For more information about the application framework and the manifest
-content, see :ref:`_application-framework`.
+content, see :ref:`application-framework`.
 
 Since applications are run with different user accounts but MAC is
 optional, applications can arrange to share data between themselves in
@@ -509,13 +509,13 @@ By itself, Ostro OS collects and stores very little information
 related to the user of a device.
 
 In production and development images, connman stores information about
-(W)LANs that were seen or connected to under ``/var/lib/connman``.  On
-development images, developers have the possibility to enable remote
+LANs and WLANs that were seen or connected to under ``/var/lib/connman``.  On
+development images, developers can enable remote
 access via ssh by creating a ``/home/root/.ssh/authorized_keys`` file
 and can also store arbitrary additional information under ``/home``.
 
 This private information is protected against offline modifications as
-explained under :ref:`_filesystem-layout`. However, that protection is
+explained in :ref:`filesystem-layout`. However, that protection is
 still limited and there is no protection against offline read
 access.
 
@@ -524,14 +524,14 @@ applications. It is the responsibility of the application developers
 to protect that information.
 
 Encryption support in the base Ostro OS like whole-disk encryption
-will be added in the future to protect files at the OS level. Right
-now, applications can use the normal cryptographic libraries available
-on Linux to encrypt data before storing it in files. Currently they
+will be added in the future to protect files at the OS level. Currently, 
+applications can use the normal cryptographic libraries available
+on Linux to encrypt data before storing it in files. These applications
 also need to implement their own key handling when doing that.
 
 A device gets a unique ID when it boots, stored persistently under
 ``/etc/machine-id`` by systemd. Applications can use that identifier
 when communicating with other devices or services. The OS itself only
-uses it internally. A device and thus indirectly the user can also be
+uses it internally. A device and indirectly the user can also be
 identified by the device's LAN and WLAN MAC addresses. Ostro OS
 provides no mechanism to obscure those.
