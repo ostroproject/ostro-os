@@ -78,11 +78,13 @@ int main(void) {
 
   /* Identify the block device with the rootfs, which is the
      same containing the EFI partitions.*/
-  if (!execute(&root_block_device, ROOT_BLOCK_DEVICE_CMD)) {
+  execute(&root_block_device, ROOT_BLOCK_DEVICE_CMD);
+  if (!strlen(root_block_device)) {
     execute(&root_block_device, ROOT_BLOCK_DEVICE_SD_CMD);
     *part_prefix = 'p';
   }
   printf("ROOT_BLOCK_DEVICE %s\n", root_block_device);
+  printf("Partition prefix: \"%s\"\n", part_prefix);
 
   /* Identify the active EFI partition. */
   assert(execute(&efi_partition_nr, EFI_PARTITION_NR_CMD,
