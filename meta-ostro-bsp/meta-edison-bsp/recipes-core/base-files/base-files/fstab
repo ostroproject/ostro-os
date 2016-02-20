@@ -1,0 +1,7 @@
+/dev/root            /                    auto       nodev,noatime,discard,barrier=1,data=ordered,noauto_da_alloc    1  1
+proc                 /proc                proc       defaults              0  0
+devpts               /dev/pts             devpts     mode=0620,gid=5       0  0
+usbdevfs             /proc/bus/usb        usbdevfs   noauto                0  0
+tmpfs                /run                 tmpfs      mode=0755,nodev,nosuid,strictatime 0  0
+tmpfs                /var/volatile        tmpfs      defaults              0  0
+/dev/mmcblk0p5       /factory             auto       ro,noatime            0  0

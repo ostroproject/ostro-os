@@ -1,0 +1,14 @@
+#!/usr/bin/expect
+set timeout 100
+spawn bluetoothctl
+ expect {
+ "NEW* Controller"
+   {
+    send "paired-devices\n"; 
+    sleep 1;
+    send "exit\n"; exp_continue
+   }
+ eof
+   {}
+ }
+

@@ -1,0 +1,20 @@
+This file contains a list of maintainers for the meta-intel-iot-middleware
+layer.
+
+Descriptions of section entries:
+
+	M: Mail patches to: FullName <address@domain>
+	F: Files and directories with wildcard patterns.
+	   A trailing slash includes all files and subdirectory files.
+	   F:	recipes-devtools/	all files in and below meta-ivi
+	   F:	recipes-selinux/*	all files in meta-ivi, but not below
+	   One pattern per line.  Multiple F: lines acceptable.
+
+Please keep this list in alphabetical order.
+
+Maintainers List (try to look for most precise areas first)
+
+COMMON
+M:	Kevron Rees <kevron.m.rees@intel.com>
+F:	*
+

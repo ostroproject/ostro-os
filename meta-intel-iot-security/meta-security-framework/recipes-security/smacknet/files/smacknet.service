@@ -1,0 +1,11 @@
+[Unit]
+Description=netlabels configuration for SMACK
+Wants=network.target network-online.target
+After=network.target network-online.target
+
+[Service]
+TimeoutStartSec=0
+ExecStart=@BINDIR@/smacknet
+
+[Install]
+WantedBy=multi-user.target

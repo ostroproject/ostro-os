@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<!--
+    Configure avahi to discover Soletta Devlopment Application server and port
+    server
+-->
+<service-group>
+  <name replace-wildcards="yes">Soletta Dev-App [MACADDR]</name>
+  <service>
+    <type>_http._tcp</type>
+    <port>8080</port>
+  </service>
+</service-group>
+

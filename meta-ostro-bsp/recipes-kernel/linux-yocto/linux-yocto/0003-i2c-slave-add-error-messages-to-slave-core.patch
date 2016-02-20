@@ -1,0 +1,85 @@
+From a2e1a9fbf351b666dc7dc0783b59b5768294785a Mon Sep 17 00:00:00 2001
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Date: Thu, 14 May 2015 14:40:05 +0200
+Subject: [PATCH 03/26] i2c: slave: add error messages to slave core
+
+Inform users what went wrong from the core, so drivers don't have to do
+it.
+
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+
+Upstream-status: Backport
+---
+ drivers/i2c/i2c-core.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index fc2ee82..77a2ec6 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -2918,18 +2918,24 @@ int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb)
+ {
+ 	int ret;
+ 
+-	if (!client || !slave_cb)
++	if (!client || !slave_cb) {
++		WARN(1, "insufficent data\n");
+ 		return -EINVAL;
++	}
+ 
+ 	if (!(client->flags & I2C_CLIENT_TEN)) {
+ 		/* Enforce stricter address checking */
+ 		ret = i2c_check_addr_validity(client->addr);
+-		if (ret)
++		if (ret) {
++			dev_err(&client->dev, "%s: invalid address\n", __func__);
+ 			return ret;
++		}
+ 	}
+ 
+-	if (!client->adapter->algo->reg_slave)
++	if (!client->adapter->algo->reg_slave) {
++		dev_err(&client->dev, "%s: not supported by adapter\n", __func__);
+ 		return -EOPNOTSUPP;
++	}
+ 
+ 	client->slave_cb = slave_cb;
+ 
+@@ -2937,8 +2943,10 @@ int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb)
+ 	ret = client->adapter->algo->reg_slave(client);
+ 	i2c_unlock_adapter(client->adapter);
+ 
+-	if (ret)
++	if (ret) {
+ 		client->slave_cb = NULL;
++		dev_err(&client->dev, "%s: adapter returned error %d\n", __func__, ret);
++	}
+ 
+ 	return ret;
+ }
+@@ -2948,8 +2956,10 @@ int i2c_slave_unregister(struct i2c_client *client)
+ {
+ 	int ret;
+ 
+-	if (!client->adapter->algo->unreg_slave)
++	if (!client->adapter->algo->unreg_slave) {
++		dev_err(&client->dev, "%s: not supported by adapter\n", __func__);
+ 		return -EOPNOTSUPP;
++	}
+ 
+ 	i2c_lock_adapter(client->adapter);
+ 	ret = client->adapter->algo->unreg_slave(client);
+@@ -2957,6 +2967,8 @@ int i2c_slave_unregister(struct i2c_client *client)
+ 
+ 	if (ret == 0)
+ 		client->slave_cb = NULL;
++	else
++		dev_err(&client->dev, "%s: adapter returned error %d\n", __func__, ret);
+ 
+ 	return ret;
+ }
+-- 
+2.4.3
+

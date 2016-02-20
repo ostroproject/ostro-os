@@ -1,0 +1,10 @@
+[Unit]
+Description=Autogenerate hostname with MAC ADDRESS
+
+[Service]
+Type=oneshot
+ExecStart=/opt/soletta-dev-app/scripts/soletta-dev-app-mac.sh
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,15 @@
+tests: also install tests app
+
+Upstream-Status: Inappropriate [configuration]
+
+Signed-off-by: Yu Ke <ke.yu@intel.com>
+
+Index: libdrm-2.4.66/tests/Makefile.am
+===================================================================
+--- libdrm-2.4.66.orig/tests/Makefile.am
++++ libdrm-2.4.66/tests/Makefile.am
+@@ -73,3 +73,4 @@ TESTS +=					\
+ endif
+ 
+ check_PROGRAMS += $(TESTS)
++bin_PROGRAMS = $(check_PROGRAMS)

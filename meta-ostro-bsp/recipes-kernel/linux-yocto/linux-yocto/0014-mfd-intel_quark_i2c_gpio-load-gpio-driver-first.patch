@@ -1,0 +1,66 @@
+From fe570eb092b3d6e1268e7b2eea1f2d69f97abacb Mon Sep 17 00:00:00 2001
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Date: Tue, 15 Sep 2015 20:28:19 +0300
+Subject: [PATCH 14/26] mfd: intel_quark_i2c_gpio: load gpio driver first
+
+On Intel Galileo boards the GPIO expander is connected to i2c bus. Moreover it
+is able to generate interrupt, but interrupt line is connected to GPIO. That's
+why we have to have GPIO driver in place when we will probe i2c host with
+device connected to it.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+Upstream-status: Submitted
+---
+ drivers/mfd/intel_quark_i2c_gpio.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/mfd/intel_quark_i2c_gpio.c b/drivers/mfd/intel_quark_i2c_gpio.c
+index 1ce1603..e7c395e 100644
+--- a/drivers/mfd/intel_quark_i2c_gpio.c
++++ b/drivers/mfd/intel_quark_i2c_gpio.c
+@@ -90,19 +90,19 @@ static struct resource intel_quark_gpio_res[] = {
+ 
+ static struct mfd_cell intel_quark_mfd_cells[] = {
+ 	{
+-		.id = MFD_I2C_BAR,
+-		.name = "i2c_designware",
+-		.num_resources = ARRAY_SIZE(intel_quark_i2c_res),
+-		.resources = intel_quark_i2c_res,
+-		.ignore_resource_conflicts = true,
+-	},
+-	{
+ 		.id = MFD_GPIO_BAR,
+ 		.name = "gpio-dwapb",
+ 		.num_resources = ARRAY_SIZE(intel_quark_gpio_res),
+ 		.resources = intel_quark_gpio_res,
+ 		.ignore_resource_conflicts = true,
+ 	},
++	{
++		.id = MFD_I2C_BAR,
++		.name = "i2c_designware",
++		.num_resources = ARRAY_SIZE(intel_quark_i2c_res),
++		.resources = intel_quark_i2c_res,
++		.ignore_resource_conflicts = true,
++	},
+ };
+ 
+ static const struct pci_device_id intel_quark_mfd_ids[] = {
+@@ -248,12 +248,12 @@ static int intel_quark_mfd_probe(struct pci_dev *pdev,
+ 
+ 	dev_set_drvdata(&pdev->dev, quark_mfd);
+ 
+-	ret = intel_quark_i2c_setup(pdev, &intel_quark_mfd_cells[MFD_I2C_BAR]);
++	ret = intel_quark_i2c_setup(pdev, &intel_quark_mfd_cells[1]);
+ 	if (ret)
+ 		return ret;
+ 
+ 	ret = intel_quark_gpio_setup(pdev,
+-				     &intel_quark_mfd_cells[MFD_GPIO_BAR]);
++				     &intel_quark_mfd_cells[0]);
+ 	if (ret)
+ 		return ret;
+ 
+-- 
+2.4.3
+

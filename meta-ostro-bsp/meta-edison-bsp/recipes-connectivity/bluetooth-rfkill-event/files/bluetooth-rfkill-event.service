@@ -1,0 +1,10 @@
+[Unit]
+Description=Bluetooth rf kill event daemon
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/bluetooth_rfkill_event
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

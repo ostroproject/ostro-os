@@ -1,0 +1,50 @@
+From 6aed0431be279ccb58529f6e775349b91b8061ba Mon Sep 17 00:00:00 2001
+From: Patrick Ohly <patrick.ohly@intel.com>
+Date: Tue, 15 Sep 2015 15:36:06 +0200
+Subject: [PATCH] chsgen: include logging code in debug mode
+
+When building in debug mode, the log.h header file references
+code and (indirectly) libraries which we must add when linking
+chsgen.
+
+Upstream-Status: Submitted [https://github.com/Samsung/cynara/pull/11]
+
+Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
+---
+ src/chsgen/CMakeLists.txt | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/src/chsgen/CMakeLists.txt b/src/chsgen/CMakeLists.txt
+index 73c697f..cb0a15c 100644
+--- a/src/chsgen/CMakeLists.txt
++++ b/src/chsgen/CMakeLists.txt
+@@ -23,6 +23,18 @@ SET(CHSGEN_SOURCES
+     ${CHSGEN_PATH}/main.cpp
+     )
+ 
++IF (CMAKE_BUILD_TYPE MATCHES "DEBUG")
++SET(CHSGEN_SOURCES ${CHSGEN_SOURCES}
++    ${CYNARA_PATH}/common/log/Backtrace.cpp
++    ${CYNARA_PATH}/common/log/log.cpp
++    )
++
++SET(CHSGEN_DEP_LIBRARIES
++    ${CYNARA_DEP_LIBRARIES}
++    dw
++    )
++ENDIF (CMAKE_BUILD_TYPE MATCHES "DEBUG")
++
+ INCLUDE_DIRECTORIES(
+     ${CYNARA_PATH}
+     ${CYNARA_PATH}/include
+@@ -32,6 +44,7 @@ ADD_EXECUTABLE(${TARGET_CHSGEN} ${CHSGEN_SOURCES})
+ 
+ TARGET_LINK_LIBRARIES(${TARGET_CHSGEN}
+     crypt
++    ${CHSGEN_DEP_LIBRARIES}
+     )
+ 
+ INSTALL(TARGETS ${TARGET_CHSGEN} DESTINATION ${SBIN_INSTALL_DIR})
+-- 
+2.1.4
+

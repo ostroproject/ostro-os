@@ -1,0 +1,18 @@
+{
+    "application": "nodetest",
+    "description": "test node application to see if the infra worked",
+    "provider": "iodine",
+    "groups": "iodine-nodetest",
+    "environment": {
+        "FROB": "nicate",
+        "FOOBAR": "xyzzy",
+    },
+    "command": [  "/usr/bin/node", "/lib/node_modules/nodetest/example.js" ],
+    "autostart": "yes",
+     "container": {
+        "type": "nspawn",
+        "network": "VirtualEthernet",
+        "sharedsystem": false,
+        "portmap": 12345,
+    },
+}

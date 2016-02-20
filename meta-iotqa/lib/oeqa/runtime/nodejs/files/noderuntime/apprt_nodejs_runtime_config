@@ -1,0 +1,14 @@
+[github]
+nodejs_url=https://github.com/nodejs/node.git
+node_archive_url=https://github.com/nodejs/node/archive
+
+[target]
+node_path=/usr/bin/node
+node_version=v0.12.7
+
+[test]
+specified_modules=
+
+
+[results]
+formatted_result_file=result-apprt-nodejs-runtime.log

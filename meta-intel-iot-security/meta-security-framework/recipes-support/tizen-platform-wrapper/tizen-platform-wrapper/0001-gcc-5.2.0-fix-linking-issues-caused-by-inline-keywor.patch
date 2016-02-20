@@ -1,0 +1,149 @@
+From f212ec2a23801a30695e65c870569254fa12c5cb Mon Sep 17 00:00:00 2001
+From: Patrick Ohly <patrick.ohly@intel.com>
+Date: Mon, 7 Sep 2015 20:40:49 +0200
+Subject: [PATCH] gcc 5.2.0: fix linking issues caused by inline keyword
+
+Under gcc 5.2.0, using the inline keyword on function declarations in
+a header file without also providing the implementation leads first to
+warnings, then during linking of a library using the functions to an
+error:
+
+ In file included from shared-api.c:48:0:
+ init.h:27:13: warning: inline function 'initialize' declared but never defined
+  inline void initialize(struct tzplatform_context *context);
+ ...
+ init.c:426:29: warning: 'metafilepath' is static but used in inline function 'initialize' which is not static
+                  keyname(i), metafilepath);
+ ...
+ ./.libs/libtzplatform-config-2.0.so: undefined reference to `initialize'
+ ./.libs/libtzplatform-config-2.0.so: undefined reference to `hashid'
+ ./.libs/libtzplatform-config-2.0.so: undefined reference to `get_uid'
+ collect2: error: ld returned 1 exit status
+ Makefile:573: recipe for target 'tzplatform-get' failed
+
+This kind of inlining cannot have worked before; probably older gcc
+simply ignored the keyword (untested). Therefore removing the keyword
+is the quickest way to get the code to compile again as before. A more
+intrusive change would be needed if inlining is really important.
+
+Upstream-status: Submitted (https://review.tizen.org/gerrit/47663)
+
+Change-Id: Ic88350071ddb2df6bf571ed60b3cf6d443aba742
+Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
+---
+ src/context.c | 6 +++---
+ src/context.h | 6 +++---
+ src/hashing.c | 2 +-
+ src/hashing.h | 2 +-
+ src/init.c    | 2 +-
+ src/init.h    | 2 +-
+ 6 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/src/context.c b/src/context.c
+index 4b1e49d..85c417b 100644
+--- a/src/context.c
++++ b/src/context.c
+@@ -42,7 +42,7 @@
+ #include "context.h"
+ 
+ 
+-inline uid_t get_uid(struct tzplatform_context *context)
++uid_t get_uid(struct tzplatform_context *context)
+ {
+     uid_t result;
+ 
+@@ -54,7 +54,7 @@ inline uid_t get_uid(struct tzplatform_context *context)
+ }
+ 
+ #if _FOREIGN_HAS_(EUID)
+-inline uid_t get_euid(struct tzplatform_context *context)
++uid_t get_euid(struct tzplatform_context *context)
+ {
+     uid_t result;
+ 
+@@ -67,7 +67,7 @@ inline uid_t get_euid(struct tzplatform_context *context)
+ #endif
+ 
+ #if _FOREIGN_HAS_(GID)
+-inline gid_t get_gid(struct tzplatform_context *context)
++gid_t get_gid(struct tzplatform_context *context)
+ {
+     return getgid();
+ }
+diff --git a/src/context.h b/src/context.h
+index 2612f19..9353168 100644
+--- a/src/context.h
++++ b/src/context.h
+@@ -46,14 +46,14 @@ struct tzplatform_context {
+     const char *values[_TZPLATFORM_VARIABLES_COUNT_];
+ };
+ 
+-inline uid_t get_uid(struct tzplatform_context *context);
++uid_t get_uid(struct tzplatform_context *context);
+ 
+ #if _FOREIGN_HAS_(EUID)
+-inline uid_t get_euid(struct tzplatform_context *context);
++uid_t get_euid(struct tzplatform_context *context);
+ #endif
+ 
+ #if _FOREIGN_HAS_(GID)
+-inline gid_t get_gid(struct tzplatform_context *context);
++gid_t get_gid(struct tzplatform_context *context);
+ #endif
+ 
+ #endif
+diff --git a/src/hashing.c b/src/hashing.c
+index c22b4c0..e74464d 100644
+--- a/src/hashing.c
++++ b/src/hashing.c
+@@ -35,7 +35,7 @@
+ 
+ static const char *var_names[_TZPLATFORM_VARIABLES_COUNT_];
+ 
+-inline int hashid(const char *text, unsigned int len)
++int hashid(const char *text, unsigned int len)
+ {
+     const struct varassoc *vara = hashvar(text, len);
+     return vara ? vara->id : -1;
+diff --git a/src/hashing.h b/src/hashing.h
+index 5ce816e..f20f3e9 100644
+--- a/src/hashing.h
++++ b/src/hashing.h
+@@ -24,7 +24,7 @@
+ #ifndef HASHING_H
+ #define HASHING_H
+ 
+-inline int hashid(const char *text, unsigned int len);
++int hashid(const char *text, unsigned int len);
+ const char *keyname(int id);
+ 
+ #endif
+diff --git a/src/init.c b/src/init.c
+index 76868cc..4edf520 100644
+--- a/src/init.c
++++ b/src/init.c
+@@ -363,7 +363,7 @@ static int putcb( struct parsing *parsing,
+ }
+ 
+ /* initialize the environment */
+-inline void initialize(struct tzplatform_context *context)
++void initialize(struct tzplatform_context *context)
+ {
+     struct buffer buffer;
+     struct parsing parsing;
+diff --git a/src/init.h b/src/init.h
+index 446431c..6ed0f15 100644
+--- a/src/init.h
++++ b/src/init.h
+@@ -24,7 +24,7 @@
+ #ifndef INIT_H
+ #define INIT_H
+ 
+-inline void initialize(struct tzplatform_context *context);
++void initialize(struct tzplatform_context *context);
+ 
+ #endif
+ 
+-- 
+2.1.4
+

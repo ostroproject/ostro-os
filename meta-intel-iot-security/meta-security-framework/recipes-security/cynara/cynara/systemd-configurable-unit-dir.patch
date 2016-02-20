@@ -1,0 +1,90 @@
+From ef644464d29fd58b80bd5445cb1302ea9fa0c900 Mon Sep 17 00:00:00 2001
+From: Patrick Ohly <patrick.ohly@intel.com>
+Date: Mon, 23 Mar 2015 05:35:47 -0700
+Subject: [PATCH 2/2] systemd: configurable unit dir
+
+This avoids hard-coding the location of systemd unit files by using
+the %_unitdir macro and passing that information also to cmake.
+
+Makes Cynara more flexible and allows experimenting with the file
+system layout.
+
+Upstream-status: Submitted [https://github.com/Samsung/cynara/pull/8]
+
+Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
+---
+ packaging/cynara.spec  | 25 +++++++++++++------------
+ systemd/CMakeLists.txt |  2 +-
+ 2 files changed, 14 insertions(+), 13 deletions(-)
+
+diff --git a/packaging/cynara.spec b/packaging/cynara.spec
+index 9d56c9c..9e6cbe6 100644
+--- a/packaging/cynara.spec
++++ b/packaging/cynara.spec
+@@ -201,6 +201,7 @@ export LDFLAGS+="-Wl,--rpath=%{_libdir}"
+         -DBUILD_TESTS=ON \
+         -DCMAKE_BUILD_TYPE=%{?build_type} \
+         -DCMAKE_VERBOSE_MAKEFILE=ON \
++        -DSYSTEMD_SYSTEM_UNITDIR=%{_unitdir} \
+         -DDB_FILES_SMACK_LABEL="System"
+ make %{?jobs:-j%jobs}
+ 
+@@ -211,16 +212,16 @@ rm -rf %{buildroot}
+ mkdir -p %{buildroot}/%{conf_path}
+ cp ./conf/creds.conf %{buildroot}/%{conf_path}/creds.conf
+ 
+-mkdir -p %{buildroot}/usr/lib/systemd/system/sockets.target.wants
++mkdir -p %{buildroot}%{_unitdir}/sockets.target.wants
+ mkdir -p %{buildroot}/%{state_path}
+ mkdir -p %{buildroot}/%{tests_dir}/empty_db
+ mkdir -p %{buildroot}/%{lib_path}/plugin/client
+ mkdir -p %{buildroot}/%{lib_path}/plugin/service
+ 
+ cp -a db* %{buildroot}/%{tests_dir}
+-ln -s ../cynara.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara.socket
+-ln -s ../cynara-admin.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara-admin.socket
+-ln -s ../cynara-agent.socket %{buildroot}/usr/lib/systemd/system/sockets.target.wants/cynara-agent.socket
++ln -s ../cynara.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara.socket
++ln -s ../cynara-admin.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara-admin.socket
++ln -s ../cynara-agent.socket %{buildroot}%{_unitdir}/sockets.target.wants/cynara-agent.socket
+ 
+ %pre
+ id -g %{group_name} > /dev/null 2>&1
+@@ -306,14 +307,14 @@ fi
+ %manifest cynara.manifest
+ %license LICENSE
+ %attr(755,root,root) /usr/bin/cynara
+-%attr(-,root,root) /usr/lib/systemd/system/cynara.service
+-%attr(-,root,root) /usr/lib/systemd/system/cynara.target
+-%attr(-,root,root) /usr/lib/systemd/system/sockets.target.wants/cynara.socket
+-%attr(-,root,root) /usr/lib/systemd/system/cynara.socket
+-%attr(-,root,root) /usr/lib/systemd/system/sockets.target.wants/cynara-admin.socket
+-%attr(-,root,root) /usr/lib/systemd/system/cynara-admin.socket
+-%attr(-,root,root) /usr/lib/systemd/system/sockets.target.wants/cynara-agent.socket
+-%attr(-,root,root) /usr/lib/systemd/system/cynara-agent.socket
++%attr(-,root,root) %{_unitdir}/cynara.service
++%attr(-,root,root) %{_unitdir}/cynara.target
++%attr(-,root,root) %{_unitdir}/sockets.target.wants/cynara.socket
++%attr(-,root,root) %{_unitdir}/cynara.socket
++%attr(-,root,root) %{_unitdir}/sockets.target.wants/cynara-admin.socket
++%attr(-,root,root) %{_unitdir}/cynara-admin.socket
++%attr(-,root,root) %{_unitdir}/sockets.target.wants/cynara-agent.socket
++%attr(-,root,root) %{_unitdir}/cynara-agent.socket
+ %dir %attr(700,cynara,cynara) %{state_path}
+ %dir %attr(755,cynara,cynara) %{lib_path}/plugin/service
+ 
+diff --git a/systemd/CMakeLists.txt b/systemd/CMakeLists.txt
+index a540263..1f6d9b0 100644
+--- a/systemd/CMakeLists.txt
++++ b/systemd/CMakeLists.txt
+@@ -23,6 +23,6 @@ INSTALL(FILES
+     ${CMAKE_SOURCE_DIR}/systemd/cynara-admin.socket
+     ${CMAKE_SOURCE_DIR}/systemd/cynara-agent.socket
+     DESTINATION
+-    lib/systemd/system
++    ${SYSTEMD_SYSTEM_UNITDIR}
+ )
+ 
+-- 
+1.8.4.5
+

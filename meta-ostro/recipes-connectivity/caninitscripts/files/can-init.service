@@ -1,0 +1,10 @@
+[Unit]
+Description=CAN startup service
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/start-can
+
+[Install]
+WantedBy=network.target

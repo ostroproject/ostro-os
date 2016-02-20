@@ -1,0 +1,58 @@
+language: c++
+compiler: gcc
+# Select Trusty Beta environment, required for testing.
+sudo: required
+dist: trusty
+env:
+  - OE_CORE=master BITBAKE=master
+  - OE_CORE=jethro BITBAKE=1.28
+  - OE_CORE=fido BITBAKE=1.26
+  - OE_CORE=dizzy BITBAKE=1.24
+addons:
+  apt:
+    packages:
+    - s3cmd
+    - diffstat
+    - texinfo
+    - chrpath
+    # Not installed by default on Trusty environment.
+    - xvfb
+    # Not needed, sdl removed from qemu below.
+    # - libsdl1.2-dev
+script:
+  # Check for large directories (>= 1GB).
+  - du -h $HOME | grep '^[0-9\.]\+G' || true
+  - df -h .
+  # Remove .rvm to free up space. This can only be done when we do not
+  # depend anymore on TravisCI add-ons like "deploy" or "artifacts",
+  # which are implemented in Ruby.
+  - rm -rf $HOME/.rvm
+  - df -h .
+  # Set up.
+  - SSTATE_CACHE=$HOME/sstate-cache
+  - export SSTATE_CACHE
+  - $(pwd)/scripts/travis-setup.sh $(pwd)
+  - . init-travis-build-env
+  - tail -50 conf/local.conf
+  # And now building...
+  - ../scripts/travis-cmd-wrapper.py --deadline=$deadline bitbake core-image-minimal app-runas mmap-smack-test tcp-smack-test udp-smack-test || BITBAKE_RESULT=1
+  - df -h .
+  # The download directory can become quite large.
+  - (du -h -c -s $(ls -1 -d downloads/* downloads/git2/* tmp*/work/*/*/downloads 2>/dev/null | grep -v -e '.done$' -e '/git2$')) || true
+  - (df -h .; du -h -s * $HOME/sstate-cache) || true
+  # temp files are preserved by rm_work.bbclass, but should not be that large.
+  - du -h -c -s tmp*/work/*/*/*/temp | tail -1
+  # Copy new sstate files to S3 bucket.
+  - $TRAVIS_BUILD_DIR/scripts/sstate2s3.sh
+  # Finally! Running tests.
+  # The ima tests assume that an IMA policy is activated by an initramfs, which we do not
+  # currently do in combination with OE-core under runqemu, so we have to filter those out.
+  - tests=$(echo $(ls -1 ../*/lib/oeqa/runtime/*.py | grep -v -w -e __init__.py -e ima.py | sed -e 's;.*/\(.*\)\.py;\1;'))
+  - echo $tests
+  - echo 'INHERIT += "testimage"' >>conf/local.conf
+  - echo "TEST_SUITES = \"ssh $tests\"" >>conf/local.conf
+  # But not when using containers, because runqemu depends on TAP networking,
+  # which requires root to set up.
+  - if [ "$buildenv" != "traviscontainer" ]; then xvfb-run ../scripts/travis-cmd-wrapper.py --deadline=$deadline -- bitbake -c testimage core-image-minimal || TEST_RESULT=1; for i in tmp*/work/*/core-image-minimal/*/temp/log.do_testimage tmp*/work/*/core-image-minimal/*/testimage/*log; do if [ -e $i ]; then echo "**** $i ****"; cat $i; fi; done; fi
+  # Summarize results and set final job result.
+  - echo "TravisCI result $TRAVIS_TEST_RESULT, build result ${BITBAKE_RESULT:-0}, test result ${TEST_RESULT:-0}"; if [ $TRAVIS_TEST_RESULT -eq 0 ] && ( [ "$BITBAKE_RESULT" ] || [ "$TEST_RESULT" ] ); then TRAVIS_TEST_RESULT=1; false; fi

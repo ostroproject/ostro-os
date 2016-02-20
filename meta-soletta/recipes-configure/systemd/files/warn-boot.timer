@@ -1,0 +1,10 @@
+[Unit]
+Description=Run service after booting up system
+
+[Timer]
+# Time to wait after booting before activation
+OnBootSec=1sec
+Unit=warn-boot.service
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,18 @@
+# Configuration of groups assignment to privileges.
+# Run security-manager-policy-reload to apply.
+# Format:
+# - each line of "<PRIVILEGE> <GROUP>" describes single mapping
+# - privilege and group separated by white spaces
+# - lines starting with '#' are ignored
+ConfigurationQuery	priv-conquery
+ConfigurationManagement	priv-conmanage
+CredentialManagement	priv-credmanage
+ApplicationManagement	priv-appmanage
+PowerManagement		priv-powermanage
+LocalNetworkAccess	priv-lanaccess
+InternetAccess		priv-netaccess
+SensorAccess		priv-senaccess
+InputStreamAccess	priv-streamaccess
+GeolocationAccess	priv-geoaccess
+SharedStorageAccess	priv-shareaccess
+ExternalStorageAccess	priv-extaccess

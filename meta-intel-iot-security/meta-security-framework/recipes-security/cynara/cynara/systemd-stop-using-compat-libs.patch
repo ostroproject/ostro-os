@@ -1,0 +1,36 @@
+From 0a99310fe5321da58bce84d1118f849f61e9664c Mon Sep 17 00:00:00 2001
+From: Patrick Ohly <patrick.ohly@intel.com>
+Date: Mon, 23 Mar 2015 05:32:04 -0700
+Subject: [PATCH 1/2] systemd: stop using compat libs
+
+libsystemd-journal and libsystemd-daemon are considered obsolete
+in systemd since 2.09 and may not be available (not compiled
+by default).
+
+The cynara code works fine with the current libsystemd, so just
+use that.
+
+Upstream-status: Submitted [https://github.com/Samsung/cynara/pull/8]
+
+Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
+---
+ src/CMakeLists.txt | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 1018e51..87b42c4 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -17,8 +17,7 @@
+ #
+ 
+ SET(COMMON_DEPS
+-    libsystemd-daemon
+-    libsystemd-journal
++    libsystemd
+     )
+ 
+ IF (CMAKE_BUILD_TYPE MATCHES "DEBUG")
+-- 
+1.8.4.5
+

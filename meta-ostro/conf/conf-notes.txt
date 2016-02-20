@@ -1,0 +1,9 @@
+Common targets are:
+    ostro-image
+    ostro-image-dev
+    core-image-minimal
+    meta-toolchain
+    adt-installer
+    meta-ide-support
+
+You can also run generated qemu images with a command like 'runqemu qemux86'

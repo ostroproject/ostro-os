@@ -1,0 +1,35 @@
+Subject: [PATCH] iw: version.sh: don't use git describe for versioning
+
+It will detect top-level git repositories like the Angstrom setup-scripts and break.
+
+Upstream-Status: Pending
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+Signed-off-by: Maxin B. John <maxin.john@intel.com>
+---
+diff -Naur iw-4.3-origin/version.sh iw-4.3/version.sh
+--- iw-4.3-origin/version.sh	2015-11-20 16:37:58.762077162 +0200
++++ iw-4.3/version.sh	2015-11-20 16:52:05.526491150 +0200
+@@ -3,21 +3,7 @@
+ VERSION="4.3"
+ OUT="$1"
+ 
+-if [ -d .git ] && head=`git rev-parse --verify HEAD 2>/dev/null`; then
+-	git update-index --refresh --unmerged > /dev/null
+-	descr=$(git describe --match=v*)
+-
+-	# on git builds check that the version number above
+-	# is correct...
+-	[ "${descr%%-*}" = "v$VERSION" ] || exit 2
+-
+-	v="${descr#v}"
+-	if git diff-index --name-only HEAD | read dummy ; then
+-		v="$v"-dirty
+-	fi
+-else
+-	v="$VERSION"
+-fi
++v="$VERSION"
+ 
+ echo '#include "iw.h"' > "$OUT"
+ echo "const char iw_version[] = \"$v\";" >> "$OUT"

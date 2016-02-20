@@ -1,0 +1,90 @@
+Index: graphviz-2.38.0/lib/gvpr/Makefile.in
+===================================================================
+--- graphviz-2.38.0.orig/lib/gvpr/Makefile.in
++++ graphviz-2.38.0/lib/gvpr/Makefile.in
+@@ -55,7 +55,6 @@ PRE_UNINSTALL = :
+ POST_UNINSTALL = :
+ build_triplet = @build@
+ host_triplet = @host@
+-noinst_PROGRAMS = mkdefs$(EXEEXT)
+ subdir = lib/gvpr
+ DIST_COMMON = $(noinst_HEADERS) $(pkginclude_HEADERS) \
+ 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+@@ -120,10 +119,6 @@ libgvpr_C_la_LIBADD =
+ am_libgvpr_C_la_OBJECTS = actions.lo compile.lo gvpr.lo gprstate.lo \
+ 	parse.lo queue.lo
+ libgvpr_C_la_OBJECTS = $(am_libgvpr_C_la_OBJECTS)
+-PROGRAMS = $(noinst_PROGRAMS)
+-am_mkdefs_OBJECTS = mkdefs.$(OBJEXT)
+-mkdefs_OBJECTS = $(am_mkdefs_OBJECTS)
+-mkdefs_LDADD = $(LDADD)
+ AM_V_P = $(am__v_P_@AM_V@)
+ am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
+ am__v_P_0 = false
+@@ -158,10 +153,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
+ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
+ am__v_CCLD_0 = @echo "  CCLD    " $@;
+ am__v_CCLD_1 = 
+-SOURCES = $(libgvpr_la_SOURCES) $(libgvpr_C_la_SOURCES) \
+-	$(mkdefs_SOURCES)
+-DIST_SOURCES = $(libgvpr_la_SOURCES) $(libgvpr_C_la_SOURCES) \
+-	$(mkdefs_SOURCES)
++SOURCES = $(libgvpr_la_SOURCES) $(libgvpr_C_la_SOURCES)
++DIST_SOURCES = $(libgvpr_la_SOURCES) $(libgvpr_C_la_SOURCES)
+ am__can_run_installinfo = \
+   case $$AM_UPDATE_INFO_DIR in \
+     n|no|NO) false;; \
+@@ -568,8 +561,7 @@ libgvpr_la_LIBADD = $(libgvpr_C_la_LIBAD
+ 	$(MATH_LIBS)
+ 
+ libgvpr_la_DEPENDENCIES = $(libgvpr_C_la_DEPENDENCIES)
+-mkdefs_SOURCES = mkdefs.c
+-EXTRA_DIST = $(man_MANS) $(pdf_DATA) gprdata mkdefs.c gdefs.h trie.c gvprlib.vcproj
++EXTRA_DIST = $(man_MANS) $(pdf_DATA) gprdata gdefs.h trie.c gvprlib.vcproj
+ DISTCLEANFILES = $(pdf_DATA) gdefs.h mkdefs
+ all: all-am
+ 
+@@ -657,18 +649,6 @@ libgvpr.la: $(libgvpr_la_OBJECTS) $(libg
+ libgvpr_C.la: $(libgvpr_C_la_OBJECTS) $(libgvpr_C_la_DEPENDENCIES) $(EXTRA_libgvpr_C_la_DEPENDENCIES) 
+ 	$(AM_V_CCLD)$(LINK)  $(libgvpr_C_la_OBJECTS) $(libgvpr_C_la_LIBADD) $(LIBS)
+ 
+-clean-noinstPROGRAMS:
+-	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
+-	echo " rm -f" $$list; \
+-	rm -f $$list || exit $$?; \
+-	test -n "$(EXEEXT)" || exit 0; \
+-	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+-	echo " rm -f" $$list; \
+-	rm -f $$list
+-mkdefs$(EXEEXT): $(mkdefs_OBJECTS) $(mkdefs_DEPENDENCIES) $(EXTRA_mkdefs_DEPENDENCIES) 
+-	@rm -f mkdefs$(EXEEXT)
+-	$(AM_V_CCLD)$(LINK) $(mkdefs_OBJECTS) $(mkdefs_LDADD) $(LIBS)
+-
+ mostlyclean-compile:
+ 	-rm -f *.$(OBJEXT)
+ 
+Index: graphviz-2.38.0/lib/gvpr/Makefile.am
+===================================================================
+--- graphviz-2.38.0.orig/lib/gvpr/Makefile.am
++++ graphviz-2.38.0/lib/gvpr/Makefile.am
+@@ -21,7 +21,6 @@ AM_CPPFLAGS = \
+ 	-DDFLT_GVPRPATH="\".$(PATH_SEPARATOR)$(pkgdatadir)/gvpr\""
+ 
+ pkginclude_HEADERS = gvpr.h
+-noinst_PROGRAMS = mkdefs
+ noinst_HEADERS = actions.h compile.h gprstate.h parse.h queue.h trieFA.h trie.c
+ noinst_LTLIBRARIES = libgvpr_C.la
+ lib_LTLIBRARIES = libgvpr.la
+@@ -50,11 +49,10 @@ libgvpr_la_LIBADD = $(libgvpr_C_la_LIBAD
+ 	$(MATH_LIBS)
+ libgvpr_la_DEPENDENCIES = $(libgvpr_C_la_DEPENDENCIES)
+ 
+-mkdefs_SOURCES = mkdefs.c
+ 
+ gdefs.h: $(top_srcdir)/lib/gvpr/gprdata mkdefs
+ 	./mkdefs gdefs.h < $(top_srcdir)/lib/gvpr/gprdata
+ 
+-EXTRA_DIST = $(man_MANS) $(pdf_DATA) gprdata mkdefs.c gdefs.h trie.c gvprlib.vcproj
++EXTRA_DIST = $(man_MANS) $(pdf_DATA) gprdata gdefs.h trie.c gvprlib.vcproj
+ 
+ DISTCLEANFILES = $(pdf_DATA) gdefs.h mkdefs

@@ -1,0 +1,13 @@
+[Unit]
+Description=Umount USB Stick
+After=dev-%i.device
+BindsTo=dev-%i.device
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=/bin/systemctl stop automount-handler@%I.service
+ExecStart=/bin/umount /dev/%I
+
+[Install]
+WantedBy=multi-user.target

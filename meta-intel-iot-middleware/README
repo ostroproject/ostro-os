@@ -1,0 +1,60 @@
+meta-intel-iot-middleware
+=========================
+
+This is the middleware layer for the Intel IoT developer kit. Here are
+middleware parts useful for the iot-devkit but not shipped as part of meta-oe
+or backports from newer versions of meta-oe which are not appropriate for
+meta-oe itself. Software in here is likely to follow a more agressive upgrade
+schedule.
+
+This layer depends on:
+
+  URI: git://git.openembedded.org/meta-openembedded
+  branch: daisy
+
+Guidelines for submitting patches
+=================================
+
+Please submit any patches to the meta-intel mailing list
+(meta-intel@yoctoproject.org) and cc the most appropriate maintainer in the
+MAINTAINERS file. Prefix your email with [meta-intel-iot-middleware]. Also, if
+your patches are available via a public git repository, please also include a
+URL to the repo and branch containing your patches as that makes it easier for
+maintainers to grab and test your patches.
+
+Regardless of how you submit a patch or patchset, the patches should
+at minimum follow the suggestions outlined in the 'How to Submit a
+Change' secion in the Yocto Project Development Manual.  Specifically,
+they should:
+
+  - Include a 'Signed-off-by:' line.  A commit can't legally be pulled
+    in without this.
+
+  - Provide a single-line, short summary of the change.  This short
+    description should be prefixed by the BSP or recipe name, as
+    appropriate, followed by a colon.  Capitalize the first character
+    of the summary (following the colon).
+
+  - For the body of the commit message, provide detailed information
+    that describes what you changed, why you made the change, and the
+    approach you used.
+
+  - If the change addresses a specific bug or issue that is associated
+    with a bug-tracking ID, include a reference to that ID in your
+    detailed description in the following format: [YOCTO #<bug-id>].
+
+  - Pay attention to line length - please don't allow any particular
+    line in the commit message to stretch past 72 characters.
+
+  - For any non-trivial patch, provide information about how you
+    tested the patch, and for any non-trivial or non-obvious testing
+    setup, provide details of that setup.
+
+Doing a quick 'git log' will provide you with many
+examples of good example commits if you have questions about any
+aspect of the preferred format.
+
+The maintainers will do their best to review and/or pull in a patch or patchset
+within 48 hours of the time it was posted. For larger and/or more involved
+patches and patchsets, the review process may take longer.
+

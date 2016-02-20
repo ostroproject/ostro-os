@@ -1,0 +1,4 @@
+bool(constant/boolean:value=0) OUT -> IN led_red(gpio/writer:pin=338)
+bool2(constant/boolean:value=0) OUT -> IN led_blue(gpio/writer:pin=464)
+bool3(constant/boolean:value=0) OUT -> IN led_gree(gpio/writer:pin=339)
+bool3 OUT -> QUIT app(app/quit)

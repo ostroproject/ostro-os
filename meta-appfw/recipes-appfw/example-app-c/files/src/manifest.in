@@ -1,0 +1,17 @@
+{
+    "application": "nativetest",
+    "description": "test native application to see if the infra worked",
+    "provider": "yoyodine",
+    "groups": "yoyodine-nativetest",
+    "environment": {
+        "FROB": "nicate",
+        "FOOBAR": "xyzzy",
+    },
+    "command": [ "@bindir@/hello-world" ],
+    "autostart": "false",
+     "container": {
+        "type": "nspawn",
+        "network": "VirtualEthernet",
+        "sharedsystem": false,
+    },
+}

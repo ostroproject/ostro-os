@@ -1,0 +1,14 @@
+diff --git a/build_common/SConscript b/build_common/SConscript
+index d808228..80577f6 100644
+--- a/build_common/SConscript
++++ b/build_common/SConscript
+@@ -320,6 +320,9 @@ if target_os == "yocto":
+                         env[tool] = os.path.join(path, os.environ[tool])
+                         break
+         env['CROSS_COMPILE'] = target_prefix[:len(target_prefix) - 1]
++        env['ENV']['PKG_CONFIG_SYSROOT_DIR'] = os.environ['PKG_CONFIG_SYSROOT_DIR']
++        env['ENV']['PKG_CONFIG_PATH'] = os.environ['PKG_CONFIG_PATH']
++        env['ENV']['PATH'] = os.environ['PATH']
+     except:
+         print "ERROR in Yocto cross-toolchain environment"
+         Exit(1)

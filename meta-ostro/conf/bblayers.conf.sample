@@ -1,0 +1,58 @@
+# LAYER_CONF_VERSION is increased each time build/conf/bblayers.conf
+# changes incompatibly
+LCONF_VERSION = "5"
+
+BBPATH = "${TOPDIR}"
+BBFILES ?= ""
+
+OSTRO_LAYERS = " \
+  ##OEROOT##/meta-ostro-fixes \
+  ##OEROOT##/meta \
+  ##OEROOT##/meta-selftest \
+  ##OEROOT##/meta-intel \
+  ##OEROOT##/meta-ostro \
+  ##OEROOT##/meta-oic \
+  ##OEROOT##/meta-intel-iot-security/meta-security-smack \
+  ##OEROOT##/meta-intel-iot-security/meta-security-framework \
+  ##OEROOT##/meta-intel-iot-security/meta-integrity \
+  ##OEROOT##/meta-intel-iot-middleware \
+  ##OEROOT##/meta-ostro-bsp \
+  ##OEROOT##/meta-ostro-bsp/meta-edison-bsp \
+  ##OEROOT##/meta-iot-web \
+  ##OEROOT##/meta-yocto/meta-yocto-bsp \
+  ##OEROOT##/meta-iotqa \
+  ##OEROOT##/meta-appfw \
+  ##OEROOT##/meta-security-isafw \
+  "
+
+# The following layers are available in the combined repository.
+# Their recipes are filtered via white-listing in ostro.conf,
+# i.e. even if the layer gets added, only explicitly listed recipes
+# are enabled. Enable layers here only if they have enabled recipes
+# to avoid warnings about empty layers.
+
+# OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-efl"
+# OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-filesystems"
+# OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-gnome"
+# OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-gpe"
+# OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-initramfs"
+# OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-multimedia"
+OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-networking"
+OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-oe"
+# OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-perl"
+OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-python"
+# OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-ruby"
+# OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-systemd"
+# OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-webserver"
+# OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-xfce"
+# OSTRO_LAYERS += "##OEROOT##/meta-openembedded/toolchain-layer"
+OSTRO_LAYERS += "##OEROOT##/meta-java"
+OSTRO_LAYERS += "##OEROOT##/meta-soletta"
+
+BBLAYERS ?= "${OSTRO_LAYERS}"
+
+# toaster uses this hint to decide whether it let's the user
+# remove a layer from BBLAYERS. All layers which provide something
+# that is required to build ostro-image should be listed here.
+# We do not really track that, so add all layers also here.
+BBLAYERS_NON_REMOVABLE ?= "${OSTRO_LAYERS}"

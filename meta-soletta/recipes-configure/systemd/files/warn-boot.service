@@ -1,0 +1,6 @@
+[Unit]
+Description=Warn user that the system was booted by turning off Calamari LED
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/sol-fbp-runner /lib/systemd/system/on_boot.fbp

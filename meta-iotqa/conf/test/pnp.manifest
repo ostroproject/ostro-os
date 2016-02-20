@@ -1,0 +1,9 @@
+oeqa.runtime.pnp.disksize
+oeqa.runtime.pnp.memory
+oeqa.runtime.pnp.boottime
+oeqa.runtime.pnp.reboottime
+oeqa.runtime.pnp.power
+oeqa.runtime.pnp.poweroff
+oeqa.runtime.pnp.cpuusage
+oeqa.runtime.pnp.iozone
+oeqa.runtime.pnp.netperf

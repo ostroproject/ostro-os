@@ -1,0 +1,159 @@
+meta-oic
+========
+This layer contains recipes for the IoTivity Project (v1.0)
+, sample applications and related components for any Yocto target.
+
+Contents
+========
+- Recipes in meta-oic
+- IoTivity packages built by the meta-oic layer
+- Building IoTivity for a Yocto target
+- Building Yocto cross-toolchain with IoTivity for your target
+- Locations of IoTivity headers, runtimes and samples 
+- Building IoTivity applications for a Yocto target
+
+Recipes in meta-oic
+===================
+- recipes-core: Iotivity framework, SDK, and samples.
+- recipes-kernel: linux-yocto kernel configuration for enabling
+                  bluetooth and 6LoWPAN features in the OS image.
+                  This is currently setup to configure the
+                  linux-yocto_3.19 kernel.
+- recipes-apps: Iotivity simple client example. The recipe
+                is meant to serve as a guide for Iotivity 
+                application developers who want to quickly
+                build a recipe for their application.
+                Recipe for the IoTivity SensorBoard application. 
+
+IoTivity packages built by the meta-oic layer
+=============================================
+—- iotivity-resource : IoTivity resource libraries.
+-- iotivity-resource-dev : IoTivity resource header files.
+-- iotivity-resource-thin-staticdev : IoTivity "thin" resource libraries.
+-- iotivity-resource-dbg : IoTivity resource libraries with debug
+symbols.  
+-- iotivity-resource-samples : Sample IoTivity resource applications.
+-- iotivity-resource-samples-dbg : Debug builds of sample IoTivity
+applications.
+-- iotivity-plugins-staticdev : Non OIC protocol plugin framework in C
+   with a plugin instance supporting ZigBee.
+-- iotivity-plugins-samples : IoTivity-ZigBee plugin sample applications.
+-- iotivity-service : IoTivity service runtimes (Resource Encapsulation,
+Things Manager, Soft Sensor Manager, Notification Manager) and plug-in
+implementations.
+-- iotivity-service-dev : IoTivity service header files.
+-- iotivity-service-staticdev : IoTivity service SDK as static
+libraries.
+-- iotivity-service-dbg : Debug builds of IoTivity service runtimes.
+-- iotivity-service-samples : IoTivity service sample applications.
+-- iotivity-service-samples-dbg : Debug builds of IoTivity service sample
+applications.
+-- iotivity-tests : IoTivity framework tests.
+-- iotivity-tests-dbg : Debug builds of IoTivity framework tests.
+-- iotivity : Meta-package for all IoTivity runtimes.
+—- iotivity-dev : Meta-package for all IoTivity runtimes and headers.
+-- iotivity-sensorboard : IoTivity SensorBoard application. (Sources
+located in iotivity-1.0.0/examples/OICSensorBoard)
+-- iotivity-simple-client: IoTivity resource simpleclient example.  
+
+Building IoTivity for a Yocto target
+====================================
+
+1. Obtain the BSP for your desired target:
+
+As an example for Intel Edison, follow the links below:
+-General documentation 
+(https://communities.intel.com/community/makers/edison/documentation)
+-BSP User Guide 
+(https://communities.intel.com/docs/DOC-23159)
+-BSP Download 
+(https://communities.intel.com/docs/DOC-23242)
+The Edison BSP comes with a script which obtains a compliant version of poky.
+The BSP User Guide provides a detailed walk-through of the entire BSP build
+process. 
+
+The Yocto Project website lists a few other popular BSPs:
+https://www.yoctoproject.org/downloads/bsps
+
+2. Append meta-oic to the list of layers in the
+<poky-build-directory>/conf/bblayers.conf for your target's BSP.  
+...
+BBLAYERS ?= "\
+             ...
+             <your-path-to>/meta-oic \
+             \"
+...
+
+3. Modify <poky-build-directory>/conf/local.conf as shown below using 
+IMAGE_INSTALL_append to instruct the build process to include specific
+binary packages in the OS image.
+
+For eg., to include IoTivity resource and service samples and runtimes, use
+...
+IMAGE_INSTALL_append += " iotivity-resource-samples iotivity-service-samples”
+
+To include only IoTivity resource and service runtimes, use
+...
+IMAGE_INSTALL_append += " iotivity”
+
+4. After initializing poky, run “bitbake <target>” to build the OS image, 
+and further deploy the image to your target.
+
+Building Yocto cross-toolchain with IoTivity for your target
+============================================================
+Yocto has the capability to build cross-toolchains for targets 
+to run on 32-bit and 64-bit machines.  
+Follow these steps to construct a toolchain for your target:
+
+1. You should’ve already completed the steps above to build IoTivity for your
+target.
+
+2. Modify <poky-build-directory>/conf/local.conf to install the IoTivity
+development packages to the toolchain’s sysroot. 
+...
+IMAGE_INSTALL_append = " iotivity-dev”
+
+To include only IoTivity "thin" resource headers and libraries, use
+...
+IMAGE_INSTALL_append = " iotivity-resource-thin-staticdev”
+
+3. After initializing poky, run “bitbake -c populate_sdk <target>” to build the
+target platform SDK and toolchain. You may further install the toolchain
+on your build machine.
+
+Once installed, the toolchain may be used only after initialization. This is
+performed by an “environment setup script” at the root of the toolchain
+install location (usually in /opt/poky...). 
+To initialize, you must “source” this script into your shell environment. 
+
+Locations of IoTivity headers, runtimes and samples 
+===================================================
+IoTivity package contents are installed in the following locations on the
+target and in the toolchain's sysroot.
+
+IoTivity resource, service runtimes, and service plug-ins are 
+placed in /usr/lib.
+
+IoTivity resource headers are placed in /usr/include/iotivity/resource.
+
+IoTivity service headers are placed in /usr/include/iotivity/service.
+
+IoTivity resource and service applications are placed in
+/opt/iotivity/examples.
+
+IoTivity tests are placed in /opt/iotivity/tests.
+
+Building IoTivity applications for a Yocto target
+=================================================
+1. Develop and test your application on a Linux development machine.
+
+2. You can now use the Yocto toolchain for your target to cross-compile the
+application. As such, there is no standard procedure for this.  
+You may examine your toolchain’s environment setup script and accordingly
+modify your application’s build script to point to said tools.
+
+3. If you further want to package up your application in a Yocto software layer,
+you will have to write a BitBake recipe for it. Look inside
+meta-oic/recipes-apps/iotivity-simple-client for a precise example of doing
+this.
+

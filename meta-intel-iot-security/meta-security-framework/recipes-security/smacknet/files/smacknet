@@ -1,0 +1,190 @@
+#!/usr/bin/python
+# Copyright (c) 2012, 2013, Intel Corporation 
+# Copyright (c) 2009 David Wolinsky <davidiw@ufl.edu), University of Florida
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+# 3. The name of the author may not be used to endorse or promote products
+#    derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+# IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+# NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import socket,fcntl, struct, thread
+import os.path
+import sys
+
+SMACKFS_LOAD="/sys/fs/smackfs/load2"
+SMACKFS_NETLABEL="/sys/fs/smackfs/netlabel"
+SIOCGIFADDR = 0x8915
+SIOCGIFNETMASK = 0x891b
+
+def get_ip_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return fcntl.ioctl(s.fileno(), SIOCGIFADDR, 
+			struct.pack('256s', ifname.encode("utf-8")))[20:24]
+
+def get_netmask(ifname):
+   s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+   return fcntl.ioctl(s.fileno(), SIOCGIFNETMASK, 
+			struct.pack('256s', ifname.encode("utf-8")))[20:24]
+
+def applynetlabeltags(interface, addr):
+	if not interface.startswith("lo"):
+		bmask = get_netmask(interface.encode("utf-8"))
+		prefix = bin(struct.unpack(">L", bmask)[0]).count("1")
+		tags = [
+			addr+"/"+str(prefix)+" Network::Local\n", 
+			"0.0.0.0/0 Network::Cloud\n",
+			"127.0.0.1/8 -CIPSO\n"]
+		smackfs_netlabel(tags)
+	
+def loadnetlabelrules():
+	rulesSystem = [
+		"System Network::Cloud w\n",
+		"System Network::Local w\n",
+		"Network::Cloud System w\n",
+		"Network::Local System w\n"]
+	rulesUser = [
+		"User Network::Cloud w\n",
+		"User Network::Local w\n",
+		"Network::Cloud User w\n",
+		"Network::Local User w\n"]
+	smackfs_load2(rulesSystem)
+	smackfs_load2(rulesUser)
+
+def smackfs_load2 (rules):
+	with open(SMACKFS_LOAD, "w") as load2:
+		for rule in rules:
+			load2.write(rule)
+
+def smackfs_netlabel (tags):
+	for tag in tags:
+		with open(SMACKFS_NETLABEL, "w") as netlabel:
+			netlabel.write(tag)
+
+""" 
+    Source of: Class ip monitor, and other functions named bellow.
+    Original author: David Wolinsky <davidiw@ufl.edu
+    Copied from: https://github.com/davidiw/Grid-Appliance/blob/master/scripts/ip_monitor.py
+    
+"""
+
+"""4 byte alignment"""
+
+def align(inc):
+	diff = inc % 4
+	return inc + ((4 - diff) % 4)
+
+class ifaddr:
+  """Parse an ifaddr packet"""
+  LOCAL = 2
+  LABEL = 3
+
+  def __init__(self, packet):
+    self.family, self.prefixlen, self.flags, self.scope, self.index = \
+        struct.unpack("BBBBI", packet[:8])
+
+class rtattr:
+  """Parse a rtattr packet"""
+  GRP_IPV4_IFADDR = 0x10
+
+  NEWADDR = 20
+  DELADDR = 21
+  GETADDR = 22
+
+  def __init__(self, packet):
+    self.len, self.type = struct.unpack("HH", packet[:4])
+    if self.type == ifaddr.LOCAL:
+      addr = struct.unpack("BBBB", packet[4:self.len])
+      self.payload = "%s.%s.%s.%s" % (addr[0], addr[1], addr[2], addr[3])
+    elif self.type == ifaddr.LABEL:
+      self.payload = packet[4:self.len].strip("\0")
+    else:
+      self.payload = packet[4:self.len]
+
+class netlink:
+  """Parse a netlink packet"""
+  REQUEST = 1
+  ROOT = 0x100
+  MATCH = 0x200
+  DONE = 3
+
+  def __init__(self, packet):
+    self.msglen, self.msgtype, self.flags, self.seq, self.pid = \
+        struct.unpack("IHHII", packet[:16])
+    self.ifa = None
+    try:
+      self.ifa = ifaddr(packet[16:24])
+    except:
+      return
+
+    self.rtas = {}
+    pos = 24
+    while pos < self.msglen:
+      try:
+        rta = rtattr(packet[pos:])
+      except:
+        break
+      pos += align(rta.len)
+      self.rtas[rta.type] = rta.payload
+
+class ip_monitor:
+  def __init__(self, callback = None):
+    if callback == None:
+      callback = self.print_cb
+    self._callback = callback
+
+  def print_cb(self, label, addr):
+    print (label + " => " + addr)
+
+  def request_addrs(self, sock):
+    sock.send(struct.pack("IHHIIBBBBI", 24, rtattr.GETADDR, \
+      netlink.REQUEST | netlink.ROOT | netlink.MATCH, 0, sock.getsockname()[0], \
+      socket.AF_INET, 0, 0, 0, 0))
+
+  def start_thread(self):
+    thread.start_new_thread(self.run, ())
+
+  def run(self):
+    sock = socket.socket(socket.AF_NETLINK, socket.SOCK_RAW, socket.NETLINK_ROUTE)
+    sock.bind((0, rtattr.GRP_IPV4_IFADDR))
+    self.request_addrs(sock)
+
+    while True:
+      data = sock.recv(4096)
+      pos = 0
+      while pos < len(data):
+        nl = netlink(data[pos:])
+        if nl.msgtype == netlink.DONE:
+          break
+        pos += align(nl.msglen)
+        if nl.msgtype != rtattr.NEWADDR:
+          continue
+        self._callback(nl.rtas[ifaddr.LABEL], nl.rtas[ifaddr.LOCAL])
+
+def main():
+	if not os.path.isfile(SMACKFS_LOAD):
+		print ("Smack not found.")
+		return -1
+	loadnetlabelrules()
+	
+	ip_monitor(applynetlabeltags).run()
+
+if __name__ == "__main__":
+    main()

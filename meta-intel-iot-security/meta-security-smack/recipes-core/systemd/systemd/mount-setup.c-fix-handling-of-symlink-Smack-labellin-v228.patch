@@ -1,0 +1,58 @@
+From fd84be63d15fc94c1f396979c67e070c6cd7451b Mon Sep 17 00:00:00 2001
+From: Patrick Ohly <patrick.ohly@intel.com>
+Date: Mon, 21 Dec 2015 14:56:00 +0100
+Subject: [PATCH] mount-setup.c: fix handling of symlink Smack labelling in
+ cgroup setup
+
+The code introduced in f8c1a81c51 (= systemd 227) failed for me with:
+  Failed to copy smack label from net_cls to /sys/fs/cgroup/net_cls: No such file or directory
+
+There is no need for a symlink in this case because source and target
+are identical. The symlink() call is allowed to fail when the target
+already exists. When that happens, copying the Smack label must be
+skipped.
+
+But the code also failed when there is a symlink, like "cpu ->
+cpu,cpuacct", because mac_smack_copy() got called with
+src="cpu,cpuacct" which fails to find the entry because the current
+directory is not inside /sys/fs/cgroup. The absolute path to the existing
+entry must be used instead.
+
+Upstream-Status: Accepted [https://github.com/systemd/systemd/pull/2205]
+
+Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
+---
+ src/core/mount-setup.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/src/core/mount-setup.c b/src/core/mount-setup.c
+index 2b8d590..d73b319 100644
+--- a/src/core/mount-setup.c
++++ b/src/core/mount-setup.c
+@@ -304,13 +304,18 @@ int mount_cgroup_controllers(char ***join_controllers) {
+                                         return log_oom();
+ 
+                                 r = symlink(options, t);
+-                                if (r < 0 && errno != EEXIST)
+-                                        return log_error_errno(errno, "Failed to create symlink %s: %m", t);
++                                if (r >= 0) {
+ #ifdef SMACK_RUN_LABEL
+-                                r = mac_smack_copy(t, options);
+-                                if (r < 0 && r != -EOPNOTSUPP)
+-                                        return log_error_errno(r, "Failed to copy smack label from %s to %s: %m", options, t);
++                                        _cleanup_free_ char *src;
++                                        src = strappend("/sys/fs/cgroup/", options);
++                                        if (!src)
++                                                return log_oom();
++                                        r = mac_smack_copy(t, src);
++                                        if (r < 0 && r != -EOPNOTSUPP)
++                                                return log_error_errno(r, "Failed to copy smack label from %s to %s: %m", src, t);
+ #endif
++                                } else if (errno != EEXIST)
++                                        return log_error_errno(errno, "Failed to create symlink %s: %m", t);
+                         }
+                 }
+         }
+-- 
+2.1.4
+

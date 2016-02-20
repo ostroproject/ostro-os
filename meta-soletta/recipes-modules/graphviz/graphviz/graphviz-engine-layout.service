@@ -1,0 +1,11 @@
+[Unit]
+Description=graphviz configure layout engine support for dot
+After=warn-boot.timer
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/dot -c
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,79 @@
+From ddde00e3d62b68773c62c36816d93e3e18c57300 Mon Sep 17 00:00:00 2001
+From: Andy Lutomirski <luto@kernel.org>
+Date: Fri, 4 Sep 2015 15:42:51 -0700
+Subject: [PATCH 2/2] capabilities: add a securebit to disable
+ PR_CAP_AMBIENT_RAISE
+
+Per Andrew Morgan's request, add a securebit to allow admins to disable
+PR_CAP_AMBIENT_RAISE.  This securebit will prevent processes from adding
+capabilities to their ambient set.
+
+For simplicity, this disables PR_CAP_AMBIENT_RAISE entirely rather than
+just disabling setting previously cleared bits.
+
+Upstream-status: Backport [4.3]
+
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Acked-by: Andrew G. Morgan <morgan@kernel.org>
+Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Aaron Jones <aaronmdjones@gmail.com>
+Cc: Ted Ts'o <tytso@mit.edu>
+Cc: Andrew G. Morgan <morgan@kernel.org>
+Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>
+Cc: Austin S Hemmelgarn <ahferroin7@gmail.com>
+Cc: Markku Savela <msa@moth.iki.fi>
+Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc: Michael Kerrisk <mtk.manpages@gmail.com>
+Cc: James Morris <james.l.morris@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+---
+ include/uapi/linux/securebits.h | 11 ++++++++++-
+ security/commoncap.c            |  3 ++-
+ 2 files changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/include/uapi/linux/securebits.h b/include/uapi/linux/securebits.h
+index 985aac9..35ac35c 100644
+--- a/include/uapi/linux/securebits.h
++++ b/include/uapi/linux/securebits.h
+@@ -43,9 +43,18 @@
+ #define SECBIT_KEEP_CAPS	(issecure_mask(SECURE_KEEP_CAPS))
+ #define SECBIT_KEEP_CAPS_LOCKED (issecure_mask(SECURE_KEEP_CAPS_LOCKED))
+ 
++/* When set, a process cannot add new capabilities to its ambient set. */
++#define SECURE_NO_CAP_AMBIENT_RAISE		6
++#define SECURE_NO_CAP_AMBIENT_RAISE_LOCKED	7  /* make bit-6 immutable */
++
++#define SECBIT_NO_CAP_AMBIENT_RAISE (issecure_mask(SECURE_NO_CAP_AMBIENT_RAISE))
++#define SECBIT_NO_CAP_AMBIENT_RAISE_LOCKED \
++			(issecure_mask(SECURE_NO_CAP_AMBIENT_RAISE_LOCKED))
++
+ #define SECURE_ALL_BITS		(issecure_mask(SECURE_NOROOT) | \
+ 				 issecure_mask(SECURE_NO_SETUID_FIXUP) | \
+-				 issecure_mask(SECURE_KEEP_CAPS))
++				 issecure_mask(SECURE_KEEP_CAPS) | \
++				 issecure_mask(SECURE_NO_CAP_AMBIENT_RAISE))
+ #define SECURE_ALL_LOCKS	(SECURE_ALL_BITS << 1)
+ 
+ #endif /* _UAPI_LINUX_SECUREBITS_H */
+diff --git a/security/commoncap.c b/security/commoncap.c
+index 79b90f7..f2a3f1d 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -998,7 +998,8 @@ int cap_task_prctl(int option, unsigned long arg2, unsigned long arg3,
+ 			if (arg2 == PR_CAP_AMBIENT_RAISE &&
+ 			    (!cap_raised(current_cred()->cap_permitted, arg3) ||
+ 			     !cap_raised(current_cred()->cap_inheritable,
+-					 arg3)))
++					 arg3) ||
++			     issecure(SECURE_NO_CAP_AMBIENT_RAISE)))
+ 				return -EPERM;
+ 
+ 			new = prepare_creds();
+-- 
+2.5.0
+

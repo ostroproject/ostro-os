@@ -1,0 +1,13 @@
+{
+  "name": "example-app-node",
+  "version": "0.0.1",
+  "description": "Example node app for testing recipes.",
+  "main": "example.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jaska Uimonen",
+  "license": "MIT",
+  "dependencies": {
+  }
+}

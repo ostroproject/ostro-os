@@ -1,0 +1,10 @@
+[Unit]
+Description=Daemon to load edison mcu app binary
+After=syslog.target
+
+[Service]
+ExecStart=/etc/intel_mcu/mcu_fw_loader.sh
+
+[Install]
+WantedBy=multi-user.target
+
