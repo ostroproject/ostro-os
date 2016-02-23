@@ -8,19 +8,22 @@ Introduction
 
 Ostro-based software can be deployed to a target device in two ways:
 
-- full disk flashing
+- Full Disk Flashing
+
   A new software image is built and installed, completely replacing
   what was previously present on the device.
   It can be useful for initializing a device with Ostro.
-- software update
-  This is a component that Ostro borrows from The Clear Linux* OS
-  for Intel® Architecture and consists of 2 entities: server and client.
 
-Description
-===========
+- Software Update
+
+  This is a component that Ostro borrows from The Clear Linux\* OS
+  for Intel |reg| Architecture and consists of both a server and client
+  component.
+
 
 Software Update Server
-----------------------
+======================
+
 The software update server runs elsewhere than on the device, for example
 on a CI (Continuous Integration) server.
 For each build, the server generates information specific to that build
@@ -38,7 +41,8 @@ update client will treat them as trusted.
 
 
 Software Update Client
-----------------------
+======================
+
 The client runs on the device and is responsible of downloading, verifying
 (signature verification to be implemented) and applying the updates.
 It can also restore to their pristine state files that were present in the
@@ -46,7 +50,8 @@ initial sw image and have been modified.
 
 
 SW Bundles
-----------
+==========
+
 The software update mechanism supports the concept of bundles_: groups of files
 that provide one functionality.
 It is similar to the concept of package used in the vast majority of linux distros,

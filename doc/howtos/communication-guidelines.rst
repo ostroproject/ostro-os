@@ -4,14 +4,16 @@ Communicating Within the Ostro |trade| Project Community
 ##########################################################
 
 As the Ostro Project community grows, it's important to share design
-and implemention ideas with the whole community.  Whenever possible, 
+and implementation ideas with the whole community.  Whenever possible, 
 sharing information should be the default and not the
 exception. That means having discussions in public forums and ensuring team
 and community members not present get the same information. Exceptions
 are legal and human issues, which may have to be discussed more privately.
 
-This technical note offers some communicaiton guidelines we, as a community, 
-should work by.
+This technical note offers some communication guidelines we, as a community, 
+should work by.  You'll find a summary of resources and community
+support systems in :ref:`access-support`.
+ 
 
 Email and Mailing Lists
 =======================
@@ -20,8 +22,7 @@ Mailing lists are a convenient way to communicate with Ostro project members as
 well as other developers interested in the Ostro OS.  These lists are perhaps
 the most convenient way to track developer discussions and to ask your own
 support questions to the Ostro OS community.  You can find a list of
-the available mailing lists, how to subscribe, and what each list is used for
-from https://lists.ostroproject.org
+the available mailing lists and how to subscribe on  https://lists.ostroproject.org
 
 You can also read through
 the mailing list archives to follow past posts and discussions.
@@ -44,7 +45,8 @@ part of the Ostro OS, create or modify a reStructuredText :file:`.rst`
 file in one of the sub-folders in the meta-ostro repository :file:`doc`
 folder and submit the change for review
 in a pull request.  We're using the Sphinx document generation tools
-for processing and creating our technical documentation web content.
+for processing and creating our technical documentation web content
+found at http://ostroproject.org/documentation.
 You can find some helpful writing and formatting
 tips in the :ref:`doc_guidelines` tech note.
 
@@ -64,6 +66,10 @@ Chat
 ====
 
 You can chat online with the Ostro OS developer community and other users in
-our IRC channel...
-
-*TODO*: document chat/IRC channel
+our IRC channel ``#ostroproject`` on the freenode.net IRC server.  You can use
+the http://webchat.freenode.net web client 
+or use a client-side application
+such as :command:`pidgin`.  Communication on IRC is immediate but transient,
+making it good for meetings or a quick discussion.  (IRC discussions are
+not recorded so it's better to use the mailing list for open discussions
+with the community of developers.)

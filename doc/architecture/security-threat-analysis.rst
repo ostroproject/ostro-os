@@ -107,27 +107,27 @@ Adversaries
                                                                           privilege  potential
                                                                           level      effort level
 ======= ================== ======================= ====================== ========== ==============
-1.      Ostro OS           Damage vendor's         Network adversary      Low        High
+\       Ostro OS           Damage vendor's         Network adversary      Low        High
         download and       brand;
         update             personal
         infrastructure     reputation;
         attacker           access to user
                            data and device
-2.      Authorized device  Override behavior       Local physical access  Medium     Medium
+\       Authorized device  Override behavior       Local physical access  Medium     Medium
         user               defined by the
                            service provider
-3.      Malicious          Steal the physical      Local physical access  Low        Varies
-        unauthorized       device and/or data in
+\       Malicious          Steal the physical      Local physical access  Low        Varies
+        unauthorized       device or data in
         device user        it
-4.      Network attacker   Access to user data     Network adversary      Low        Varies
+\       Network attacker   Access to user data     Network adversary      Low        Varies
         (MITM attacker,    and device;
         script kiddie,     reputation
         botnet owner,
         etc.)
-5.      Authorized         Insider who wants to    Authorized adversary   High       Low
+\       Authorized         Insider who wants to    Authorized adversary   High       Low
         malicious project  harm
         team admin
-6.      Malware developer  Access to user data     Local, non-physical    Medium     High (code
+\       Malware developer  Access to user data     Local, non-physical    Medium     High (code
                            and device; reputation  access (application               injection),
                                                    intentionally gets                Medium (app
                                                    installed or code                 developer)
@@ -152,7 +152,7 @@ Application data           Log files, stored      Medium        Individual appli
                            sensor data, media
                            files, application
                            credentials/keys
-System data and files      Credentials/keys,      Medium        System components (read/write),      Device
+System data and files      credentials/keys,      Medium        System components (read/write),      Device
                            service configuration,               applications (read-only)
                            executables and
                            libraries
@@ -168,8 +168,8 @@ Device resources           CPU, memory, disk      Medium        Applications and
 ========================== ====================== ============= ==================================== =============
 
 The "Attack Points" column distinguishes between assets accessed
-through the device and thus where Ostro OS itselfs must protect the
-assets and other assets where mitigation must happen elsewhere.
+through the device (and where Ostro OS itself must protect the
+assets), and other assets (where mitigation must happen elsewhere).
 
 
 Attack surfaces
@@ -204,7 +204,7 @@ Lib-2 Malware developer/ Application data      Exploiting a local or remote vuln
 Lib-3 Network attacker   Application data,     Pre-condition: attacker is able to upload a binary or runnable code
                          sensor data, system   to the system. Method: attacker executes a malicious binary or
                          data                  runnable code in the system
-Lib-4 Network attacker   System data           An attacker can access the device when it’s being provisioned
+Lib-4 Network attacker   System data           An attacker can access the device when it's being provisioned
                                                (taken into use) because of insecure network provisioning or
                                                insecure default configuration
 Lib-5 Download and       Releases and tools    Attacker has managed to compromise an Ostro OS update server
@@ -387,7 +387,7 @@ Lib-5
  Notification mechanism. If swupd is used wrapped in Soletta, it will
  report back to the caller about the error. The caller must then
  notify the user or do other appropriate actions based on
- preconfigured policies, such as changing the update mirror.
+ pre-configured policies, such as changing the update mirror.
 
 Lib-6
 -----
@@ -553,7 +553,7 @@ App-3
  Soletta features for secure provisioning of sensors. For more complex
  authentication needs, applications need to carry the burden by having
  authorization mechanism such as a certificate for accessing
- preconfigured sensors.
+ pre-configured sensors.
 
 *Extensions*:
 

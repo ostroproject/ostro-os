@@ -10,6 +10,10 @@ development system and to install and run applications on :ref:`platforms`.
 Refer to the Ostro OS Release Notes in the Image Release area for specific details about capabilities and status
 of features for the current release. 
 
+You'll find a summary of resources to find Ostro OS images, source code,
+documentation, and support systems in :ref:`access-support`
+
+
 This guide describes two ways to get started with your investigation and use of the Ostro OS: 
 
 * Download one of the pre-built Ostro OS images, ready to run on a supported hardware platform, or 
@@ -20,69 +24,6 @@ This guide describes two ways to get started with your investigation and use of 
 
 .. _`Yocto Project`: http://yoctoproject.org
 
-
-Access and Support
-==================
-
-Here’s a quick summary of resources to find Ostro OS images, source code,
-documentation, and support systems:
-
-* Ostro Project Website
-   The website https://ostroproject.org is the central source of  
-   information about the Ostro Project.  On this site you'll find current information
-   about the project as well as all the relevent links to project material 
-   (including these technical documents).
-
-* Image Releases
-   Pre-built Ostro OS images for all the :ref:`platforms` are available at
-   https://download.ostroproject.org
-
-   In there you’ll find an images folder with separate folders for each of
-   the supported hardware platforms. In the platform folder, you’ll find an
-   :file:`.dsk` file that can be written directly onto a hard disk or
-   USB thumb drive and booted.  There’s also a :file:`.vdi` file for use with VirtualBox.
-
-* Software Updates
-   The Ostro OS uses a rolling updates development and release process using "bundle"  
-   technology developed by the Clear Linux\* OS for Intel |reg| Architecture team.  You 
-   can read more about bundles at `Clear Linux Project Software Update`_
-
-.. _`Clear Linux Project Software Update`: https://clearlinux.org/features/software-update
-   
-* Source Code on GitHub
-   Ostro OS source code is maintained on a public GitHub repository at
-   https://github.com/ostroproject. Check out the README there for more information
-   about the repository and its organization.
-
-* Documentation
-   Project techical documentation is under development and the document sources are
-   stored along with the Ostro OS code on GitHub.  The document sources are processed 
-   to generate the website documentation your currently reading.
-
-* Issue Tracking with JIRA
-   Requirements and Issue tracking is done with our public JIRA system at 
-   https://ostroproject.org/jira/.  You can browse through the issues freely,
-   but you'll need to create an account before submitting an issue of your own.
-
-* Mailing List
-   Mailing lists are a convenient way to communicate with Ostro project members as
-   well as other developers interested in the Ostro OS.  These lists are perhaps
-   the most convenient way to track developer discussions and to ask your own
-   support questions to the Ostro OS community.  You can find a list of
-   the available mailing lists, how to subscribe, and what each list is used for
-   from https://lists.ostroproject.org
-   You can also read through
-   the mailing list archives to follow past posts and discussions.
-
-* IRC Chatting
-   You can chat online with the Ostro OS developer community and other users in
-   our IRC channel ``#ostroproject`` on the freenode.net IRC server.  You can use
-   the http://webchat.freenode.net web client 
-   or use a client-side application
-   such as :command:`pidgin`.  Communication on IRC is immediate but transient,
-   making it good for meetings or a quick discussion.  (IRC discussions are
-   not recorded so it's better to use the mailing list for open discussions
-   with the community of developers.)
 
 
 Prerequisites

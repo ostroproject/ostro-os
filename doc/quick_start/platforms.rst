@@ -5,7 +5,6 @@ Ostro |trade| OS Supported Platforms
 
 * `GigaByte GB-BXBT-3825 <http://iotsolutionsalliance.intel.com/solutions-directory/gb-bxbt-3825-iot-gateway-solution>`_
    a gateway solution powered by an Intel |reg| Atom |trade| E3825 dual-core processor 
-   (both 32-bit and 64-bit images are supported)
 
 * `Intel Galileo Gen2 <http://www.intel.com/content/www/us/en/embedded/products/galileo/galileo-overview.html>`_
    an Intel® Quark x1000 32-bit, single core, Intel Pentium |reg| Processor class
@@ -13,8 +12,7 @@ Ostro |trade| OS Supported Platforms
 
 * `MinnowBoard MAX <http://wiki.minnowboard.org>`_
    a MinnowBoard MAX-compatible board, featuring an Intel |reg| Atom |trade| E3826 1.46 GHz
-   Dual Core CPU, offering a compact, affordable, and powerful open hardware design 
-   (both 32-bit and 64-bit images are supported)
+   Dual Core CPU, offering a compact, affordable, and powerful open hardware design.
 
 * `Intel Edison <http://www.intel.com/content/www/us/en/do-it-yourself/edison.html>`_
    an ultra small Intel |reg| Atom |trade| SoC dual-core 32-bit CPU-based compute module aimed

@@ -18,7 +18,7 @@ Providers, and developers building their own devices.
 
 This document introduces key concepts in the Ostro OS and how they fit
 together. The target audience is developers who want to learn about
-Ostro OS and/or use the OS in their own product. Application
+Ostro OS or use the OS in their own product. Application
 developers will also find this to be useful background information.
 There will also be documentation more focused on application
 development and installation.  The :ref:`Building Images` tech note
@@ -54,7 +54,7 @@ places where the security model differs from baseline Linux security
 that can be expected from any mainstream desktop Linux distribution.
 
 For a discussion of potential other security mechanisms see the
-:ref:`security-threat-analysis` documenentation.
+:ref:`security-threat-analysis` documentation.
 
 
 Key Security Concepts
@@ -62,11 +62,11 @@ Key Security Concepts
 
 * Scalable Security: Protection mechanisms can be turned on to
   increase security (defense in depth) or turned off to decrease
-  overhead and/or complexity. However, not all combinations are
+  overhead and complexity. However, not all combinations are
   tested, see `Production and Development Images`_ later in this document.
 
 * Unix DAC is used to separate applications. Each application runs
-  under a different uid. Supporting multiple real users of the same
+  under a different UID. Supporting multiple real users of the same
   device is left to applications to support.
 
 * Permission checks are based on Unix group membership.
@@ -74,7 +74,7 @@ Key Security Concepts
 * When using DAC alone, applications can communicate with each
   other. Application authors must be careful about setting permission
   bits as intended to prevent that. Because applications are trusted,
-  this is acceptable. When that is undesirable and/or to mitigate
+  this is acceptable. When that is undesirable or to mitigate
   risks when applications get compromised, optionally Smack as a MAC
   mechanism can be used to separate applications further (*TODO*).
 
@@ -201,28 +201,29 @@ the same writable partition.
   Persistent data which can be written on the device. Protected by
   IMA/EVM with hashes created on-the-fly by the kernel on the device.
 
-``/tmp`` ``/var/run``
+``/tmp`` and ``/var/run``
   A tmpfs which will not survive a reboot.
 
 ``/home``
   Persistent, read/write, no IMA/EVM. Each application gets its own
   home directory with access limited to the application.
 
-``/etc`` and the files in it are part of the core OS and thus considered
-read-only. However, there are a few noteworthy exceptions:
+``/etc``
+  The files in it are part of the core OS and thus considered
+  read-only. However, there are a few noteworthy exceptions:
 
 ``/etc/ld.so.cache``
- Its content depends on the currently installed shared libraries,
- which may vary by device. Therefore it needs to be updated on the
- device after system software installation or updates. Its real
- location thus is in /var (*TODO*).
+  Its content depends on the currently installed shared libraries,
+  which may vary by device. Therefore it needs to be updated on the
+  device after system software installation or updates. Its real
+  location thus is in /var (*TODO*).
 
 ``/etc/machine-id``
- Currently systemd creates a machine ID when booting and writes it to
- ``/etc/machine-id`` when ``/etc`` becomes writeable. When moving to the strict
- IMA policy, we need to prevent that (because the file would become
- unreadable, which breaks several systemd services) or move it to ``/var``
- (*TODO*).
+  Currently systemd creates a machine ID when booting and writes it to
+  ``/etc/machine-id`` when ``/etc`` becomes writeable. When moving to the strict
+  IMA policy, we need to prevent that (because the file would become
+  unreadable, which breaks several systemd services) or move it to ``/var``
+  (*TODO*).
 
 
 User, Group and Privilege Management
@@ -281,7 +282,7 @@ Applications
 ============
 
 At the moment, applications are only supported when built
-into the image (“pre-installed applications”) that is installed on a
+into the image (“pre-installed applications”) installed on a
 device. Such applications can use the normal Yocto Project configuration
 tools for creating
 the user they run under, install files in the normal root file system,
@@ -371,7 +372,7 @@ Core OS Hardening
 
 *TODO*: instructions how to deal with services needing to talk with each other, D-Bus policies etc.
 
-*TODO*: Recommended Systemd options for services.
+*TODO*: Recommended systemd options for services.
 
 *TODO*: Security processes followed by Ostro OS? Information about found vulnerabilities etc.
 

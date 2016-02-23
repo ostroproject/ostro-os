@@ -54,7 +54,7 @@ Creating and Signing a Signing Certificate
 
 Generate a signing key and sign it with the CA::
 
-    efikeygen -d ~/efi-sign/ca --signer="UEFI Test CA" --nickname="UEFI Secure Boot Signer" 
+    efikeygen -d ~/efi-sign/ca --signer="UEFI Test CA" --nickname="UEFI Secure Boot Signer" \
        --common-name="CN=UEFI Secure Boot Signer,OU=OTC,O=Intel Corporation,C=FI" \
        --url="http://www.intel.com" --serial=01
 

@@ -4,7 +4,7 @@ Putting the documentation within the source project gives us a straightforward w
 the project documentation and source code in sync.
 This also makes it easier for developers to collaborate by
 using a single source for document files, using git as a document repository, and
-using github's moderation and approval process.  Documentation changes go through
+using GitHub's moderation and approval process.  Documentation changes go through
 the same approval processes as the code.
 
 While there may be documents in progress within this /doc folder, only files actually
@@ -29,7 +29,12 @@ quick_start_
 
 sphinx_build
     Sphinx configuration and build files for the Ostro Project's website.  When processed, 
-    html output is contained within this folder in the _build/html folder.
+    HTML output is contained within this folder in the _build/html folder. We use
+    two different themes: one simple theme for generating an HTML site that can be
+    viewed locally (this is the theme included with the source code), and a second
+    more complex theme that's used to generate the public facing website accessed
+    via the internet.  This latter theme is matched to the theme used on the main
+    ostroproject.org website and maintained by the website team.
 
 
 .. _howtos: howtos

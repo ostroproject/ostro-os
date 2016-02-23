@@ -24,8 +24,8 @@ Ostro OS Images
 As explained in the :ref:`Building Images` tech note, there are several image variants available
 depending on your need.  For simplicity and the needs of this tech note, we'll use the dev image that includes
 additional build and debugging tools that wouldn't typically be included in a production device image.  This
-dev image also permits root login access at the console and via SSH, something that normally would not be available
-in a production device image either.
+dev image also will auto-login as root at the console and provides root access via SSH, something that normally would not be available
+in a production device image but is quite useful during development.
 
 Using dd to Create Bootable Media
 =================================
@@ -59,14 +59,17 @@ USB thumb drive or SD card.  The typical way to do this is with the :command:`dd
 MinnowBoard MAX
 ================
 
-The `MinnowBoard MAX`_ is a small formfactor board with an Intel |reg| Atom |trade| E3825 dual-core processor (supporting both 32-bit and 64-bit images).  
+The `MinnowBoard MAX`_ is a small form-factor board with an Intel |reg| Atom |trade| E3825 dual-core processor.  
 Once you have the Ostro OS image on a USB thumb drive (or SD card), you can use this to boot your MinnowBoard MAX-compatible board as you would
 most any Intel UEFI-based system.  The procedure will be similar for other boards so we’ll use this as an example.  
 See http://wiki.minnowboard.org for additional information about setting up the MinnowBoard hardware. 
 
-It's important to use a current version of firmware on your board, so we recommend checking this 
-first and updating the firmware if needed using the instructions 
-at http://wiki.minnowboard.org/MinnowBoard_MAX_HW_Setup 
+.. note::
+
+    It's important to use a current version of firmware on your board, so we recommend checking this 
+    first and updating the firmware if needed using the instructions 
+    at http://wiki.minnowboard.org/MinnowBoard_MAX_HW_Setup.  Ostro OS releases are built and tested
+    with 64-bit support, so you should make sure that the firmware is also setup for 64-bit support.  
 
 Here are the basic steps for booting the Ostro OS:
 
@@ -119,4 +122,34 @@ Flashing an Intel Edison requires use of a breakout board and two micro-USB cabl
 
     #. Plug in the second micro-USB cable to the J16 connector as instructed by the running flashall script
     #. Wait for all the images to flash. You will see the progress on both the flasher and on the serial console.
-    #. Once flashing is done, the image will automatically boot up. Login as ``root``, no password is required.
+    #. Once flashing is done, the image will automatically boot up and auto-login as ``root``, no password is required.
+       
+
+Running Ostro OS in a VirtualBox\* VM
+======================================
+
+You can run an Ostro OS image within a VirtualBox virtual machine by using the pre-built ``.vdi`` file found 
+in the binary release directory (on https://download.ostroproject.org), or as the result of doing your 
+own build from source.  As with the other examples above, we recommend you start with the "dev" image.
+ 
+#. If you haven’t already done so, download and install VirtualBox (version 5.0.2 or later) 
+   on your development system from https://www.virtualbox.org/wiki/Downloads. VirtualBox uses 
+   VDI as its native disk image format so you’ll be using that file instead of the .dsk file used 
+   with real hardware platforms. 
+#. Open the VirtualBox program and start by creating a new machine, give it a name 
+   (such as "Ostro OS build#"), select "Linux" for the VM type, and 
+   "Fedora (64-bit)" for the version.  Click next.
+#. Use a minimum of 256MB RAM for the memory configuration. You can increase this if your application needs more. Click next.
+#. Select "Use an existing virtual hard disk file", click on the folder icon and select the ``.vdi`` file you downloaded 
+   or created, and select "Create" to create the hard drive.
+#. Click on the System options and remove all the boot order options other than the "Hard Disk", and check "Enable EFI (special OSes only)".
+   While still on the system configuration, click on the "Acceleration" tab and verify that 
+   "Enable VT-x/AMX-V" (HW virtualization support) is checked. Click OK.
+#. Finally, click on the "Start" arrow button and your new virtual machine will start 
+   booting the Ostro OS Dev image and auto-login as root, no password is required.
+
+If booting fails with a kernel panic, verify you’re using VirtualBox version 5.0.2 or later.  You can shut the machine down 
+by either using the :command:`shutdown now` within the running Ostro OS image, or by using the VirtualBox menu 
+Machine/ACPI-shutdown.
+
+
