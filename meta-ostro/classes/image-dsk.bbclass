@@ -2,7 +2,7 @@
 # The image is GPT based.
 # To boot, it uses a combo file, containing kernel, initramfs and
 # command line, presented to the BIOS as UEFI application, by prepending
-# it with the efi stub obtained from gummiboot.
+# it with the efi stub obtained from systemd-boot.
 # The layout of the image is described in a separate, customizable json file.
 
 # A layout files is built accordingly to the following example:
@@ -34,10 +34,8 @@ IMAGE_TYPES_MASKED += "dsk.vdi"
 
 IMAGE_DSK_ACTIVE = "${@bb.utils.contains_any('IMAGE_FSTYPES', 'dsk dsk_xz dsk.vdi', True, False, d)}"
 
-# TODO drop gummiboot and move to systemd-boot
-# Not highly urgent, since this uses only the efi stub.
 do_uefiapp[depends] += " \
-                         gummiboot:do_deploy \
+                         systemd:do_deploy \
                          virtual/kernel:do_deploy \
                          initramfs-framework:do_populate_sysroot \
                          intel-microcode:do_deploy \
@@ -100,7 +98,7 @@ inherit deploy
 # In its place, instead, it uses a single UEFI executable binary, which is
 # composed by:
 #   - an UEFI stub
-#     The linux kernel can generate a UEFI stub, however the one from gummiboot can fetch
+#     The linux kernel can generate a UEFI stub, however the one from systemd-boot can fetch
 #     the command line from a separate section of the EFI application, avoiding the need to
 #     rebuild the kernel.
 #   - the kernel
