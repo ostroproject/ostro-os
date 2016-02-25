@@ -256,7 +256,7 @@ fakeroot python do_prune_bundle () {
 }
 addtask prune_bundle after do_copy_bundle_contents before do_swupd_update
 
-fakeroot do_swupd_update() {
+fakeroot do_swupd_update () {
     if [ ! -z "${PN_BASE}" ]; then
         bbwarn 'We only generate swupd updates for the base image, skipping ${PN}'
         exit
@@ -362,6 +362,12 @@ END
     echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/www/version/format3/latest
     echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/image/latest.version
 }
+
+python rm_shared_pseudodb () {
+    pseudo_state = d.expand('${TMPDIR}/work-shared/${IMAGE_BASENAME}/pseudo')
+    bb.utils.prunedir(pseudo_state)
+}
+do_swupd_update[postfuncs] += "rm_shared_pseudodb"
 
 SWUPDDEPENDS = "\
     virtual/fakeroot-native:do_populate_sysroot \
