@@ -130,6 +130,9 @@ python () {
     bundles = (d.getVar('SWUPD_BUNDLES', True) or "").split()
     extended = (d.getVar('BBCLASSEXTEND', True) or "").split()
 
+    if 'mega' in bundles:
+        bb.error('SWUPD_BUNDLES contains an item named "mega", this is a reserved name. Please rename that bundle.')
+
     # Generate virtual images for each of the bundles, the base image + the
     # bundle contents. Add each virtual image's do_prune_bundle task as a
     # dependency of the base image as we can't generate the update until all
