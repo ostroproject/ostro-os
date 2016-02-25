@@ -1,0 +1,16 @@
+# These modules are required to enable CC2520 802.15.4 radio in the
+# MinnowBoard MAX
+#
+# To enable loading, link as below:
+#
+# install: ln -s /lib/modprobe.d/spi-minnow-cc2520.conf.sample /etc/modprobe.d/spi-minnow-cc2520.conf
+# to-autoload: ln -s /usr/lib/modules-load.d/cc2520.conf.sample /etc/modules-load.d/cc2520.conf
+#
+# NOTE: MinnowBoard MAX BIOS must have PWM #1/#2 disabled and LPSS SPI enabled.
+
+blacklist spi-minnow-at86rf230
+install spi-minnow-at86rf230 /bin/true
+
+blacklist low_speed-spidev              # avoid being auto-loaded as dependency
+install low_speed-spidev /bin/true      # disable manual install
+
