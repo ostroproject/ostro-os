@@ -1,0 +1,8 @@
+[Unit]
+Description=Create tmpfiles
+Documentation=man:systemd-tmpfiles(8)
+BindsTo=update-triggers.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/systemd-tmpfiles --create

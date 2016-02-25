@@ -1,0 +1,267 @@
+#!/bin/bash
+
+#######################################
+# Clear Linux systemd bootloader installer
+# Author Brad Peters <brad.t.peters@intel.com>
+# systemdboot_updater.sh provides a minimal-copy wrapper which finesses
+#  the VFAT /boot fs to minimize writes, while implementing Clear Linux
+#  update/install and fix policies
+#######################################
+
+
+VERSION=3.60
+
+mountedBoot=0
+
+function printUsage()
+{
+    echo "systemdboot_updater.sh [--path <path to chroot>]"
+    echo "    -v | --version : Prints version of bootloader_updater.sh"
+    echo "    -h | --help    : Prints usage"
+    echo "    -p | --path    : Optional. Used when creating new image "
+    echo "                 in a subdir. Should be absolute path"
+}
+
+# Compares the sha1_sum of two files
+# Sets $sha1_cmp_res to 0 if equal, 1 if not
+function sha1_cmp()
+{
+    src=$1
+    dest=$2
+
+    if [[ ! -e $src ]]; then
+        echo "In sha1_cmp - $src File not found"
+        exit 1
+    fi
+
+    if [[ ! -e $dest ]]; then
+        # dest file does not exist, therefore we know the
+        # sha1_sum is different
+        sha1_cmp_res=1
+        return 1
+    fi
+
+    srcsha=$(sha1sum $src)
+    destsha=$(sha1sum $dest)
+
+    srcsha=$(echo $srcsha | awk '{print $1}')
+    destsha=$(echo $destsha | awk '{print $1}')
+
+    if [ $srcsha == $destsha ]
+    then
+        sha1_cmp_res=0
+    else
+        sha1_cmp_res=1
+    fi
+}
+
+
+
+#Checks if there is enough space to copy 2 files to /boot
+# Sets enoughSpace_res to 0 if not enough space to do the copy,
+# 1 if can saftely proceed
+function enoughSpace()
+{
+    src1=$1
+    src2=$2
+
+    fileSize1=$(ls -la $src1 | cut -f5 -d" ")
+    fileSize2=$(ls -la $src2 | cut -f5 -d" ")
+    # Add a buffer to space requirements to ensure we don't fill up boot
+    fileSize=$(($fileSize1 + $fileSize2 + 4096))
+    freeSpace=$(df --output=avail $SUBDIR/boot | sed -n '1!p')
+    # Get free space in bytes
+    freeBytes=$(expr $freeSpace \* 1000)
+
+    if [ $fileSize -lt $freeBytes ]; then
+        enoughSpace_res=1
+    else
+        enoughSpace_res=0
+    fi
+}
+
+# Compares sha1_sum's of srcfile and destfile, creates backup of destfile
+# if the two differ
+#   This backup will then be available for restoration via UEFI command line
+#   if the new binary fails to boot
+function preCopyBackup()
+{
+    srcfile=$1
+    destfile=$2
+
+    if [ ! -f $srcfile ]
+    then
+        echo " $srcfile not found. Nothing to do."
+        exit 1;
+    fi
+
+    if [ ! -f $destfile ]
+    then
+        return 0
+    fi
+
+    sha1_cmp $srcfile $destfile
+    if [ $sha1_cmp_res ]
+    then
+        newname="${destfile}.old"
+        cp $destfile $newname
+    fi
+
+    return 0
+}
+
+
+##################### Main #####################
+if [[ $# > 2 ]]
+then
+    printUsage
+fi
+
+# Parse cmdline
+if [[ $# > 0 ]]
+then
+  case $1 in
+    -h|--help)
+    printUsage
+    exit 0
+    ;;
+    -v|--version)
+    echo "bootloader_updater.sh version $VERSION"
+    exit 0
+    ;;
+    -p|--path)
+    if [[ $# = 1 ]]
+    then
+        echo "Invalid arguments.  --path requires a second argument."
+        exit 1
+    fi
+    SUBDIR="$2"
+    ;;
+    *)
+    echo "Unrecognized argument ($1).  Try again"
+    printUsage
+    exit 1
+    ;;
+  esac
+fi
+
+if [[ $EUID -ne 0 ]]; then
+    echo "Must be root to execute bootloader_updater.sh"
+    exit 1
+fi
+
+##### Mount /boot ######
+if [ -z "${SUBDIR}" ]; then
+    # Get boot partition UUID
+    BOOTUUIDENTRY=$(ls /sys/firmware/efi/efivars/LoaderDevicePartUUID*)
+    if [[ -e $BOOTUUIDENTRY ]]; then
+        UUID=$(cat $BOOTUUIDENTRY | tr -cd '[[:alnum:]]._-' | tr '[:upper:]' '[:lower:]')
+    fi
+
+    strlen=${#UUID}
+
+    IS_MOUNTED=$(mount | sed -n '/boot/p' | sed -n '/vfat/p')
+    if [[ -z "$IS_MOUNTED" ]];
+    then
+        if [ "$strlen" -gt 0 ]
+        then
+            echo "Mounting boot partition with UUID=$UUID"
+            mount /dev/disk/by-partuuid/$UUID /boot -o rw -t vfat
+        else
+            echo "Failed to identify boot partition using /sys/firmware/efi/efivars."
+            echo "  Attempting to mount by-partlabel"
+            mount /dev/disk/by-partlabel/ESP /boot -o rw -t vfat
+        fi
+        mountedBoot=1
+    fi
+
+    IS_MOUNTED=$(mount | sed -n '/boot/p' | sed -n '/vfat/p')
+    if [[ -z "$IS_MOUNTED" ]];
+    then
+        echo "/boot partition was not found. Unable to continue with systemd bootloader install"
+        exit 1
+    fi
+fi
+
+
+echo "Installing new systemd bootx binary... please wait..."
+src1="$SUBDIR/usr/lib/systemd/boot/efi/systemd-bootx64.efi"
+dest1="$SUBDIR/boot/EFI/systemd/systemd-bootx64.efi"
+preCopyBackup $src1 $dest1
+src2="$SUBDIR/usr/lib/systemd/boot/efi/systemd-bootx64.efi"
+dest2="$SUBDIR/boot/EFI/Boot/BOOTX64.EFI"
+preCopyBackup $src2 $dest2
+
+
+if [ ! -d "$SUBDIR/boot/EFI/systemd/" ]; then
+    mkdir -p "$SUBDIR/boot/EFI/systemd"
+fi
+
+if [ ! -d "$SUBDIR/boot/EFI/Boot/" ]; then
+    mkdir -p "$SUBDIR/boot/EFI/Boot"
+fi
+
+function fail_msg()
+{
+    echo "$* - Aborting"
+    exit 1
+}
+
+# use clear's bootctl only.
+function installSystemd()
+{
+    if [[ -z "${SUBDIR}" ]]; then
+        /usr/bin/bootctl install || fail_msg "Installing systemd bootloader failed"
+    else
+        # HACK
+        chroot "${SUBDIR}" /usr/bin/bootctl install --no-variables --force || fail_msg "Installing systemd bootloader failed"
+    fi
+}
+
+function updateSystemd()
+{
+    if [[ -z "${SUBDIR}" ]]; then
+        /usr/bin/bootctl update || fail_msg "Updating systemd bootloader failed"
+    else
+        chroot "${SUBDIR}" /usr/bin/bootctl update --no-variables --force || fail_msg "Updating systemd bootloader failed"
+    fi
+}
+
+# Space check before copy
+enoughSpace $src1 $src2
+if [ $enoughSpace_res -eq 1 ]; then
+    if [[ ! -e "${dest1}" ]] || [[ ! -e "${dest2}" ]]; then
+        # absolutely require an install
+        installSystemd
+    fi
+    sha1_cmp "$src1" "$dest1"
+    if [ $sha1_cmp_res -eq 1 ]; then
+        updateSystemd
+    fi
+else
+    echo "Insufficient space on /boot to install new bootloader binary"
+    exit 1
+fi
+
+
+# Sync after copy to protect against VFAT corruption
+pushd "$SUBDIR/boot" > /dev/null
+sync
+popd > /dev/null
+
+# Ensure older bootloader binary is not present
+# Note this will only occur if the new systemd bootloader was installed
+rm -Rf "$SUBDIR/boot/EFI/gummiboot"
+
+# Sync after cleanup to protect against VFAT corruption
+pushd "$SUBDIR/boot" > /dev/null
+sync
+popd > /dev/null
+
+if [ -z "${SUBDIR}" ]; then
+    if [[ "${mountedBoot}" -eq 1 ]]; then
+        umount /boot
+    fi
+fi
+
+echo "systemd bootloader update sucessful."

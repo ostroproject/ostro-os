@@ -1,0 +1,15 @@
+meta-swupd
+==========
+
+OpenEmbedded meta layer for swupd software-update
+
+This layer depends on:
+
+ URI: git://git.openembedded.org/openembedded-core
+ layers: meta
+ branch: master
+
+Layer Maintainer: Joshua Lock <joshua.g.lock@intel.com>
+
+Please send changes to the Yocto Project mailing list <yocto@yoctoproject.org>
+with [meta-swupd] in the subject line.

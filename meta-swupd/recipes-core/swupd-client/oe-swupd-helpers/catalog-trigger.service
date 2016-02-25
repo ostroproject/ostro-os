@@ -1,0 +1,8 @@
+[Unit]
+Description=Rebuild journal catalog
+Documentation=man:journalctl(1)
+BindsTo=update-triggers.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/journalctl --update-catalog
