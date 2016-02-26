@@ -246,8 +246,8 @@ BB_DISKMON_DIRS = "\
 #file://.* http://someserver.tld/share/sstate/PATH;downloadfilename=PATH \n \
 #file://.* file:///some/local/dir/sstate/PATH"
 #
-# Example for our setup:
-#SSTATE_MIRRORS ?= "file://.* http://download.ostroproject.org/bb-cache/sstate_master/PATH"
+# Example for Ostro OS setup, recommended to use it:
+#SSTATE_MIRRORS ?= "file://.* http://download.ostroproject.org/sstate/ostro-os/PATH"
 
 
 #
