@@ -29,16 +29,18 @@
 # this class) and finally all of the bundle images  . Each non-mega image
 # has a manifest generated that lists all of the file contents of the image.
 #
+# Each bundle 'chroot'-like directory and the rootfs of the base image are all
+# populated from the contents of the mega image's rootfs. The reason for this
+# is to ensure that all files which are modified during some kind of
+# post-processing step, i.e. passwd and groups updated during postinsts, are
+# fully populated.
+# This is not an ideal compromise and requires further thought.
+#
 # Once the images and their manifests have been created each bundle image
 # manifest is compared to the base image manifest in order to generate a delta
 # list of files in the bundle image which don't exist in the base image.
 # Files in this list are then preserved in the bundle directory for processing
 # by swupd-server in order to generate update artefacts.
-#
-# Note: the reason for generating the mega image is to ensure that all files
-# which are staged from the shared sysroot, i.e. passwd and groups, are
-# fully populated.
-# This is not an ideal compromise and requires further thought.
 #
 # TODO: we're copying a lot of potentially duplicate files into
 # DEPLOY_DIR_SWUPD consider using hardlink to de-duplicate the files and save
@@ -99,10 +101,23 @@ python () {
         # the base image having been built and its contents staged in
         # DEPLOY_DIR_SWUPD so that those contents can be compared against in
         # the do_prune_bundle task
-        if (d.getVar('BUNDLE_NAME') or "") == 'mega':
+        bundle_name = d.getVar('BUNDLE_NAME') or ""
+        if bundle_name == 'mega':
             return
         base_copy = (' %s:do_copy_bundle_contents' % pn_base)
         d.appendVarFlag('do_prune_bundle', 'depends', base_copy)
+        # The bundle contents will be copied from the mega image rootfs, thus
+        # we need to ensure that the mega image is finished building before
+        # we try and perform any bundle contents copying for other images
+        mega_image = (' %s-mega:do_image_complete' % pn_base)
+        d.appendVarFlag('do_copy_bundle_contents', 'depends', mega_image)
+
+        # We set the path to the rootfs folder of the mega image here so that
+        # it's simple to refer to later
+        megarootfs = d.getVar('IMAGE_ROOTFS', True)
+        megarootfs = megarootfs.replace(bundle_name, 'mega')
+        d.setVar('MEGA_IMAGE_ROOTFS', megarootfs)
+
         return
 
     # We use a shared Pseudo database in order to ensure that all tasks have
@@ -148,14 +163,43 @@ python () {
     # The base image should depend on the mega-image having been populated
     # to ensure that we're staging the same shared files from the sysroot as
     # the bundle images.
-    mega_name = (' %s-mega:do_image_complete' % d.getVar('PN', True))
+    mega_name = (' %s-mega:do_image_complete' % pn)
     d.appendVarFlag('do_rootfs', 'depends', mega_name)
+
+    # We set the path to the rootfs folder of the mega image here so that
+    # it's simple to refer to later
+    megarootfs = d.getVar('IMAGE_ROOTFS', True)
+    megarootfs = megarootfs.replace(pn, '%s-mega' % pn)
+    d.setVar('MEGA_IMAGE_ROOTFS', megarootfs)
 }
 
 fakeroot do_rootfs_append () {
     bndl = d.getVar('BUNDLE_NAME', True)
     if (bndl == 'mega'):
         return
+
+    if (bndl == 'os-core'):
+        import subprocess
+
+        # For the base image only we need to remove all of the files that were
+        # installed during the base do_rootfs and replace them with the
+        # equivelant files from the mega image.
+        outfile = d.expand('${WORKDIR}/orig-rootfs-manifest.txt')
+        rootfs = d.getVar('IMAGE_ROOTFS', True)
+        # Generate a manifest of the current file contents
+        manifest_cmd = 'cd %s && find . ! -path . > %s' % (rootfs, outfile)
+        subprocess.call(manifest_cmd, shell=True, stderr=subprocess.STDOUT)
+        # Remove the current rootfs contents
+        oe.path.remove('%s/*' % rootfs)
+        # Copy all files from the mega bundle
+        oe.path.copytree(d.getVar('MEGA_IMAGE_ROOTFS'), rootfs)
+        # Prune the items not in the manifest
+        rootfs_contents = []
+        for entry in manifest_to_file_list(outfile):
+            rootfs_contents.append(entry[1:])
+        remove_unlisted_files_from_directory(rootfs_contents, rootfs)
+        # clean up
+        os.unlink(outfile)
 
     # swupd-client expects a bundle subscription to exist for each
     # installed bundle. This is simply an empty file named for the
@@ -177,8 +221,18 @@ fakeroot do_copy_bundle_contents () {
         mkdir -p $bundledir
         # Generate a manifest of the bundle contents for pruning
         cd $rootfs && find . ! -path . > $outfile
-        # Copy the rootfs tree preserving the files and all of their attributes
-        cp -a $rootfs/* $bundledir
+        # Copy the entire mega image's contents, we'll prune this down to only
+        # the files in the manifest in do_prune_bundle
+        cp -a --no-preserve=ownership ${MEGA_IMAGE_ROOTFS}/* $bundledir
+
+        # swupd-client expects a bundle subscription to exist for each
+        # installed bundle. This is simply an empty file named for the
+        # bundle in /usr/share/clear/bundles
+        # Because we are populating the rootfs from the mega-image contents create
+        # the subscription file after the copy, but before the prune, so that the
+        # image contents, the generated manifest and the bundle contents match.
+        mkdir -p $bundledir/usr/share/clear/bundles
+        touch $bundledir/usr/share/clear/bundles/${BUNDLE_NAME}
     fi
 }
 # Needs to run after do_image_complete so that IMAGE_POSTPROCESS commands have run
@@ -203,6 +257,14 @@ def delta_contents(difflist):
             cont.append(ln[3:])
     return cont
 
+# Open a manifest file and read it into a list
+def manifest_to_file_list(manifest_fn):
+    image_manifest_list = []
+    with open(manifest_fn) as image:
+        image_manifest_list = image.read().splitlines()
+
+    return image_manifest_list
+
 # Compare the bundle image manifest to the base image manifest and return
 # a list of files unique to the bundle image.
 def unique_contents(base_manifest_fn, image_manifest_fn):
@@ -221,42 +283,75 @@ def unique_contents(base_manifest_fn, image_manifest_fn):
 
     return delta_contents(delta)
 
+# Takes a list of files and a base directory, removes items from the base
+# directory which don't exist in the list
+def remove_unlisted_files_from_directory (file_list, directory, fullprune=False):
+    for root, dirs, files in os.walk(directory):
+        replace = '/'
+        if not directory.endswith('/'):
+            replace = ''
+        relroot = root.replace(directory, replace)
+        #bb.debug(1, 'Substituting "%s" for %s in root of %s to give %s' % (replace, directory, root, relroot))
+        for f in files:
+            fpath = os.path.join(relroot, f)
+            if fpath not in file_list:
+                bb.debug(3, 'Pruning %s from the bundle (%s)' % (fpath, os.path.join(root, f)))
+                os.remove(os.path.join(root, f))
+
+    # Now need to clean up empty directories, unless they were listed in the
+    # the bundle's manifest
+    for dir, _, _ in os.walk(directory, topdown=False):
+        replace = '/'
+        if not directory.endswith('/'):
+            replace = ''
+        d = dir.replace(directory, replace)
+        bb.debug(3, 'Checking whether to delete %s (%s)' % (d, dir))
+        if fullprune or (d not in file_list):
+            try:
+                bb.debug(3, 'Attempting to remove unwanted directory %s (%s)' % (d, dir))
+                os.rmdir(dir)
+            except OSError as err:
+                bb.debug(2, 'Not removing %s, reason: %s' % (dir, err.strerror))
+        else:
+            bb.debug(3, 'Not removing wanted empty directory %s' % d)
+
 fakeroot python do_prune_bundle () {
     bundle = d.getVar('BUNDLE_NAME', True) or ''
     if not bundle:
         bb.warn('Trying to prune bundle of a non-bundle image: ' % d.getVar('PN', True))
         return
 
-    if bundle == 'mega' or bundle == 'os-core':
+    if bundle == 'mega':
         bb.debug(2, 'Skipping bundle pruning for %s image' % bundle)
         return
 
     # Get a list of files in the bundle which aren't in the base image
     pn_base = d.getVar("PN_BASE", True)
+    bundle_file_contents = []
     image_manifest = d.expand("${DEPLOY_DIR_SWUPD}/image/${OS_VERSION}/${SWUPD_ROOTFS_MANIFEST}")
-    base_manifest = image_manifest.replace('-%s' % bundle, '')
-    bb.debug(1, "Comparing manifest %s to %s" % (base_manifest, image_manifest))
-    bundle_file_contents = unique_contents(base_manifest, image_manifest)
-    bb.debug(1, '%s has %s unique contents' % (d.getVar('PN', True), len(bundle_file_contents)))
+    fullprune = True
+    if not pn_base:
+        fullprune = False
+        # image_name = d.getVar('IMAGE_NAME', True)
+        # base_manifest = image_manifest.replace(image_name, '%s-dummy' % image_name)
+        # open(base_manifest), 'w+b').close()
+        manifest_files = manifest_to_file_list(image_manifest)
+        bundle_file_contents = []
+        # The manifest files have a leading . before the /
+        for f in manifest_files:
+            bundle_file_contents.append(f[1:])
+        bb.debug(1, 'os-core has %s unique contents' % len(bundle_file_contents))
+    else:
+        base_manifest = image_manifest.replace('-%s' % bundle, '')
+        bb.debug(3, "Comparing manifest %s to %s" % (base_manifest, image_manifest))
+        bundle_file_contents = unique_contents(base_manifest, image_manifest)
+        bb.debug(3, '%s has %s unique contents' % (d.getVar('PN', True), len(bundle_file_contents)))
 
     # now we have a list of bundle files we can go ahead and delete files in
     # the bundle directory which aren't in this list.
     bundledir = d.expand('${DEPLOY_DIR_SWUPD}/image/${OS_VERSION}/${BUNDLE_NAME}/')
     bb.debug(1, "Creating and pruning %s bundle dir (%s)" % (bundle, bundledir))
-    for root, dirs, files in os.walk(bundledir):
-        relroot = root.replace(bundledir, '/')
-        for f in files:
-            fpath = os.path.join(relroot, f)
-            if fpath not in bundle_file_contents:
-                bb.debug(3, 'Pruning %s from the bundle\n\t%s' % (fpath, os.path.join(root, f)))
-                os.remove(os.path.join(root, f))
-
-    # Now need to clean up empty directories
-    for dir, _, _ in os.walk(bundledir, topdown=False):
-        try:
-            os.rmdir(dir)
-        except OSError as err:
-            bb.debug(2, 'Not removing %s, reason: %s' % (dir, err.strerror))
+    remove_unlisted_files_from_directory (bundle_file_contents, bundledir, fullprune)
     bb.debug(1, "Done pruning %s bundle dir (%s)" % (bundle, bundledir))
 }
 addtask prune_bundle after do_copy_bundle_contents before do_swupd_update
