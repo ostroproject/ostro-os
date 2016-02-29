@@ -7,11 +7,29 @@ pyshtables.py
 pstage/
 scripts/oe-git-proxy-socks
 sources/
-meta-*/
-!meta-skeleton
-!meta-selftest
 hob-image-*.bb
 *.swp
 *.orig
 *.rej
 *~
+# When someone checks out another layer in the root directory,
+# ignore it by default...
+/meta-*/
+# ... but do not ignore layers that we ourselves maintain there.
+!/meta-appfw
+!/meta-intel
+!/meta-intel-iot-middleware
+!/meta-intel-iot-security
+!/meta-iotqa
+!/meta-iot-web
+!/meta-java
+!/meta-oic
+!/meta-openembedded
+!/meta-ostro
+!/meta-ostro-bsp
+!/meta-ostro-fixes
+!/meta-security-isafw
+!/meta-selftest
+!/meta-skeleton
+!/meta-soletta
+!/meta-yocto
