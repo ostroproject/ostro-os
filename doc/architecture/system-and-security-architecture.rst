@@ -256,7 +256,7 @@ Unix Group   Resource
 *TODO*: adm  operations typically reserved for root, like rebooting and starting/stopping systemd services
 audio        audio devices
 video        video devices
-rfkill       ``/dev/rfkill`` (*TODO* - patch pending in pohly/ostro/passwd)
+rfkill       ``/dev/rfkill``
 ============ ===============================================================================================
 
 
@@ -331,8 +331,8 @@ System Updates
 Ostro OS binaries are delivered as bundles, as in the Clear Linux OS.
 Bundles are a bit like traditional packages, but can overlap with
 other bundles and come with less metadata. Instead of thousands of
-packages, the entire distro consists of about 10 to 20 (*TODO*:
-double-check this guess) bundles. There is a core bundle with all the
+packages, the entire distro consists of about 10 to 20 bundles.
+There is a core bundle with all the
 essential files required to boot the system. Several optional bundles
 contain individual runtimes and applications that were built together
 with the OS.
