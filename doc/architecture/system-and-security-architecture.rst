@@ -235,17 +235,13 @@ users. It is not possible to set a root password.
 
 To become root in the core system:
 
-* After installation and before booting for the first time, add a
-  public key to the ``~root/.ssh/authorized_keys`` file (*TODO*:
-  create the directory and file with correct permissions, document
-  the exact location, which may vary between development and
-  production image)
+* Add a personal public key to the ``~root/.ssh/authorized_keys`` file,
+  then use ssh. There are different approaches for this (build-time
+  configuration option, modifying pre-built images, customizing a
+  running image) which are described in detail elsewhere.
 
-* \*Only in the development image\*: log in via a local console and or
-  serial port as root. A PAM module allows root to log in without
-  password. Because development and production image use different
-  signing keys (*TODO*), that module and its configuration cannot be
-  copied from a development image to a production image.
+* \*Only in the development image\*: root automatically gets logged in
+  on a local console or serial port.
 
 Most groups are used to control access to certain resources like
 files, devices or privileged operations in system daemons. Device node
