@@ -48,10 +48,18 @@ applications. All interaction with the device is done
 through applications, not by logging into the core system directly.
 
 This architecture documentation explains how the security is currently
-integrated into the Ostro OS. Some items that may be added are also
-documented, but clearly marked as *TODO*. Especially covered are the
+integrated into the Ostro OS. Especially covered are the
 places where the security model differs from baseline Linux security
 that can be expected from any mainstream desktop Linux distribution.
+Where necessary for the understandig of the architecture, future work
+and enhancements are described, but in such a way that it is possible
+to determine what the current Ostro OS already provides.
+
+.. TODO: annotations about planned changes for text or future work
+   items can be called out in "TODO" comments. These comments then
+   (intentionally!) are not visible the HTML version of the document.
+   When describing future work in the visible text, prefer future
+   tense ("will be implemented") over negations ("not implemented yet").
 
 For a discussion of potential other security mechanisms see the
 :ref:`security-threat-analysis` documentation.
@@ -76,7 +84,9 @@ Key Security Concepts
   bits as intended to prevent that. Because applications are trusted,
   this is acceptable. When that is undesirable or to mitigate
   risks when applications get compromised, optionally Smack as a MAC
-  mechanism can be used to separate applications further (*TODO*).
+  mechanism will be supported to separate applications further. At the
+  moment, Smack is integrated into Ostro OS and enabled at runtime,
+  but the application framework does not use it.
 
 * Namespaces and containers further restrict what applications can
   access and do.
@@ -103,7 +113,8 @@ Boot Process + Secure Boot
 
    b) when using IMA with EVM, and booting for the first time, it is
       necessary to personalize the EVM protection to the current
-      device (*TODO*); more on that below.
+      device; more on that below. This step will be implemented in
+      the future. Right now, EVM is not used at all.
 
    c) if used, IMA/EVM policy gets activated
 
@@ -187,11 +198,11 @@ the same writable partition.
 ``/``
   Includes everything that is not explicitly listed
   below. Conceptually this is read-only and will only be mounted
-  read/write during system software updates (*TODO*: in practice,
+  read/write during system software updates (in practice,
   currently / is mounted read/write all the time but all services
   except software update use systemd's ``ProtectSystem=full`` to make the
   root filesystem appear read-only to them). All files are using
-  signed IMA hashes and thus cannot be modified on the device (*TODO*:
+  signed IMA hashes and thus cannot be modified on the device (
   because we have not finished the transition to a clean separation
   between read-only and read/write files in different partitions, the
   current IMA policy also allows hashes created on the device, which
@@ -209,21 +220,14 @@ the same writable partition.
   home directory with access limited to the application.
 
 ``/etc``
-  The files in it are part of the core OS and thus considered
-  read-only. However, there are a few noteworthy exceptions:
+  Ostro OS will become a "stateless" distribution, which means that
+  all system default configuration files will be stored under ``/usr``
+  and ``/etc`` is empty before the first boot. ``/etc/`` will be writable
+  and protected like ``/var``. In this model, ``/etc`` is reserved for
+  changes made by a device administrator and its content will be read
+  and used, but typically never modified by the system.
 
-``/etc/ld.so.cache``
-  Its content depends on the currently installed shared libraries,
-  which may vary by device. Therefore it needs to be updated on the
-  device after system software installation or updates. Its real
-  location thus is in /var (*TODO*).
-
-``/etc/machine-id``
-  Currently systemd creates a machine ID when booting and writes it to
-  ``/etc/machine-id`` when ``/etc`` becomes writeable. When moving to the strict
-  IMA policy, we need to prevent that (because the file would become
-  unreadable, which breaks several systemd services) or move it to ``/var``
-  (*TODO*).
+  .. TODO: add link to `stateless` architecture document once it is available.
 
 
 User, Group and Privilege Management
@@ -253,7 +257,9 @@ Here is a list of existing groups and the corresponding resources:
 ============ ===============================================================================================
 Unix Group   Resource
 ============ ===============================================================================================
-*TODO*: adm  operations typically reserved for root, like rebooting and starting/stopping systemd services
+adm          operations typically reserved for root, like rebooting and starting/stopping systemd services
+             (will be implemented in the future, right now applications cannot trigger privileged
+             operations)
 audio        audio devices
 video        video devices
 rfkill       ``/dev/rfkill``
@@ -354,7 +360,7 @@ a download server. The Clear OS swupd tool is then responsible for
 downloading the deltas and applying them to the local copy of the
 bundles.
 
-(*TODO*): write more about signature handling, how swupd is run, etc.
+For more information about swupd, see :ref:`software-update`.
 
 
 Core OS Hardening
@@ -450,13 +456,13 @@ IMA signing key               Product-specific, secret         Published togethe
                                                                source code
 swupd signature validation    TBD
 ----------------------------- ---------------------------------------------------------------------------
-Kernel debug interfaces       Disabled                         Enabled (*TODO*: document)
+Kernel debug interfaces       Disabled                         Disabled (may get enabled in the future)
 Root password                 Not set
 ----------------------------- ---------------------------------------------------------------------------
 Local login as root           Disabled                         Enabled for console (tty) and serial port,
                                                                automatic login
-SSH                           Installed, but disabled (*TODO*) Installed and running, but authorized keys
-                                                               must be set up before it becomes usable
+SSH                           Installed and running (will be   Installed and running, but authorized keys
+                              disabled)                        must be set up before it becomes usable
 ============================= ================================ ==========================================
 
 For more information about signing, see the :ref:`certificate-handling` how-to tech note.
