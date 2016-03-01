@@ -22,7 +22,8 @@ Framework
 The Application Framework has two actual components: an
 installer and a systemd generator. The details of the installer are
 still open, since it is undecided in which format 3rd-party
-applications will be delivered. At least `Clear Linux\* bundles`_  
+applications will be delivered. At least 
+`bundles`_ (from the Clear Linux\* OS for Intel |reg| Architecture project)
 and `XDG-APPs`_ are being considered
 as alternatives. In either case, the
 installer will be a simple wrapper script with minimal additional
@@ -32,7 +33,8 @@ application (in the eventually chosen format).
 The systemd generator component produces systemd service files for the
 applications using information from the application manifest.
 
-.. _Clear Linux\* bundles: https://clearlinux.org/documentation/index_bundles.html
+
+.. _bundles: https://clearlinux.org/documentation/index_bundles.html
 .. _XDG-APPs: https://wiki.gnome.org/Projects/SandboxedApps
 
 

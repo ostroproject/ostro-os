@@ -42,11 +42,11 @@ documentation, and support systems:
    to generate the website documentation your currently reading but can also
    be processed to generate a local website that can be read offline.
 
-* Issue Tracking with Jira
-   Requirements and Issue tracking is done with our public JIRA system at 
-   https://ostroproject.org/jira/.  You can browse through the issues freely,
-   but you'll need to create an account before submitting an issue of your own.
-   (Note that this Jira system will be available by the end of March 2016)
+* Issue Reporting and Tracking
+   Requirements and Issue tracking is done for now using GitHub issues here:
+   https://github.com/ostroproject/ostro-os/issues  You can browse through the reported issues
+   and submit issues of your own.
+  
 
 * Mailing List
    Mailing lists are a convenient way to communicate with Ostro project members as

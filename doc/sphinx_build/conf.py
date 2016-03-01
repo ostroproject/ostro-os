@@ -315,7 +315,7 @@ html_context = {
 # For sphinx.ext.extlinks, setup some common shortcuts
 #   :issue:`123` inserts a link to IOTOS-123 in Jira
 #
-extlinks = {'issue': ('https://jira01.devtools.intel.com/browse/IOTOS-%s',
-                      'IOTOS-')
+extlinks = {'issue': ('https://ostroproject.org/jira/browse/OP-%s',
+                      'OP-')
            
            }

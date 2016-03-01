@@ -188,7 +188,14 @@ Applications and services running on user device Elevation of privilege       Ap
 Cloud service, other trusted devices             Data modification            Application and     Attack on the
                                                                               system data         remote device
                                                                                                   or service
+Bluetooth, other connectivity services           Data confidentiality,        Application and     Network attack,
+                                                 Data integrity               network data        malformed input                        
 ================================================ ============================ =================== =================
+
+Note that Ostro OS also includes a variety of mechanisms intended for
+developer use and debugging.  While we have attempted to show developers how
+to use these modes of access in the safest method possible, they could be
+used as additional attack surfaces if left open in final products.
 
 Threats
 -------
@@ -623,3 +630,4 @@ Threats and Attack Vectors Out of Scope for Ostro OS 1.0 Release
   to overheat
 * attack vectors based on hardware that is specific to
   certain devices (like USB ports)
+* attack vectors caused by debug modes left enabled in final products

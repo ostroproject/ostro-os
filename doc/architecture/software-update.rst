@@ -44,7 +44,7 @@ Software Update Client
 ======================
 
 The client runs on the device and is responsible of downloading, verifying
-(signature verification to be implemented) and applying the updates.
+and applying the updates.
 It can also restore modified files to their pristine state as then were in the
 initial sw image.
 
@@ -62,10 +62,8 @@ a bare-bones working system.
 Everything else is optional and can be either deployed or removed by using the
 software update client program.
 
-Ostro OS developers can also use bundles if they follow the rule that each application is
+Ostro OS developers can also use bundles by following the rule that each application is
 contained in its own bundle.
 
 .. _bundles: https://clearlinux.org/documentation/bundles_overview.html
 
-XXX TODO: add here or in the howto some info on how to create bundles, once that part
-is working.

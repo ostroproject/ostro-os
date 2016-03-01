@@ -9,11 +9,11 @@ used to make software updates work with the Ostro OS.
 Prerequisites
 =============
 
- - a Linux host with Docker (>= 1.9.1), util-linux and rsync installed (Fedora 23 and
-   OpenSUSE 13.2 are known to work well for this purpose, but the outdated
-   Docker packages in Ubuntu 14.04 might have connectivity issues);
- - signing keys (alternatively testing keys from the :file:`swupd-server` project can
-   be used).
+- a Linux host with Docker (>= 1.9.1), util-linux and rsync installed (Fedora 23 and
+  OpenSUSE 13.2 are known to work well for this purpose, but the outdated
+  Docker packages in Ubuntu 14.04 might have connectivity issues);
+- signing keys (alternatively testing keys from the :file:`swupd-server` project can
+  be used).
 
 Creating a Docker Image
 =======================
@@ -49,7 +49,8 @@ you'd need to add something like "--dns 8.8.8.8 --dns 8.8.4.4" to the
 Creating a Software Update Repo
 ===============================
 
-The main selling point of Clear Linux's software updates (which we're using for
+The main selling point of Clear Linux\* OS for Intel |reg| Architecture's 
+software updates (which we're using for
 Ostro OS software updates), is the per-file update
 granularity and the ability to use binary deltas for updates. But this
 comes at a price: previous builds need to be preserved in order to
@@ -65,7 +66,8 @@ Here is a script that will extract the contents of the latest rootfs:
    :language: sh 
 
 
-(There's a copy of this script saved as :file:`extract_rootfs.sh`.) 
+(There's a copy of this :file:`extract_rootfs.sh` script in the ostroproject
+`GitHub repository <https://github.com/ostroproject/ostro-os/blob/master/doc/howtos/extras/extract_rootfs.sh>`_.) 
 
 Do the following steps to setup your swupd server repository:
 

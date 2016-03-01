@@ -48,8 +48,7 @@ applications. All interaction with the device is done
 through applications, not by logging into the core system directly.
 
 This architecture documentation explains how the security is currently
-integrated into the Ostro OS. Some items that may be added are also
-documented, but clearly marked as *TODO*. Especially covered are the
+integrated into the Ostro OS. Especially covered are the
 places where the security model differs from baseline Linux security
 that can be expected from any mainstream desktop Linux distribution.
 
@@ -76,7 +75,7 @@ Key Security Concepts
   bits as intended to prevent that. Because applications are trusted,
   this is acceptable. When that is undesirable or to mitigate
   risks when applications get compromised, optionally Smack as a MAC
-  mechanism can be used to separate applications further (*TODO*).
+  mechanism can be used to separate applications further.
 
 * Namespaces and containers further restrict what applications can
   access and do.
@@ -103,7 +102,7 @@ Boot Process + Secure Boot
 
    b) when using IMA with EVM, and booting for the first time, it is
       necessary to personalize the EVM protection to the current
-      device (*TODO*); more on that below.
+      device; more on that below.
 
    c) if used, IMA/EVM policy gets activated
 
@@ -187,15 +186,13 @@ the same writable partition.
 ``/``
   Includes everything that is not explicitly listed
   below. Conceptually this is read-only and will only be mounted
-  read/write during system software updates (*TODO*: in practice,
-  currently / is mounted read/write all the time but all services
+  read/write during system software updates Currently / is mounted 
+  read/write all the time but all services
   except software update use systemd's ``ProtectSystem=full`` to make the
-  root filesystem appear read-only to them). All files are using
-  signed IMA hashes and thus cannot be modified on the device (*TODO*:
-  because we have not finished the transition to a clean separation
-  between read-only and read/write files in different partitions, the
-  current IMA policy also allows hashes created on the device, which
-  allows circumventing the offline protection).
+  root filesystem appear read-only to them. The goal is to have all files 
+  signed using IMA hashes. The IMA policy may be updated in future builds
+  to provide a clean separation
+  between read-only and read/write files in different partitions.
 
 ``/var``
   Persistent data which can be written on the device. Protected by
@@ -214,16 +211,13 @@ the same writable partition.
 
 ``/etc/ld.so.cache``
   Its content depends on the currently installed shared libraries,
-  which may vary by device. Therefore it needs to be updated on the
-  device after system software installation or updates. Its real
-  location thus is in /var (*TODO*).
+  which may vary by device. In future builds it will be updated on the
+  device after system software installation or updates. 
 
 ``/etc/machine-id``
   Currently systemd creates a machine ID when booting and writes it to
-  ``/etc/machine-id`` when ``/etc`` becomes writeable. When moving to the strict
-  IMA policy, we need to prevent that (because the file would become
-  unreadable, which breaks several systemd services) or move it to ``/var``
-  (*TODO*).
+  ``/etc/machine-id`` when ``/etc`` becomes writeable. In future builds
+  this can be updated as per the IMA policy. 
 
 
 User, Group and Privilege Management
@@ -236,32 +230,18 @@ users. It is not possible to set a root password.
 To become root in the core system:
 
 * After installation and before booting for the first time, add a
-  public key to the ``~root/.ssh/authorized_keys`` file (*TODO*:
-  create the directory and file with correct permissions, document
-  the exact location, which may vary between development and
-  production image)
+  public key to the ``~root/.ssh/authorized_keys`` file.
 
-* \*Only in the development image\*: log in via a local console and or
-  serial port as root. A PAM module allows root to log in without
-  password. Because development and production image use different
-  signing keys (*TODO*), that module and its configuration cannot be
+* \*In the development image\*: log in via a local console or
+  serial port as root. A PAM module allows root to log in without a
+  password. The development and production image use different
+  signing keys so PAM module and its configuration cannot be
   copied from a development image to a production image.
 
 Most groups are used to control access to certain resources like
 files, devices or privileged operations in system daemons. Device node
 ownerships are set using udev rules, similar to how ``audio`` and
 ``video`` are handled in traditional Linux desktop systems.
-
-Here is a list of existing groups and the corresponding resources:
-
-============ ===============================================================================================
-Unix Group   Resource
-============ ===============================================================================================
-*TODO*: adm  operations typically reserved for root, like rebooting and starting/stopping systemd services
-audio        audio devices
-video        video devices
-rfkill       ``/dev/rfkill`` (*TODO* - patch pending in pohly/ostro/passwd)
-============ ===============================================================================================
 
 
 Process Handling
@@ -334,9 +314,8 @@ System Updates
 
 Ostro OS binaries are delivered as bundles, as in the Clear Linux OS.
 Bundles are a bit like traditional packages, but can overlap with
-other bundles and come with less metadata. Instead of thousands of
-packages, the entire distro consists of about 10 to 20 (*TODO*:
-double-check this guess) bundles. There is a core bundle with all the
+other bundles and come with less metadata. 
+There is a core bundle with all the
 essential files required to boot the system. Several optional bundles
 contain individual runtimes and applications that were built together
 with the OS.
@@ -358,23 +337,16 @@ a download server. The Clear OS swupd tool is then responsible for
 downloading the deltas and applying them to the local copy of the
 bundles.
 
-(*TODO*): write more about signature handling, how swupd is run, etc.
-
 
 Core OS Hardening
 =================
 
-*TODO*: describe compiler flags
+In future builds, these additional features will be considered for Core OS hardening:
 
-*TODO*: noexec tmpfs mounts
-
-*TODO*: list daemons running as non-root and how that was achieved (ambient capabilities, rfkill group for connman)
-
-*TODO*: instructions how to deal with services needing to talk with each other, D-Bus policies etc.
-
-*TODO*: Recommended systemd options for services.
-
-*TODO*: Security processes followed by Ostro OS? Information about found vulnerabilities etc.
+- noexec tmpfs mounts
+- running daemons as non-root (e.g., ambient capabilities, rfkill group for connman)
+- dealing with services needing to talk with each other, D-Bus policies etc.
+- systemd options for services.
 
 
 Network Security
@@ -442,12 +414,6 @@ security or interfere with the operation of other services or applications.
 Ostro OS does not have a centralized firewall control, so the service writers
 must be careful about this.
 
-*TODO*: instructions for replacing the default firewall ruleset
-
-*TODO*: sensor security
-
-*TODO*: system provisioning and first boot security
-
 
 Production and Development Images
 =================================
@@ -491,12 +457,12 @@ IMA signing key               Product-specific, secret         Published togethe
                                                                source code
 swupd signature validation    TBD
 ----------------------------- ---------------------------------------------------------------------------
-Kernel debug interfaces       Disabled                         Enabled (*TODO*: document)
+Kernel debug interfaces       Disabled                         Enabled 
 Root password                 Not set
 ----------------------------- ---------------------------------------------------------------------------
 Local login as root           Disabled                         Enabled for console (tty) and serial port,
                                                                automatic login
-SSH                           Installed, but disabled (*TODO*) Installed and running, but authorized keys
+SSH                           Installed, but disabled          Installed and running, but authorized keys
                                                                must be set up before it becomes usable
 ============================= ================================ ==========================================
 
