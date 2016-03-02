@@ -10,10 +10,12 @@ Ostro |trade| OS Supported Platforms
    an Intel® Quark x1000 32-bit, single core, Intel Pentium |reg| Processor class
    SOC-based board, pin-compatible with shields designed for the Arduino Uno R3
 
-* `MinnowBoard MAX <http://wiki.minnowboard.org>`_
-   a MinnowBoard MAX compatible board featuring an Intel |reg| Atom |trade| E3826 1.46 GHz
+* `MinnowBoard Turbot`_
+   the `MinnowBoard Turbot`_ is a MinnowBoard MAX compatible board featuring an Intel |reg| Atom |trade| E3826 1.46 GHz
    Dual Core CPU, offering a compact, affordable, and powerful open hardware design with
-   a growing ecosystem of add-on cards to extend its functionality.
+   a growing ecosystem of add-on cards to extend its functionality
+
+.. _MinnowBoard Turbot: http://wiki.minnowboard.org
 
 * `Intel Edison <http://www.intel.com/content/www/us/en/do-it-yourself/edison.html>`_
    an ultra small Intel |reg| Atom |trade| SoC dual-core 32-bit CPU-based compute module aimed
