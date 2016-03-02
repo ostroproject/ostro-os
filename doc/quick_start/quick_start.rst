@@ -7,7 +7,7 @@ Ostro |trade| OS Quick Start Guide
 This quick start guide explains how to install the Ostro OS development environment on your
 development system and to install and run applications on :ref:`platforms`.
 
-Refer to the Ostro OS Release Notes in the Image Release area for specific details about capabilities and status
+Refer to the `Ostro OS Release Notes`_ for specific details about capabilities and status
 of features for the current release. 
 
 You'll find a summary of resources to find Ostro OS images, source code,
@@ -23,6 +23,8 @@ This guide describes two ways to get started with your investigation and use of 
   to generate a new image that is tailored to your specific application needs.
 
 .. _`Yocto Project`: http://yoctoproject.org
+.. _`Ostro OS Release Notes`: https://github.com/ostroproject/ostro-os/releases/
+
 
 
 
