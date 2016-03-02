@@ -9,8 +9,8 @@ running that image one of the :ref:`platforms`.
 
 Two images are of interest for this process (depending if you're using real hardware or a VM):
 
-:file:`.dsk`
-    A raw disk image in GPT format and contains at least one UEFI bootable partition
+:file:`.dsk.xz`
+    A compressed raw disk image in GPT format and contains at least one UEFI bootable partition
     and at least one ext4 partition (rootfs).  For details on disk layout
     see the associated :file:`.json` file in the same directory as the image file.
 
@@ -23,37 +23,38 @@ Ostro OS Images
 
 As explained in the :ref:`Building Images` tech note, there are several image variants available
 depending on your need.  For simplicity and the needs of this tech note, we'll use the dev image that includes
-additional build and debugging tools that wouldn't typically be included in a production device image.  This
-dev image also will auto-login as root at the console and provides root access via SSH, something that normally would not be available
+additional build and debugging tools that wouldn't typically be included in a production device image. This
+dev image also will auto-login as ``root`` at the console, something that normally would not be available
 in a production device image but is quite useful during development.
 
 Using dd to Create Bootable Media
 =================================
 
-Once you have the :file:`.dsk` Ostro OS image you need to get it
+Once you have the :file:`.dsk.xz` Ostro OS image you need to get it
 onto your hardware platform, typically by using removable media such as a 
 USB thumb drive or SD card.  The typical way to do this is with the :command:`dd` command.
 
 #. Connect your USB thumb drive or SD card to your Linux-based development system
-   (minimum 2 GB card required). 
+   (minimum 8 GB card required).
 #. If you're not sure about your media device name, use the :command:`dmesg` command to view the system log 
    and see which device the USB thumb drive or SD card was assigned (e.g. :file:`/dev/sdb`)::
 
-        $ dmesg 
+     $ dmesg 
 
    or you can use the :command:`lsblk` command to show the block-level devices; a USB drive usually shows up as ``/sdb`` or ``/sdc``
    (almost never as ``/sda``)
 
 #. The :command:`dd` command will overwrite all content on the device so be careful specifying 
    the correct media device. In the example below, :file:`/dev/sdb` is the 
-   destination USB device on our development machine::
+   destination USB device on our development machine (an SD card device would typically show up 
+   as :file:`/dev/mmcblkX` where `X` is a number)::
 
-         $ sudo umount /dev/sdb*
-         $ sudo dd if=<ostro-os-image.dsk> of=/dev/sdb bs=512k
-         $ sync
+      $ sudo umount /dev/sdb*
+      $ xzcat <ostro-os-image.dsk.xz> | sudo dd of=/dev/sdb bs=512k
+      $ sync
 
-   Unplug the removable media from your development system and you're ready to plug 
-   it into your target system.
+Unplug the removable media from your development system and you're ready to plug 
+it into your target system.
 
 
 MinnowBoard Turbot - a MinnowBoard MAX Compatible
@@ -77,16 +78,14 @@ Here are the basic steps for booting the Ostro OS:
    FTDI cable from the MinnowBoard to a USB port on your host computer and use a terminal emulator 
    to communicate with the MinnowBoard.)
 #. Plug in the USB thumb drive with your Ostro OS image to your MinnowBoard
-#. Power the board on.
+#. Power the board on
 #. Wait for the system to enter the EFI shell where you can set the system date and time with the :command:`date` and :command:`time`
    (Because the MinnowBoard MAX does not have a battery for the clock (RTC), the system date and time revert to the date and time
    when the firmware was created.)
 #. Enter :command:`exit` to return to the boot option screen
 #. Use the arrow keys to select Boot Manager, press return, then select EFI USB Device, and press return
-#. The Ostro OS will begin booting
-#. Debug information about the boot will display, then an Ostro OS identification line, followed by a login prompt.  Login as ``root``, 
-   no password is required.
-
+#. The Ostro OS will begin booting and debug messages will appear on the terminal
+#. A warning will appear indicating this is a development image and you will be automatically logged in as ``root`` (no password)
 
 .. _MinnowBoard Turbot: http://wiki.minnowboard.org
 
@@ -99,10 +98,24 @@ is a gateway solution powered by an Intel |reg| Atom |trade| E3825 dual-core pro
 (64-bit images are supported). Booting is similar to booting a 
 MinnowBoard MAX from the USB thumbdrive described above. 
 
-Galileo 2
-=========
+Galileo Gen 2
+=============
 
-[This section under development]
+The `Intel Galileo Gen 2`_ is an Intel® Quark x1000 32-bit, single core, Intel Pentium |reg| Processor class SOC-based board, pin-compatible with shields designed for the Arduino Uno R3. 
+
+Flashing an `Intel Galileo Gen 2`_ requires use of a microSD card (booting off USB is not supported).
+
+Here are the basic steps for booting the Ostro OS:
+
+#. Flash the microSD card with the Ostro OS image as described in the `Using dd to Create Bootable Media` section above
+#. Insert the microSD card in the Galileo Gen 2 board
+#. Connect the serial FTDI cable from the `Intel Galileo Gen 2`_ to a USB port on your host computer and use a terminal emulator (settings: 115200 8N1)
+#. Power the board on (using a 5V, 3A power supply)
+#. Press [Enter] to directly boot
+#. The Ostro OS will begin booting and debug messages will appear on the terminal
+#. A warning will appear indicating this is a development image and you will be automatically logged in as ``root`` (no password)
+
+.. _Intel Galileo Gen 2: http://www.intel.com/content/www/us/en/embedded/products/galileo/galileo-overview.html
 
 Intel Edison
 ============
@@ -118,12 +131,12 @@ Flashing an Intel Edison requires use of a breakout board and two micro-USB cabl
 #. Copy the flashall script (``flashall.sh``) from the flashall folder to the Ostro OS image folder
 #. Then in the image folder run:: 
 
-       $ sudo ./flashall.sh
+    $ sudo ./flashall.sh
 
 #. Plug in the second micro-USB cable to the J16 connector as instructed by the running flashall script
-#. Wait for all the images to flash. You will see the progress on both the flasher and on the serial console.
-#. Once flashing is done, the image will automatically boot up and auto-login as ``root``, no password is required.
-       
+#. Wait for all the images to flash. You will see the progress on both the flasher and on the serial console
+#. Once flashing is done, the image will automatically boot up and auto-login as ``root``, no password is required
+     
 
 Running Ostro OS in a VirtualBox\* VM
 ======================================
@@ -131,7 +144,7 @@ Running Ostro OS in a VirtualBox\* VM
 You can run an Ostro OS image within a VirtualBox virtual machine by using the pre-built ``.vdi`` file found 
 in the binary release directory (on https://download.ostroproject.org), or as the result of doing your 
 own build from source.  As with the other examples above, we recommend you start with the "dev" image.
- 
+
 #. If you haven’t already done so, download and install VirtualBox (version 5.0.2 or later) 
    on your development system from https://www.virtualbox.org/wiki/Downloads. VirtualBox uses 
    VDI as its native disk image format so you’ll be using that file instead of the .dsk file used 
