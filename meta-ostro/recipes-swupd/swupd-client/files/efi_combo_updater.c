@@ -69,7 +69,7 @@ int execute(char **output, const char *fmt, ...) {
 }
 
 int main(void) {
-  char *root_block_device;
+  char *root_block_device = NULL;
   char *efi_partition_nr;
   char *efi_backup_partition_nr;
   char part_prefix[] = { '\0', '\0'};
@@ -79,7 +79,7 @@ int main(void) {
   /* Identify the block device with the rootfs, which is the
      same containing the EFI partitions.*/
   execute(&root_block_device, ROOT_BLOCK_DEVICE_CMD);
-  if (!strlen(root_block_device)) {
+  if (root_block_device == NULL) {
     execute(&root_block_device, ROOT_BLOCK_DEVICE_SD_CMD);
     *part_prefix = 'p';
   }
