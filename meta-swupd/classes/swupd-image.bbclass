@@ -332,9 +332,6 @@ fakeroot python do_prune_bundle () {
     fullprune = True
     if not pn_base:
         fullprune = False
-        # image_name = d.getVar('IMAGE_NAME', True)
-        # base_manifest = image_manifest.replace(image_name, '%s-dummy' % image_name)
-        # open(base_manifest), 'w+b').close()
         manifest_files = manifest_to_file_list(image_manifest)
         bundle_file_contents = []
         # The manifest files have a leading . before the /
