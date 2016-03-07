@@ -36,10 +36,6 @@ python swupdbundle_virtclass_handler () {
     e.data.setVar("PN", pn)
     e.data.setVar("BUNDLE_NAME", bundle)
 
-    bundles = (e.data.getVar('SWUPD_BUNDLES', True) or "").split()
-    if not bundles:
-        bb.fatal('SWUPD_BUNDLES is not defined, this variable should list bundles for the image.')
-
     curr_install = (e.data.getVar('IMAGE_INSTALL', True) or "").split()
 
     def get_bundle_contents(bndl):
@@ -50,6 +46,7 @@ python swupdbundle_virtclass_handler () {
             bb.fatal('BUNDLE_CONTENTS[%s] is not set, this should list the packages to be included in the bundle.' % bndl)
 
     if bundle == 'mega':
+        bundles = (e.data.getVar('SWUPD_BUNDLES', True) or "").split()
         for bndl in bundles:
             curr_install += get_bundle_contents(bndl)
     else:
