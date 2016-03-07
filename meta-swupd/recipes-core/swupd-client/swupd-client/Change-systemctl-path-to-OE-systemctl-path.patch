@@ -9,23 +9,18 @@ Upstream-Status: Inappropriate
  src/scripts.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/src/scripts.c b/src/scripts.c
-index e426272..9bec0f5 100644
---- a/src/scripts.c
-+++ b/src/scripts.c
-@@ -84,10 +84,10 @@ static void update_triggers(void)
- 	int ret;
- 	LOG_INFO(NULL, "calling systemd trigger", class_scripts, "");
+Index: git/src/scripts.c
+===================================================================
+--- git.orig/src/scripts.c
++++ git/src/scripts.c
+@@ -71,8 +71,8 @@ static void update_bootloader(void)
  
--	ret = system("/usr/bin/systemctl daemon-reload");
-+	ret = system("/bin/systemctl daemon-reload");
- 	if (ret != 0)
- 		LOG_ERROR(NULL, "systemd daemon reload failed", class_scripts, "%d", ret);
--	ret = system("/usr/bin/systemctl restart update-triggers.target");
-+	ret = system("/bin/systemctl restart update-triggers.target");
- 	if (ret != 0)
- 		LOG_ERROR(NULL, "systemd update triggers failed", class_scripts, "%d", ret);
+ static void update_triggers(void)
+ {
+-	system("/usr/bin/systemctl daemon-reload");
+-	system("/usr/bin/systemctl restart update-triggers.target");
++	system("/bin/systemctl daemon-reload");
++	system("/bin/systemctl restart update-triggers.target");
  }
--- 
-2.5.0
-
+ 
+ void run_scripts(void)
