@@ -444,7 +444,7 @@ END
         echo "" >> ${GROUPS_INI}
     done
 
-    bbdebug 1 "Generating update from PREVREL to ${OS_VERSION}"
+    bbdebug 1 "Generating update from $PREVREL to ${OS_VERSION}"
     ${STAGING_BINDIR_NATIVE}/swupd_create_update -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION}
 
     bbdebug 1 "Generating fullfiles for ${OS_VERSION}"
