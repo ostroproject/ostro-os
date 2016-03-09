@@ -11,6 +11,9 @@ SRC_URI = " \
   file://0003-Right-usage-of-AC_ARG_ENABLE-on-bzip2.patch \
   file://0004-Tolerate-quotes-in-os-release-files.patch \
   file://0005-Disable-boot-file-heuristics.patch \
+  file://0006-swupd-client-Add-existence-check-to-staging-target.patch \
+  file://0007-Backport-Use-rename-instead-of-tar-transform.patch \
+  file://0008-Add-compatibility-with-libarchive-s-bsdtar-command.patch \
   file://efi_combo_updater.c \
   "
 SRC_URI[md5sum] = "58671adf559dd18620f11caf4ccf83dd"
@@ -19,14 +22,14 @@ SRC_URI[sha256sum] = "09a70a423d10a6bf71f8675b7430c29a56f41f93493331c9ae51501171
 inherit pkgconfig
 
 DEPENDS = "zlib curl openssl xz glib-2.0"
-RDEPENDS_${PN} = "xz tar gptfdisk glib-2.0 bash"
+RDEPENDS_${PN} = "xz bsdtar gptfdisk glib-2.0 bash"
 
 PACKAGECONFIG ??= "bzip2"
 PACKAGECONFIG[bzip2] = "--enable-bzip2,--disable-bzip2,bzip2"
 
 inherit pkgconfig autotools
 
-EXTRA_OECONF = "--with-systemdsystemunitdir=${base_libdir}/systemd/system"
+EXTRA_OECONF = "--with-systemdsystemunitdir=${base_libdir}/systemd/system --enable-bsdtar"
 
 FILES_${PN} += " \
   ${datadir}/clear/update-ca/ \
