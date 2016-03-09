@@ -29,6 +29,7 @@ IMAGE_FEATURES[validitems] += " \
     qatests \
     smack \
     soletta \
+    soletta-tools \
     swupd \
     tools-develop \
 "
@@ -72,6 +73,7 @@ IMAGE_VARIANT[dev] = " \
     tools-debug \
     tools-develop \
     tools-profile \
+    soletta-tools \
 "
 
 # "minimal" images are the opposite of the "dev" images:
@@ -84,6 +86,7 @@ IMAGE_VARIANT[minimal] = " \
     no-node-runtime \
     no-python-runtime \
     no-soletta \
+    no-soletta-tools \
     no-qatests \
     no-java-jdk \
     ${OSTRO_EXTRA_MINIMAL_IMAGE_FEATURES} \
@@ -164,6 +167,7 @@ FEATURE_PACKAGES_node-runtime = "packagegroup-node-runtime"
 FEATURE_PACKAGES_python-runtime = "packagegroup-python-runtime"
 FEATURE_PACKAGES_java-jdk = "packagegroup-java-jdk"
 FEATURE_PACKAGES_soletta = "packagegroup-soletta"
+FEATURE_PACKAGES_soletta-tools = "soletta-dev-app"
 
 # git is not essential for compiling software, but include it anyway
 # because it is the most common source code management tool.
