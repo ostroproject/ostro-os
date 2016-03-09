@@ -1,7 +1,7 @@
-From d37f7df9432790b4e89d7616d8a8369af1b7435e Mon Sep 17 00:00:00 2001
+From 0ac7226645db1c7048863755a296e1e5f7d8319c Mon Sep 17 00:00:00 2001
 From: Dmitry Rozhkov <dmitry.rozhkov@intel.com>
 Date: Thu, 11 Feb 2016 12:49:30 +0200
-Subject: [PATCH swupd-client 4/5] Tolerate quotes in os-release files
+Subject: [PATCH] Tolerate quotes in os-release files
 
 Some systems like Yocto or OpenSUSE prefer to wrap values in
 /etc/os-release file with quotes always and that still conforms
