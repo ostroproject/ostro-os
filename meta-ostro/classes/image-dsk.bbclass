@@ -83,7 +83,7 @@ DSK_IMAGE_LAYOUT ??= ' \
     "partition_03_rootfs": { \
         "name": "rootfs", \
         "uuid": "${ROOTFS_PARTUUID_VALUE}", \
-        "size_mb": 5000, \
+        "size_mb": 3700, \
         "source": "${IMAGE_ROOTFS}", \
         "filesystem": "ext4", \
         "type": "8300" \
