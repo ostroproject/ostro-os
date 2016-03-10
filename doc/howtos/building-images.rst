@@ -123,6 +123,13 @@ compressed formats:
     temporary space, because the creation of the compressed image depends
     on the presence of the uncompressed one.
 
+    All compression methods listed for ``COMPRESSIONTYPES`` in
+    ``meta/classes/image_types.bbclass`` are supported. In addition,
+    Ostro OS adds support for compressing with :command:`zip`. ``xz``
+    is recommended, while ``zip`` may be useful in cases where images
+    have to be decompressed on machines that do not have :command:`xz`
+    readily available.
+
 To customize the image format, modify ``local.conf``, adding the variable
 ``OSTRO_VM_IMAGE_TYPES``, set to any combination of the following::
 
