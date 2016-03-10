@@ -194,6 +194,13 @@ ostro_root_authorized_keys () {
 # Do not create ISO images by default, only HDDIMG will be created (if it gets created at all).
 NOISO = "1"
 
+# Add support for compressing images with zip. Works for arbitrary image
+# types. Example: OSTRO_VM_IMAGE_TYPES = "dsk.zip dsk.vdi.zip"
+COMPRESSIONTYPES_append = " zip"
+ZIP_COMPRESSION_LEVEL ?= "-9"
+COMPRESS_CMD_zip = "zip ${ZIP_COMPRESSION_LEVEL} ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}.zip ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}"
+COMPRESS_DEPENDS_zip = "zip-native"
+
 # Replace the default "live" (aka HDDIMG) images with whole-disk images
 # XXX Drop the VM hack after taking care also of the non UEFI devices (those using U-Boot: edison and beaglebone)
 OSTRO_VM_IMAGE_TYPES ?= "dsk dsk.xz dsk.vdi"
