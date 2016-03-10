@@ -4,3 +4,4 @@ oeqa.runtime.security.appmemoryprotection
 oeqa.runtime.security.ca_certificate
 oeqa.runtime.security.dac_config
 oeqa.runtime.security.firewall_rules
+oeqa.runtime.ima
