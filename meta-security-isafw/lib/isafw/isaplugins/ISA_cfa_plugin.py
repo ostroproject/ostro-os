@@ -62,13 +62,13 @@ class ISA_CFChecker():
         self.full_reports = ISA_config.full_reports
         # check that checksec is installed
         DEVNULL = open(os.devnull, 'wb')
-        rc = subprocess.call(["which", "checksec.sh"], stdout=DEVNULL)
+        rc = subprocess.call(["which", "checksec.sh"], stdout=DEVNULL, stderr=DEVNULL)
         if rc == 0:
             # check that execstack is installed
-            rc = subprocess.call(["which", "execstack"], stdout=DEVNULL)
+            rc = subprocess.call(["which", "execstack"], stdout=DEVNULL, stderr=DEVNULL)
             if rc == 0:
                 # check that execstack is installed
-                rc = subprocess.call(["which", "readelf"], stdout=DEVNULL)
+                rc = subprocess.call(["which", "readelf"], stdout=DEVNULL, stderr=DEVNULL)
                 if rc == 0:
                     self.initialized = True
                     with open(self.logfile, 'w') as flog:
