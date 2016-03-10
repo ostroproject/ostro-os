@@ -83,6 +83,8 @@ python () {
     except ValueError:
         bb.fatal("Invalid value for OS_VERSION (%s), must be a non-negative integer value." % ver)
 
+    havebundles = (d.getVar('SWUPD_BUNDLES', True) or '') != ''
+
     pn_base = d.getVar('PN_BASE', True)
     if pn_base is not None:
         # We want all virtual images from this recipe to deploy to the same
@@ -113,7 +115,7 @@ python () {
         d.appendVarFlag('do_copy_bundle_contents', 'depends', mega_image)
 
         # We set the path to the rootfs folder of the mega image here so that
-        # it's simple to refer to later
+        # it's simple to refer to later.
         megarootfs = d.getVar('IMAGE_ROOTFS', True)
         megarootfs = megarootfs.replace(bundle_name, 'mega')
         d.setVar('MEGA_IMAGE_ROOTFS', megarootfs)
@@ -157,19 +159,24 @@ python () {
         extended.append('swupdbundle:%s' % bndl)
         dep = ' %s-%s:do_prune_bundle' % (pn, bndl)
         d.appendVarFlag ('do_swupd_update', 'depends', dep)
-    extended.append('swupdbundle:mega')
+
+    if havebundles:
+        extended.append('swupdbundle:mega')
+
     d.setVar('BBCLASSEXTEND', ' '.join(extended))
 
     # The base image should depend on the mega-image having been populated
     # to ensure that we're staging the same shared files from the sysroot as
     # the bundle images.
-    mega_name = (' %s-mega:do_image_complete' % pn)
-    d.appendVarFlag('do_rootfs', 'depends', mega_name)
+    if havebundles:
+        mega_name = (' %s-mega:do_image_complete' % pn)
+        d.appendVarFlag('do_rootfs', 'depends', mega_name)
 
     # We set the path to the rootfs folder of the mega image here so that
     # it's simple to refer to later
     megarootfs = d.getVar('IMAGE_ROOTFS', True)
-    megarootfs = megarootfs.replace(pn, '%s-mega' % pn)
+    if havebundles:
+        megarootfs = megarootfs.replace(pn, '%s-mega' % pn)
     d.setVar('MEGA_IMAGE_ROOTFS', megarootfs)
 }
 
@@ -178,7 +185,7 @@ fakeroot do_rootfs_append () {
     if (bndl == 'mega'):
         return
 
-    if (bndl == 'os-core'):
+    if (bndl == 'os-core' and (d.getVar('SWUPD_BUNDLES', True) or '') != ''):
         import subprocess
 
         # For the base image only we need to remove all of the files that were
@@ -192,7 +199,7 @@ fakeroot do_rootfs_append () {
         # Remove the current rootfs contents
         oe.path.remove('%s/*' % rootfs)
         # Copy all files from the mega bundle
-        oe.path.copytree(d.getVar('MEGA_IMAGE_ROOTFS'), rootfs)
+        oe.path.copytree(d.getVar('MEGA_IMAGE_ROOTFS', True), rootfs)
         # Prune the items not in the manifest
         rootfs_contents = []
         for entry in manifest_to_file_list(outfile):
