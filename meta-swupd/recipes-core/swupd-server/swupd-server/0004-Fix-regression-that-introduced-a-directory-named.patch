@@ -1,7 +1,7 @@
-From aba4418696ef31ab5afc9811903a044366619dc4 Mon Sep 17 00:00:00 2001
+From 841418e5e3f40ee5ae492d606d403feef82cdc1c Mon Sep 17 00:00:00 2001
 From: Patrick McCarty <patrick.mccarty@intel.com>
 Date: Mon, 22 Feb 2016 22:07:08 -0800
-Subject: [PATCH 2/4] Fix regression that introduced a directory named '/ '
+Subject: [PATCH] Fix regression that introduced a directory named '/ '
 
 Signed-off-by: Patrick McCarty <patrick.mccarty@intel.com>
 
@@ -12,11 +12,11 @@ Upstream-Status: Backport (v3.0+)
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/chroot.c b/src/chroot.c
-index f961d58..2878496 100644
+index cb6a04a..58e1f1a 100644
 --- a/src/chroot.c
 +++ b/src/chroot.c
-@@ -40,7 +40,7 @@ void chroot_create_full(int newversion)
- 	char * command;
+@@ -41,7 +41,7 @@ void chroot_create_full(int newversion)
+ 	struct stat buf;
  	char *full_dir;
  
 -	string_or_die(&full_dir, "%s/%i/full/ ", image_dir, newversion);

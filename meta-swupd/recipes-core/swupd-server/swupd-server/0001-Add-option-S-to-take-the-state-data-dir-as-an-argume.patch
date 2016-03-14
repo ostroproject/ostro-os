@@ -1,7 +1,7 @@
-From 83fbb8a78594cf9047e37ed0aa1e931b9d691f2a Mon Sep 17 00:00:00 2001
+From 4a3c91466e0782885fe980b659a6f6ac4835fe8a Mon Sep 17 00:00:00 2001
 From: Joshua Lock <joshua.g.lock@intel.com>
 Date: Thu, 28 Jan 2016 10:24:56 +0000
-Subject: [PATCH 1/2] Add option -S to take the state data dir as an argument
+Subject: [PATCH] Add option -S to take the state data dir as an argument
 
 The optional -S option expects a full path to a directory
 swupd-server should use instead of the default /var/lib/update.
@@ -24,7 +24,7 @@ Upstream-Status: Accepted (v3.0+)
  10 files changed, 264 insertions(+), 73 deletions(-)
 
 diff --git a/include/swupd.h b/include/swupd.h
-index 775c28e..58307d9 100644
+index 00b88d4..522ac2e 100644
 --- a/include/swupd.h
 +++ b/include/swupd.h
 @@ -16,9 +16,6 @@
@@ -56,7 +56,7 @@ index 775c28e..58307d9 100644
  extern int file_sort_hash(gconstpointer a, gconstpointer b);
  extern int file_sort_filename(gconstpointer a, gconstpointer b);
 diff --git a/src/analyze_fs.c b/src/analyze_fs.c
-index 2326237..fdc359a 100644
+index 4d01ccf..f6cfa13 100644
 --- a/src/analyze_fs.c
 +++ b/src/analyze_fs.c
 @@ -389,7 +389,7 @@ struct manifest *full_manifest_from_directory(int version)
@@ -78,11 +78,11 @@ index 2326237..fdc359a 100644
  	iterate_directory(manifest, dir, "", false);
  
 diff --git a/src/chroot.c b/src/chroot.c
-index 1d7df95..c5bb942 100644
+index d85b5f7..cb6a04a 100644
 --- a/src/chroot.c
 +++ b/src/chroot.c
-@@ -40,14 +40,15 @@ void chroot_create_full(int newversion)
- 	char * command;
+@@ -41,14 +41,15 @@ void chroot_create_full(int newversion)
+ 	struct stat buf;
  	char *full_dir;
  
 -	string_or_die(&full_dir, "%s/%i/full/", IMAGE_DIR, newversion);
@@ -99,7 +99,7 @@ index 1d7df95..c5bb942 100644
  	ret = system(command);
  	assert(ret==0);
  	free(command);
-@@ -60,8 +61,8 @@ void chroot_create_full(int newversion)
+@@ -61,8 +62,8 @@ void chroot_create_full(int newversion)
  		}
  
  		LOG(NULL, "Overlaying bundle chroot onto full", "%s", group);
@@ -110,7 +110,7 @@ index 1d7df95..c5bb942 100644
  		ret = system(command);
  		assert(ret==0);
  		free(command);
-@@ -80,8 +81,8 @@ void chroot_create_full(int newversion)
+@@ -81,8 +82,8 @@ void chroot_create_full(int newversion)
  		}
  
  		LOG(NULL, "Recopy bundle chroot out of full", "%s", group);
@@ -204,7 +204,7 @@ index 32dc793..ff6a3fa 100644
 +	free(staging_dir);
  }
 diff --git a/src/main.c b/src/main.c
-index 7ed71d5..3d5f24a 100644
+index ccfedfd..9366cd9 100644
 --- a/src/main.c
 +++ b/src/main.c
 @@ -55,6 +55,7 @@ static const struct option prog_opts[] = {
@@ -553,7 +553,7 @@ index 20fbd67..2b62b8a 100644
  	return exit_status;
  }
 diff --git a/src/pack.c b/src/pack.c
-index e96e9a4..036853f 100644
+index f021af9..5bb99b8 100644
 --- a/src/pack.c
 +++ b/src/pack.c
 @@ -46,21 +46,21 @@ static void empty_pack_stage(int full, int version, char *module)
@@ -752,10 +752,10 @@ index 70f9006..5ea979c 100644
  
  	/* make sure file->stat.st_size is valid */
 diff --git a/src/versions.c b/src/versions.c
-index 6860160..0fb729a 100644
+index eb38acc..3dd1e63 100644
 --- a/src/versions.c
 +++ b/src/versions.c
-@@ -215,10 +215,10 @@ GList *get_last_versions_list(int next_version, int max_versions)
+@@ -213,10 +213,10 @@ GList *get_last_versions_list(int next_version, int max_versions)
  	int idx, build_num, build_type, jump_point;
  	int jump_point_found;
  
@@ -768,7 +768,7 @@ index 6860160..0fb729a 100644
  		return NULL;
  	}
  
-@@ -228,7 +228,7 @@ GList *get_last_versions_list(int next_version, int max_versions)
+@@ -226,7 +226,7 @@ GList *get_last_versions_list(int next_version, int max_versions)
  		}
  
  		free(filename);

@@ -8,9 +8,10 @@ DEPENDS = "file xz glib-2.0 zlib bzip2 tar rsync openssl"
 SRC_URI = "\
     https://download.clearlinux.org/releases/5940/clear/source/SRPMS/${BPN}-${PV}-4.src.rpm;extract=${BP}.tar.gz \
     file://0001-Add-option-S-to-take-the-state-data-dir-as-an-argume.patch \
-    file://0001-Add-system_argv-helper-for-safer-calls-to-system-uti.patch \
-    file://0002-Add-configure-option-to-re-enable-config-files-in-ma.patch \
-    file://0002-Fix-regression-that-introduced-a-directory-named.patch \
+    file://0002-Add-system_argv-helper-for-safer-calls-to-system-uti.patch \
+    file://0003-Add-configure-option-to-re-enable-config-files-in-ma.patch \
+    file://0004-Fix-regression-that-introduced-a-directory-named.patch \
+    file://0005-xattrs.c-Avoid-freeing-dangling-pointers.patch \
 "
 
 SRC_URI[md5sum] = "14f25677b5a4f0b33785910b03860939"

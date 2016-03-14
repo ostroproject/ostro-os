@@ -1,8 +1,7 @@
-From 8f24ef7f857c9d2c2eb2601a2a1e06123c086001 Mon Sep 17 00:00:00 2001
+From a32179878e8e439948a4a6385515a0aea7a61592 Mon Sep 17 00:00:00 2001
 From: Dmitry Rozhkov <dmitry.rozhkov@intel.com>
 Date: Fri, 29 Jan 2016 17:48:46 +0200
-Subject: [PATCH swupd-server 1/2] Add system_argv() helper for safer calls to
- system utilities
+Subject: [PATCH] Add system_argv() helper for safer calls to system utilities
 
 Often file names contain special characters like hashes or
 whitespaces and that makes escaping a difficult task when using
@@ -20,10 +19,10 @@ Upstream-Status: Backport (v2.54+)
  3 files changed, 66 insertions(+), 4 deletions(-)
 
 diff --git a/include/swupd.h b/include/swupd.h
-index 00b88d4..2805186 100644
+index 522ac2e..ad4b967 100644
 --- a/include/swupd.h
 +++ b/include/swupd.h
-@@ -223,6 +223,7 @@ extern FILE * fopen_exclusive(const char *filename); /* no mode, opens for write
+@@ -228,6 +228,7 @@ extern FILE * fopen_exclusive(const char *filename); /* no mode, opens for write
  extern void dump_file_info(struct file *file);
  extern void string_or_die(char **strp, const char *fmt, ...);
  extern void print_elapsed_time(struct timeval *previous_time, struct timeval *current_time);
