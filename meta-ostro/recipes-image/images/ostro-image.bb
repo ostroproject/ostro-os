@@ -54,6 +54,7 @@ IMAGE_VARIANT[dev] = " \
     tools-develop \
     tools-profile \
     soletta-tools \
+    qatests \
 "
 
 # "minimal" images are the opposite of the "dev" images:
@@ -85,7 +86,6 @@ IMAGE_FEATURES += " \
                         iotivity \
                         ssh-server-openssh \
                         node-runtime \
-                        qatests \
                         python-runtime \
                         java-jdk \
                         soletta \
@@ -153,6 +153,8 @@ FEATURE_PACKAGES_soletta-tools = "soletta-dev-app"
 FEATURE_PACKAGES_tools-develop = "packagegroup-core-buildessential git"
 
 FEATURE_PACKAGES_swupd = "packagegroup-swupd"
+
+FEATURE_PACKAGES_qatests = "packagegroup-qa-tests"
 
 # Use gummiboot as the EFI bootloader.
 EFI_PROVIDER = "gummiboot"
