@@ -20,6 +20,7 @@ Technical Notes
    uefi-secure-boot
    certificate-handling
    software-update-server
+   firewall-configuration
 
 Process Notes
 =============
