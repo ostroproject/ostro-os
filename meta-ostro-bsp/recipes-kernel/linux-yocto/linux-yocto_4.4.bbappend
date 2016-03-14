@@ -20,6 +20,11 @@ SRC_URI_append_beaglebone = " file://sensors.cfg"
 SRC_URI_append_intel-corei7-64 = " file://sensors.cfg"
 SRC_URI_append_intel-core2-32 = " file://sensors.cfg"
 
+# backport MMA7455 Accel sensor driver
+SRC_URI_append_intel-corei7-64 = " file://0001-iio-accel-add-Freescale-MMA7455L-MMA7456L-3-axis-acc.patch"
+SRC_URI_append_intel-core2-32 = " file://0001-iio-accel-add-Freescale-MMA7455L-MMA7456L-3-axis-acc.patch"
+SRC_URI_append_intel-quark = " file://0001-iio-accel-add-Freescale-MMA7455L-MMA7456L-3-axis-acc.patch"
+
 #  BeagleBone Black enable all I2Cs
 SRC_URI_append_beaglebone = " file://0001-v3.15.0-ARM-dts-am335x-boneblack-configure-i2c1-and-2.patch"
 
