@@ -128,10 +128,6 @@ python () {
     # However, we must be careful with the pseudo database and managing
     # database lifecycles in order to avoid confusion should inode numbers be
     # reused when files are deleted outside of pseudo's awareness.
-    #
-    # TODO: Figure out database lifecycles. When can we be sure that deleting
-    # the database is appropriate? We need it to live for the generation of
-    # an image and all of its virtual images.
     pseudo_state = d.expand('${TMPDIR}/work-shared/${IMAGE_BASENAME}/pseudo')
     d.setVar('PSEUDO_LOCALSTATEDIR', pseudo_state)
 
@@ -417,9 +413,6 @@ fakeroot do_swupd_update () {
         exit
     fi
 
-    mkdir -p ${DEPLOY_DIR_SWUPD}/image/${OS_VERSION}/os-core
-    cp -ar ${IMAGE_ROOTFS}/* ${DEPLOY_DIR_SWUPD}/image/${OS_VERSION}/os-core/
-
     # Generate swupd-server configuration
     bbdebug 1 "Writing ${DEPLOY_DIR_SWUPD}/server.ini"
     if [ -e "${DEPLOY_DIR_SWUPD}/server.ini" ]; then
@@ -458,8 +451,8 @@ END
     ${STAGING_BINDIR_NATIVE}/swupd_make_fullfiles -S ${DEPLOY_DIR_SWUPD} ${OS_VERSION}
 
     bbdebug 1 "Generating zero packs, this can take some time."
-    ${STAGING_BINDIR_NATIVE}/swupd_make_pack -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} os-core
-    for bndl in ${SWUPD_BUNDLES}; do
+    bundles="os-core ${SWUPD_BUNDLES}"
+    for bndl in $bundles; do
         bbdebug 2 "Generating zero pack for $bndl"
         ${STAGING_BINDIR_NATIVE}/swupd_make_pack -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl
     done
@@ -496,12 +489,6 @@ END
     echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/image/latest.version
 }
 
-python rm_shared_pseudodb () {
-    pseudo_state = d.expand('${TMPDIR}/work-shared/${IMAGE_BASENAME}/pseudo')
-    bb.utils.prunedir(pseudo_state)
-}
-do_swupd_update[postfuncs] += "rm_shared_pseudodb"
-
 SWUPDDEPENDS = "\
     virtual/fakeroot-native:do_populate_sysroot \
     rsync-native:do_populate_sysroot \
@@ -509,3 +496,9 @@ SWUPDDEPENDS = "\
 "
 addtask swupd_update after do_image_complete after do_copy_bundle_contents after do_prune_bundle before do_build
 do_swupd_update[depends] = "${SWUPDDEPENDS}"
+
+python rm_shared_pseudodb () {
+    pseudo_state = d.expand('${TMPDIR}/work-shared/${IMAGE_BASENAME}/pseudo')
+    bb.utils.prunedir(pseudo_state)
+}
+do_swupd_update[postfuncs] += "rm_shared_pseudodb"
