@@ -10,7 +10,9 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=93888867ace35ffec2c845ea90b2e16b"
 PV = "1_beta16+git${SRCPV}"
 
-SRC_URI = "gitsm://github.com/solettaproject/soletta.git;protocol=git"
+SRC_URI = "gitsm://github.com/solettaproject/soletta.git;protocol=git \
+           file://run-ptest \
+          "
 SRCREV = "b3e725a94cdd3fa5db34c1aecc26bbc330dfdc81"
 
 S = "${WORKDIR}/git"
@@ -87,4 +89,19 @@ do_install() {
    ln -sf libsoletta.so ${WORKDIR}/image/usr/lib/libsoletta.so.0.0.1
    COMMIT_ID=`git --git-dir=${WORKDIR}/git/.git rev-parse --verify HEAD`
    echo "Soletta: $COMMIT_ID" > ${D}/usr/lib/soletta/soletta-image-hash
+}
+
+inherit ptest
+
+do_compile_ptest() {
+        oe_runmake TARGETCC="${CC}" TARGETAR="${AR}" "tests"
+}
+
+do_install_ptest () {
+        mkdir -p ${D}/${PTEST_PATH}/src
+        cp -rf ${S}/build/stage/test ${D}/${PTEST_PATH}/src/
+        cp -f ${S}/data/scripts/suite.py ${D}/${PTEST_PATH}
+        cp -rf ${S}/src/test-fbp ${D}/${PTEST_PATH}/src/
+        cp -f ${S}/tools/run-fbp-tests ${D}/${PTEST_PATH}
+
 }

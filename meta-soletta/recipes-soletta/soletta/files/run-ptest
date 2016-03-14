@@ -1,0 +1,39 @@
+#!/bin/bash
+
+#SOLETTA_C_TEST_RUNNER=suite.py
+SOLETTA_FBP_TEST_RUNNER=run-fbp-tests
+
+echo "=== Run Soletta C test cases ==="
+C_TEST_PASS_COUNTER=0
+C_TEST_FAIL_COUNTER=0
+C_TEST_SKIP_COUNTER=0
+C_TEST_DIR="src/test"
+
+cd $C_TEST_DIR
+for tc in $(ls | grep -v ".log"); do
+    timeout 30 ./$tc
+    case $? in
+      0)
+        echo "PASS: $tc"
+        C_TEST_PASS_COUNTER=$((C_TEST_PASS_COUNTER+1))
+        ;;
+      124)
+        echo "FAIL: $tc"
+        echo "$tc timeout"
+        C_TEST_SKIP_COUNTER=$((C_TEST_SKIP_COUNTER+1))
+        ;;
+      *)
+        echo "FAIL: $tc"
+        echo "$tc return non-zero"
+        C_TEST_FAIL_COUNTER=$((C_TEST_FAIL_COUNTER+1))
+        ;;
+    esac
+done
+echo "Summary: Soletta C Test"
+echo "         Case PASS: $C_TEST_PASS_COUNTER"
+echo "         Case FAIL: $C_TEST_FAIL_COUNTER"
+cd -
+
+echo "=== Run Soletta fbp test cases ==="
+python $SOLETTA_FBP_TEST_RUNNER --runner "/usr/bin/sol-fbp-runner" --log "DEBUG" 
+
