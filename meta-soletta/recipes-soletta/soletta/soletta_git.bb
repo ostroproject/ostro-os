@@ -5,12 +5,12 @@
 DESCRIPTION = "Soletta library and modules"
 SECTION = "examples"
 DEPENDS = "glib-2.0 libpcre pkgconfig python3-jsonschema-native icu curl"
-LICENSE = "BSD"
-LIC_FILES_CHKSUM = "file://COPYING;md5=53eeaddf328b23e2355816e257450eaa"
-PV = "1_beta15+git${SRCPV}"
+LICENSE = "Apache-2.0"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=93888867ace35ffec2c845ea90b2e16b"
+PV = "1_beta16+git${SRCPV}"
 
 SRC_URI = "gitsm://github.com/solettaproject/soletta.git;protocol=git"
-SRCREV = "2bbe44194e563c4f1d6049ce4d5094760d25b21e"
+SRCREV = "b3e725a94cdd3fa5db34c1aecc26bbc330dfdc81"
 
 S = "${WORKDIR}/git"
 
