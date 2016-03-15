@@ -43,26 +43,6 @@ IMAGE_FEATURES[validitems] += " \
     tools-profile \
 "
 
-# Temporary variant for swupd.
-# Currently swupd is not compatible with ima and smack,
-# so disable them. This can be removed once they can coexist.
-IMAGE_VARIANT[swupd] = " \
-    no-smack \
-    no-ima \
-"
-
-# Temporary variant for swupd.
-# Currently swupd is not compatible with ima and smack,
-# so disable them. This can be removed once they can coexist.
-IMAGE_VARIANT[swupddev] = " \
-    no-smack \
-    no-ima \
-    ptest-pkgs \
-    tools-debug \
-    tools-develop \
-    tools-profile \
-"
-
 # "dev" images have the following features turned on.
 # ptests are enabled because (platform) developers might want
 # to run them and because it is a relatively small change which
@@ -136,7 +116,6 @@ OSTRO_EXTRA_IMAGE_VARIANTS ?= ""
 BBCLASSEXTEND = " \
     imagevariant:dev \
     imagevariant:minimal \
-    imagevariant:swupd \
     ${OSTRO_EXTRA_IMAGE_VARIANTS} \
 "
 
