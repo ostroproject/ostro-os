@@ -89,7 +89,15 @@ do_compile () {
 
 do_install () {
     install -d ${D}${libdir}/node_modules/iot-rest-api-server/
-    cp -r ${S}/* ${D}${libdir}/node_modules/iot-rest-api-server/
+    install -m 0644 ${S}/index.js ${D}${libdir}/node_modules/iot-rest-api-server/index.js
+    install -m 0644 ${S}/package.json ${D}${libdir}/node_modules/iot-rest-api-server/package.json
+    install -m 0644 ${S}/LICENSE ${D}${libdir}/node_modules/iot-rest-api-server/LICENSE
+
+    cp -r ${S}/config/ ${D}${libdir}/node_modules/iot-rest-api-server/
+    cp -r ${S}/oic/ ${D}${libdir}/node_modules/iot-rest-api-server/
+    cp -r ${S}/routes/ ${D}${libdir}/node_modules/iot-rest-api-server/
+    cp -r ${S}/appfw/ ${D}${libdir}/node_modules/iot-rest-api-server/
+    cp -r ${S}/node_modules/ ${D}${libdir}/node_modules/iot-rest-api-server/
 
     # Install iot-rest-api-server service script
     install -d ${D}/${systemd_unitdir}/system
