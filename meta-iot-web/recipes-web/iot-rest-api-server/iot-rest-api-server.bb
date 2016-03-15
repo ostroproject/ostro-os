@@ -34,7 +34,7 @@ INSANE_SKIP_${PN} += "ldflags staticdev"
 
 do_compile_prepend() {
     OCTBDIR="${STAGING_DIR_TARGET}${includedir}/iotivity/resource"
-    export OCTBSTACK_CFLAGS="-I${OCTBDIR} -I${OCTBDIR}/stack -I${OCTBDIR}/logger -I${OCTBDIR}/oc_logger -I${OCTBDIR}/ocrandom -DROUTING_GATEWAY"
+    export OCTBSTACK_CFLAGS="-I${OCTBDIR} -I${OCTBDIR}/stack -I${OCTBDIR}/ocrandom -DROUTING_EP -DTCP_ADAPTER"
     export OCTBSTACK_LIBS="-loctbstack"
     export CFLAGS="$CFLAGS -fPIC"
     export CXXFLAGS="$CXXFLAGS -fPIC"
