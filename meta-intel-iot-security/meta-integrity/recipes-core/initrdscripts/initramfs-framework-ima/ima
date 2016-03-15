@@ -27,7 +27,10 @@ ima_run() {
     for kind in ima evm; do
         key=/etc/keys/x509_$kind.der
         if [ -s $key ]; then
-            id="`awk '/\.$kind/ { printf "%d", "0x"$1; }' /proc/keys`"
+            id=$(grep -w -e "\.$kind" /proc/keys | cut -d ' ' -f1 | head -1)
+            if [ "$id" ]; then
+                id=$(printf "%d" 0x$id)
+            fi
             if [ -z "$id" ]; then
                 id=`keyctl search @u keyring _$kind 2>/dev/null`
                 if [ -z "$id" ]; then

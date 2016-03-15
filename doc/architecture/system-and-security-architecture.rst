@@ -51,6 +51,15 @@ This architecture documentation explains how the security is currently
 integrated into the Ostro OS. Especially covered are the
 places where the security model differs from baseline Linux security
 that can be expected from any mainstream desktop Linux distribution.
+Where necessary for the understandig of the architecture, future work
+and enhancements are described, but in such a way that it is possible
+to determine what the current Ostro OS already provides.
+
+.. TODO: annotations about planned changes for text or future work
+   items can be called out in "TODO" comments. These comments then
+   (intentionally!) are not visible the HTML version of the document.
+   When describing future work in the visible text, prefer future
+   tense ("will be implemented") over negations ("not implemented yet").
 
 For a discussion of potential other security mechanisms see the
 :ref:`security-threat-analysis` documentation.
@@ -75,7 +84,9 @@ Key Security Concepts
   bits as intended to prevent that. Because applications are trusted,
   this is acceptable. When that is undesirable or to mitigate
   risks when applications get compromised, optionally Smack as a MAC
-  mechanism can be used to separate applications further.
+  mechanism will be supported to separate applications further. At the
+  moment, Smack is integrated into Ostro OS and enabled at runtime,
+  but the application framework does not use it.
 
 * Namespaces and containers further restrict what applications can
   access and do.
@@ -102,7 +113,8 @@ Boot Process + Secure Boot
 
    b) when using IMA with EVM, and booting for the first time, it is
       necessary to personalize the EVM protection to the current
-      device; more on that below.
+      device; more on that below. This step will be implemented in
+      the future. Right now, EVM is not used at all.
 
    c) if used, IMA/EVM policy gets activated
 
@@ -186,13 +198,15 @@ the same writable partition.
 ``/``
   Includes everything that is not explicitly listed
   below. Conceptually this is read-only and will only be mounted
-  read/write during system software updates Currently / is mounted 
-  read/write all the time but all services
+  read/write during system software updates (in practice,
+  currently / is mounted read/write all the time but all services
   except software update use systemd's ``ProtectSystem=full`` to make the
-  root filesystem appear read-only to them. The goal is to have all files 
-  signed using IMA hashes. The IMA policy may be updated in future builds
-  to provide a clean separation
-  between read-only and read/write files in different partitions.
+  root filesystem appear read-only to them). All files are using
+  signed IMA hashes and thus cannot be modified on the device (
+  because we have not finished the transition to a clean separation
+  between read-only and read/write files in different partitions, the
+  current IMA policy also allows hashes created on the device, which
+  allows circumventing the offline protection).
 
 ``/var``
   Persistent data which can be written on the device. Protected by
@@ -206,18 +220,14 @@ the same writable partition.
   home directory with access limited to the application.
 
 ``/etc``
-  The files in it are part of the core OS and thus considered
-  read-only. However, there are a few noteworthy exceptions:
+  Ostro OS will become a "stateless" distribution, which means that
+  all system default configuration files will be stored under ``/usr``
+  and ``/etc`` is empty before the first boot. ``/etc/`` will be writable
+  and protected like ``/var``. In this model, ``/etc`` is reserved for
+  changes made by a device administrator and its content will be read
+  and used, but typically never modified by the system.
 
-``/etc/ld.so.cache``
-  Its content depends on the currently installed shared libraries,
-  which may vary by device. In future builds it will be updated on the
-  device after system software installation or updates. 
-
-``/etc/machine-id``
-  Currently systemd creates a machine ID when booting and writes it to
-  ``/etc/machine-id`` when ``/etc`` becomes writeable. In future builds
-  this can be updated as per the IMA policy. 
+  .. TODO: add link to `stateless` architecture document once it is available.
 
 
 User, Group and Privilege Management
@@ -229,19 +239,31 @@ users. It is not possible to set a root password.
 
 To become root in the core system:
 
-* After installation and before booting for the first time, add a
-  public key to the ``~root/.ssh/authorized_keys`` file.
+* Add a personal public key to the ``~root/.ssh/authorized_keys`` file,
+  then use ssh. There are different approaches for this (build-time
+  configuration option, modifying pre-built images, customizing a
+  running image) which are described in detail elsewhere.
 
-* \*In the development image\*: log in via a local console or
-  serial port as root. A PAM module allows root to log in without a
-  password. The development and production image use different
-  signing keys so PAM module and its configuration cannot be
-  copied from a development image to a production image.
+* \*Only in the development image\*: root automatically gets logged in
+  on a local console or serial port.
 
 Most groups are used to control access to certain resources like
 files, devices or privileged operations in system daemons. Device node
 ownerships are set using udev rules, similar to how ``audio`` and
 ``video`` are handled in traditional Linux desktop systems.
+
+Here is a list of existing groups and the corresponding resources:
+
+============ ===============================================================================================
+Unix Group   Resource
+============ ===============================================================================================
+adm          operations typically reserved for root, like rebooting and starting/stopping systemd services
+             (will be implemented in the future, right now applications cannot trigger privileged
+             operations)
+audio        audio devices
+video        video devices
+rfkill       ``/dev/rfkill``
+============ ===============================================================================================
 
 
 Process Handling
@@ -314,7 +336,8 @@ System Updates
 
 Ostro OS binaries are delivered as bundles, as in the Clear Linux OS.
 Bundles are a bit like traditional packages, but can overlap with
-other bundles and come with less metadata. 
+other bundles and come with less metadata. Instead of thousands of
+packages, the entire distro consists of about 10 to 20 bundles.
 There is a core bundle with all the
 essential files required to boot the system. Several optional bundles
 contain individual runtimes and applications that were built together
@@ -336,6 +359,8 @@ against older revisions of the bundles are calculated and published on
 a download server. The Clear OS swupd tool is then responsible for
 downloading the deltas and applying them to the local copy of the
 bundles.
+
+For more information about swupd, see :ref:`software-update`.
 
 
 Core OS Hardening
@@ -376,44 +401,18 @@ ruleset needs to be set in ``iptables-restore`` compatible format and the
 services must use ``iptables`` and ``ip6tables`` commands for punching holes to
 the firewall and doing any other firewall configuration they might require.
 
-An example systemd socket extension file for opening IPv6 firewall port
-for sshd (this file is
-``/lib/systemd/system/sshd.socket.d/openssh-ipv6.conf``):
-
-::
-
-  [Unit]
-  After=ip6tables.service
-
-  [Socket]
-  ExecStartPre=/usr/sbin/ip6tables -w -A INPUT -p tcp --dport ssh -j ACCEPT
-  ExecStopPost=/usr/sbin/ip6tables -w -D INPUT -p tcp --dport ssh -j ACCEPT
-
-The ``-w`` switch is needed to both ``iptables`` and ``ip6tables`` commands to
-prevent race conditions with firewall locking.
-
-Current approach lets the firewall rules to be simple, and the writers of the
+Current approach keeps the firewall rules simple. Developers writing
 service rules can use the extensive documentation available for iptables
-toolchain to write, debug, and verify the rules. Also, the iptables toolchain
-provides the system integrator the possibility to do almost any firewall setup
-imaginable, letting Ostro OS to be future-proof in this regard.
+toolchain to write, debug, and verify the rules. Also, the iptables
+toolchain provides the system integrator the possibility to do almost
+any firewall setup imaginable, letting Ostro OS to be future-proof in
+this regard.
 
 Firewall default configuration
 ------------------------------
 
-The default Ostro OS firewall configuration is a restrictive one. Briefly, all
-incoming packets are dropped, except for those belonging to already established
-connections or those that are coming from the loopback interface. Forwarding
-packets is not allowed. All outgoing packets are accepted. In addition to this,
-the IPv6 firewall is configured to accept incoming ICMPv6 packets.
-
-System services are not supposed to change the fundamental way the firewall is
-set up. They are meant to configure the firewall so that they can function
-properly, but the firewall settings they do must not compromise the firewall
-security or interfere with the operation of other services or applications.
-Ostro OS does not have a centralized firewall control, so the service writers
-must be careful about this.
-
+For a detailed discussion of firewall configuration, see
+:ref:`firewall-configuration` document.
 
 Production and Development Images
 =================================
@@ -457,13 +456,13 @@ IMA signing key               Product-specific, secret         Published togethe
                                                                source code
 swupd signature validation    TBD
 ----------------------------- ---------------------------------------------------------------------------
-Kernel debug interfaces       Disabled                         Enabled 
+Kernel debug interfaces       Disabled                         Disabled (may get enabled in the future)
 Root password                 Not set
 ----------------------------- ---------------------------------------------------------------------------
 Local login as root           Disabled                         Enabled for console (tty) and serial port,
                                                                automatic login
-SSH                           Installed, but disabled          Installed and running, but authorized keys
-                                                               must be set up before it becomes usable
+SSH                           Installed and running (will be   Installed and running, but authorized keys
+                              disabled)                        must be set up before it becomes usable
 ============================= ================================ ==========================================
 
 For more information about signing, see the :ref:`certificate-handling` how-to tech note.

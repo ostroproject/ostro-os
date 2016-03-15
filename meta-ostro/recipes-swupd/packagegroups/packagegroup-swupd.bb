@@ -7,7 +7,6 @@ inherit packagegroup
 SUMMARY_${PN} = "Ostro OS Software updates stack"
 
 RDEPENDS_${PN} = "\
-    tar \
     swupd-client \
     clr-systemd-config \
     "

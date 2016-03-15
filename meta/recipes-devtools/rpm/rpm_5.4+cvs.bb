@@ -144,6 +144,7 @@ SRC_URI += " \
 	   file://rpm-syck-fix-gram.patch \
 	   file://rpm-rpmdb-grammar.patch \
 	   file://rpm-disable-blaketest.patch \
+	   file://rpm-autogen-force.patch \
 "
 
 SRC_URI_append_libc-musl = "\
@@ -631,6 +632,14 @@ EOF
 
 	# Create and install multilib specific macros
 	${@multilib_rpmmacros(d)}
+}
+
+do_install_append_class-native () {
+	sed -i -e 's|^#!.*/usr/bin/python|#! /usr/bin/env nativepython|' ${D}/${libdir}/python2.7/site-packages/rpm/transaction.py
+}
+
+do_install_append_class-nativesdk () {
+	sed -i -e 's|^#!.*/usr/bin/python|#! /usr/bin/env python|' ${D}/${libdir}/python2.7/site-packages/rpm/transaction.py
 }
 
 def multilib_rpmmacros(d):

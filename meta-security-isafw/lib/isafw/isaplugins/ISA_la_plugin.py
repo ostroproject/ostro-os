@@ -46,7 +46,7 @@ class ISA_LicenseChecker():
         self.report_name = ISA_config.reportdir + "/la_problems_report_"  + ISA_config.machine + "_"+ ISA_config.timestamp
         # check that rpm is installed (supporting only rpm packages for now)
         DEVNULL = open(os.devnull, 'wb')
-        rc = subprocess.call(["which", "rpm"], stdout=DEVNULL)
+        rc = subprocess.call(["which", "rpm"], stdout=DEVNULL, stderr=DEVNULL)
         DEVNULL.close()
         if rc == 0:
                 self.initialized = True

@@ -1,0 +1,14 @@
+[Unit]
+Description=ip6tables firewall
+ConditionPathExists=/usr/share/iptables-settings/ip6tables.rules
+DefaultDependencies=false
+Before=network-pre.target multi-user.target shutdown.target
+Conflicts=shutdown.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/ip6tables-restore {datadir}/iptables-settings/ip6tables.rules
+
+[Install]
+WantedBy=network.target

@@ -1,7 +1,7 @@
-From 3c1a3571acaae24c1be6eeed66d2687001c14f2b Mon Sep 17 00:00:00 2001
+From 27310e687f248a04456d1e68d8a0adc2711bb380 Mon Sep 17 00:00:00 2001
 From: Amarnath Valluri <amarnath.valluri@intel.com>
 Date: Thu, 7 Jan 2016 16:19:34 +0200
-Subject: [PATCH swupd-client 2/5] Fix build failure on Yocto
+Subject: [PATCH] Fix build failure on Yocto
 
 On install phase certificate files are being installed twice as included in
 _DATA twice. We can use EXTRA_DIST than dist_.

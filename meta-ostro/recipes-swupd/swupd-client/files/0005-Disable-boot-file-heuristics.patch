@@ -1,7 +1,7 @@
-From 69b382558db9330b4c442b05003c47afca0c33ad Mon Sep 17 00:00:00 2001
+From 5f93d2ff31607539ce9957daf78f920e25873b4a Mon Sep 17 00:00:00 2001
 From: Dmitry Rozhkov <dmitry.rozhkov@linux.intel.com>
 Date: Tue, 23 Feb 2016 17:07:30 +0200
-Subject: [PATCH swupd-client 5/5] Disable boot file heuristics
+Subject: [PATCH] Disable boot file heuristics
 
 Ostro uses a mechanism different from what's used in ClearLinux
 to detect changes in kernel, bootloader, initramfs.

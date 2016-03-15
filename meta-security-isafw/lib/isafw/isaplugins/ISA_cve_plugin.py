@@ -121,7 +121,8 @@ class ISA_CVEChecker:
             for line in f:
                 numTests += 1
                 line = line.strip()
-                if (line.split(',', 2))[2].startswith('CVE'):
+                line_sp = line.split(',', 2)
+                if (len(line_sp) >= 3) and (line_sp[2].startswith('CVE')):
                     tcase = etree.SubElement(root, 'testcase', classname='ISA_CVEChecker', name=line.split(',',1)[0])
                     failrs1 = etree.SubElement(tcase, 'failure', message=line, type='violation')
                 else:

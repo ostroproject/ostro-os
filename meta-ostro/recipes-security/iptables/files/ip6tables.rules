@@ -1,8 +1,0 @@
-*filter
-:INPUT DROP
-:FORWARD DROP
-:OUTPUT ACCEPT
--A INPUT -s fe80::/10 -j ACCEPT
--A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
--A INPUT -p ipv6-icmp -j ACCEPT
-COMMIT

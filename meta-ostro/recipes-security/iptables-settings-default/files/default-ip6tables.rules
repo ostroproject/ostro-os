@@ -1,0 +1,15 @@
+*filter
+:INPUT DROP
+:FORWARD DROP
+:OUTPUT ACCEPT
+# allow containers to access DNS service
+-A INPUT -i ve-+ -p udp -m udp --dport 53 -j ACCEPT
+# allow containers to access DHCP service
+-A INPUT -i ve-+ -p udp -m udp --dport 67 -j ACCEPT
+-A INPUT -s fe80::/10 -j ACCEPT
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p ipv6-icmp -j ACCEPT
+# allow forwarding traffic to/from containers
+-A FORWARD -o ve-+ -j ACCEPT
+-A FORWARD -i ve-+ -j ACCEPT
+COMMIT

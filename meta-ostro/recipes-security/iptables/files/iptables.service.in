@@ -1,0 +1,14 @@
+[Unit]
+Description=iptables firewall
+ConditionPathExists=/usr/share/iptables-settings/iptables.rules
+DefaultDependencies=false
+Before=network-pre.target multi-user.target shutdown.target
+Conflicts=shutdown.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/iptables-restore {datadir}/iptables-settings/iptables.rules
+
+[Install]
+WantedBy=network.target
