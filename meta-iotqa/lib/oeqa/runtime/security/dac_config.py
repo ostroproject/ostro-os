@@ -53,8 +53,8 @@ class DacTestConfig(oeRuntimeTest):
 
         status, output = self.target.run("su %s -c -- 'echo test > /tmp/file1'"
                                         %self.user2)
-
-        self.assertNotEqual(status, 0,
+        expected = "Permission denied"
+        self.assertIn(expected, output,
                             "Same group, no access, could write file ")
 
     def test_same_group_with_access(self):
@@ -75,7 +75,8 @@ class DacTestConfig(oeRuntimeTest):
         status, output = self.target.run("su %s -c -- 'echo test > /tmp/file2'"
                                         %self.user3)
 
-        self.assertNotEqual(status, 0,
+        expected = "Permission denied"
+        self.assertIn(expected, output,
                             "Others group, no access, could write file ")
 
     def test_others_with_access(self):

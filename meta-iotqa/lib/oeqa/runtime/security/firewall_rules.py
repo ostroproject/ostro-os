@@ -22,26 +22,38 @@ class TestFirewallRules(oeRuntimeTest):
                             shell=True )
 
         output, error = p.communicate()
-        self.assertNotEqual(p.returncode, 0,
+        expected= "3 packets transmitted, 0 received, 100% packet loss"
+        self.assertIn(expected, output,
                             "Incoming packets should be dropped")
 
     def test_ipv4_outgoing_packet(self):
         status, output = self.target.run("ping -c 3 %s" %self.target.server_ip)
 
-        self.assertEqual(status, 0,
+        expected = "3 packets transmitted, 3 packets received, 0% packet loss"
+        self.assertIn(expected, output,
                             "Outgoing packets should be sent succesfully")
 
     def test_ipv6_incoming_icmp(self):
-        cmd = "ip addr show | grep inet6 | grep -v '::1/128'"
+        cmd = "ip addr show | grep -A 2 %s | grep inet6 | awk '{print $2}'" %self.target.ip
         status, output = self.target.run(cmd)
+        ipv6 = output.strip().split('/')[0]
+        # get current interface
+        cmd = "ip addr show | grep %s" %self.target.server_ip
 
-        ipv6 = output.split('\n')[0].split()[1].split("/")[0]
-        p = subprocess.Popen("ping6 -c 3 %s" %ipv6,
+        p = subprocess.Popen(cmd,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            shell=True)
+
+        output, error = p.communicate()
+        interface = output.strip().split()[-1]
+
+        p = subprocess.Popen("ping6 -I %s -c 3 %s" %(interface, ipv6),
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                             shell=True )
 
         output, error = p.communicate()
-        self.assertNotEqual(p.returncode, 0,
+        expected = "3 packets transmitted, 3 received, 0% packet loss"
+        self.assertIn(expected, output,
                             "Incoming ipv6 icmp packets should be received")
 
     def test_ipv6_outgoing_icmp(self):
@@ -52,11 +64,15 @@ class TestFirewallRules(oeRuntimeTest):
         output, error = p.communicate()
         # get first ipv6 address
         ipv6 = output.split("\n")[0].split()[1].split("/")[0]
-        status1 = 1
-        if ipv6:
-            status1, output = self.target.run("ping6 -c 3 %s" %ipv6)
 
-        status2, output = self.target.run("ping6 -c 3 ipv6.google.com")
+        cmd = "ip addr show | grep %s" %self.target.ip
+        status, output = self.target.run(cmd)
+        interface = output.strip().split()[-1]
+        status1, output = self.target.run("ping6 -I %s -c 3 %s"
+                                                %(interface, ipv6))
+
+        status2, output = self.target.run("ping6 -I %s -c 3 ipv6.google.com"
+                                            %interface)
 
         # we need either one to succeed, in case the host
         # does not support ipv6
