@@ -87,7 +87,7 @@ Briefly (and as fully explained in the `Yocto Project Quick Start Guide`_), you�
 *  A release of the Yocto Project (included when you clone the ostroproject repo from GitHub).
 
 Once you’ve followed the Yocto Project instructions to get your computer ready to host a project, 
-you may also need to set up proxy information if your sitting behind a firewall.
+you may also need to set up proxy information if you're sitting behind a firewall.
 
 You’ll also need to create an SSH public key (if you don’t already have one) and add that key to your GitHub 
 profile as explained in these GitHub `Generating SSH Keys`_ instructions. (These instructions also show 
