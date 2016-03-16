@@ -89,7 +89,7 @@ python () {
     if pn_base is not None:
         # We want all virtual images from this recipe to deploy to the same
         # directory
-        deploy_dir = d.getVar('DEPLOY_DIR_SWUPDBASE')
+        deploy_dir = d.getVar('DEPLOY_DIR_SWUPDBASE', True)
         deploy_dir = os.path.join(deploy_dir, pn_base)
         d.setVar('DEPLOY_DIR_SWUPD', deploy_dir)
 
@@ -103,7 +103,7 @@ python () {
         # the base image having been built and its contents staged in
         # DEPLOY_DIR_SWUPD so that those contents can be compared against in
         # the do_prune_bundle task
-        bundle_name = d.getVar('BUNDLE_NAME') or ""
+        bundle_name = d.getVar('BUNDLE_NAME', True) or ""
         if bundle_name == 'mega':
             return
         base_copy = (' %s:do_copy_bundle_contents' % pn_base)
