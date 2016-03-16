@@ -1,0 +1,28 @@
+From 4cecc5aa3b7f5edde7d3d07ff6c2ae029d04ab00 Mon Sep 17 00:00:00 2001
+From: Jussi Laako <jussi.laako@linux.intel.com>
+Date: Thu, 17 Mar 2016 16:18:30 +0200
+Subject: [PATCH] configure.ac: add missing AM_PROG_AR
+
+The provided configure.ac is missing AM_PROG_AR required by the automake
+version in use.
+
+Signed-off-by: Jussi Laako <jussi.laako@linux.intel.com>
+---
+ lib/configure.ac | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lib/configure.ac b/lib/configure.ac
+index 5f984de..d88b4fc 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -38,6 +38,7 @@ AC_SUBST(DLL_VERSION)
+ 
+ AM_INIT_AUTOMAKE([1.10 -Wall -Werror])
+ AM_SILENT_RULES([yes])
++AM_PROG_AR
+ AC_CONFIG_HEADERS([config.h])
+ 
+ # Checks for programs.
+-- 
+2.7.0
+
