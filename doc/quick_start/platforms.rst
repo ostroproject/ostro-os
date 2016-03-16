@@ -7,7 +7,7 @@ Ostro |trade| OS Supported Platforms
    a gateway solution powered by an Intel |reg| Atom |trade| E3825 dual-core processor 
 
 * `Intel Galileo Gen2 <http://www.intel.com/content/www/us/en/embedded/products/galileo/galileo-overview.html>`_
-   an Intel® Quark x1000 32-bit, single core, Intel Pentium |reg| Processor class
+   an Intel |reg| Quark x1000 32-bit, single core, Intel Pentium |reg| Processor class
    SOC-based board, pin-compatible with shields designed for the Arduino Uno R3
 
 * `MinnowBoard Turbot`_
@@ -20,6 +20,10 @@ Ostro |trade| OS Supported Platforms
 * `Intel Edison <http://www.intel.com/content/www/us/en/do-it-yourself/edison.html>`_
    an ultra small Intel |reg| Atom |trade| SoC dual-core 32-bit CPU-based compute module aimed
    at small IoT and wearable computing products
+
+* `BeagleBone Black <https://beagleboard.org/black>`_
+   a low-cost, community-supported development platform for developers and hobbyists. It is based on 
+   an AM335x 1GHz ARM |reg| Cortex-A8
 
 * `VirtualBox <https://www.virtualbox.org/wiki/Downloads>`_
    a cross-platform general-purpose full virtualization application for x86
