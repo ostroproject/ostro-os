@@ -22,7 +22,7 @@
 #define AT86RF_SPI_MASTER 169
 
 #define AT86RF_SPI_CS 0
-#define AT86RF_MAX_CLK_HZ  5000000
+#define AT86RF_MAX_CLK_HZ  3000000
 #define AT86RF_IRQ 14
 
 static struct gpio quark_at86rf_gpios[] = {
