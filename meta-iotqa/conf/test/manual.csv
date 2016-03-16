@@ -29,7 +29,6 @@ TestScript,documentation_REST_APIs,Documentation,To check the docs of REST API,1
 TestScript,dev_image_workable,OS / Image Configuration,To check dev image is bootable and related packages are inclued,1,Download dev image and install it on P1 platforms to check it can boot successfully,dev image boot successfully,FVT,ready,IOTOS-784,,,,
 TestStep,,,,2,"Check related packages(packagegroup-core-buildessential,smartpm,git,gdb,valgrind) are installed",packages are installed in image,,,,,,,
 TestScript,documentation_How to build/modify Ostro OS,Documentation,To check the Instruction correctness,1,Check the doc mentioned in this Requirement,The doc instruction is correct,FVT,design,IOTOS-835,,,,
-TestScript,documentation_Contributing_to_Ostro_OS,Documentation,To check the Instruction correctness,1,Check the doc mentioned in this Requirement,The doc instruction is correct,FVT,design,IOTOS-836,,,,
 TestScript,documentation_Supported_HW_platforms,Documentation,To check the Instruction correctness,1,make sure platform description is accurate and the links provided are correct,The doc is correct,FVT,ready,IOTOS-837,,,,
 TestScript,sol_oic_find_single_resource,COMMS/Iotivity,Use soletta node type API to find single oic resource,1,"Put 3 test files ('light-client.fbp', 'light-server.fbp' and 'sol-flow.json' from soletta source src/examples/flow/oic/) to IoT device /home/root/ folder. ",,EFT,design,IOTOS-1019,,,,
 TestStep,,,,2,"In the IoT device, it should be able to run fbp file. Then, run:

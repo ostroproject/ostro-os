@@ -16,7 +16,9 @@
 ##
 
 from oeqa.oetest import oeRuntimeTest
+from oeqa.utils.decorators import tag
 
+@tag(TestType="FVT", FeatureID="IOTOS-638")
 class BaseOsTest(oeRuntimeTest):
     '''Base os health check
     @class BaseOsTest
