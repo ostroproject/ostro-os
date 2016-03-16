@@ -57,13 +57,13 @@ class TestFirewallRules(oeRuntimeTest):
                             "Incoming ipv6 icmp packets should be received")
 
     def test_ipv6_outgoing_icmp(self):
-        cmd = "ip addr show | grep inet6 | grep -v '::1/128'"
+        cmd = "ip addr show | grep -A 2 %s | grep inet6 | awk '{print $2}'" %self.target.server_ip
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE, shell=True)
 
         output, error = p.communicate()
-        # get first ipv6 address
-        ipv6 = output.split("\n")[0].split()[1].split("/")[0]
+        # get ipv6 address
+        ipv6 = output.strip().split('/')[0]
 
         cmd = "ip addr show | grep %s" %self.target.ip
         status, output = self.target.run(cmd)
