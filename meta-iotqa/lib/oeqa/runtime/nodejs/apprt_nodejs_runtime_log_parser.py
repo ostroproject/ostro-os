@@ -29,7 +29,7 @@ def is_a_blank_line(line):
 
 def parse_test_cases(all_test_output, target_node_version):
     '''
-    Parse the full node.js API test cases. 
+    Parse the full node.js API test cases.
     More information, please refer to the result log
     of running python tool/test.py
     in node.js repository

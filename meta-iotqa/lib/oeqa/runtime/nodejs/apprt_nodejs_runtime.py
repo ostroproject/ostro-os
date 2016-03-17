@@ -90,7 +90,7 @@ def get_nodejs_repo(
                         apprt_files_dir, 'node'))
                 return 0
             else:
-                # If unzip fails because of the zip file is damaged, 
+                # If unzip fails because of the zip file is damaged,
                 # remove the zip file
                 # and the generated directory if it exists
                 zip_file = os.path.join(
@@ -178,7 +178,7 @@ def choose_test_files_and_tar(local_nodejs_path, node_version):
     choose all the test files and directories so that we start tests.
     1. Generate a new temporary directory
     2. Copy all the files and directories to the temporary directory.
-    3. tar -cjf node-<version>-release.tar.gz
+    3. tar -cjf node-<version>-release.tar
     @fn choose_test_files_and_tar
     @param local_nodejs_path
     @param  node_version
@@ -193,8 +193,8 @@ def choose_test_files_and_tar(local_nodejs_path, node_version):
         shutil.rmtree(node_test_dir)
     os.mkdir(node_test_dir)
 
-    if os.path.exists('%s.tar.gz' % node_test_dir):
-        os.unlink('%s.tar.gz' % node_test_dir)
+    if os.path.exists('%s.tar' % node_test_dir):
+        os.unlink('%s.tar' % node_test_dir)
 
     # The 3 directories are certain to be used
     sys.stdout.write('Removing blacklist tests')
@@ -210,8 +210,8 @@ def choose_test_files_and_tar(local_nodejs_path, node_version):
             shutil.copyfile(file_path,
                             os.path.join(node_test_dir, filename))
 
-    compact_cmd = ['tar', '-czf']
-    compact_cmd.append('%s.tar.gz' % node_test_dir)
+    compact_cmd = ['tar', '-cf']
+    compact_cmd.append('%s.tar' % node_test_dir)
     compact_cmd.append('node_%s_test' % node_version)
 
     p = subprocess.Popen(compact_cmd, cwd=apprt_files_dir)
@@ -263,7 +263,7 @@ class NodejsRuntimeTest(oeRuntimeTest):
             'noderuntime',
             'apprt_nodejs_runtime_config')
 
-        # Clean the wokrspace directory to avoid error when setUp fails, 
+        # Clean the wokrspace directory to avoid error when setUp fails,
         # this ususally causes the failure of second-time to run.
         if os.path.exists(self.nodejs_dir):
             shutil.rmtree(self.nodejs_dir)
@@ -310,8 +310,8 @@ class NodejsRuntimeTest(oeRuntimeTest):
             self.target_node_version)
         if os.path.exists(node_test_dir):
             shutil.rmtree(node_test_dir)
-        if os.path.exists('%s.tar.gz' % node_test_dir):
-            os.unlink('%s.tar.gz' % node_test_dir)
+        if os.path.exists('%s.tar' % node_test_dir):
+            os.unlink('%s.tar' % node_test_dir)
 
         sys.stdout.write('Downloading node.js repository...')
         sys.stdout.flush()
@@ -354,10 +354,10 @@ class NodejsRuntimeTest(oeRuntimeTest):
         sys.stdout.flush()
 
         # Clean /tmp directory to make sure no node_VERSION_test directory
-        # and no node_VERSION_test.tar.gz file on target
+        # and no node_VERSION_test.tar file on target
         self.target.run('rm -fr /tmp/node_%s_test/' % self.target_node_version)
         self.target.run(
-            'rm -f /tmp/node_%s_test.tar.gz' %
+            'rm -f /tmp/node_%s_test.tar' %
             self.target_node_version)
 
         sys.stdout.write('Copying necessary files to target...')
@@ -365,30 +365,30 @@ class NodejsRuntimeTest(oeRuntimeTest):
         (status, output) = self.target.copy_to(
             os.path.join(
                 self.files_dir,
-                'node_%s_test.tar.gz' %
+                'node_%s_test.tar' %
                 self.target_node_version),
-            '/tmp/node_%s_test.tar.gz' %
+            '/tmp/node_%s_test.tar' %
             self.target_node_version)
         if status != 0:
             sys.stderr.write('Fail to copy archives to the target device\n')
             sys.exit(1)
         sys.stdout.write('\r' + ' ' * 78 + '\r')
         sys.stdout.write(
-            'Copying node_%s_test.tar.gz to target device DONE\n' %
+            'Copying node_%s_test.tar to target device DONE\n' %
             self.target_node_version)
         sys.stdout.flush()
 
         sys.stdout.write('Extracting tar files on target...')
         sys.stdout.flush()
         (status, output) = self.target.run(
-            'tar -xzf  /tmp/node_%s_test.tar.gz -C /tmp/' % \
+            'tar -xf  /tmp/node_%s_test.tar -C /tmp/' % \
             self.target_node_version)
         if status != 0:
             sys.stderr.write('Fail to extract node.js test files\n')
             sys.exit(1)
         sys.stdout.write('\r' + ' ' * 78 + '\r')
         sys.stdout.write(
-            'Extracting node_%s_test.tar.gz on target device DONE\n' %
+            'Extracting node_%s_test.tar on target device DONE\n' %
             self.target_node_version)
         sys.stdout.flush()
 
@@ -454,7 +454,7 @@ class NodejsRuntimeTest(oeRuntimeTest):
 
     def tearDown(self):
         '''
-        Clean work: remove all the files downloaded on host and 
+        Clean work: remove all the files downloaded on host and
         copied to the target device during the test.
         @fn tearDown
         @param self
@@ -477,10 +477,10 @@ class NodejsRuntimeTest(oeRuntimeTest):
                 self.target_node_version)
             sys.stdout.flush()
 
-        if os.path.exists('%s.tar.gz' % node_test_dir):
-            os.unlink('%s.tar.gz' % node_test_dir)
+        if os.path.exists('%s.tar' % node_test_dir):
+            os.unlink('%s.tar' % node_test_dir)
             sys.stdout.write(
-                'Removing node_%s_test.tar.gz DONE\n' %
+                'Removing node_%s_test.tar DONE\n' %
                 self.target_node_version)
             sys.stdout.flush()
 
@@ -503,10 +503,10 @@ class NodejsRuntimeTest(oeRuntimeTest):
         sys.stdout.flush()
 
         self.target.run(
-            'rm -f /tmp/node_%s_test.tar.gz' %
+            'rm -f /tmp/node_%s_test.tar' %
             self.target_node_version)
         sys.stdout.write(
-            'rm -f /tmp/node_%s_test.tar.gz on target DONE\n' %
+            'rm -f /tmp/node_%s_test.tar on target DONE\n' %
             self.target_node_version)
         sys.stdout.flush()
 
