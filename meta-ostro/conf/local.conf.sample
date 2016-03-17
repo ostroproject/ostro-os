@@ -271,3 +271,6 @@ CONF_VERSION = "2"
 #
 # Misc configuration
 #
+# Remove the old image from the deploy directory before the new
+# one gets created. This is useful to save disk space.
+# RM_OLD_IMAGE = "1"

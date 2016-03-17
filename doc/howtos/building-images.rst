@@ -229,3 +229,12 @@ build configuration.
 Alternatively, ``CORE_IMAGE_EXTRA_INSTALL`` can also be used. The
 difference is that this will also affect the initramfs images, which is
 often not intended.
+
+Removing Previous Image to Save Disk Space
+------------------------------------------
+
+Every image built gets copied into the deploy directory. As you're developing,
+these repeated builds will start accumulating and use up more and more
+disk space. You can save disk space by removing previous images before the
+new one is built by adding (or uncommenting) this line in your
+:file:`local.conf`: ``RM_OLD_IMAGE = "1"``
