@@ -70,6 +70,11 @@ IMAGE_INSTALL_append = " swupd-client os-release"
 # We need full-fat versions of these for swupd (at least as of 2.87)
 IMAGE_INSTALL_append = " gzip bzip2 tar xz"
 
+# We need to preserve xattrs which is only supported by GNU tar >= 1.27
+# to be sure this functionality works as expected use the tar-replacement-native
+DEPENDS += "tar-replacement-native"
+EXTRANATIVEPATH += "tar-native"
+
 inherit distro_features_check
 REQUIRED_DISTRO_FEATURES = "systemd"
 
@@ -176,6 +181,15 @@ python () {
     d.setVar('MEGA_IMAGE_ROOTFS', megarootfs)
 }
 
+def copyxattrtree(src, dst):
+    import subprocess
+
+    bb.utils.mkdirhier(dst)
+    # tar does not properly copy xattrs when used like this.
+    # See the comment on tar in meta/classes/image_types.bbclass
+    cmd = 'tar --xattrs --xattrs-include=* -cf - -C %s -p . | tar --xattrs --xattrs-include=* -xf - -C %s' % (src, dst)
+    oe.path.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+
 fakeroot do_rootfs_append () {
     bndl = d.getVar('BUNDLE_NAME', True)
     if (bndl == 'mega'):
@@ -195,7 +209,7 @@ fakeroot do_rootfs_append () {
         # Remove the current rootfs contents
         oe.path.remove('%s/*' % rootfs)
         # Copy all files from the mega bundle
-        oe.path.copytree(d.getVar('MEGA_IMAGE_ROOTFS', True), rootfs)
+        copyxattrtree(d.getVar('MEGA_IMAGE_ROOTFS', True), rootfs)
         # Prune the items not in the manifest
         rootfs_contents = []
         for entry in manifest_to_file_list(outfile):
@@ -496,9 +510,3 @@ SWUPDDEPENDS = "\
 "
 addtask swupd_update after do_image_complete after do_copy_bundle_contents after do_prune_bundle before do_build
 do_swupd_update[depends] = "${SWUPDDEPENDS}"
-
-python rm_shared_pseudodb () {
-    pseudo_state = d.expand('${TMPDIR}/work-shared/${IMAGE_BASENAME}/pseudo')
-    bb.utils.prunedir(pseudo_state)
-}
-do_swupd_update[postfuncs] += "rm_shared_pseudodb"
