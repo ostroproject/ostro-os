@@ -147,6 +147,147 @@ Flashing an Intel Edison requires use of a breakout board and two micro-USB cabl
 #. Plug in the second micro-USB cable to the J16 connector as instructed by the running flashall script.
 #. Wait for all the images to flash. You will see the progress on the flasher.
 #. Once flashing is done, the image will automatically boot up and auto-login as ``root``, no password is required.
+   
+BeagleBone Black
+================
+
+BeagleBone Black is booted from a microSD card with MBR (Master Boot Record) and not GPT (GUID Partition Table) partitions.
+Most freshly unpackaged microSD cards come with MBR partitions, but previously used ones might not.  (We have
+instructions below to properly initialize the microSD card.)
+
+You'll probably need an adapter to use the microSD card on your host computer. If you use a microSD-to-SD adapter, 
+it will likely show up as ``/dev/mmcblk0`` when plugged into your host computer.  If you use a USB adapter, it 
+will show up as ``/dev/sdb`` or ``/dev/sdc``.  (On some computers with a built-in SD-card slot, the card may also
+show up as ``/dev/sdX`` rather than ``/dev/mmcblkX``.)
+
+
+You can verify the device name assigned by using ``dmesg`` or the
+``lsblk`` command to look for the device name for the microSD card (check for a device with the size you're expecting). 
+
+In our setup steps below, we're using an 8GB microSD card in an SD adapter that's showing up as ``/dev/mmcblk0``  
+(numbers and device name maybe different for your device and system).
+
+.. comment:   steps derived from http://www.armhf.com/boards/beaglebone-black/bbb-sd-install/
+.. _BeagleBone build 405 images: https://download.ostroproject.org/builds/ostro-os/2016-03-11_05-44-23-build-405/images/beaglebone/
+.. _Ostro Project download server: http://download.ostroproject.org
+
+1. We'll start by gathering files we'll put on the microSD card.  Aim your browser to the
+   `Ostro Project download server`_ (if you're not doing your own build).
+   The ``releases`` folder contains milestone builds of the Ostro OS, while the
+   ``builds`` folder has non-milestone builds.  For this example, we're using the `BeagleBone build 405 images`_ folder.
+
+   Download these four files to your host computer::
+
+      MLO 
+      ostro-image-dev-beaglebone-*.rootfs.tar.bz2
+      u-boot.img
+      zImage-am335x-boneblack.dtb
+
+   In our example below, we're using the development (``-dev``) image. the process for creating a bootable SD card is the same
+   for all the image variants. (Image variants are explained in :ref:`Building Images`.)
+
+.. _creating partitions:
+
+2. Now we're ready to prepare the microSD card.  Make sure the microSD card isn't already mounted 
+   and verify it is using MBR partitions. (Remember, your
+   device name maybe different than what we're using in our examples.) Run ::
+   
+   $ sudo umount /dev/mmcblk0*
+   $ sudo fdisk /dev/mmcblk0
+
+   If you get an error saying "unable to open /dev/mmcblk0" then you should 
+   verify the device name assigned as described above.
+   If you get an error that GPT partitions are used, see the 
+   section below on `Converting from GPT to MBR Partitions`_ and then return to retry this step.
+   
+   If all is well, you'll see the fdisk prompt::
+
+      Command (m for help):
+
+#. We want to create two partitions on the SD card: a small primary bootable active partition, 
+   and a second primary linux root filesystem partition for the remaining space on the device.  The 
+   following ``fdisk`` commands will clean out all the existing partition information and set up two partitions:
+
+   a. Initialize the partition table by typing **o**.
+   b. Create the boot partition by typing **n** for "new", then **p** for "primary", and **1** to specify the first partition. 
+      Press enter to accept the default first sector and specify 4095 for the last sector.
+   c. Set the partition type to FAT16 by typing **t** for "type" and **e** for "W95 FAT16 (LBA)".
+   d. Set the partition active (bootable) by typing **a** then **1** (for partition 1).
+   e. Next, create the root filesystem by typing **n** for "new", then **p** for "primary", 
+      and **2** for the second partition. Accept the default values for the first and last sectors by pressing enter twice.
+   f. Type **p** to "print" the partition table. It should look about like this:: 
+
+        ...
+        Device          Boot    Start      End   Blocks     Id  System
+        /dev/mmcblk0p1    *      2048     4095     1024      e  W95 FAT16 (LBA)
+        /dev/mmcblk0p2           4096 15523839   775872     83  Linux
+
+   g. Finally, write these changes to the microSD card by typing **w** to "write" the partition table and exit.
+      
+#. At this point your microSD card is partitioned correctly but the partitions need to be formatted with
+   partition 1 as FAT16 and partition 2 as ext4 (the normal linux journaled filesystem)::
+
+     $ sudo mkfs.vfat -F 16 /dev/mmcblk0p1
+     $ sudo mkfs.ext4  /dev/mmcblk0p2
+
+   This last ``mkfs``  command may take a few minutes to complete, depending on the size of your SD card.  
+   You may optionally disable periodic filesystem checks on this partition with the command::
+
+     $ sudo tune2fs -c0 -i0 /dev/mmcblk0p2
+
+#. Now we can install the ``MLO`` and ``u-boot.img`` (downloaded from `Ostro Project download server`_) 
+   to the first partition of our microSD card.   ::
+   
+     $ mkdir boot
+     $ sudo mount /dev/mmcblk0p1 boot
+     $ sudo cp MLO u-boot.img boot/
+     $ sudo umount boot/
+
+#. And we can install the Ostro OS root filesystem to the second partition on our microSD card.  
+   This step requires tar version 1.27 or later:  the xattrs flags are needed to preserve the Smack labels and IMA xattrs. ::
+
+     $ mkdir rootfs
+     $ sudo mount /dev/mmcblk0p2 rootfs
+     $ sudo tar xvjf ostro-image-dev-beaglebone*.rootfs.tar.bz2 --wildcards --xattrs --xattrs-include=*  -C rootfs
+
+#.  Before unmounting the device, we also need to add the device tree blob file (``zImage-am335x-boneblack.dtb``)
+    that you downloaded (or from your own build).
+    Note that this step renames the file (without the ``zImage-`` prefix) to match what's expected by the kernel :: 
+
+     $ sudo cp zImage-am335x-boneblack.dtb rootfs/boot/am335x-boneblack.dtb
+     $ sudo umount rootfs
+   
+#. Remove the SD card from your host computer, remove the microSD card from its adapter, 
+   insert the microSD card into the BeagleBone Black (slot is on the bottom of the board) and power up the device.
+
+Note:  The normal boot sequence is to use the on-board flash first (eMMC), then the microSD card, 
+then the USB port, and finally the serial port. You may need to use the **S2** alternate boot button, 
+by holding it down at power up, to change the boot order to use the microSD card first instead of eMMC first.
+
+Once booted from the microSD card, you can prevent boot from eMMC by using (on the BeagleBone Black) ::
+
+   $ dd if=/dev/zero of=/dev/mmcblk1 bs=4M count=1
+
+
+Converting from GPT to MBR Partitions
+-------------------------------------
+
+On a linux system run the ``gdisk`` utility *(Note: your microSD card device name may be different than in this example)* ::
+
+   $ sudo umount /dev/mmcblk0*
+   $ sudo gdisk /dev/mmcblk0
+
+   Command (? for help): x       # enter expert mode
+
+   Expert command (? for help): z
+   About to wipe out GPT on /dev/mmcblk0.  Proceed? (Y/N): y
+   GPT data structure destroyed! You may now partition the disk using fdisk or
+   other utilities.
+   Blank out MBR? (Y/N): y
+
+At this point we have a wiped microSD card ready for `creating partitions`_ as described above:
+``fdisk`` will initialize the SD card with MBR partitions when it sees
+the partition tables are wiped out.
 
 
 Running Ostro OS in a VirtualBox\* VM
@@ -156,7 +297,7 @@ You can run an Ostro OS image within a VirtualBox virtual machine by using the p
 in the binary release directory (on https://download.ostroproject.org), or as the result of doing your
 own build from source.  As with the other examples above, we recommend you start with the "dev" image.
 
-#. If you haven’t already done so, download and install VirtualBox (version 5.0.2 or later)
+#. If you have not already done so, download and install VirtualBox (version 5.0.2 or later)
    on your development system from https://www.virtualbox.org/wiki/Downloads. VirtualBox uses
    VDI as its native disk image format so you’ll be using that file instead of the .dsk file used
    with real hardware platforms.
