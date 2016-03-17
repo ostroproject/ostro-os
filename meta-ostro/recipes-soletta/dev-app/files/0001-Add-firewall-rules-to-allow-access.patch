@@ -1,0 +1,32 @@
+From 5747fcbf6cea42cf53bf4213d8caa40451e09cb6 Mon Sep 17 00:00:00 2001
+From: Bruno Bottazzini <bruno.bottazzini@intel.com>
+Date: Fri, 18 Mar 2016 10:47:08 -0300
+Subject: [PATCH] Add firewall rules to allow access
+
+When running the nodejs server, it needs to allow Soletta Dev-App
+to be accessed.
+
+Signed-off-by: Bruno Bottazzini <bruno.bottazzini@intel.com>
+---
+ scripts/units/soletta-dev-app-server.service.in | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/scripts/units/soletta-dev-app-server.service.in b/scripts/units/soletta-dev-app-server.service.in
+index b18d1bb..412e618 100644
+--- a/scripts/units/soletta-dev-app-server.service.in
++++ b/scripts/units/soletta-dev-app-server.service.in
+@@ -3,7 +3,11 @@ Description=Run Soletta Development Application server
+ 
+ [Service]
+ StandardOutput=null
++ExecStartPre=/usr/sbin/iptables -w -A INPUT -p tcp --dport 80 -j ACCEPT
++ExecStartPre=/usr/sbin/ip6tables -w -A INPUT -p tcp --dport 80 -j ACCEPT
+ ExecStart=/usr/bin/NODE_BIN_NAME PATH/server/app.js 1> /dev/null 2>&1
++ExecStopPost=/usr/sbin/iptables -w -D INPUT -p tcp --dport 80 -j ACCEPT
++ExecStopPost=/usr/sbin/ip6tables -w -D INPUT -p tcp --dport 80 -j ACCEPT
+ Environment="NODE_ENV=production"
+ 
+ [Install]
+-- 
+2.7.1
+

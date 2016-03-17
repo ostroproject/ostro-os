@@ -3,3 +3,9 @@
 # soletta-dev-app-avahi-discover.service.
 
 SYSTEMD_AUTO_ENABLE_${PN} = "disable"
+
+FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+
+SRC_URI += " file://0001-Add-firewall-rules-to-allow-access.patch"
+
+RDEPENDS_${PN} += " iptables"
