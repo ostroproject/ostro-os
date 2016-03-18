@@ -24,9 +24,12 @@
 #   This is required to identify it and pass its Partition UUID to the kernel, for booting.
 
 
-COMPRESSIONTYPES_append = " vdi"
+# Ostro custom conversion types
+COMPRESSIONTYPES_append = " vdi bmap"
 COMPRESS_CMD_vdi = "qemu-img convert -O vdi ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type} ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}.vdi"
+COMPRESS_CMD_bmap = "bmaptool create ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type} -o ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}.bmap"
 COMPRESS_DEPENDS_vdi = "qemu-native"
+COMPRESS_DEPENDS_bmap = "bmap-tools-native"
 
 # Needed to use native python libraries
 inherit pythonnative
