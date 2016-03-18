@@ -1,0 +1,115 @@
+.. _at86rf212:
+
+AT86RF212 - 700/800/900 MHz ZigBee/IEEE 802.15.4 RF transceiver
+###############################################################
+
+| Category: wireless-networking
+| Standard: IEEE 802.15.4
+| Boards: MinnowBoard MAX, Galileo Gen 2
+
+
+.. table:: Pin table of at86rf212 radio board:
+
+    =====  ==========================
+    PIN    Name
+    =====  ==========================
+    1    	SLP_TR
+    2    	CLKM
+    3    	DIG2
+    4    	VCC
+    5    	DIG1
+    6    	VCC
+    7    	SCLK
+    8    	GND
+    9    	nRST
+    10    	GND
+    11    	IRQ
+    12    	MISO
+    13    	DIG4
+    14    	MOSI
+    15		DIG3
+    16		NSEL
+    =====  ==========================
+
+|
+
+Connections for MinnowBoard MAX
+================================
+
+.. image:: _static/at86rf212-minnow.png
+   :width: 350px
+   :alt: AT86RF212 board with MinnowBoard MAX 
+
+|
+
+.. table:: Connect at86rf212 board to MinnowBoard MAX low speed expansion connector (LSE):
+
+    ============  ==========================
+    at86rf212 		LSE
+    ============  ==========================
+    PIN1(SLP_TR) 	PIN23
+    PIN6(VCC3.3)	PIN4
+    PIN7(SCLK)		PIN11
+    PIN9(nRST)		PIN21
+    PIN10(GND)		PIN2
+    PIN11(IRQ)		PIN22
+    PIN12(MISO)		PIN7
+    PIN14(MOSI)		PIN9
+    Pin16(CS)		PIN5
+    ============  ==========================
+
+|
+
+Note: Check the MinnowBoard MAX BIOS settings for **LPSS & SCC Configuration**:  LPSS SPI Support 
+should be enabled.
+
+
+Connections for Galileo Gen 2
+=============================
+
+.. image:: _static/at86rf212-galileo.png
+   :width: 350px
+   :alt: AT86RF212 board with Galileo Gen2
+
+|
+
+.. table:: Connect at86rf212 board to Galileo Gen 2 board:
+
+    ======================  ==========================
+    at86rf212 			Galileo Gen 2
+    ======================  ==========================
+    PIN1(SLP_TR) 		IO2
+    PIN6(VCC3.3)		VCC3.3
+    PIN7(SCLK)			IO13
+    PIN9(nRST)			IO1
+    PIN10(GND)			GND
+    PIN11(IRQ)			IO3
+    PIN12(MISO)			IO12
+    PIN14(MOSI)			IO11
+    Pin16(CS)			IO10
+    ======================  ==========================
+
+
+Setup Notes
+===========
+
+* Boot into the system and perform these steps to enable kernel module auto loading::
+
+     ln -s /lib/modprobe.d/spi-minnow-at86rf230.conf.sample /etc/modprobe.d/spi-minnow-at86rf230.conf
+     ln -s /usr/lib/modules-load.d/at86rf230.conf.sample /etc/modules-load.d/at86rf230.conf
+
+  Reboot the board, the related device driver and kernel modules will be auto loaded.
+
+* Use these commands to enable and start the ostro-6lowpan service::
+
+     systemctl enable ostro-6lowpan
+     systemctl start ostro-6lowpan
+
+  Note: For user-defined config settings, you can use these commands::
+
+     echo "HWADDR=a0:0:0:0:0:0:0:1" > /etc/ostro-6lowpan.conf
+     echo "PAN=777" >> /etc/ostro-6lowpan.conf
+     echo "ADDR=8001" >> /etc/ostro-6lowpan.conf
+     echo " CHANNEL=11" >> /etc/ostro-6lowpan.conf
+
+* Run the command:  ``ping6 -I lowpan0 ff02::1`` on device1 or device2, to test the connection.
