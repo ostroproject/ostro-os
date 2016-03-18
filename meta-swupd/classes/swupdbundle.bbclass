@@ -32,7 +32,7 @@ python swupdbundle_virtclass_handler () {
 
     # Rename the virtual recipe to create the desired image bundle variant.
     e.data.setVar("PN_BASE", pn)
-    pn = pn + '-' + bundle
+    pn = 'bundle-' + pn + '-' + bundle
     e.data.setVar("PN", pn)
     e.data.setVar("BUNDLE_NAME", bundle)
 

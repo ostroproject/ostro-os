@@ -116,7 +116,7 @@ python () {
         # The bundle contents will be copied from the mega image rootfs, thus
         # we need to ensure that the mega image is finished building before
         # we try and perform any bundle contents copying for other images
-        mega_image = (' %s-mega:do_image_complete' % pn_base)
+        mega_image = (' bundle-%s-mega:do_image_complete' % pn_base)
         d.appendVarFlag('do_copy_bundle_contents', 'depends', mega_image)
 
         # We set the path to the rootfs folder of the mega image here so that
@@ -158,7 +158,7 @@ python () {
     pn = d.getVar('PN', True)
     for bndl in bundles:
         extended.append('swupdbundle:%s' % bndl)
-        dep = ' %s-%s:do_prune_bundle' % (pn, bndl)
+        dep = ' bundle-%s-%s:do_prune_bundle' % (pn, bndl)
         d.appendVarFlag ('do_swupd_update', 'depends', dep)
 
     if havebundles:
@@ -170,14 +170,14 @@ python () {
     # to ensure that we're staging the same shared files from the sysroot as
     # the bundle images.
     if havebundles:
-        mega_name = (' %s-mega:do_image_complete' % pn)
+        mega_name = (' bundle-%s-mega:do_image_complete' % pn)
         d.appendVarFlag('do_rootfs', 'depends', mega_name)
 
     # We set the path to the rootfs folder of the mega image here so that
     # it's simple to refer to later
     megarootfs = d.getVar('IMAGE_ROOTFS', True)
     if havebundles:
-        megarootfs = megarootfs.replace(pn, '%s-mega' % pn)
+        megarootfs = megarootfs.replace(pn, 'bundle-%s-mega' % pn)
     d.setVar('MEGA_IMAGE_ROOTFS', megarootfs)
 }
 
@@ -360,7 +360,7 @@ fakeroot python do_prune_bundle () {
             bundle_file_contents.append(f[1:])
         bb.debug(1, 'os-core has %s unique contents' % len(bundle_file_contents))
     else:
-        base_manifest = image_manifest.replace('-%s' % bundle, '')
+        base_manifest = image_manifest.replace('-%s' % bundle, '').replace('/bundle-', '/')
         bb.debug(3, "Comparing manifest %s to %s" % (base_manifest, image_manifest))
         bundle_file_contents = unique_contents(base_manifest, image_manifest)
         bb.debug(3, '%s has %s unique contents' % (d.getVar('PN', True), len(bundle_file_contents)))
