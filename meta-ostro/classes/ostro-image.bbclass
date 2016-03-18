@@ -1,4 +1,4 @@
-SUMMARY = "Ostro OS Image."
+# Base class for Ostro images.
 
 OSTRO_IMAGE_EXTRA_INSTALL ?= ""
 IMAGE_INSTALL = " \
@@ -10,121 +10,161 @@ IMAGE_INSTALL = " \
                 ${OSTRO_IMAGE_EXTRA_INSTALL} \
 		"
 
+# Certain keywords, like "iotivity" are used in different contexts:
+# - as image feature name
+# - as bundle name
+# - optional: as additional image suffix
+#
+# While this keeps the names short, it can also be a bit confusing and
+# makes some of the definitions below look redundant. They are needed,
+# though, because the naming convention could also be different.
+
+
 # Image features sometimes affect image building (for example,
 # ima enables image signing) and/or adds certain packages
 # via FEATURE_PACKAGES.
 #
-# TODO: document IoT specific image feature somewhere. Here?
-IMAGE_FEATURES[validitems] += " \
-    app-privileges \
-    autologin \
+# This is the list of image features which merely add packages.
+# This list also gets turned into the default set of swupd bundles.
+OSTRO_IMAGE_PKG_FEATURES = " \
     can \
     connectivity \
     devkit \
-    ima \
     iotivity \
     java-jdk \
     node-runtime \
     nodejs-runtime-tools \
     python-runtime \
     qatests \
-    smack \
+    ssh-server \
     soletta \
     soletta-tools \
-    swupd \
+    tools-debug \
     tools-develop \
 "
 
-# These features come from base recipes, but are not added to
-# IMAGE_FEATURES[validitems]. Should better be fixed there.
+# Here is the complete list of image features, also including
+# those that modify the image configuration.
+#
+# TODO: document all relevant (not just IoT) image features
+# in building-images.rst.
+#
+# swupd = install swupd client and enabled generation of swupd bundles
 IMAGE_FEATURES[validitems] += " \
-    ptest-pkgs \
-    ssh-server-openssh \
-    tools-debug \
-    tools-profile \
+    app-privileges \
+    autologin \
+    ima \
+    smack \
+    swupd \
+    ${OSTRO_IMAGE_PKG_FEATURES} \
 "
 
-# "dev" images have the following features turned on.
-# ptests are enabled because (platform) developers might want
-# to run them and because it is a relatively small change which
-# avoids unnecessary proliferation of image variations that
-# need to be built automatically.
-IMAGE_VARIANT[dev] = " \
-    nodejs-runtime-tools \
-    ptest-pkgs \
-    tools-debug \
-    tools-develop \
-    tools-profile \
-    soletta-tools \
-    qatests \
-"
-
-# "minimal" images are the opposite of the "dev" images:
-# all non-essential features are turned off, while keeping
-# security features turned on.
-IMAGE_VARIANT[minimal] = " \
-    no-can \
-    no-devkit \
-    no-iotivity \
-    no-node-runtime \
-    no-nodejs-runtime-tools \
-    no-python-runtime \
-    no-soletta \
-    no-soletta-tools \
-    no-qatests \
-    no-java-jdk \
-    ${OSTRO_EXTRA_MINIMAL_IMAGE_FEATURES} \
-"
-OSTRO_EXTRA_MINIMAL_IMAGE_FEATURES ?= ""
-
-# Default list of features in "ostro-image" images. Additional
-# image variations modify this list, see BBCLASSEXTEND below.
-# OSTRO_EXTRA_IMAGE_FEATURES can be used to add more features
-# to the default list.
+# The default "ostro-image" is very minimal. Its content determines
+# the "core-os" swupd bundle which always must be present on a
+# device. All additional components must be added explicitly to the
+# image by setting OSTRO_IMAGE_EXTRA_FEATURES or
+# OSTRO_IMAGE_EXTRA_INSTALL (making it part of the core-os bundle and
+# the "ostro-image" image file) or by defining additional bundles via
+# SWUPD_BUNDLES.
+#
 IMAGE_FEATURES += " \
-                        can \
-                        connectivity \
-                        devkit \
-                        ${@bb.utils.contains('DISTRO_FEATURES', 'ima', 'ima', '', d)} \
-                        iotivity \
-                        ssh-server-openssh \
-                        node-runtime \
-                        python-runtime \
-                        java-jdk \
-                        soletta \
-                        ${@bb.utils.contains('DISTRO_FEATURES', 'smack', 'smack', '', d)} \
-                        swupd \
-                        ${OSTRO_EXTRA_IMAGE_FEATURES} \
-                        "
-OSTRO_EXTRA_IMAGE_FEATURES ?= ""
+    ${@bb.utils.contains('DISTRO_FEATURES', 'ima', 'ima', '', d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'smack', 'smack', '', d)} \
+    ${OSTRO_IMAGE_EXTRA_FEATURES} \
+"
+OSTRO_IMAGE_EXTRA_FEATURES ?= ""
+inherit ${@bb.utils.contains('IMAGE_FEATURES', 'swupd', 'swupd-image', '', d)}
 
+# When using the "swupd" image feature, ensure that OS_VERSION is
+# set as intended. The default for local build works, but yields very
+# unpredictable version numbers (see ostro.conf for details).
+#
+# For example, build with:
+#   BB_ENV_EXTRAWHITE="$BB_ENV_EXTRAWHITE OS_VERSION" OS_VERSION=100 bitbake ostro-image-swupd
+#   BB_ENV_EXTRAWHITE="$BB_ENV_EXTRAWHITE OS_VERSION" OS_VERSION=110 bitbake ostro-image-swupd
+#   ...
 
-# Create variants of the base recipe where certain features are
-# turned on or off. The name of these modified recipes are
-# ostro-image-<variant1>-<variant2>-..., for example:
-#   ostro-image-dev
-#   ostro-image-dev-noima (not enabled by default at the moment)
-#
-# These variants are created on-the-fly by the imagevariant.bbclass.
-# Features preceeded by a "no" or "no-" are explicitly turned off.
-# Features mentioned by name are turned on. All other features are on
-# or off according to the original IMAGE_FEATURES list.
-#
-# Creating virtual recipes for all possible combinations of non-standard
-# features leads to an increase in parsing time due to the combinatorial
-# explosion. Therefore we define only those images that are both expected to
-# be useful and (more important) supported. Users can still enable
-# unsupported variations in the local.conf via OSTRO_EXTRA_IMAGE_VARIANTS.
-OSTRO_EXTRA_IMAGE_VARIANTS ?= ""
-BBCLASSEXTEND = " \
-    imagevariant:dev \
-    imagevariant:minimal \
-    ${OSTRO_EXTRA_IMAGE_VARIANTS} \
+# Define additional bundles. This matches 1:1 to image features
+# which add packages (i.e. OSTRO_IMAGE_PKG_FEATURES).
+# In addition, for each of these we also create a development bundle
+# that also contains the development files.
+SWUPD_BUNDLES ??= " \
+    ${OSTRO_IMAGE_PKG_FEATURES} \
+    ${@ ' '.join([x + '-dev' for x in '${OSTRO_IMAGE_PKG_FEATURES}'.split()])} \
+"
+BUNDLE_CONTENTS[can] = "${FEATURE_PACKAGES_can}"
+BUNDLE_CONTENTS[connectivity] = "${FEATURE_PACKAGES_connectivity}"
+BUNDLE_CONTENTS[devkit] = "${FEATURE_PACKAGES_devkit}"
+BUNDLE_CONTENTS[iotivity] = "${FEATURE_PACKAGES_iotivity}"
+BUNDLE_CONTENTS[java-jdk] = "${FEATURE_PACKAGES_java-jdk}"
+BUNDLE_CONTENTS[node-runtime] = "${FEATURE_PACKAGES_node-runtime}"
+BUNDLE_CONTENTS[nodejs-runtime-tools] = "${FEATURE_PACKAGES_nodejs-runtime-tools}"
+BUNDLE_CONTENTS[python-runtime] = "${FEATURE_PACKAGES_python-runtime}"
+BUNDLE_CONTENTS[qatests] = "${FEATURE_PACKAGES_qatests}"
+BUNDLE_CONTENTS[ssh-server] = "${FEATURE_PACKAGES_ssh-server-openssh}"
+BUNDLE_CONTENTS[soletta] = "${FEATURE_PACKAGES_soletta}"
+BUNDLE_CONTENTS[soletta-tools] = "${FEATURE_PACKAGES_soletta-tools}"
+BUNDLE_CONTENTS[tools-debug] = "${FEATURE_PACKAGES_tools-debug}"
+BUNDLE_CONTENTS[tools-develop] = "${FEATURE_PACKAGES_tools-develop}"
+
+# When swupd bundles are enabled, choose explicitly which images
+# are created. The base image will only have the core-os bundle and
+# thus might not be very useful. For use in ostro-image-swupd.bb we
+# pre-define additional images:
+# ostro-image-swupd-reference -
+#    Base image plus login via getty and ssh, plus connectivity.
+#    This is what developers  are expected to start with when
+#    building their first image.
+# ostro-image-swupd-dev -
+#    Image used for testing Ostro OS. Contains most of the software
+#    pre-installed, including the corresponding development files
+#    for on-target compilation.
+# ostro-image-swupd-all -
+#    Contains all defined bundles. Useful as meta target, but not
+#    guaranteed to build images successfully, for example because
+#    the content might get too large for machines with a fixed image
+#    size.
+SWUPD_IMAGES ??= " \
+    reference \
+    dev \
+    all \
+"
+SWUPD_IMAGES[reference] = " \
+    connectivity \
+    ssh-server \
+"
+# In practice the same as "all" at the moment, but conceptually different
+# and thus defined separately.
+SWUPD_IMAGES[dev] = " \
+    ${SWUPD_BUNDLES} \
+"
+SWUPD_IMAGES[all] = " \
+    ${SWUPD_BUNDLES} \
 "
 
-# Once officially supported, variations with IMA disabled can be
-# added. Right now, users need to do that in their local.conf:
-# OSTRO_EXTRA_IMAGE_VARIANTS = "imagevariant:noima imagevariant:dev,noima"
+# When building without swupd, choose which content is to be included
+# in the image. If the default "ostro-image-noswupd" name is
+# undesirable, write a custom image recipe or customize the image file
+# names. We provide variables that can be used to select the same
+# content as in the swupd images.
+#
+# Example for local.conf, partly covered already by ostro-development.inc:
+# IMAGE_BASENAME_pn-ostro-image-noswupd = "my-ostro-image-reference"
+# OSTRO_IMAGE_EXTRA_INSTALL = "${OSTRO_IMAGE_INSTALL_REFERENCE} my-own-package"
+# OSTRO_IMAGE_EXTRA_FEATURES = "${OSTRO_IMAGE_FEATURES_REFERENCE}"
+
+# Currently the definitions of swupd images depend on bundles and thus
+# BUNDLE_CONTENTS. OSTRO_IMAGE_FEATURES are defined as empty in case
+# that this will change in the future.
+OSTRO_IMAGE_FEATURES_REFERENCE = ""
+OSTRO_IMAGE_FEATURES_QA = ""
+OSTRO_IMAGE_FEATURES_ALL = ""
+def ostro_image_bundles_to_packages (image, d):
+    bundles = (d.getVarFlag('SWUPD_IMAGES', image, True) or '').split()
+    return ' '.join([(d.getVarFlag('BUNDLE_CONTENTS', bundle, True) or '') for bundle in bundles])
+OSTRO_IMAGE_INSTALL_REFERENCE = "${@ostro_image_bundles_to_packages('reference', d)}"
+OSTRO_IMAGE_INSTALL_QA = "${@ostro_image_bundles_to_packages('qa', d)}"
+OSTRO_IMAGE_INSTALL_ALL = "${@ostro_image_bundles_to_packages('all', d)}"
 
 # The AppFW depends on the security framework and user management, and these frameworks
 # (currently?) make little sense without apps, therefore a single image feature is used

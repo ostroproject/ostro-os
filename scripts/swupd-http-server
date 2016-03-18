@@ -32,7 +32,7 @@ show_help () {
 
 set -e
 
-dir=$BUILDDIR/tmp*/deploy/swupd/*/ostro-image/www
+dir=$BUILDDIR/tmp*/deploy/swupd/*/ostro-image-swupd/www
 port=8000
 
 while getopts "h?p:d:" opt; do

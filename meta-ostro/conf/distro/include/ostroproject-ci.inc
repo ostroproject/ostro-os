@@ -31,7 +31,7 @@ SDKMACHINE ?= "x86_64"
 # Generate source mirror tarballs:
 BB_GENERATE_MIRROR_TARBALLS = "1"
 
-# Include the devel settings
+# Configure images in "development mode".
 require conf/distro/include/ostro-os-development.inc
 
 # XXX Drop the VM hack after taking care also of the non UEFI devices
@@ -45,13 +45,15 @@ OSTRO_VM_IMAGE_TYPES = "dsk.xz dsk.zip dsk.vdi.zip dsk.bmap dsk.xz.sha256sum dsk
 # Any other symbols would be skipped in parser.
 #
 # Following targets would be used to perform default build task:
-OSTROPROJECT_CI_BUILD_TARGETS="${DISTRO}-image ${DISTRO}-image-dev"
+OSTROPROJECT_CI_BUILD_TARGETS="ostro-image-noswupd ostro-image-swupd ostro-image-swupd-dev ostro-image-swupd-reference"
 # Following targets would be executed with do_populate_sdk task
 OSTROPROJECT_CI_SDK_TARGETS=""
-# Following targets would be executed with do_populate_sdk_ext task
-OSTROPROJECT_CI_ESDK_TARGETS="${DISTRO}-image"
+# Following targets would be executed with do_populate_sdk_ext task.
+# Uses the fully-populated image to ensure that the eSDK is as complete
+# as possible.
+OSTROPROJECT_CI_ESDK_TARGETS="ostro-image-swupd-all"
 # Following targets would be executed with do_test_iot_export task
-OSTROPROJECT_CI_TEST_EXPORT_TARGETS="${DISTRO}-image"
+OSTROPROJECT_CI_TEST_EXPORT_TARGETS="ostro-image-swupd-dev"
 # Execute automatic tests for following images with corresponding
 # test suite and test files.
 # Space separated list of tuples, each should in format:
