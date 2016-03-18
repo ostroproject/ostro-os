@@ -36,6 +36,8 @@ python swupdbundle_virtclass_handler () {
     e.data.setVar("PN", pn)
     e.data.setVar("BUNDLE_NAME", bundle)
 
+    # Not producing any real images, only the rootfs directory.
+    e.data.setVar("IMAGE_FSTYPES", "")
     curr_install = (e.data.getVar('IMAGE_INSTALL', True) or "").split()
 
     def get_bundle_contents(bndl):

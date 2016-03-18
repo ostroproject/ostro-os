@@ -59,8 +59,6 @@ SWUPD_N_DELTAPACK ??= "2"
 # delta pack looping to generate delta packs going back up toSWUPD_N_DELTAPACK
 # releases
 SWUPD_VERSION_STEP ??= "10"
-# Set this to 0 to prevent virtual images being automatically deleted
-SWUPD_RM_BUNDLE_IMAGES ??= "1"
 
 # This version number *must* map to VERSION_ID in /etc/os-release and *must* be
 # a non-negative integer that fits in an int.
@@ -373,35 +371,6 @@ fakeroot python do_prune_bundle () {
     bb.debug(1, "Done pruning %s bundle dir (%s)" % (bundle, bundledir))
 }
 addtask prune_bundle after do_copy_bundle_contents before do_swupd_update
-
-# Automated removal of the bundle images, in order to reduce disk space impact
-python rm_bundle_images () {
-    if d.getVar('SWUPD_RM_BUNDLE_IMAGES', True) != '1':
-        bb.debug(1, 'Not deleting images, SWUPD_RM_BUNDLE_IMAGES = "1"')
-        return
-
-    if d.getVar('PN_BASE', True) is None:
-        return
-
-    bb.debug(2, 'Removing image files for %s' % d.getVar('IMAGE_NAME', True))
-
-    import fnmatch
-
-    image_dir = d.getVar('DEPLOY_DIR_IMAGE', True)
-
-    pattern = '%s.*' % d.getVar('IMAGE_LINK_NAME', True)
-    bb.debug(3, 'removing files matching pattern: %s' % pattern)
-    for img in os.listdir(image_dir):
-        if fnmatch.fnmatch(img, pattern):
-            os.unlink('%s/%s' % (image_dir, img))
-
-    pattern = '%s.*' % d.getVar('IMAGE_NAME', True)
-    bb.debug(3, 'removing files matching pattern: %s' % pattern)
-    for img in os.listdir(image_dir):
-        if fnmatch.fnmatch(img, pattern):
-            os.unlink('%s/%s' % (image_dir, img))
-}
-do_image_complete[postfuncs] += "rm_bundle_images"
 
 fakeroot do_swupd_update () {
     if [ ! -z "${PN_BASE}" ]; then
