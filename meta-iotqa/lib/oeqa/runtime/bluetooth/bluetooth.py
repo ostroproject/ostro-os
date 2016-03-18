@@ -37,6 +37,32 @@ class BTFunction(object):
         self.log = self.log + "\n\n[Debug] Command output --- %s: \n" % cmd
         self.log = self.log + output
 
+    def target_hciconfig_init(self):
+        ''' init target bluetooth by hciconfig commands 
+        @fn target_hciconfig_init
+        @param self
+        @return
+        '''
+        self.target.run('hciconfig hci0 reset')
+        time.sleep(1)
+        self.target.run('hciconfig hci0 up')
+        self.target.run('hciconfig hci0 piscan')
+        self.target.run('hciconfig hci0 noleadv')
+        time.sleep(1)
+
+    def host_hciconfig_init(self):
+        ''' init host bluetooth by hciconfig commands 
+        @fn host_hciconfig_init
+        @param self
+        @return
+        '''
+        shell_cmd_timeout('hciconfig hci0 reset', timeout=200)
+        time.sleep(1)
+        shell_cmd_timeout('hciconfig hci0 up', timeout=100)
+        shell_cmd_timeout('hciconfig hci0 piscan', timeout=100)
+        shell_cmd_timeout('hciconfig hci0 noleadv', timeout=100)
+        time.sleep(1)
+
     def enable_bluetooth(self):
         ''' enable bluetooth after testing 
         @fn enable_bluetooth
@@ -106,6 +132,39 @@ class BTFunction(object):
         target_ip = self.target.ip
         status, output = shell_cmd_timeout('expect %s %s' % (exp, target_ip), timeout=200)
         assert status == 2, "discoverable off command fails: %s" % output
+
+    def insert_6lowpan_module(self):
+        '''Insert BLE 6lowpan module
+        @fn insert_6lowpan_module
+        @param self
+        @return
+        '''
+        status, output = self.target.run('modprobe bluetooth_6lowpan')
+        assert status == 0, "insert ble 6lowpan module fail: %s" % output
+        # check lsmod, to see if the module is in
+        status, output = self.target.run('lsmod')
+        if "bluetooth_6lowpan" in output:
+            pass
+        else:
+            target_collect_info('lsmod')
+            assert False, "BLE 6lowpan module insert fails. %s" % self.log       
+
+    def enable_6lowpan_ble(self):
+        '''Enable 6lowpan over BLE
+        @fn enable_6lowpan_ble
+        @param self
+        @return
+        '''
+        self.insert_6lowpan_module()
+        status, output = self.target.run('echo 1 > /sys/kernel/debug/bluetooth/6lowpan_enable')
+        assert status == 0, "Enable ble 6lowpan fail: %s" % output
+        # check file number, it should be 1
+        status, output = self.target.run('cat /sys/kernel/debug/bluetooth/6lowpan_enable')
+        if output == "1":
+            pass
+        else:
+            target_collect_info('lsmod')
+            assert False, "BLE 6lowpan interface is: %s\n%s" % (output, self.log) 
 
 ##
 # @}
