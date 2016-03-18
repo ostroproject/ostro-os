@@ -197,9 +197,6 @@ def choose_test_files_and_tar(local_nodejs_path, node_version):
         os.unlink('%s.tar' % node_test_dir)
 
     # The 3 directories are certain to be used
-    sys.stdout.write('Removing blacklist tests')
-    sys.stdout.flush()
-    remove_blacklist(apprt_files_dir, node_version)
     copy_dirs = ['tools', 'test', 'deps/v8/tools']
     for single_dir in copy_dirs:
         shutil.copytree(os.path.join(local_nodejs_path, single_dir),
@@ -210,8 +207,11 @@ def choose_test_files_and_tar(local_nodejs_path, node_version):
             shutil.copyfile(file_path,
                             os.path.join(node_test_dir, filename))
 
-    compact_cmd = ['tar', '-cf']
-    compact_cmd.append('%s.tar' % node_test_dir)
+    sys.stdout.write('\nRemoving blacklist tests')
+    sys.stdout.flush()
+    remove_blacklist(apprt_files_dir, node_version)
+    compact_cmd = ['tar', '-czf']
+    compact_cmd.append('%s.tar.gz' % node_test_dir)
     compact_cmd.append('node_%s_test' % node_version)
 
     p = subprocess.Popen(compact_cmd, cwd=apprt_files_dir)
@@ -415,7 +415,7 @@ class NodejsRuntimeTest(oeRuntimeTest):
                 (self.target_node_path, self.target_node_version))
             sys.stdout.flush()
 
-    @tag(CasesNumber=865)
+    @tag(CasesNumber=1048)
     def test_apprt_nodejs_runtime(self):
         '''
         Execute the node.js upstream test cases.
