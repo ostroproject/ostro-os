@@ -12,6 +12,7 @@ SRC_URI = "\
     file://0003-Add-configure-option-to-re-enable-config-files-in-ma.patch \
     file://0004-Fix-regression-that-introduced-a-directory-named.patch \
     file://0005-xattrs.c-Avoid-freeing-dangling-pointers.patch \
+    file://0006-Always-use-xattrs-when.patch \
 "
 
 SRC_URI[md5sum] = "14f25677b5a4f0b33785910b03860939"
