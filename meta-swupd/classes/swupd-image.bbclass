@@ -190,17 +190,25 @@ def copyxattrtree(src, dst):
     cmd = 'tar --xattrs --xattrs-include=* -cf - -C %s -p . | tar --xattrs --xattrs-include=* -xf - -C %s' % (src, dst)
     oe.path.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
 
-fakeroot do_rootfs_append () {
-    bndl = d.getVar('BUNDLE_NAME', True)
-    if (bndl == 'mega'):
+# swupd-client expects a bundle subscription to exist for each
+# installed bundle. This is simply an empty file named for the
+# bundle in /usr/share/clear/bundles
+def create_bundle_manifest(d, bundlename):
+    bundledir = d.expand('${IMAGE_ROOTFS}/usr/share/clear/bundles')
+    bb.utils.mkdirhier(bundledir)
+    open(os.path.join(bundledir, bundlename), 'w+b').close()
+
+fakeroot python do_rootfs_append () {
+    bndl = d.getVar('BUNDLE_NAME', True) or ''
+    if bndl == 'mega':
         return
 
-    if (bndl == 'os-core' and (d.getVar('SWUPD_BUNDLES', True) or '') != ''):
+    if bndl == 'os-core' and (d.getVar('SWUPD_BUNDLES', True) or '') != '':
         import subprocess
 
         # For the base image only we need to remove all of the files that were
         # installed during the base do_rootfs and replace them with the
-        # equivelant files from the mega image.
+        # equivalent files from the mega image.
         outfile = d.expand('${WORKDIR}/orig-rootfs-manifest.txt')
         rootfs = d.getVar('IMAGE_ROOTFS', True)
         # Generate a manifest of the current file contents
@@ -214,16 +222,12 @@ fakeroot do_rootfs_append () {
         rootfs_contents = []
         for entry in manifest_to_file_list(outfile):
             rootfs_contents.append(entry[1:])
+
         remove_unlisted_files_from_directory(rootfs_contents, rootfs)
         # clean up
         os.unlink(outfile)
 
-    # swupd-client expects a bundle subscription to exist for each
-    # installed bundle. This is simply an empty file named for the
-    # bundle in /usr/share/clear/bundles
-    bundledir = d.expand('${IMAGE_ROOTFS}/usr/share/clear/bundles')
-    bb.utils.mkdirhier(bundledir)
-    open(os.path.join(bundledir, bndl), 'w+b').close()
+    create_bundle_manifest(d, bndl)
 }
 
 # Stage the contents of the generated image rootfs, and a manifest listing all
