@@ -232,29 +232,29 @@ fakeroot python do_rootfs_append () {
 
 # Stage the contents of the generated image rootfs, and a manifest listing all
 # of the files in the image, for further processing.
-fakeroot do_copy_bundle_contents () {
-    bbdebug 2 "Considering copying bundle contents for ${PN}"
-    if [ "${BUNDLE_NAME}" != "mega" ] ; then
-        bbdebug 2 "Copying ${BUNDLE_NAME} contents"
-        outfile="${DEPLOY_DIR_SWUPD}/image/${OS_VERSION}/${SWUPD_ROOTFS_MANIFEST}"
-        bundledir="${DEPLOY_DIR_SWUPD}/image/${OS_VERSION}/${BUNDLE_NAME}/"
-        rootfs="${IMAGE_ROOTFS}"
-        mkdir -p $bundledir
-        # Generate a manifest of the bundle contents for pruning
-        cd $rootfs && find . ! -path . > $outfile
-        # Copy the entire mega image's contents, we'll prune this down to only
-        # the files in the manifest in do_prune_bundle
-        cp -a --no-preserve=ownership ${MEGA_IMAGE_ROOTFS}/* $bundledir
+fakeroot python do_copy_bundle_contents () {
+    import subprocess
 
-        # swupd-client expects a bundle subscription to exist for each
-        # installed bundle. This is simply an empty file named for the
-        # bundle in /usr/share/clear/bundles
-        # Because we are populating the rootfs from the mega-image contents create
-        # the subscription file after the copy, but before the prune, so that the
-        # image contents, the generated manifest and the bundle contents match.
-        mkdir -p $bundledir/usr/share/clear/bundles
-        touch $bundledir/usr/share/clear/bundles/${BUNDLE_NAME}
-    fi
+    bndl = d.getVar('BUNDLE_NAME', True) or ''
+    bb.debug(2, "Considering copying bundle contents for %s" % bndl)
+    if bndl == 'mega':
+        return
+
+    bb.debug(2, "Copying %s contents" % bndl)
+    outfile = d.expand('${DEPLOY_DIR_SWUPD}/image/${OS_VERSION}/${SWUPD_ROOTFS_MANIFEST}')
+    bundledir = d.expand('${DEPLOY_DIR_SWUPD}/image/${OS_VERSION}/${BUNDLE_NAME}/')
+    rootfs = d.getVar('IMAGE_ROOTFS', True)
+
+    # Generate a manifest of the bundle contents for pruning
+    bb.utils.mkdirhier(bundledir)
+    manifest_cmd = 'cd %s && find . ! -path . > %s' % (rootfs, outfile)
+    subprocess.call(manifest_cmd, shell=True, stderr=subprocess.STDOUT)
+
+    # Copy the entire mega image's contents, we'll prune this down to only
+    # the files in the manifest in do_prune_bundle
+    copyxattrtree(d.getVar('MEGA_IMAGE_ROOTFS', True), bundledir)
+
+    create_bundle_manifest(d, bndl)
 }
 # Needs to run after do_image_complete so that IMAGE_POSTPROCESS commands have run
 addtask copy_bundle_contents after do_image_complete before do_prune_bundle
