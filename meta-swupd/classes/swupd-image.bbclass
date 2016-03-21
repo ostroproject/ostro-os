@@ -452,6 +452,7 @@ END
     if [ -e "${DEPLOY_DIR_SWUPD}/groups.ini" ]; then
        rm ${DEPLOY_DIR_SWUPD}/groups.ini
     fi
+    touch ${GROUPS_INI}
     for bndl in ${SWUPD_BUNDLES}; do
         echo "[$bndl]" >> ${GROUPS_INI}
         echo "group=$bndl" >> ${GROUPS_INI}
