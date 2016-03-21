@@ -78,17 +78,8 @@ SRC_URI_append_intel-quark = " file://debug-fs.cfg"
 SRC_URI_append_intel-quark = " file://bluetooth.cfg"
 
 # Galileo 2 GPIO
-# TODO: check which patches are solved in upstream and which need reformatting
 SRC_URI_append_intel-quark = " file://galileo2.cfg"
 SRC_URI_append_intel-quark = " file://iio.cfg"
-SRC_URI_append_intel-quark = " file://0020-acpi-added-a-custom-DSDT-file.patch"
-SRC_URI_append_intel-quark = " file://0021-gpio-pca953x-provide-GPIO-base-based-on-_UID.patch"
-SRC_URI_append_intel-quark = " file://0022-pca9685-PCA9685-PWM-and-GPIO-multi-function-device.patch"
-SRC_URI_append_intel-quark = " file://0023-acpi-updated-DSDT-table-for-SPI-devices.patch"
-SRC_URI_append_intel-quark = " file://0024-spi-pxa2xx-fixed-ACPI-based-enumeration-of-SPI-devic.patch"
-SRC_URI_append_intel-quark = " file://0025-staging-iio-add-support-for-ADC1x8s102.patch"
-SRC_URI_append_intel-quark = " file://0026-adc1x8s102-support-ACPI-based-enumeration.patch"
-SRC_URI_append_intel-quark = " file://0001-gpio-pca953x-add-drive-property.patch"
 
 # Disable GFX console and support
 SRC_URI_append_intel-core2-32 = " file://no-gfx.cfg"
@@ -101,3 +92,7 @@ KERNEL_MODULE_AUTOLOAD_append_intel-quark = " g_acm_ms"
 KERNEL_MODULE_PROBECONF_append_intel-quark = " g_acm_ms"
 
 module_conf_g_acm_ms_intel-quark = "options g_acm_ms file=/dev/mmcblk0p1 removable=1 idVendor=0x8086 idProduct=0xDEAD"
+
+# Backport ambient capabilities support
+SRC_URI_append_edison = " file://0001-edison-capabilities-ambient-capabilities.patch"
+SRC_URI_append_edison = " file://0002-edison-capabilities-add-a-securebit-to-disable-PR_CAP_AMBIE.patch"
