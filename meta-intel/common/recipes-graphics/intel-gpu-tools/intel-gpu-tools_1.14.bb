@@ -3,7 +3,9 @@ require ${COREBASE}/meta/recipes-graphics/xorg-app/xorg-app-common.inc
 SUMMARY = "Intel GPU tools"
 DESCRIPTION = "Variety of small tools for testing intel graphics."
 
-LIC_FILES_CHKSUM = "file://COPYING;md5=0918806acfedc3e8c0488f2dd61616dd"
+LIC_FILES_CHKSUM = "file://COPYING;md5=e4b3dd344780e0400593b21b115a6947"
+
+LICENSE_append = " & ISC"
 
 inherit autotools gtk-doc
 
@@ -13,8 +15,8 @@ RDEPENDS_${PN}-tests += "bash"
 
 PACKAGE_BEFORE_PN = "${PN}-benchmarks ${PN}-tests"
 
-SRC_URI[md5sum] = "9ef0d6385e2665db7afa6432f1418ed3"
-SRC_URI[sha256sum] = "c6e65884c106eff4af3a6896ae3fede6bf309337962f2e75ab897f116872ae34"
+SRC_URI[md5sum] = "b09d69526c86174007bea2228e36b2f1"
+SRC_URI[sha256sum] = "3596e1d36e9c1203eed5abff5a0f272d573f4eb917b5cee4f029cce5a70a0f0c"
 
 PACKAGECONFIG ??= ""
 PACKAGECONFIG[libunwind] = "--with-libunwind,--without-libunwind,libunwind,libunwind"
