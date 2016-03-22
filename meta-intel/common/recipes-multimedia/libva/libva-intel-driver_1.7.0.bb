@@ -15,8 +15,8 @@ DEPENDS = "libva libdrm"
 
 SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/${BPN}/${BPN}-${PV}.tar.bz2"
 
-SRC_URI[md5sum] = "80ea2e1db7f90489d033f0dc32fbf4dd"
-SRC_URI[sha256sum] = "bf8759dbcefc82d280c11a5eac5248dce14979c7c58345f218d656d75b0d85fe"
+SRC_URI[md5sum] = "00619c393e0c9c74b205d9adf69b68db"
+SRC_URI[sha256sum] = "9d19d6c789a9a4fbce23c4f0eaf993ba776b512bec4c87982ab17ac841435c0c"
 
 inherit autotools pkgconfig
 
