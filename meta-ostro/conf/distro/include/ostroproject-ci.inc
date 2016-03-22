@@ -36,8 +36,22 @@ require conf/distro/include/ostro-os-development.inc
 
 # XXX Drop the VM hack after taking care also of the non UEFI devices
 # (those using U-Boot: edison and beaglebone)
-OSTRO_VM_IMAGE_TYPES = "dsk.zip dsk.vdi.zip"
+OSTRO_VM_IMAGE_TYPES = "dsk.xz dsk.zip dsk.vdi.zip"
 
+#
+# Automated build targets
+# Those targets should be space separated list of items,
+# which must contain only alphanumeric symbols,'-' and '_'.
+# Any other symbols would be skipped in parser.
+#
+# Following targets would be used to perform default build task:
+OSTROPROJECT_CI_BUILD_TARGETS="${DISTRO}-image ${DISTRO}-image-dev"
+# Following targets would be executed with do_populate_sdk task
+OSTROPROJECT_CI_SDK_TARGETS=""
+# Following targets would be executed with do_populate_sdk_ext task
+OSTROPROJECT_CI_ESDK_TARGETS="${DISTRO}-image"
+# Following targets would be executed with do_test_iot_export task
+OSTROPROJECT_CI_TEST_EXPORT_TARGETS="${DISTRO}-image"
 
 #
 # Dymamic section.
