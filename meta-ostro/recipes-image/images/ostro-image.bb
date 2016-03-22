@@ -156,8 +156,6 @@ FEATURE_PACKAGES_soletta-tools = "soletta-dev-app"
 # because it is the most common source code management tool.
 FEATURE_PACKAGES_tools-develop = "packagegroup-core-buildessential git"
 
-FEATURE_PACKAGES_swupd = "packagegroup-swupd"
-
 FEATURE_PACKAGES_qatests = "packagegroup-qa-tests"
 
 # Use gummiboot as the EFI bootloader.
