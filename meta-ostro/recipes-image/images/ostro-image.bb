@@ -348,6 +348,27 @@ ima_evm_sign_rootfs_prepend () {
 # for that machine.
 APPEND_append = "${@bb.utils.contains('IMAGE_FEATURES', 'smack', '', ' security=none', d)}"
 
+# In addition, when Smack is disabled in the image but enabled in the
+# distro, we strip all Smack xattrs from the rootfs. Otherwise we still
+# end up with Smack labels in the filesystem although we neither need
+# nor want them, because the packages that were compiled for the distro
+# have Smack enabled and will set the xattrs while getting installed.
+ostro_image_strip_smack () {
+    echo "Removing Smack xattrs:"
+    set -e
+    cd ${IMAGE_ROOTFS}
+    find . -exec sh -c "getfattr -h -m ^security.SMACK.* '{}' | grep -q ^security" \; -print | while read path; do
+        # Print removed Smack attributes to the log before removing them.
+        getfattr -h -d -m ^security.SMACK.* "$path"
+        getfattr -h -d -m ^security.SMACK.* "$path" | grep ^security | cut -d = -f1 | while read attr; do
+           setfattr -h -x "$xattr" "$path"
+        done
+    done
+}
+OSTRO_IMAGE_STRIP_SMACK = "${@ 'ostro_image_strip_smack' if not bb.utils.contains('IMAGE_FEATURES', 'smack', True, False, d) and bb.utils.contains('DISTRO_FEATURES', 'smack', True, False, d) else '' }"
+do_rootfs[postfuncs] += "${OSTRO_IMAGE_STRIP_SMACK}"
+DEPENDS += "${@ 'attr-native' if '${OSTRO_IMAGE_STRIP_SMACK}' else '' }"
+
 # Debug option:
 # in case of problems during the transition from initramfs to rootfs, spawn a shell.
 APPEND_append = " init_fatal_sh"
