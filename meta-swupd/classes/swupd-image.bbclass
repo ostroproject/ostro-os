@@ -526,3 +526,36 @@ SWUPDDEPENDS = "\
 "
 addtask swupd_update after do_image_complete after do_copy_bundle_contents after do_prune_bundle before do_build
 do_swupd_update[depends] = "${SWUPDDEPENDS}"
+
+# pseudo does not handle xattrs correctly for hardlinks:
+# https://bugzilla.yoctoproject.org/show_bug.cgi?id=9317
+#
+# This started to become a problem when copying rootfs
+# content around for swupd bundle creation. As a workaround,
+# we avoid having hardlinks in the rootfs and replace them
+# with symlinks.
+python swupd_replace_hardlinks () {
+    import os
+    import stat
+
+    # Collect all inodes and which entries share them.
+    inodes = {}
+    for root, dirs, files in os.walk(d.getVar('IMAGE_ROOTFS', True)):
+        for file in files:
+            path = os.path.join(root, file)
+            s = os.lstat(path)
+            if stat.S_ISREG(s.st_mode):
+                inodes.setdefault(s.st_ino, []).append(path)
+
+    for inode, paths in inodes.iteritems():
+        if len(paths) > 1:
+            paths.sort()
+            bb.debug(3, 'Removing hardlinks: %s' % ' = '.join(paths))
+            # Arbitrarily pick the first entry as symlink target.
+            target = paths.pop(0)
+            for path in paths:
+                reltarget = os.path.relpath(target, os.path.dirname(path))
+                os.unlink(path)
+                os.symlink(reltarget, path)
+}
+ROOTFS_POSTPROCESS_COMMAND += "swupd_replace_hardlinks; "
