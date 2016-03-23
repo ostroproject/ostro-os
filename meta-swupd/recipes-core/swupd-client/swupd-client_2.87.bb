@@ -9,20 +9,23 @@ SRC_URI = "\
     file://Right-usage-of-AC_ARG_ENABLE-on-bzip2.patch \
     file://Change-systemctl-path-to-OE-systemctl-path.patch \
     file://0001-Tolerate-quotes-in-os-release-files.patch \
+    file://0005-swupd-client-Add-existence-check-to-staging-target.patch \
+    file://0006-Backport-Use-rename-instead-of-tar-transform.patch \
+    file://0007-Add-compatibility-with-libarchive-s-bsdtar-command.patch \
 "
 
 SRC_URI[md5sum] = "5d272c62edb8a9c576005ac5e1182ea3"
 SRC_URI[sha256sum] = "45df259a7dc2fed985ee9961e112120fc46670dd75476c3262fc6804b1c66fb8"
 
 DEPENDS = "glib-2.0 curl zlib bzip2 xz openssl"
-RDEPENDS_${PN} = "gzip bzip2 tar xz"
-RDEPENDS_${PN}_class-target = "oe-swupd-helpers"
+RDEPENDS_${PN} = "gzip bzip2 xz"
+RDEPENDS_${PN}_class-target = "oe-swupd-helpers bsdtar"
 # We check /etc/os-release for the current OS version number
 RRECOMMENDS_${PN}_class-target = "os-release"
 
 inherit pkgconfig autotools-brokensep systemd
 
-EXTRA_OECONF = "--with-systemdsystemunitdir=${systemd_system_unitdir}"
+EXTRA_OECONF = "--with-systemdsystemunitdir=${systemd_system_unitdir} --enable-bsdtar"
 
 #TODO: create and install /var/lib/swupd/{delta,staged/download}
 do_install_append () {

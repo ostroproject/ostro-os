@@ -13,6 +13,9 @@ SRC_URI = "\
     file://0004-Fix-regression-that-introduced-a-directory-named.patch \
     file://0005-xattrs.c-Avoid-freeing-dangling-pointers.patch \
     file://0006-Always-use-xattrs-when.patch \
+    file://0007-Clean-up-tar-options-drop-a-for-the-extract-mode.patch \
+    file://0008-Clean-up-tar-commands-always-put-files-after-options.patch \
+    file://0009-Add-compatibility-with-libarchive-s-bsdtar-command.patch \
 "
 
 SRC_URI[md5sum] = "14f25677b5a4f0b33785910b03860939"
@@ -20,7 +23,7 @@ SRC_URI[sha256sum] = "c2d0e595444fe198c4092dd83d20a929fd1402a13b66b410b76677ed3a
 
 inherit autotools
 
-EXTRA_OECONF = "--enable-bzip2 --enable-lzma --disable-stateless"
+EXTRA_OECONF = "--enable-bzip2 --enable-lzma --disable-stateless --enable-bsdtar"
 
 # safer-calls-to-system-utilities.patch uses for loop initial declaration
 CFLAGS_append = " -std=c99"
@@ -30,6 +33,8 @@ do_install_append () {
     install -m 0755 ${S}/test/signature/* ${D}${sysconfdir}/swupd-certs/
 }
 
-RDEPENDS_${PN} = "tar rsync"
+# Work around lack of "RPROVIDES = bsdtar-native" in libarchive-native.
+RDEPENDS_${PN}_class-target = "bsdtar rsync"
+RDEPENDS_${PN}_class-native = "libarchive rsync"
 
 BBCLASSEXTEND = "native"
