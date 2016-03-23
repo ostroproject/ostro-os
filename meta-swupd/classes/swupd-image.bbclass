@@ -2,10 +2,6 @@
 # swupd-server and calls swupd-server to process the inputs into update
 # artefacts for consumption by swupd-client.
 #
-# Limitations:
-# * Machine specific: generated swupd update artefacts are for a single MACHINE
-#   only as reflected in the DEPLOY_DIR directories.
-#
 # Usage:
 # * inherit this class in your core OS image. swupd-based OS's use bundles, the
 #   primary one of which, os-core, is defined as the contents of this image.
@@ -17,34 +13,7 @@
 # * Ensure the OS_VERSION variable is assigned an integer value and increased
 #   before each image build which should generate swupd update artefacts.
 #
-# An image that inherits this class will automatically have bundle 'chroots'
-# created which contain the filesystem contents of the specified bundles.
-# The mechanism to achieve this is that several virtual image recipes are
-# created, one for each defined bundle plus a 'mega' image recipe.
-# The 'mega' image contains the base image plus all of the bundles, whilst
-# bundle images contain only the base image plus the contents of a single
-# bundle.
-#
-# We build the mega image first, then the base image (the one which inherits
-# this class) and finally all of the bundle images  . Each non-mega image
-# has a manifest generated that lists all of the file contents of the image.
-#
-# Each bundle 'chroot'-like directory and the rootfs of the base image are all
-# populated from the contents of the mega image's rootfs. The reason for this
-# is to ensure that all files which are modified during some kind of
-# post-processing step, i.e. passwd and groups updated during postinsts, are
-# fully populated.
-# This is not an ideal compromise and requires further thought.
-#
-# Once the images and their manifests have been created each bundle image
-# manifest is compared to the base image manifest in order to generate a delta
-# list of files in the bundle image which don't exist in the base image.
-# Files in this list are then preserved in the bundle directory for processing
-# by swupd-server in order to generate update artefacts.
-#
-# TODO: we're copying a lot of potentially duplicate files into
-# DEPLOY_DIR_SWUPD consider using hardlink to de-duplicate the files and save
-# some disk space.
+# See HOWTO.md for more information.
 
 DEPLOY_DIR_SWUPDBASE = "${DEPLOY_DIR}/swupd/${MACHINE}"
 SWUPD_ROOTFS_MANIFEST_SUFFIX = "-files-in-image.txt"
