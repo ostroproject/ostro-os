@@ -121,6 +121,7 @@ class RESTAPITest(oeRuntimeTest):
                             'chmod +x /tmp/nodeunit-master/bin/nodeunit'
                            )
 
+        cls.tc.target.run('/opt/iotivity/examples/resource/c/SimpleClientServer/ocserver -o 0')
         for api, api_js in cls.rest_api_js_files.items():
             cls.tc.target.run('cd %s; node %s' % (cls.target_rest_api_dir, api_js) )
 
