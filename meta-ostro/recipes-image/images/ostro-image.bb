@@ -43,26 +43,6 @@ IMAGE_FEATURES[validitems] += " \
     tools-profile \
 "
 
-# Temporary variant for swupd.
-# Currently swupd is not compatible with ima and smack,
-# so disable them. This can be removed once they can coexist.
-IMAGE_VARIANT[swupd] = " \
-    no-smack \
-    no-ima \
-"
-
-# Temporary variant for swupd.
-# Currently swupd is not compatible with ima and smack,
-# so disable them. This can be removed once they can coexist.
-IMAGE_VARIANT[swupddev] = " \
-    no-smack \
-    no-ima \
-    ptest-pkgs \
-    tools-debug \
-    tools-develop \
-    tools-profile \
-"
-
 # "dev" images have the following features turned on.
 # ptests are enabled because (platform) developers might want
 # to run them and because it is a relatively small change which
@@ -74,6 +54,7 @@ IMAGE_VARIANT[dev] = " \
     tools-develop \
     tools-profile \
     soletta-tools \
+    qatests \
 "
 
 # "minimal" images are the opposite of the "dev" images:
@@ -105,7 +86,6 @@ IMAGE_FEATURES += " \
                         iotivity \
                         ssh-server-openssh \
                         node-runtime \
-                        qatests \
                         python-runtime \
                         java-jdk \
                         soletta \
@@ -136,7 +116,6 @@ OSTRO_EXTRA_IMAGE_VARIANTS ?= ""
 BBCLASSEXTEND = " \
     imagevariant:dev \
     imagevariant:minimal \
-    imagevariant:swupd \
     ${OSTRO_EXTRA_IMAGE_VARIANTS} \
 "
 
@@ -175,6 +154,8 @@ FEATURE_PACKAGES_tools-develop = "packagegroup-core-buildessential git"
 
 FEATURE_PACKAGES_swupd = "packagegroup-swupd"
 
+FEATURE_PACKAGES_qatests = "packagegroup-qa-tests"
+
 # Use gummiboot as the EFI bootloader.
 EFI_PROVIDER = "gummiboot"
 
@@ -203,7 +184,7 @@ COMPRESS_DEPENDS_zip = "zip-native"
 
 # Replace the default "live" (aka HDDIMG) images with whole-disk images
 # XXX Drop the VM hack after taking care also of the non UEFI devices (those using U-Boot: edison and beaglebone)
-OSTRO_VM_IMAGE_TYPES ?= "dsk dsk.xz dsk.vdi"
+OSTRO_VM_IMAGE_TYPES ?= "dsk dsk.vdi"
 IMAGE_FSTYPES_remove_intel-core2-32 = "live"
 IMAGE_FSTYPES_append_intel-core2-32 = " ${OSTRO_VM_IMAGE_TYPES}"
 IMAGE_FSTYPES_remove_intel-corei7-64 = "live"

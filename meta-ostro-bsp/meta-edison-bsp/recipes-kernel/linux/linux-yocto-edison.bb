@@ -8,7 +8,7 @@ SRC_URI += "file://defconfig"
 SRC_URI += "file://4.2-3.10-hack.patch"
 SRC_URI += "file://0002-Always-inline-inline-functions.patch"
 
-SRCREV_machine = "11c5ce35d087c174b95a3ed4e69b57ee472ca576"
+SRCREV_machine = "2e4ace5b6845126b0b31c266ea4adb23feedcedb"
 #SRCREV_machine = "e152349de59b43b2a75f2c332b44171df461d5a0"
 
 inherit kernel

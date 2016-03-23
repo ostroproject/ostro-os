@@ -7,21 +7,21 @@ var options = {
     path: '/api/oic/d',
     method: 'GET',
     headers: {
-        'Accept': 'text/json'    
-    }    
+        'Accept': 'text/json'
+    }
 };
 
 var apiOicD = {};
 var responseJson = 'api_oic_d.json';
 
 function sendHttpRequest(opts) {
-    var req = http.request(opts, function(res) {    
+    var req = http.request(opts, function(res) {
         apiOicD.statusCode = res.statusCode;
         res.setEncoding('utf8');
-        
+
         res.on('data', function(data) {
             apiOicD.apiResponse = JSON.parse(data);
-               fs.writeFileSync(responseJson, JSON.stringify(apiOicD)); 
+               fs.writeFileSync(responseJson, JSON.stringify(apiOicD));
         });
     });
     req.end();
@@ -41,99 +41,99 @@ function checkStrIsUuid(str) {
 function checkStrIsCsv(str) {
     var delimiter = ['.', ',', ';'];
     var result = false;
-    
+
     for (var i = 0; i < delimiter.length; i++) {
         var pattern;
         if (delimiter[i] == '.') {
             pattern = '\.';
         } else {
-            pattern = delimiter[i];  
+            pattern = delimiter[i];
         }
         var isMatched = (str.indexOf(delimiter[i]) > -1) && (str.split().length == (str.match(pattern) || []).length);
         if (isMatched){
             return true;
-        } else {            
-            result = result && isMatched;    
-        }     
+        } else {
+            result = result && isMatched;
+        }
         return result;
-    }        
+    }
 }
 
 module.exports = {
     setUp: function(callback) {
         var content = fs.readFileSync(responseJson);
         this.apiOicD = JSON.parse(content.toString());
-            
+
         callback();
     },
-    tearDown: function(callback) {        
-        callback();        
+    tearDown: function(callback) {
+        callback();
     },
-    
+
     // statue code
     testApiOicDStatusCode: function(test) {
-        test.strictEqual(this.apiOicD.statusCode, 200, 
+        test.strictEqual(this.apiOicD.statusCode, 200,
                         'Response is not OK!');
-        test.done();            
-    },        
-    
+        test.done();
+    },
+
     // required properties
     // n
     testApiOicDRequiredNNotNull: function(test) {
-        test.ok('n' in this.apiOicD.apiResponse, 
+        test.ok('n' in this.apiOicD.apiResponse[0],
                     'n is not a property in the response of /api/oic/d while it is required!');
         test.done();
     },
     testApiOicDRequiredNType: function(test) {
-        test.strictEqual(typeof this.apiOicD.apiResponse['n'], 'string',                         
+        test.strictEqual(typeof this.apiOicD.apiResponse[0]['n'], 'string',
                         'n property is not a string!');
         test.done();
     },
-    
+
     // di
     testApiOicDRequiredDiNotNull: function(test) {
-        test.ok('di' in this.apiOicD.apiResponse, 
+        test.ok('di' in this.apiOicD.apiResponse[0],
                     'di is not a property in the response of /api/oic/d while it is required!');
         test.done();
     },
     testApiOicDRequiredDiType: function(test) {
-        test.strictEqual(typeof this.apiOicD.apiResponse['di'], 'string',                         
+        test.strictEqual(typeof this.apiOicD.apiResponse[0]['di'], 'string',
                         'di property is not a string!');
         test.done();
-    }, 
+    },
     testApiOicDRequiredDiUuid: function(test) {
-        test.ok(checkStrIsUuid(this.apiOicD.apiResponse['di']), 
+        test.ok(checkStrIsUuid(this.apiOicD.apiResponse[0]['di']),
                     'n property value is not UUID format!');
         test.done();
     },
-    
+
     // icv
     testApiOicDRequiredIcvNotNull: function(test) {
-        test.ok('icv' in this.apiOicD.apiResponse, 
+        test.ok('icv' in this.apiOicD.apiResponse[0],
                     'icv is not a property in the response of /api/oic/d while it is required!');
         test.done();
     },
     testApiOicRequiredDIcvType: function(test) {
-        test.strictEqual(typeof this.apiOicD.apiResponse['icv'], 'string',                         
+        test.strictEqual(typeof this.apiOicD.apiResponse[0]['icv'], 'string',
                         'icv property is not a string!');
         test.done();
     },
-    
+
     // optional properties
     // dmv
     testApiOicDOptionalDmvType: function(test) {
-        if ('dmv' in this.apiOicD.apiResponse) {
-            test.strictEqual(typeof this.apiOicD.apiResponse['dmv'], 'string',                         
+        if ('dmv' in this.apiOicD.apiResponse[0]) {
+            test.strictEqual(typeof this.apiOicD.apiResponse[0]['dmv'], 'string',
                         'dmv property is not a string!');
-        }                       
+        }
         test.done();
     },
     testApiOicDOptionalDmvCsv: function(test) {
-        if ('dmv' in this.apiOicD.apiResponse) {
-            test.ok(checkStrIsCsv(this.apiOicD.apiResponse['dmv']),
-                        'dmv property value is not csv format!');    
+        if ('dmv' in this.apiOicD.apiResponse[0]) {
+            test.ok(checkStrIsCsv(this.apiOicD.apiResponse[0]['dmv']),
+                        'dmv property value is not csv format!');
         }
-        test.done();    
+        test.done();
     }
-    
+
 };

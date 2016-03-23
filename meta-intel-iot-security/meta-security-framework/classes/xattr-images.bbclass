@@ -24,10 +24,8 @@ IMAGE_DEPENDS_tar_append = " tar-replacement-native"
 EXTRANATIVEPATH += "tar-native"
 IMAGE_CMD_TAR = "tar --xattrs --xattrs-include=*"
 
-xattr_images_fix_transmute () {
-    set -e
-    cd ${IMAGE_ROOTFS}
-
+xattr_images_fix_transmute[dirs] = "${IMAGE_ROOTFS}"
+python xattr_images_fix_transmute () {
     # The recursive updating of the Smack label ensures that each entry
     # has the label set for its parent directories if one of those was
     # marked as transmuting.
@@ -40,87 +38,85 @@ xattr_images_fix_transmute () {
     # it is currently built on) knows how to set security.SMACK64="_" when
     # it is set on the original files, but it does not know that it needs
     # to remove that xattr when not set.
-    python <<EOF
-import os
-import errno
+    import os
+    import errno
 
-# Cannot use the 'xattr' module, it is not part of a standard Python
-# installation. Instead re-implement using ctypes. Only has to be good
-# enough for xattrs that are strings. Always operates on the symlinks themselves,
-# not what they point to.
-import ctypes
+    # Cannot use the 'xattr' module, it is not part of a standard Python
+    # installation. Instead re-implement using ctypes. Only has to be good
+    # enough for xattrs that are strings. Always operates on the symlinks themselves,
+    # not what they point to.
+    import ctypes
 
-# We cannot look up the xattr functions inside libc. That bypasses
-# pseudo, which overrides these functions via LD_PRELOAD. Instead we have to
-# find the function address and then create a ctypes function from it.
-libdl = ctypes.CDLL("libdl.so.2")
-_dlsym = libdl.dlsym
-_dlsym.restype = ctypes.c_void_p
-RTLD_DEFAULT = ctypes.c_void_p(0)
-_lgetxattr = ctypes.CFUNCTYPE(ctypes.c_ssize_t, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_void_p, ctypes.c_size_t,
-            use_errno=True)(_dlsym(RTLD_DEFAULT, 'lgetxattr'))
-_lsetxattr = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_void_p, ctypes.c_size_t, ctypes.c_int,
-            use_errno=True)(_dlsym(RTLD_DEFAULT, 'lsetxattr'))
+    # We cannot look up the xattr functions inside libc. That bypasses
+    # pseudo, which overrides these functions via LD_PRELOAD. Instead we have to
+    # find the function address and then create a ctypes function from it.
+    libdl = ctypes.CDLL("libdl.so.2")
+    _dlsym = libdl.dlsym
+    _dlsym.restype = ctypes.c_void_p
+    RTLD_DEFAULT = ctypes.c_void_p(0)
+    _lgetxattr = ctypes.CFUNCTYPE(ctypes.c_ssize_t, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_void_p, ctypes.c_size_t,
+                use_errno=True)(_dlsym(RTLD_DEFAULT, 'lgetxattr'))
+    _lsetxattr = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_void_p, ctypes.c_size_t, ctypes.c_int,
+                use_errno=True)(_dlsym(RTLD_DEFAULT, 'lsetxattr'))
 
-def lgetxattr(f, attr, default=None):
-    len = 32
-    while True:
-        buffer = ctypes.create_string_buffer('\000' * len)
-        res = _lgetxattr(f, attr, buffer, ctypes.c_size_t(len))
-        if res >= 0:
-            return buffer.value
-        else:
-            error = ctypes.get_errno()
-            if ctypes.get_errno() == errno.ERANGE:
-                len *= 2
-            elif error == errno.ENODATA:
-                return None
+    def lgetxattr(f, attr, default=None):
+        len = 32
+        while True:
+            buffer = ctypes.create_string_buffer('\000' * len)
+            res = _lgetxattr(f, attr, buffer, ctypes.c_size_t(len))
+            if res >= 0:
+                return buffer.value
             else:
-                raise IOError(error, 'lgetxattr(%s, %s): %d = %s = %s' %
-                                     (f, attr, error, errno.errorcode[error], os.strerror(error)))
+                error = ctypes.get_errno()
+                if ctypes.get_errno() == errno.ERANGE:
+                    len *= 2
+                elif error == errno.ENODATA:
+                    return None
+                else:
+                    raise IOError(error, 'lgetxattr(%s, %s): %d = %s = %s' %
+                                         (f, attr, error, errno.errorcode[error], os.strerror(error)))
 
-def lsetxattr(f, attr, value):
-    res = _lsetxattr(f, attr, value, ctypes.c_size_t(len(value)), ctypes.c_int(0))
-    if res != 0:
-        error = ctypes.get_errno()
-        raise IOError(error, 'lsetxattr(%s, %s, %s): %d = %s = %s' %
-                             (f, attr, value, error, errno.errorcode[error], os.strerror(error)))
+    def lsetxattr(f, attr, value):
+        res = _lsetxattr(f, attr, value, ctypes.c_size_t(len(value)), ctypes.c_int(0))
+        if res != 0:
+            error = ctypes.get_errno()
+            raise IOError(error, 'lsetxattr(%s, %s, %s): %d = %s = %s' %
+                                 (f, attr, value, error, errno.errorcode[error], os.strerror(error)))
 
-def visit(path, deflabel, deftransmute):
-    isrealdir = os.path.isdir(path) and not os.path.islink(path)
-    curlabel = lgetxattr(path, 'security.SMACK64', '')
-    transmute = lgetxattr(path, 'security.SMACK64TRANSMUTE', '') == 'TRUE'
+    def visit(path, deflabel, deftransmute):
+        isrealdir = os.path.isdir(path) and not os.path.islink(path)
+        curlabel = lgetxattr(path, 'security.SMACK64', '')
+        transmute = lgetxattr(path, 'security.SMACK64TRANSMUTE', '') == 'TRUE'
 
-    if not curlabel:
-        # Since swupd doesn't remove the label from an updated file assigned by
-        # the target device's kernel upon unpacking the file from an update,
-        # we have to set the floor label explicitly even though it is the default label
-        # and thus adding it would create additional overhead. Otherwise this
-        # would result in hash mismatches reported by `swupd verify`.
-        lsetxattr(path, 'security.SMACK64', deflabel)
-        if not transmute and deftransmute and isrealdir:
-            lsetxattr(path, 'security.SMACK64TRANSMUTE', 'TRUE')
+        if not curlabel:
+            # Since swupd doesn't remove the label from an updated file assigned by
+            # the target device's kernel upon unpacking the file from an update,
+            # we have to set the floor label explicitly even though it is the default label
+            # and thus adding it would create additional overhead. Otherwise this
+            # would result in hash mismatches reported by `swupd verify`.
+            lsetxattr(path, 'security.SMACK64', deflabel)
+            if not transmute and deftransmute and isrealdir:
+                lsetxattr(path, 'security.SMACK64TRANSMUTE', 'TRUE')
 
-    # Identify transmuting directories and change the default Smack
-    # label inside them. In addition, directories themselves must become
-    # transmuting.
-    if isrealdir:
-        if transmute:
-            deflabel = lgetxattr(path, 'security.SMACK64')
-            deftransmute = True
-            if deflabel is None:
-                raise RuntimeError('%s: transmuting directory without Smack label' % path)
-        elif curlabel:
-            # Directory with explicit label set and not transmuting => do not
-            # change the content unless we run into another transmuting directory.
-           deflabel = '_'
-           deftransmute = False
+        # Identify transmuting directories and change the default Smack
+        # label inside them. In addition, directories themselves must become
+        # transmuting.
+        if isrealdir:
+            if transmute:
+                deflabel = lgetxattr(path, 'security.SMACK64')
+                deftransmute = True
+                if deflabel is None:
+                    raise RuntimeError('%s: transmuting directory without Smack label' % path)
+            elif curlabel:
+                # Directory with explicit label set and not transmuting => do not
+                # change the content unless we run into another transmuting directory.
+               deflabel = '_'
+               deftransmute = False
 
-        for entry in os.listdir(path):
-            visit(os.path.join(path, entry), deflabel, deftransmute)
+            for entry in os.listdir(path):
+                visit(os.path.join(path, entry), deflabel, deftransmute)
 
-visit('.', '_', False)
-EOF
+    visit('.', '_', False)
 }
 # Same logic as in ima-evm-rootfs.bbclass: try to run as late as possible.
 IMAGE_PREPROCESS_COMMAND_append_smack = " xattr_images_fix_transmute ; "

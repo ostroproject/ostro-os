@@ -57,6 +57,10 @@ class ImageOptionsTests(oeSelfTest):
         res = runCmd("grep ccache %s" % (os.path.join(get_bb_var("WORKDIR","m4"),"temp/log.do_compile")), ignore_status=True)
         self.assertEqual(0, res.status, msg="No match for ccache in m4 log.do_compile. For further details: %s" % os.path.join(get_bb_var("WORKDIR","m4"),"temp/log.do_compile"))
 
+    def test_read_only_image(self):
+        self.write_config('IMAGE_FEATURES += "read-only-rootfs"')
+        bitbake("core-image-sato")
+        # do_image will fail if there are any pending postinsts
 
 class DiskMonTest(oeSelfTest):
 
@@ -139,7 +143,7 @@ do_install_append_pn-gzip () {
         self.assertTrue(line and line.startswith("WARNING:"), "WARNING: QA Issue: nfs-utils message is not present in bitbake's output: %s" % res.output)
 
     @testcase(1421)
-    def test_layer_git_revisions_are_displayed_and_do_not_fail_without_git_repo(self):
+    def test_layer_without_git_dir(self):
         """
         Summary:     Test that layer git revisions are displayed and do not fail without git repository
         Expected:    The build to be successful and without "fatal" errors

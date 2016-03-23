@@ -12,19 +12,16 @@ attr \
 boost \
 cynara \
 icu \
-libslp-db-util \
 libcap \
 smack \
 sqlite3 \
 sqlite3-native \
 systemd \
-tizen-platform-config \
 "
 
 PACKAGECONFIG ??= ""
 PACKAGECONFIG[debug] = "-DCMAKE_BUILD_TYPE=DEBUG,-DCMAKE_BUILD_TYPE=RELEASE"
 
-# TODO: get this from tizen-platform-config and adapt tizen-platform-config.
 TZ_SYS_DB = "/usr/dbspace"
 
 EXTRA_OECMAKE = " \

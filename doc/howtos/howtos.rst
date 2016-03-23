@@ -21,6 +21,7 @@ Technical Notes
    certificate-handling
    software-update-server
    firewall-configuration
+   ip-address-config
 
 Process Notes
 =============

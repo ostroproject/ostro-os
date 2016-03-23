@@ -24,6 +24,8 @@ class WiFiFunction(object):
     log = ""
     def __init__(self, target):
         self.target = target
+        # un-block software rfkill lock
+        self.target.run('rfkill unblock all')
 
     def target_collect_info(self, cmd):
         """
@@ -42,15 +44,10 @@ class WiFiFunction(object):
         @param self
         @return
         """
-        # un-block software rfkill lock
-        self.target.run('rfkill unblock all')
         # Enable WiFi
-        self.target.run('connmanctl disable wifi')
-        time.sleep(2)
         (status, output) = self.target.run('connmanctl enable wifi')
         assert status == 0, "Error messages: %s" % output 
-        # Use sleep because wifi_enable will trigger auto-connect (to last AP)
-        time.sleep(30)
+        time.sleep(1)
 
     def disable_wifi(self):
         ''' disable wifi after testing 
@@ -61,7 +58,7 @@ class WiFiFunction(object):
         (status, output) = self.target.run('connmanctl disable wifi')
         assert status == 0, "Error messages: %s" % output 
         # sleep some seconds to ensure disable is done
-        time.sleep(5)
+        time.sleep(2)
 
     def scan_wifi(self, ap_type, ssid):
         """
@@ -149,6 +146,8 @@ class WiFiFunction(object):
         @return
         '''
         self.enable_wifi()
+        # Use sleep because wifi_enable will trigger auto-connect (to last AP)
+        time.sleep(30)
         self.connect_wifi(ap_type, ssid, pwd)
         self.wifi_ip_check()                
 

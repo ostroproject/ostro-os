@@ -69,6 +69,7 @@ For currently :ref:`platforms`, the appropriate ``MACHINE`` selections are:
     Intel Galileo Gen2          intel-quark
     MinnowBoard MAX compatible  intel-corei7-64
     Intel Edison                edison
+    BeagleBone Black            beaglebone
     ==========================  ====================================
 
 Virtual machine images (a :file:`.vdi` file) are created for each of these builds hardware platforms as part 

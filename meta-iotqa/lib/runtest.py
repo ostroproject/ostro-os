@@ -32,13 +32,16 @@ class FakeTarget(object):
         self.testdir = d.getVar("TEST_LOG_DIR", True)
         self.pn = d.getVar("PN", True)
 
-    def exportStart(self):
-        self.sshlog = os.path.join(self.testdir, "ssh_target_log.%s" % self.datetime)
-        sshloglink = os.path.join(self.testdir, "ssh_target_log")
-        if os.path.exists(sshloglink):
-            os.remove(sshloglink)
-        os.symlink(self.sshlog, sshloglink)
-        print("SSH log file: %s" %  self.sshlog)
+    def exportStart(self, mainTarget=True):
+        if mainTarget:
+            self.sshlog = os.path.join(self.testdir, "ssh_target_log.%s" % self.datetime)
+            sshloglink = os.path.join(self.testdir, "ssh_target_log")
+            if os.path.lexists(sshloglink):
+                os.remove(sshloglink)
+            os.symlink(self.sshlog, sshloglink)
+            print("SSH log file: %s" %  self.sshlog)
+        else:
+            self.sshlog = os.path.join(self.testdir, "ssh_target_log_%s_%s" % (self.ip, self.datetime))
         self.connection = SSHControl(self.ip, logfile=self.sshlog)
 
     def run(self, cmd, timeout=None):
@@ -102,7 +105,7 @@ def main():
 
     usage = "usage: %prog [options]"
     parser = OptionParser(usage=usage)
-    parser.add_option("-t", "--target-ip", dest="ip",
+    parser.add_option("-t", "--target-ip", dest="ip", action="append",
             help="The IP address of the target machine. Use this to \
             overwrite the value determined from TEST_TARGET_IP at build time")
     parser.add_option("-s", "--server-ip", dest="server_ip",
@@ -196,17 +199,27 @@ def main():
     setattr(tc, "pkgmanifest", "\n".join(pkgs))
 
     #inject target information
-    target = FakeTarget(d)
-    target.ip = options.ip if options.ip else "192.168.7.2"
-    target.server_ip = options.server_ip if options.server_ip else "192.168.7.1"
-    setattr(tc, "target", target)
+    targets = []
+    targets_ip = options.ip if options.ip else ["192.168.7.2"]
+    server_ip = options.server_ip if options.server_ip else "192.168.7.1"
+    first = True
+    for ip in targets_ip:
+        target = FakeTarget(d)
+        target.ip = ip
+        target.server_ip = server_ip
+        target.exportStart(first)
+        first = False
+        targets.append(target)
+    setattr(tc, "targets", targets)
+    setattr(tc, "target", targets[0])
+    setattr(oeRuntimeTest, "targets", targets)
 
     #inject others
     for key in loaded.keys():
         if key not in ["testslist", "d", "target", "pkgmanifest"]:
             setattr(tc, key, loaded[key])
 
-    target.exportStart()
+    
     setattr(tc, "tagexp", options.tag)
     runner = RuntestTestContext(tc)
     runner.loadTests()

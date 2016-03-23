@@ -69,29 +69,29 @@ class IotivityJSAPITest(oeRuntimeTest):
         @return
         '''
         cls.tc.target.run('rm -fr %s' % cls.target_iotivity_js_apis_dir)
-        cls.tc.target.run('rm -f %s.tar.gz' % cls.target_iotivity_js_apis_dir)
+        cls.tc.target.run('rm -f %s.tar' % cls.target_iotivity_js_apis_dir)
 
-        if os.path.exists('%s.tar.gz' % cls.iotivity_js_apis_dir):
-            os.remove('%s.tar.gz' % cls.iotivity_js_apis_dir)
+        if os.path.exists('%s.tar' % cls.iotivity_js_apis_dir):
+            os.remove('%s.tar' % cls.iotivity_js_apis_dir)
 
         # compress iotivity javascript api directory and copy it to target device.
         proc = None
         if cls.all_files_exist():
             proc = subprocess.Popen(
-                ['tar', '-czf', '%s.tar.gz' % cls.iotivity_js_apis, cls.iotivity_js_apis],
+                ['tar', '-cf', '%s.tar' % cls.iotivity_js_apis, cls.iotivity_js_apis],
                 cwd = cls.files_dir)
             proc.wait()
 
         if proc and proc.returncode == 0 and \
-            os.path.exists('%s.tar.gz' % cls.iotivity_js_apis_dir):
+            os.path.exists('%s.tar' % cls.iotivity_js_apis_dir):
             cls.tc.target.copy_to(
                 os.path.join(
                     os.path.dirname(__file__),
                                     'files',
-                                    '%s.tar.gz' % cls.iotivity_js_apis_dir),
-                '%s.tar.gz' % cls.target_iotivity_js_apis_dir)
+                                    '%s.tar' % cls.iotivity_js_apis_dir),
+                '%s.tar' % cls.target_iotivity_js_apis_dir)
             cls.tc.target.run('cd /tmp/; ' \
-                            'tar -xf %s.tar.gz -C %s/' % (
+                            'tar -xf %s.tar -C %s/' % (
                                 cls.target_iotivity_js_apis_dir,
                                 os.path.dirname(cls.target_iotivity_js_apis_dir))
                             )
@@ -105,9 +105,13 @@ class IotivityJSAPITest(oeRuntimeTest):
             os.system('cp -f /tmp/master.zip %s' % (cls.nodeunit_zip))
 
         if os.path.exists(cls.nodeunit_zip):
-            cls.tc.target.copy_to(cls.nodeunit_zip, '/tmp/master.zip')
+            #change nodeunit zip package to tar package
+            os.chdir(cls.files_dir)
+            os.system('unzip -oq %s; tar -cf master.tar nodeunit-master; rm -rf nodeunit-master' % cls.nodeunit_zip)
+            cls.nodeunit_tar = os.path.join(cls.files_dir, 'master.tar')
+            cls.tc.target.copy_to(cls.nodeunit_tar, '/tmp/master.tar')
             cls.tc.target.run('cd /tmp/; ' \
-                            'unzip -oq master.zip;' \
+                            'tar -xf master.tar;' \
                             'chmod +x /tmp/nodeunit-master/bin/nodeunit'
                            )
 
@@ -851,12 +855,13 @@ class IotivityJSAPITest(oeRuntimeTest):
         @param cls
         @return
         '''
-        if os.path.exists('%s.tar.gz' % cls.iotivity_js_apis_dir):
-            os.remove('%s.tar.gz' % cls.iotivity_js_apis_dir)
+        if os.path.exists('%s.tar' % cls.iotivity_js_apis_dir):
+            os.remove('%s.tar' % cls.iotivity_js_apis_dir)
+        os.system('rm -rf %s' % cls.nodeunit_tar)
         if os.path.exists(cls.nodeunit_zip) and not os.path.exists('/tmp/master.zip'):
             os.system('mv -f %s /tmp/' % (cls.nodeunit_zip))
 
-        cls.tc.target.run('rm -f %s.tar.gz' % cls.target_iotivity_js_apis_dir)
+        cls.tc.target.run('rm -f %s.tar' % cls.target_iotivity_js_apis_dir)
         cls.tc.target.run('rm -fr %s/' % cls.target_iotivity_js_apis_dir)
         cls.tc.target.run('rm -fr /tmp/nodeunit-master')
         cls.tc.target.run('rm -f /tmp/master.zip')

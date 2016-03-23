@@ -81,8 +81,8 @@ class IOtvtIntegration(oeRuntimeTest):
         # judge if the values are correct
         ret = 0
         if "Device name" in output and "Bill's Battlestar" in output and \
-           "Spec version url" in output and "0.9.0" in output and \
-           "Data Model Model" in output and "sec.0.95" in output:
+           "Spec version url" in output and "core.1.0.0" in output and \
+           "Data Model Model" in output and "res.1.0.0" in output:
             pass
         else:
             ret = 1

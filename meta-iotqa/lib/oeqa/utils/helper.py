@@ -5,6 +5,7 @@
 import time
 import subprocess
 import os
+import sys
 from oeqa.oetest import oeRuntimeTest
 import unittest
 
@@ -59,4 +60,38 @@ def get_native_dir():
     arch = oeRuntimeTest.tc.d.getVar('BUILD_ARCH', True)
     deploydir = oeRuntimeTest.tc.d.getVar('DEPLOY_DIR', True)
     return os.path.join(deploydir, "files", "native", arch)
+
+def add_group(groupname, gid=None, target=None):
+    target = target if target is not None else oeRuntimeTest.tc.target
+    (ret, output) = target.run("groupadd %s %s"%(groupname, "" if gid is None else "-g %s"%gid))
+    print >> sys.stderr, output
+    return ret == 0
+
+def add_user(username, group=None, home_dir=None, target=None):
+    target = target if target is not None else oeRuntimeTest.tc.target
+    cmd = "useradd "
+    if group is not None:
+        (ret, output) = target.run("cat /etc/group | grep %s"%group)
+        if ret != 0:
+            if not add_group(group, target=target):
+                return False
+        cmd = cmd + "-g %s "%group
+    if home_dir is None:
+        home_dir = "/home/%s"%username
+    target.run("mkdr -p %s"%home_dir)
+    cmd = cmd + "-d %s "%home_dir
+    cmd = cmd + username
+    (ret, output) = target.run(cmd)
+    print >> sys.stderr, output
+    return ret == 0
+
+def remove_user(username, target=None):
+    target = target if target is not None else oeRuntimeTest.tc.target
+    return target.run("userdel %s"%username)[0] == 0
+
+def run_as(username, cmd, timeout=None, target=None):
+    target = target if target is not None else oeRuntimeTest.tc.target
+    cmd = "su %s -c \"%s\""%(username, cmd)
+    return target.run(cmd, timeout) if timeout else target.run(cmd)
+    
 

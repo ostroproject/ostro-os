@@ -14,6 +14,7 @@
 import os
 import time
 import subprocess
+import bluetooth
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import shell_cmd_timeout
 from oeqa.utils.helper import get_files_dir
@@ -30,20 +31,10 @@ class CommBTTest(oeRuntimeTest):
         @param self
         @return
         """
-        # un-block software rfkill lock
-        self.target.run('rfkill unblock all')
-        self.target.run('hciconfig hci0 reset')
-        time.sleep(1)
-        self.target.run('hciconfig hci0 up')
-        self.target.run('hciconfig hci0 piscan')
-        self.target.run('hciconfig hci0 noleadv')
-        time.sleep(1)
-        shell_cmd_timeout('hciconfig hci0 reset', timeout=200)
-        time.sleep(1)
-        shell_cmd_timeout('hciconfig hci0 up', timeout=100)
-        shell_cmd_timeout('hciconfig hci0 piscan', timeout=100)
-        shell_cmd_timeout('hciconfig hci0 noleadv', timeout=100)
-        time.sleep(1)
+        self.bt = bluetooth.BTFunction(self.target)
+        self.bt.target_hciconfig_init()
+        self.bt.host_hciconfig_init()
+
         (status, output) = self.target.run('which gatttool')
         if (status != 0):
             copy_to_path = os.path.join(get_files_dir(), 'gatttool')
@@ -165,20 +156,17 @@ class CommBTTest(oeRuntimeTest):
         @return
         '''
         self.target.run('hciconfig hci0 down')
-        # start bluetoothctl, then input 'power on'
-        exp = os.path.join(os.path.dirname(__file__), "files/power_on.exp")
-        target_ip = self.target.ip
-        status, output = shell_cmd_timeout('expect %s %s' % (exp, target_ip), timeout=200)
-        ##
-        # TESTPOINT: #1, test_bt_power_on
-        #
-        self.assertEqual(status, 2, msg="power on command fails: %s" % output)
-        # check it again with hciconfig
-        (status, output) = self.target.run("hciconfig hci0 | grep 'UP RUNNING'")
-        ##
-        # TESTPOINT: #2, test_bt_power_on
-        #
-        self.assertEqual(status, 0, msg="%s" % output)
+        self.bt.ctl_power_on()
+
+    @tag(FeatureID="IOTOS-453")
+    def test_bt_power_off(self):
+        '''disable bluetooth device
+        @fn test_bt_power_off
+        @param self
+        @return
+        '''
+        self.target.run('hciconfig hci0 up')
+        self.bt.ctl_power_off()
 
     @tag(FeatureID="IOTOS-453")
     def test_bt_visable_on(self):
@@ -188,20 +176,17 @@ class CommBTTest(oeRuntimeTest):
         @return
         '''
         self.target.run('hciconfig hci0 noscan')
-        # start bluetoothctl, then input 'discoverable on'
-        exp = os.path.join(os.path.dirname(__file__), "files/discoverable_on.exp")
-        target_ip = self.target.ip
-        status, output = shell_cmd_timeout('expect %s %s' % (exp, target_ip), timeout=200)
-        ##
-        # TESTPOINT: #1, test_bt_visable_on
-        #
-        self.assertEqual(status, 2, msg="discoverable on command fails: %s" % output)
-        # check it again with hciconfig
-        (status, output) = self.target.run("hciconfig hci0 | grep 'ISCAN'")
-        ##
-        # TESTPOINT: #2, test_bt_visable_on
-        #
-        self.assertEqual(status, 0, msg="%s" % output)
+        self.bt.ctl_visable_on()
+
+    @tag(FeatureID="IOTOS-453")
+    def test_bt_visable_off(self):
+        '''disable visibility
+        @fn test_bt_visable_off
+        @param self
+        @return
+        '''
+        self.target.run('hciconfig hci0 piscan')
+        self.bt.ctl_visable_off()
 
     @tag(FeatureID="IOTOS-456")
     def test_bt_visible_scan(self):
@@ -348,7 +333,6 @@ class CommBTTest(oeRuntimeTest):
         # TESTPOINT: #1, test_bt_target_gatt_connect
         #
         self.assertEqual(status, 2, msg="gatttool connect host fails: %s" % output) 
-
 
 ##
 # @}

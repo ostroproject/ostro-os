@@ -29,7 +29,7 @@ def is_a_blank_line(line):
 
 def parse_test_cases(all_test_output, target_node_version):
     '''
-    Parse the full node.js API test cases. 
+    Parse the full node.js API test cases.
     More information, please refer to the result log
     of running python tool/test.py
     in node.js repository
@@ -89,12 +89,6 @@ def parse_test_cases(all_test_output, target_node_version):
                         path_index = line.index('Path: ')
                         test_case_name_ori = line[path_index + len('Path: '):]
                         test_case_name = test_case_name_ori.strip().replace('/', '-')
-
-            release_index = all_test_output[start].index(': release')
-            test_case_name = all_test_output[start][
-                release_index +
-                len(': release') +
-                1:].strip()
 
             test_case_info['last_exec_info'] = all_test_output[start]
             test_case_info['start'] = start

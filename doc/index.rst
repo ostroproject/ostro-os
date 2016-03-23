@@ -37,3 +37,13 @@ How-To Project Notes
    :maxdepth: 2
   
    howtos/howtos
+
+
+Hardware Support
+###########################
+
+.. toctree::
+   :maxdepth: 2
+  
+   quick_start/platforms
+   hardware/hardware

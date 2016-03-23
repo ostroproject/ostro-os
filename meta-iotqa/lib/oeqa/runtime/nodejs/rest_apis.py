@@ -73,29 +73,29 @@ class RESTAPITest(oeRuntimeTest):
                                     'files', cls.rest_api).rstrip('/')
 
         cls.tc.target.run('rm -fr %s' % cls.target_rest_api_dir)
-        cls.tc.target.run('rm -f %s.tar.gz' % cls.target_rest_api_dir)
+        cls.tc.target.run('rm -f %s.tar' % cls.target_rest_api_dir)
 
-        if os.path.exists('%s.tar.gz' % cls.rest_api_dir):
-            os.remove('%s.tar.gz' % cls.rest_api_dir)
+        if os.path.exists('%s.tar' % cls.rest_api_dir):
+            os.remove('%s.tar' % cls.rest_api_dir)
 
         # compress restapi directory and copy it to target device.
         proc = None
         if cls.all_files_exists():
             proc = subprocess.Popen(
-                ['tar', '-czf', '%s.tar.gz' % cls.rest_api, cls.rest_api],
+                ['tar', '-cf', '%s.tar' % cls.rest_api, cls.rest_api],
                 cwd = cls.files_dir)
             proc.wait()
 
         if proc and proc.returncode == 0 and \
-            os.path.exists('%s.tar.gz' % cls.rest_api_dir):
+            os.path.exists('%s.tar' % cls.rest_api_dir):
             cls.tc.target.copy_to(
                 os.path.join(
                     os.path.dirname(__file__),
                                     'files',
-                                    '%s.tar.gz' % cls.rest_api),
-                '%s.tar.gz' % cls.target_rest_api_dir)
+                                    '%s.tar' % cls.rest_api),
+                '%s.tar' % cls.target_rest_api_dir)
             cls.tc.target.run('cd /tmp/; ' \
-                            'tar -xf %s.tar.gz -C %s/' % (
+                            'tar -xf %s.tar -C %s/' % (
                                 cls.target_rest_api_dir,
                                 os.path.dirname(cls.target_rest_api_dir))
                             )
@@ -109,12 +109,19 @@ class RESTAPITest(oeRuntimeTest):
                                     'files',
                                     'master.zip')
         if os.path.exists(cls.nodeunit_zip):
-            cls.tc.target.copy_to(cls.nodeunit_zip, '/tmp/master.zip')
+            #change nodeunit zip to tar
+            os.chdir(cls.files_dir)
+            os.system('unzip -oq %s; tar -cf master.tar nodeunit-master; rm -rf nodeunit-master' %\
+                (cls.nodeunit_zip)
+            )
+            cls.nodeunit_tar = os.path.join(cls.files_dir, 'master.tar')
+            cls.tc.target.copy_to(cls.nodeunit_tar, '/tmp/master.tar')
             cls.tc.target.run('cd /tmp/; ' \
-                            'unzip -oq master.zip;' \
+                            'tar -xf master.tar;' \
                             'chmod +x /tmp/nodeunit-master/bin/nodeunit'
                            )
 
+        cls.tc.target.run('/opt/iotivity/examples/resource/c/SimpleClientServer/ocserver -o 0')
         for api, api_js in cls.rest_api_js_files.items():
             cls.tc.target.run('cd %s; node %s' % (cls.target_rest_api_dir, api_js) )
 
@@ -1451,12 +1458,12 @@ class RESTAPITest(oeRuntimeTest):
         @return
         '''
 
-        if os.path.exists('%s.tar.gz' % cls.rest_api_dir):
-            os.remove('%s.tar.gz' % cls.rest_api_dir)
+        if os.path.exists('%s.tar' % cls.rest_api_dir):
+            os.remove('%s.tar' % cls.rest_api_dir)
         if os.path.exists(cls.nodeunit_zip):
             os.remove(cls.nodeunit_zip)
 
-        cls.tc.target.run('rm -f %s.tar.gz' % cls.target_rest_api_dir)
+        cls.tc.target.run('rm -f %s.tar' % cls.target_rest_api_dir)
         cls.tc.target.run('rm -fr %s/' % cls.target_rest_api_dir)
         cls.tc.target.run('rm -fr /tmp/nodeunit-master')
         cls.tc.target.run('rm -f /tmp/master.zip')

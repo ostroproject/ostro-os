@@ -15,9 +15,15 @@ FILESEXTRAPATHS_prepend := "${IMA_FILESEXTRAPATHS_${IMA_ENABLED_HERE}}"
 #
 # Patches are potentially kernel version specific. Only some tested kernel versions
 # are supported here. Currently they all work with the same patch file, though.
-IMA_EVM_SETATTR_PATCH_4.1.18 = "file://0001-ima-fix-ima_inode_post_setattr.patch"
-IMA_EVM_SETATTR_PATCH_4.1.15 = "file://0001-ima-fix-ima_inode_post_setattr.patch"
-IMA_EVM_SETATTR_PATCH_4.4.3 = "file://0001-ima-fix-ima_inode_post_setattr.patch"
+IMA_EVM_SETATTR_PATCH_4.1.18 = "file://0001-ima-fix-ima_inode_post_setattr.patch \
+                                file://0002-ima-add-support-for-creating-files-using-the-mknodat.patch \
+                               "
+IMA_EVM_SETATTR_PATCH_4.1.15 = "file://0001-ima-fix-ima_inode_post_setattr.patch \
+                                file://0002-ima-add-support-for-creating-files-using-the-mknodat.patch \
+                               "
+IMA_EVM_SETATTR_PATCH_4.4.3 = "file://0001-ima-fix-ima_inode_post_setattr.patch \
+                               file://0002-ima-add-support-for-creating-files-using-the-mknodat.patch \
+                              "
 
 # Kernel config fragment enabling IMA/EVM and (where necessary and possible)
 # also patching the kernel.
