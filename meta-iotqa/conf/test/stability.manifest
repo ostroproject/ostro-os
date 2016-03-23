@@ -1,2 +1,3 @@
 oeqa.runtime.wifi.comm_wifi_stability
 oeqa.runtime.bluetooth.comm_bt_stability
+oeqa.runtime.appfw.test_appfw_stability
