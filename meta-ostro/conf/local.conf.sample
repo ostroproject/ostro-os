@@ -112,9 +112,8 @@ PACKAGE_CLASSES ?= "package_ipk"
 #
 # Extra image configuration defaults
 #
-# The EXTRA_IMAGE_FEATURES variable allows extra packages to be added to the generated 
-# images. Some of these options are added to certain image types automatically. The
-# variable can contain the following options:
+# The OSTRO_EXTRA_IMAGE_FEATURES variable allows extra packages to be added to the
+# generated images. The variable can contain the following options:
 #  "dbg-pkgs"       - add -dbg packages for all installed packages
 #                     (adds symbol information for debugging/profiling)
 #  "dev-pkgs"       - add -dev packages for all installed packages
@@ -123,7 +122,6 @@ PACKAGE_CLASSES ?= "package_ipk"
 #                     (useful if you want to run the package test suites)
 #  "tools-sdk"      - add development tools (gcc, make, pkgconfig etc.)
 #  "tools-debug"    - add debugging tools (gdb, strace)
-#  "eclipse-debug"  - add Eclipse remote debugging support
 #  "tools-profile"  - add profiling tools (oprofile, exmap, lttng, valgrind)
 #  "tools-testapps" - add useful testing tools (ts_print, aplay, arecord etc.)
 #  "debug-tweaks"   - make an image suitable for development
@@ -131,7 +129,13 @@ PACKAGE_CLASSES ?= "package_ipk"
 # There are other application targets that can be used here too, see
 # meta/classes/image.bbclass,  meta/classes/core-image.bbclass and
 # meta-ostro/recipes-images/images/ostro-image.bb for more details.
-# EXTRA_IMAGE_FEATURES = "debug-tweaks"
+#
+# This variable is a derivative of the Yocto project EXTRA_IMAGE_FEATURES variable.
+# We do not recommend to use EXTRA_IMAGE_FEATURES as it will also add these packages
+# to the ostro-initramfs image which is most likely not the desired outcome.
+#
+# To use this variable, uncomment the following line and set it to what you want:
+# OSTRO_EXTRA_IMAGE_FEATURES = "dev-pkgs tools-sdk debug-tweaks"
 
 # By default, the root account has no password set and thus cannot
 # be logged into from outside. Local root access can be enabled
