@@ -1,7 +1,8 @@
 meta-swupd
 ==========
 
-OpenEmbedded meta layer for swupd software-update
+OpenEmbedded meta layer for swupd software-update. For information on how to
+best make use of this layer see HOWTO.md
 
 This layer depends on:
 
