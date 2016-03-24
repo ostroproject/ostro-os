@@ -10,7 +10,7 @@ from oeqa.utils.decorators import *
 from oeqa.utils.helper import get_files_dir
 
 
-@tag(TestType = 'FVT', FeatureID = 'IOTOS-416')
+@tag(TestType = 'FVT', FeatureID = 'IOTOS-416,IOTOS-418')
 class TestAppImpersonation(oeRuntimeTest):
     """
     Testing App impersonation prevention
@@ -74,3 +74,23 @@ class TestAppImpersonation(oeRuntimeTest):
 
         if skip:
             raise unittest.SkipTest("Application users not found")
+
+    def test_app_nonexistent_group(self):
+
+        service_file = "/run/systemd/generator/evil-bad-groups.service"
+        to_search = "SupplementaryGroups="
+        group1 = "nonexistent1"
+        group2 = "nonexistent2"
+
+        status, output = self.target.run("ls %s" %service_file)
+
+        if status != 0:
+            raise unittest.SkipTest("Application bad-groups-app not found")
+
+        status, output = self.target.run("grep %s %s" %(to_search,service_file))
+
+        self.assertNotIn(group1, output,
+                        "App was assigned to nonexistent group: %s" %group1)
+
+        self.assertNotIn(group1, output,
+                        "App was assigned to nonexistent group: %s" %group2)
