@@ -1,0 +1,21 @@
+{
+ "$schema": "http://solettaproject.github.io/soletta/schemas/config.schema",
+ "nodetypes": [
+  {
+     "name": "MyLightTsl2561",
+     "options": {
+           "iio_device": "tsl2561 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x39,tsl2561 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/light"
+  }
+  {
+     "name": "MyGyroMpu6050",
+     "options": {
+           "iio_device": "mpu6050 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x68,mpu6050 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/gyroscope"
+  }
+ ]
+}
