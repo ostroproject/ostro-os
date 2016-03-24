@@ -83,3 +83,7 @@ TestStep,,,,3,"apply update task using ""swupd_update -v -c"" and make sure upda
 TestStep,,,,4,"do ""swupd verify"" to check system is correct",check system should be in good status,,,,,,,
 TestScript,multilib_integration,SCM / Build Tools,check if the multilib can be built by ostro build environment,1,get the ostro-os git repo,,FVT,ready,IOTOS-716,,,,
 TestStep,,,,2,"add ""require conf/ostro-multilib.conf"" to your build/conf/local.conf, then build ostro-image",the ostro-image can be built successfully,,,,,,,
+TestScript,secure_boot_support,Security,check if Ostro supports secure boot,1,Create and sign certificates; install signing key to bios following the docs fom ostroproject/meta-ostro/blob/master/doc/howtos/uefi-secure-boot.rst,,FVT,ready,"IOTOS-409,IOTOS-410,IOTOS-411",,,,
+TestStep,,,,2,"Boot an unsigned image (default)", "image fails to boot: ""Invalid signature detected. Check Secure Boot Policy in Setup""",,,,,,,
+TestStep,,,,3,Sign an image with the initially generated key and try to boot the image,the ostro-image boots successfully,,,,,,,
+TestStep,,,,4,"Generate a new key and sign an image with the second key and try to boot the image","image fails to boot: ""Invalid signature detected. Check Secure Boot Policy in Setup""",,,,,,,
