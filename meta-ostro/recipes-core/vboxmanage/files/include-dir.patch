@@ -1,0 +1,885 @@
+Compiler scripts: Add Yocto include directory
+
+Signed-off-by: Erkka Kääriä <erkka.kaaria@intel.com>
+---
+ kBuild/tools/GCC.kmk        |  6 +++---
+ kBuild/tools/GCC3.kmk       | 10 +++++-----
+ kBuild/tools/GCC32.kmk      | 10 +++++-----
+ kBuild/tools/GCC3OMF.kmk    | 12 ++++++------
+ kBuild/tools/GCC3PLAIN.kmk  | 10 +++++-----
+ kBuild/tools/GCC42MACHO.kmk | 18 +++++++++---------
+ kBuild/tools/GCC4MACHO.kmk  | 18 +++++++++---------
+ kBuild/tools/GXX.kmk        |  6 +++---
+ kBuild/tools/GXX3.kmk       | 10 +++++-----
+ kBuild/tools/GXX32.kmk      | 10 +++++-----
+ kBuild/tools/GXX3OMF.kmk    | 12 ++++++------
+ kBuild/tools/GXX3PLAIN.kmk  | 10 +++++-----
+ kBuild/tools/GXX42MACHO.kmk | 18 +++++++++---------
+ kBuild/tools/GXX4MACHO.kmk  | 18 +++++++++---------
+ kBuild/tools/GXX64.kmk      | 10 +++++-----
+ 15 files changed, 89 insertions(+), 89 deletions(-)
+
+diff --git a/kBuild/tools/GCC.kmk b/kBuild/tools/GCC.kmk
+index 482e421..428f444 100644
+--- a/kBuild/tools/GCC.kmk
++++ b/kBuild/tools/GCC.kmk
+@@ -97,7 +97,7 @@ TOOL_GCC_COMPILE_C_DEPEND =
+ TOOL_GCC_COMPILE_C_DEPORD =
+ define TOOL_GCC_COMPILE_C_CMDS
+ 	$(QUIET)$(TOOL_GCC_CC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) \
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -123,7 +123,7 @@ TOOL_GCC_COMPILE_CXX_DEPEND =
+ TOOL_GCC_COMPILE_CXX_DEPORD =
+ define TOOL_GCC_COMPILE_CXX_CMDS
+ 	$(QUIET)$(TOOL_GCC_CXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) \
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -149,7 +149,7 @@ TOOL_GCC_COMPILE_AS_DEPEND =
+ TOOL_GCC_COMPILE_AS_DEPORD =
+ define TOOL_GCC_COMPILE_AS_CMDS
+ 	$(QUIET)$(TOOL_GCC_AS) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) \
+ 		-o $(obj)\
+ 		$(abspath $(source))
+diff --git a/kBuild/tools/GCC3.kmk b/kBuild/tools/GCC3.kmk
+index fd6c6b8..c9a16f0 100644
+--- a/kBuild/tools/GCC3.kmk
++++ b/kBuild/tools/GCC3.kmk
+@@ -127,7 +127,7 @@ define TOOL_GCC3_COMPILE_C_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).i\
+ 		$(TOOL_GCC3_CC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -141,7 +141,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC3_COMPILE_C_OUTPUT =
+ define TOOL_GCC3_COMPILE_C_CMDS
+ 	$(QUIET)$(TOOL_GCC3_CC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -171,7 +171,7 @@ define TOOL_GCC3_COMPILE_CXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GCC3_CXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -185,7 +185,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC3_COMPILE_CXX_OUTPUT =
+ define TOOL_GCC3_COMPILE_CXX_CMDS
+ 	$(QUIET)$(TOOL_GCC3_CXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -212,7 +212,7 @@ TOOL_GCC3_COMPILE_AS_DEPEND =
+ TOOL_GCC3_COMPILE_AS_DEPORD =
+ define TOOL_GCC3_COMPILE_AS_CMDS
+ 	$(QUIET)$(TOOL_GCC3_AS) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+diff --git a/kBuild/tools/GCC32.kmk b/kBuild/tools/GCC32.kmk
+index 595e78a..fc2b1fc 100644
+--- a/kBuild/tools/GCC32.kmk
++++ b/kBuild/tools/GCC32.kmk
+@@ -122,7 +122,7 @@ define TOOL_GCC32_COMPILE_C_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).i\
+ 		$(TOOL_GCC32_CC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -136,7 +136,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC32_COMPILE_C_OUTPUT =
+ define TOOL_GCC32_COMPILE_C_CMDS
+ 	$(QUIET)$(TOOL_GCC32_CC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -166,7 +166,7 @@ define TOOL_GCC32_COMPILE_CXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GCC32_CXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -181,7 +181,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC32_COMPILE_CXX_OUTPUT =
+ define TOOL_GCC32_COMPILE_CXX_CMDS
+ 	$(QUIET)$(TOOL_GCC32_CXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -208,7 +208,7 @@ TOOL_GCC32_COMPILE_AS_DEPEND =
+ TOOL_GCC32_COMPILE_AS_DEPORD =
+ define TOOL_GCC32_COMPILE_AS_CMDS
+ 	$(QUIET)$(TOOL_GCC32_AS) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+diff --git a/kBuild/tools/GCC3OMF.kmk b/kBuild/tools/GCC3OMF.kmk
+index e7a97e8..383b580 100644
+--- a/kBuild/tools/GCC3OMF.kmk
++++ b/kBuild/tools/GCC3OMF.kmk
+@@ -114,7 +114,7 @@ define TOOL_GCC3OMF_COMPILE_C_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).i\
+ 		$(TOOL_GCC3OMF_CC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -128,7 +128,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC3OMF_COMPILE_C_OUTPUT =
+ define TOOL_GCC3OMF_COMPILE_C_CMDS
+ 	$(QUIET)$(TOOL_GCC3OMF_CC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP \
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -159,7 +159,7 @@ define TOOL_GCC3OMF_COMPILE_CXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GCC3OMF_CXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -173,7 +173,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC3OMF_COMPILE_CXX_OUTPUT =
+ define TOOL_GCC3OMF_COMPILE_CXX_CMDS
+ 	$(QUIET)$(TOOL_GCC3OMF_CXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP \
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -200,7 +200,7 @@ TOOL_GCC3OMF_COMPILE_AS_DEPEND =
+ TOOL_GCC3OMF_COMPILE_AS_DEPORD =
+ define TOOL_GCC3OMF_COMPILE_AS_CMDS
+ 	$(QUIET)$(TOOL_GCC3OMF_AS) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -226,7 +226,7 @@ TOOL_GCC3OMF_COMPILE_RC_DEPEND =
+ TOOL_GCC3OMF_COMPILE_RC_DEPORD =
+ define TOOL_GCC3OMF_COMPILE_RC_CMDS
+ 	$(QUIET)$(REDIRECT) -E 'INCLUDE=' -- $(TOOL_GCC3OMF_RC) -r \
+-		$(flags) $(addprefix -i, $(subst /,\\,$(subst /@unixroot,$(UNIXROOT),$(incs)))) $(addprefix -d, $(defs))\
++		$(flags) $(addprefix -i, $(subst /,\\,$(subst /@unixroot,$(UNIXROOT),$(incs)) -I${includedir})) $(addprefix -d, $(defs))\
+ 		$(subst /,\\,$(abspath $(source))) \
+ 		$(obj)
+ endef
+diff --git a/kBuild/tools/GCC3PLAIN.kmk b/kBuild/tools/GCC3PLAIN.kmk
+index 0793f83..cad9324 100644
+--- a/kBuild/tools/GCC3PLAIN.kmk
++++ b/kBuild/tools/GCC3PLAIN.kmk
+@@ -114,7 +114,7 @@ define TOOL_GCC3PLAIN_COMPILE_C_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).i\
+ 		$(TOOL_GCC3PLAIN_CC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -128,7 +128,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC3PLAIN_COMPILE_C_OUTPUT =
+ define TOOL_GCC3PLAIN_COMPILE_C_CMDS
+ 	$(QUIET)$(TOOL_GCC3PLAIN_CC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -158,7 +158,7 @@ define TOOL_GCC3PLAIN_COMPILE_CXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GCC3PLAIN_CXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -172,7 +172,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC3PLAIN_COMPILE_CXX_OUTPUT =
+ define TOOL_GCC3PLAIN_COMPILE_CXX_CMDS
+ 	$(QUIET)$(TOOL_GCC3PLAIN_CXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -199,7 +199,7 @@ TOOL_GCC3PLAIN_COMPILE_AS_DEPEND =
+ TOOL_GCC3PLAIN_COMPILE_AS_DEPORD =
+ define TOOL_GCC3PLAIN_COMPILE_AS_CMDS
+ 	$(QUIET)$(TOOL_GCC3PLAIN_AS) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+diff --git a/kBuild/tools/GCC42MACHO.kmk b/kBuild/tools/GCC42MACHO.kmk
+index d0f0a31..618ac75 100644
+--- a/kBuild/tools/GCC42MACHO.kmk
++++ b/kBuild/tools/GCC42MACHO.kmk
+@@ -161,7 +161,7 @@ define TOOL_GCC42MACHO_COMPILE_C_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).i\
+ 		$(TOOL_GCC42MACHO_CC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -175,7 +175,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC42MACHO_COMPILE_C_OUTPUT =
+ define TOOL_GCC42MACHO_COMPILE_C_CMDS
+ 	$(QUIET)$(TOOL_GCC42MACHO_CC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -205,7 +205,7 @@ define TOOL_GCC42MACHO_COMPILE_CXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GCC42MACHO_CXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -219,7 +219,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC42MACHO_COMPILE_CXX_OUTPUT =
+ define TOOL_GCC42MACHO_COMPILE_CXX_CMDS
+ 	$(QUIET)$(TOOL_GCC42MACHO_CXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -249,7 +249,7 @@ define TOOL_GCC42MACHO_COMPILE_OBJC_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GCC42MACHO_OBJC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -263,7 +263,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC42MACHO_COMPILE_OBJC_OUTPUT =
+ define TOOL_GCC42MACHO_COMPILE_OBJC_CMDS
+ 	$(QUIET)$(TOOL_GCC42MACHO_OBJC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -293,7 +293,7 @@ define TOOL_GCC42MACHO_COMPILE_OBJCXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).mii\
+ 		$(TOOL_GCC42MACHO_OBJCXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -307,7 +307,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC42MACHO_COMPILE_OBJCXX_OUTPUT =
+ define TOOL_GCC42MACHO_COMPILE_OBJCXX_CMDS
+ 	$(QUIET)$(TOOL_GCC42MACHO_OBJCXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -334,7 +334,7 @@ TOOL_GCC42MACHO_COMPILE_AS_DEPEND =
+ TOOL_GCC42MACHO_COMPILE_AS_DEPORD =
+ define TOOL_GCC42MACHO_COMPILE_AS_CMDS
+ 	$(QUIET)$(TOOL_GCC42MACHO_AS) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+diff --git a/kBuild/tools/GCC4MACHO.kmk b/kBuild/tools/GCC4MACHO.kmk
+index 307e2b1..2a0c91f 100644
+--- a/kBuild/tools/GCC4MACHO.kmk
++++ b/kBuild/tools/GCC4MACHO.kmk
+@@ -161,7 +161,7 @@ define TOOL_GCC4MACHO_COMPILE_C_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).i\
+ 		$(TOOL_GCC4MACHO_CC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -175,7 +175,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC4MACHO_COMPILE_C_OUTPUT =
+ define TOOL_GCC4MACHO_COMPILE_C_CMDS
+ 	$(QUIET)$(TOOL_GCC4MACHO_CC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -205,7 +205,7 @@ define TOOL_GCC4MACHO_COMPILE_CXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GCC4MACHO_CXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -219,7 +219,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC4MACHO_COMPILE_CXX_OUTPUT =
+ define TOOL_GCC4MACHO_COMPILE_CXX_CMDS
+ 	$(QUIET)$(TOOL_GCC4MACHO_CXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -249,7 +249,7 @@ define TOOL_GCC4MACHO_COMPILE_OBJC_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GCC4MACHO_OBJC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -263,7 +263,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC4MACHO_COMPILE_OBJC_OUTPUT =
+ define TOOL_GCC4MACHO_COMPILE_OBJC_CMDS
+ 	$(QUIET)$(TOOL_GCC4MACHO_OBJC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -293,7 +293,7 @@ define TOOL_GCC4MACHO_COMPILE_OBJCXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).mii\
+ 		$(TOOL_GCC4MACHO_OBJCXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -307,7 +307,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GCC4MACHO_COMPILE_OBJCXX_OUTPUT =
+ define TOOL_GCC4MACHO_COMPILE_OBJCXX_CMDS
+ 	$(QUIET)$(TOOL_GCC4MACHO_OBJCXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -334,7 +334,7 @@ TOOL_GCC4MACHO_COMPILE_AS_DEPEND =
+ TOOL_GCC4MACHO_COMPILE_AS_DEPORD =
+ define TOOL_GCC4MACHO_COMPILE_AS_CMDS
+ 	$(QUIET)$(TOOL_GCC4MACHO_AS) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+diff --git a/kBuild/tools/GXX.kmk b/kBuild/tools/GXX.kmk
+index c543238..3f7c396 100644
+--- a/kBuild/tools/GXX.kmk
++++ b/kBuild/tools/GXX.kmk
+@@ -97,7 +97,7 @@ TOOL_GXX_COMPILE_C_DEPEND =
+ TOOL_GXX_COMPILE_C_DEPORD =
+ define TOOL_GXX_COMPILE_C_CMDS
+ 	$(QUIET)$(TOOL_GXX_CC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) \
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -123,7 +123,7 @@ TOOL_GXX_COMPILE_CXX_DEPEND =
+ TOOL_GXX_COMPILE_CXX_DEPORD =
+ define TOOL_GXX_COMPILE_CXX_CMDS
+ 	$(QUIET)$(TOOL_GXX_CXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) \
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -149,7 +149,7 @@ TOOL_GXX_COMPILE_AS_DEPEND =
+ TOOL_GXX_COMPILE_AS_DEPORD =
+ define TOOL_GXX_COMPILE_AS_CMDS
+ 	$(QUIET)$(TOOL_GXX_AS) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) \
+ 		-o $(obj)\
+ 		$(abspath $(source))
+diff --git a/kBuild/tools/GXX3.kmk b/kBuild/tools/GXX3.kmk
+index 64cbd1d..8664c8a 100644
+--- a/kBuild/tools/GXX3.kmk
++++ b/kBuild/tools/GXX3.kmk
+@@ -127,7 +127,7 @@ define TOOL_GXX3_COMPILE_C_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).i\
+ 		$(TOOL_GXX3_CC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -141,7 +141,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX3_COMPILE_C_OUTPUT =
+ define TOOL_GXX3_COMPILE_C_CMDS
+ 	$(QUIET)$(TOOL_GXX3_CC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -171,7 +171,7 @@ define TOOL_GXX3_COMPILE_CXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GXX3_CXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -185,7 +185,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX3_COMPILE_CXX_OUTPUT =
+ define TOOL_GXX3_COMPILE_CXX_CMDS
+ 	$(QUIET)$(TOOL_GXX3_CXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -212,7 +212,7 @@ TOOL_GXX3_COMPILE_AS_DEPEND =
+ TOOL_GXX3_COMPILE_AS_DEPORD =
+ define TOOL_GXX3_COMPILE_AS_CMDS
+ 	$(QUIET)$(TOOL_GXX3_AS) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+diff --git a/kBuild/tools/GXX32.kmk b/kBuild/tools/GXX32.kmk
+index 49463d2..8e4b225 100644
+--- a/kBuild/tools/GXX32.kmk
++++ b/kBuild/tools/GXX32.kmk
+@@ -122,7 +122,7 @@ define TOOL_GXX32_COMPILE_C_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).i\
+ 		$(TOOL_GXX32_CC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -136,7 +136,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX32_COMPILE_C_OUTPUT =
+ define TOOL_GXX32_COMPILE_C_CMDS
+ 	$(QUIET)$(TOOL_GXX32_CC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -166,7 +166,7 @@ define TOOL_GXX32_COMPILE_CXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GXX32_CXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -180,7 +180,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX32_COMPILE_CXX_OUTPUT =
+ define TOOL_GXX32_COMPILE_CXX_CMDS
+ 	$(QUIET)$(TOOL_GXX32_CXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -207,7 +207,7 @@ TOOL_GXX32_COMPILE_AS_DEPEND =
+ TOOL_GXX32_COMPILE_AS_DEPORD =
+ define TOOL_GXX32_COMPILE_AS_CMDS
+ 	$(QUIET)$(TOOL_GXX32_AS) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+diff --git a/kBuild/tools/GXX3OMF.kmk b/kBuild/tools/GXX3OMF.kmk
+index f54b775..b71f5e3 100644
+--- a/kBuild/tools/GXX3OMF.kmk
++++ b/kBuild/tools/GXX3OMF.kmk
+@@ -114,7 +114,7 @@ define TOOL_GXX3OMF_COMPILE_C_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).i\
+ 		$(TOOL_GXX3OMF_CC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -128,7 +128,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX3OMF_COMPILE_C_OUTPUT =
+ define TOOL_GXX3OMF_COMPILE_C_CMDS
+ 	$(QUIET)$(TOOL_GXX3OMF_CC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP \
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -159,7 +159,7 @@ define TOOL_GXX3OMF_COMPILE_CXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GXX3OMF_CXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -173,7 +173,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX3OMF_COMPILE_CXX_OUTPUT =
+ define TOOL_GXX3OMF_COMPILE_CXX_CMDS
+ 	$(QUIET)$(TOOL_GXX3OMF_CXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP \
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -200,7 +200,7 @@ TOOL_GXX3OMF_COMPILE_AS_DEPEND =
+ TOOL_GXX3OMF_COMPILE_AS_DEPORD =
+ define TOOL_GXX3OMF_COMPILE_AS_CMDS
+ 	$(QUIET)$(TOOL_GXX3OMF_AS) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -226,7 +226,7 @@ TOOL_GXX3OMF_COMPILE_RC_DEPEND =
+ TOOL_GXX3OMF_COMPILE_RC_DEPORD =
+ define TOOL_GXX3OMF_COMPILE_RC_CMDS
+ 	$(QUIET)$(REDIRECT) -E 'INCLUDE=' -- $(TOOL_GXX3OMF_RC) -r \
+-		$(flags) $(addprefix -i, $(subst /,\\,$(subst /@unixroot,$(UNIXROOT),$(incs)))) $(addprefix -d, $(defs))\
++		$(flags) $(addprefix -i, $(subst /,\\,$(subst /@unixroot,$(UNIXROOT),$(incs)) -I${includedir})) $(addprefix -d, $(defs))\
+ 		$(subst /,\\,$(abspath $(source))) \
+ 		$(obj)
+ endef
+diff --git a/kBuild/tools/GXX3PLAIN.kmk b/kBuild/tools/GXX3PLAIN.kmk
+index 92ab12b..fd3d7f5 100644
+--- a/kBuild/tools/GXX3PLAIN.kmk
++++ b/kBuild/tools/GXX3PLAIN.kmk
+@@ -114,7 +114,7 @@ define TOOL_GXX3PLAIN_COMPILE_C_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).i\
+ 		$(TOOL_GXX3PLAIN_CC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -128,7 +128,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX3PLAIN_COMPILE_C_OUTPUT =
+ define TOOL_GXX3PLAIN_COMPILE_C_CMDS
+ 	$(QUIET)$(TOOL_GXX3PLAIN_CC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -158,7 +158,7 @@ define TOOL_GXX3PLAIN_COMPILE_CXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GXX3PLAIN_CXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -172,7 +172,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX3PLAIN_COMPILE_CXX_OUTPUT =
+ define TOOL_GXX3PLAIN_COMPILE_CXX_CMDS
+ 	$(QUIET)$(TOOL_GXX3PLAIN_CXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -199,7 +199,7 @@ TOOL_GXX3PLAIN_COMPILE_AS_DEPEND =
+ TOOL_GXX3PLAIN_COMPILE_AS_DEPORD =
+ define TOOL_GXX3PLAIN_COMPILE_AS_CMDS
+ 	$(QUIET)$(TOOL_GXX3PLAIN_AS) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+diff --git a/kBuild/tools/GXX42MACHO.kmk b/kBuild/tools/GXX42MACHO.kmk
+index df2077b..79a273f 100644
+--- a/kBuild/tools/GXX42MACHO.kmk
++++ b/kBuild/tools/GXX42MACHO.kmk
+@@ -161,7 +161,7 @@ define TOOL_GXX42MACHO_COMPILE_C_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).i\
+ 		$(TOOL_GXX42MACHO_CC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -175,7 +175,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX42MACHO_COMPILE_C_OUTPUT =
+ define TOOL_GXX42MACHO_COMPILE_C_CMDS
+ 	$(QUIET)$(TOOL_GXX42MACHO_CC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -205,7 +205,7 @@ define TOOL_GXX42MACHO_COMPILE_CXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GXX42MACHO_CXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -219,7 +219,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX42MACHO_COMPILE_CXX_OUTPUT =
+ define TOOL_GXX42MACHO_COMPILE_CXX_CMDS
+ 	$(QUIET)$(TOOL_GXX42MACHO_CXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -249,7 +249,7 @@ define TOOL_GXX42MACHO_COMPILE_OBJC_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GXX42MACHO_OBJC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -263,7 +263,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX42MACHO_COMPILE_OBJC_OUTPUT =
+ define TOOL_GXX42MACHO_COMPILE_OBJC_CMDS
+ 	$(QUIET)$(TOOL_GXX42MACHO_OBJC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -293,7 +293,7 @@ define TOOL_GXX42MACHO_COMPILE_OBJCXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).mii\
+ 		$(TOOL_GXX42MACHO_OBJCXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -307,7 +307,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX42MACHO_COMPILE_OBJCXX_OUTPUT =
+ define TOOL_GXX42MACHO_COMPILE_OBJCXX_CMDS
+ 	$(QUIET)$(TOOL_GXX42MACHO_OBJCXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -334,7 +334,7 @@ TOOL_GXX42MACHO_COMPILE_AS_DEPEND =
+ TOOL_GXX42MACHO_COMPILE_AS_DEPORD =
+ define TOOL_GXX42MACHO_COMPILE_AS_CMDS
+ 	$(QUIET)$(TOOL_GXX42MACHO_AS) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+diff --git a/kBuild/tools/GXX4MACHO.kmk b/kBuild/tools/GXX4MACHO.kmk
+index a3df1d5..a455d56 100644
+--- a/kBuild/tools/GXX4MACHO.kmk
++++ b/kBuild/tools/GXX4MACHO.kmk
+@@ -161,7 +161,7 @@ define TOOL_GXX4MACHO_COMPILE_C_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).i\
+ 		$(TOOL_GXX4MACHO_CC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -175,7 +175,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX4MACHO_COMPILE_C_OUTPUT =
+ define TOOL_GXX4MACHO_COMPILE_C_CMDS
+ 	$(QUIET)$(TOOL_GXX4MACHO_CC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -205,7 +205,7 @@ define TOOL_GXX4MACHO_COMPILE_CXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GXX4MACHO_CXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -219,7 +219,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX4MACHO_COMPILE_CXX_OUTPUT =
+ define TOOL_GXX4MACHO_COMPILE_CXX_CMDS
+ 	$(QUIET)$(TOOL_GXX4MACHO_CXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -249,7 +249,7 @@ define TOOL_GXX4MACHO_COMPILE_OBJC_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GXX4MACHO_OBJC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -263,7 +263,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX4MACHO_COMPILE_OBJC_OUTPUT =
+ define TOOL_GXX4MACHO_COMPILE_OBJC_CMDS
+ 	$(QUIET)$(TOOL_GXX4MACHO_OBJC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -293,7 +293,7 @@ define TOOL_GXX4MACHO_COMPILE_OBJCXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).mii\
+ 		$(TOOL_GXX4MACHO_OBJCXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -307,7 +307,7 @@ else  # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX4MACHO_COMPILE_OBJCXX_OUTPUT =
+ define TOOL_GXX4MACHO_COMPILE_OBJCXX_CMDS
+ 	$(QUIET)$(TOOL_GXX4MACHO_OBJCXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -334,7 +334,7 @@ TOOL_GXX4MACHO_COMPILE_AS_DEPEND =
+ TOOL_GXX4MACHO_COMPILE_AS_DEPORD =
+ define TOOL_GXX4MACHO_COMPILE_AS_CMDS
+ 	$(QUIET)$(TOOL_GXX4MACHO_AS) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+diff --git a/kBuild/tools/GXX64.kmk b/kBuild/tools/GXX64.kmk
+index 03973fc..b1abc3f 100644
+--- a/kBuild/tools/GXX64.kmk
++++ b/kBuild/tools/GXX64.kmk
+@@ -122,7 +122,7 @@ define TOOL_GXX64_COMPILE_C_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).i\
+ 		$(TOOL_GXX64_CC) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -136,7 +136,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX64_COMPILE_C_OUTPUT =
+ define TOOL_GXX64_COMPILE_C_CMDS
+ 	$(QUIET)$(TOOL_GXX64_CC) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -166,7 +166,7 @@ define TOOL_GXX64_COMPILE_CXX_CMDS
+ 	$(QUIET)$(KOBJCACHE) -f $(outbase).koc -d $(PATH_OBJCACHE) -t $(bld_trg).$(bld_trg_arch) -p\
+ 		--kObjCache-cpp $(outbase).ii\
+ 		$(TOOL_GXX64_CXX) -E -o -\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		$(abspath $(source))\
+ 		--kObjCache-cc $(obj)\
+@@ -180,7 +180,7 @@ else # !KBUILD_USE_KOBJCACHE
+ TOOL_GXX64_COMPILE_CXX_OUTPUT =
+ define TOOL_GXX64_COMPILE_CXX_CMDS
+ 	$(QUIET)$(TOOL_GXX64_CXX) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+@@ -207,7 +207,7 @@ TOOL_GXX64_COMPILE_AS_DEPEND =
+ TOOL_GXX64_COMPILE_AS_DEPORD =
+ define TOOL_GXX64_COMPILE_AS_CMDS
+ 	$(QUIET)$(TOOL_GXX64_AS) -c\
+-		$(flags) $(addprefix -I, $(incs)) $(addprefix -D, $(defs))\
++		$(flags) $(addprefix -I, $(incs)) -I${includedir} $(addprefix -D, $(defs))\
+ 		-Wp,-MD,$(dep) -Wp,-MT,$(obj) -Wp,-MP\
+ 		-o $(obj)\
+ 		$(abspath $(source))
+-- 
+1.9.1
+
