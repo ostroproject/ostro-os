@@ -1,0 +1,87 @@
+# 
+# author Lei Yang <lei.a.yang@intel.com>
+timer(timer:interval=1000)
+quittimer(timer:interval=1800000)
+
+# boolean
+true(constant/boolean:value=true)
+true OUT -> IN[0] bool_and(boolean/and)
+timer OUT -> IN _(boolean/toggle:initial_state=true) OUT -> IN[1] bool_and
+
+# color
+Bytes(converter/rgb-to-int)
+_(constant/int:value=255) OUT -> DIVISOR ColorValue(int/modulo)
+timer OUT -> IN _(random/int) OUT -> DIVIDEND ColorValue OUT -> IN _(color/luminance-rgb:color=255|100|0|255|255|255) OUT -> IN Bytes 
+Bytes RED -> IN _(console)
+Bytes GREEN -> IN _(console)
+Bytes BLUE -> IN _(console)
+
+# string
+#ToStr(coverter/byte-to-string)
+HelloWorld(constant/string:value="HelloWorld") OUT -> IN[0] StrConcat(string/concatenate) 
+StrComp(string/compare)
+HelloWorld OUT -> IN[0] StrComp
+timer OUT -> IN _(converter/empty-to-string) OUT -> IN[1] StrConcat OUT -> IN[1] StrComp OUT -> IN _(console)
+
+timer OUT -> IN _(converter/empty-to-string) OUT -> IN[1] StrConcat OUT -> IN _(string/length) OUT -> IN _(console)
+timer OUT -> IN _(converter/empty-to-string) OUT -> IN[1] StrConcat OUT -> IN _(string/lowercase) OUT -> IN _(console)
+timer OUT -> IN _(converter/empty-to-string) OUT -> IN[1] StrConcat OUT -> IN _(string/uppercase) OUT -> IN _(console)
+timer OUT -> GENERATE _(string/uuid) OUT -> IN _(console)
+ReplaceStr(string/replace)
+_(constant/string:value="World") OUT -> FROM ReplaceStr
+_(constant/string:value="Buddy") OUT -> TO ReplaceStr
+_(constant/int:value=0) OUT -> MAX_REPLACE ReplaceStr
+timer OUT -> IN _(converter/empty-to-string) OUT -> IN[1] StrConcat OUT -> IN ReplaceStr OUT -> IN _(console)
+timer OUT -> IN _(converter/empty-to-string) OUT -> IN[1] StrConcat OUT -> STRING _(string/b16encode) OUT -> IN _(console)
+timer OUT -> IN _(converter/empty-to-string) OUT -> IN[1] StrConcat OUT -> STRING _(string/b64encode) OUT -> IN _(console)
+
+# float
+Pi(constant/float:value=3.14)
+zero-dot-five(constant/float:value=0.5)
+nine-dot-ninty-nine(constant/float:value=9.99)
+zero-dot-five OUT -> OPERAND[0] f_add_zerodotfive(float/addition)
+nine-dot-ninty-nine OUT -> OPERAND[0] f_multiple_ninedotnintynine(float/multiplication)
+Pi OUT -> SUBTRAHEND f_minus_pi(float/subtraction)
+timer OUT -> IN _(converter/empty-to-float) OUT -> OPERAND[1] f_add_zerodotfive OUT -> IN _(console)
+timer OUT -> IN _(converter/empty-to-float) OUT -> OPERAND[1] f_multiple_ninedotnintynine OUT -> IN _(console)
+timer OUT -> IN _(converter/empty-to-float) OUT -> MINUEND f_minus_pi OUT -> IN _(console)
+timer OUT -> IN _(converter/empty-to-float) OUT -> MINUEND f_minus_pi OUT -> IN _(float/abs) OUT -> IN _(console)
+
+# file and blob
+Acc1(int/accumulator:setup_value=min:1|max:5|step:1)
+Acc2(int/accumulator:setup_value=min:6|max:10|step:1)
+freader(file/reader)
+fwriter(file/writer:path="write-file.txt")
+
+blob_validator(test/blob-validator:expected="test data")
+timer OUT -> INC Acc1 OUT -> IN _(converter/int-to-string) OUT -> PATH freader OUT -> IN _(console)
+timer OUT -> INC Acc2 OUT -> IN _(converter/int-to-string) OUT -> IN _(converter/string-to-blob) OUT ->  IN fwriter DONE -> IN _(console)
+
+# json
+JsonAcc1(int/accumulator:setup_value=min:0|max:100|step:1)
+JsonAcc2(int/accumulator:setup_value=min:0|max:100|step:1)
+create_json_obj(json/create-object)
+create_json_array(json/create-array)
+timer OUT -> INC JsonAcc1 OUT -> IN _(converter/int-to-string) OUT -> NULL create_json_obj 
+timer OUT -> INC JsonAcc2 OUT -> IN _(converter/int-to-string) OUT -> NULL create_json_array
+
+# random
+Compare(int/greater)
+_(constant/int:value=0) OUT -> IN[0] Compare
+timer OUT -> IN _(random/int) OUT -> IN _(console)
+timer OUT -> IN _(random/int) OUT -> IN[1] Compare OUT -> IN _(console)
+
+# timestamp
+timer OUT -> TRIGGER _(timestamp/time) OUT -> IN _(converter/timestamp-to-string) OUT -> IN _(console)
+timer OUT -> TRIGGER _(timestamp/time) OUT -> IN the_time(timestamp/split-time) 
+the_time YEAR -> IN _(console)
+the_time MONTH -> IN _(console)
+the_time MONTH_DAY -> IN _(console)
+the_time HOUR -> IN _(console)
+the_time MINUTE -> IN _(console)
+the_time SECOND -> IN _(console)
+the_time WEEK_DAY -> IN _(console)
+the_time YEAR_DAY -> IN _(console)
+
+# quit app
+quittimer OUT -> QUIT _(app/quit)
