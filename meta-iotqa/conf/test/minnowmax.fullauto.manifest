@@ -21,7 +21,6 @@ oeqa.runtime.security.dac_config
 oeqa.runtime.security.firewall_rules
 oeqa.runtime.ima 
 oeqa.runtime.security.openssl
-oeqa.runtime.sanity.reboot
 oeqa.runtime.zigbee.comm_zigbee_basic
 oeqa.runtime.zigbee.comm_zigbee_cc2520
 oeqa.runtime.zigbee.comm_zigbee_mnode

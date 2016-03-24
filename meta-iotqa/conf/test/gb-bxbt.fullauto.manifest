@@ -25,4 +25,3 @@ oeqa.runtime.security.firewall_rules
 oeqa.runtime.ima
 oeqa.runtime.security.openssl
 oeqa.runtime.wifi.comm_wifi_connect
-oeqa.runtime.sanity.reboot

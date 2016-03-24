@@ -25,6 +25,5 @@ oeqa.runtime.security.firewall_rules
 oeqa.runtime.ima  
 oeqa.runtime.security.openssl
 oeqa.runtime.wifi.comm_wifi_connect_7260
-oeqa.runtime.sanity.reboot
 oeqa.runtime.zigbee.comm_zigbee_basic
 oeqa.runtime.zigbee.comm_zigbee_mnode
