@@ -1,0 +1,6 @@
+#!/bin/sh
+while true
+do  
+    echo 'Hello Ostro!'
+    sleep 10
+done

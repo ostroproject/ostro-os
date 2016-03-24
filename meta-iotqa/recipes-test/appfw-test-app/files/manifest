@@ -1,0 +1,17 @@
+{
+    "application": "commonapp",
+    "description": "Common AppFW Test App",
+    "provider": "appfwtest",
+    "groups": "appfwtest-commonapp",
+    "environment": {
+        "KEY1": "value1",
+        "KEY2": "value2",
+    },
+    "command": [ "/bin/wrapperapp" ],
+    "autostart": "false",
+     "container": {
+        "type": "nspawn",
+        "network": "VirtualEthernet",
+        "sharedsystem": false,
+    },
+}

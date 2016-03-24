@@ -8,4 +8,5 @@ RDEPENDS_${PN} = " \
     example-app-node \
     example-app-python \
     bad-groups-app \
+    appfw-test-app \
 "
