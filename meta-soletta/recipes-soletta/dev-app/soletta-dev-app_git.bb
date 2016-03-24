@@ -20,20 +20,22 @@ PACKAGES = " \
 	${PN} \
 "
 
+inherit systemd
+
 INSTALLATION_PATH = "/opt/"
 SYSTEMD_PATH = "${systemd_unitdir}/system/"
-AUTOSTART_SYSTEMD_PATH = "/etc/systemd/system/multi-user.target.wants/"
 AVAHI_SERVICE = "/etc/avahi/services/"
 
 FILES_${PN} += " \
     ${INSTALLATION_PATH}soletta-dev-app \
     ${SYSTEMD_PATH}soletta-dev-app-server.service \
     ${SYSTEMD_PATH}fbp-runner@.service \
-    ${AUTOSTART_SYSTEMD_PATH}soletta-dev-app-server.service \
     ${AVAHI_SERVICE}soletta-dev-app.service \
     ${SYSTEMD_PATH}soletta-dev-app-avahi-discover.service \
     /soletta-dev-app/scripts/soletta-dev-app-mac.sh \
 "
+
+SYSTEMD_SERVICE_${PN} = "soletta-dev-app-server.service soletta-dev-app-avahi-discover.service"
 
 do_compile() {
 
@@ -101,19 +103,13 @@ do_install() {
   sed -i "s@PATH@"${INSTALLATION_PATH}soletta-dev-app"@" ${D}${SYSTEMD_PATH}soletta-dev-app-server.service
   sed -i "s@"NODE_BIN_NAME"@"node"@" ${D}${SYSTEMD_PATH}soletta-dev-app-server.service
 
-  #Autostart soletta-dev-app-server service
-  install -d ${D}${AUTOSTART_SYSTEMD_PATH}
-  ln -sf ${SYSTEMD_PATH}soletta-dev-app-server.service ${D}${AUTOSTART_SYSTEMD_PATH}soletta-dev-app-server.service
-
   #Configure avahi to discover Soletta Dev App server
   install -d ${D}${AVAHI_SERVICE}
   install -m 0664 ${WORKDIR}/soletta-dev-app.service ${D}${AVAHI_SERVICE}
 
   #Configure services that will set MAC address to Soletta Dev-App name
   install -m 0664 ${WORKDIR}/soletta-dev-app-avahi-discover.service ${D}${SYSTEMD_PATH}
-  ln -sf ${SYSTEMD_PATH}soletta-dev-app-avahi-discover.service ${D}${AUTOSTART_SYSTEMD_PATH}
 
  #Install set MAC address script
  install  -m 0755 ${WORKDIR}/soletta-dev-app-mac.sh ${D}${INSTALLATION_PATH}soletta-dev-app/scripts/
-
 }
