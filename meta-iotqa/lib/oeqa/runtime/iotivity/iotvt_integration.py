@@ -55,6 +55,19 @@ class IOtvtIntegration(oeRuntimeTest):
         '''
         remove_user("iotivity-tester")
 
+    def get_ipv6(self):
+        """
+        @fn get_ipv6
+        @param self
+        @return
+        """
+        time.sleep(1)
+        # Check ip address by ifconfig command
+        interface = "nothing"
+        (status, interface) = self.target.run("ifconfig | grep '^enp' | awk '{print $1}'")
+        (status, output) = self.target.run("ifconfig %s | grep 'inet6 addr:' | awk '{print $3}'" % interface)
+        return output.split('%')[0]
+
     def presence_check(self, para):
         '''this is a function used by presence test
         @fn presence_check
@@ -69,11 +82,12 @@ class IOtvtIntegration(oeRuntimeTest):
         client_cmd = "/opt/iotivity/examples/resource/cpp/presenceclient -t %d > /tmp/output &" % para
         run_as("iotivity-tester", client_cmd)
         # Some platform is too slow, it needs more time to sleep. E.g. MinnowMax
-        time.sleep(25)
+        time.sleep(60)
         (status, output) = run_as("iotivity-tester", "cat /tmp/output")
         self.target.run("killall presenceserver presenceclient") 
         time.sleep(3)
-        return output.count("Received presence notification from")
+        return output.count("Received presence notification from : %s" % self.target.ip) + \
+               output.count("Received presence notification from : %s" % self.get_ipv6())
 
     def test_devicediscovery(self):
         '''
