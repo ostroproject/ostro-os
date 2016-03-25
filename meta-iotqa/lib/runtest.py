@@ -66,6 +66,7 @@ class TestContext(object):
 class RuntestTestContext(OETestContext):
     def __init__(self, tc):
         d = tc.d
+        self.targets = tc.targets
         super(RuntestTestContext, self).__init__(d)
         self.pkgmanifest = tc.pkgmanifest
         self.target = tc.target
