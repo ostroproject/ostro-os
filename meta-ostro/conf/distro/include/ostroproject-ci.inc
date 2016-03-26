@@ -38,6 +38,24 @@ require conf/distro/include/ostro-os-development.inc
 # (those using U-Boot: edison and beaglebone)
 OSTRO_VM_IMAGE_TYPES = "dsk.xz dsk.zip dsk.vdi.zip dsk.bmap dsk.xz.sha256sum dsk.vdi.zip.sha256sum"
 
+do_swupd_update_prepend () {
+    # The CI testing setup only knows about testing "ostro-image".
+    # Provide a symlink to the real image that we want to have
+    # tested, which is ostro-image-swupd-dev.
+    if [ "${PN}" = "ostro-image-swupd" ]; then
+        bbwarn "Setting up ostro-image CI testing compatibility links"
+        for i in '${IMAGE_NAME}.dsk.xz' '${IMAGE_NAME}-disk-layout.json' '${PN}-beaglebone.tar.bz2' '${PN}-edison.toflash.tar.bz2'; do
+            if echo $i | grep -q ${MACHINE}; then
+                target=$(echo $i | sed -e 's/${PN}-/${PN}-dev-/')
+                link=$(echo $i | sed -e 's/${PN}-/ostro-image-/')
+                bbwarn "symlink ${DEPLOY_DIR_IMAGE}/$link -> $target"
+                mkdir -p "${DEPLOY_DIR_IMAGE}"
+                ln -s "$target" "${DEPLOY_DIR_IMAGE}/$link"
+            fi
+        done
+    fi
+}
+
 #
 # Automated build targets
 # Those targets should be space separated list of items,
