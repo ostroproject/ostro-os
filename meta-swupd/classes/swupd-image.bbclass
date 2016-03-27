@@ -237,6 +237,20 @@ def swupd_create_rootfs(d):
     # Prune the items not in the manifest
     remove_unlisted_files_from_directory(rootfs_contents, rootfs)
 
+    # Create .rootfs.manifest for bundle images as the union of all
+    # contained bundles. Otherwise the image wouldn't have that file,
+    # which breaks certain image types ("toflash" in the Edison BSP)
+    # and utility classes (like isafw.bbclass).
+    if imageext:
+        packages = set()
+        manifest = d.getVar('IMAGE_MANIFEST', True)
+        for bundle in imagebundles:
+            bundlemanifest = manifest.replace(pn, 'bundle-%s-%s' % (pn_base, bundle))
+            with open(bundlemanifest) as f:
+                 packages.update(f.readlines())
+        with open(manifest, 'w') as f:
+            f.writelines(sorted(packages))
+
 do_image_append () {
     swupd_create_rootfs(d)
 }
