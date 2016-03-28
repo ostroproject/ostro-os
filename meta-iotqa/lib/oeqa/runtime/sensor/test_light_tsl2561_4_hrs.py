@@ -50,7 +50,7 @@ class TestLightTsl2561FourHrs(oeRuntimeTest):
                          "touch /opt/apps/re.log")
         ssh_cmd = "ssh root@%s -o UserKnownHostsFile=/dev/null\
                    -o StrictHostKeyChecking=no -o LogLevel=ERROR" % self.target.ip
-        sensor_cmd = "\"/opt/apps/test_light_tsl2561_4_hrs.fbp >/opt/apps/re.log\""
+        sensor_cmd = "\"cd /opt/apps; ./test_light_tsl2561_4_hrs.fbp >/opt/apps/re.log\""
         p1 = subprocess.Popen("%s %s" % (ssh_cmd, sensor_cmd), shell = True, stderr = subprocess.PIPE)
         time.sleep(10)
         #check data ouput for every 5 minutes and stop if things go wrong

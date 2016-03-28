@@ -56,8 +56,8 @@ class TestSensorWithTarUntarTask(oeRuntimeTest):
                          "touch /opt/workload.log")
         ssh_cmd = "ssh root@%s -o UserKnownHostsFile=/dev/null\
                    -o StrictHostKeyChecking=no -o LogLevel=ERROR" % self.target.ip
-        sensor_cmd = "\"/opt/apps/test_light_tsl2561.fbp >/opt/apps/re.log\""
-        workload_cmd = "\"/opt/workload.sh >/opt/workload.log\""
+        sensor_cmd = "\"cd /opt/apps; ./test_light_tsl2561.fbp >/opt/apps/re.log\""
+        workload_cmd = "\"cd /opt; ./workload.sh 2>/dev/null\""
         print "process 1 kicked"
         subprocess.Popen("%s %s" % (ssh_cmd, sensor_cmd), shell=True)
         print "process 2 kicked"
