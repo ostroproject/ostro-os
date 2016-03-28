@@ -508,15 +508,14 @@ class IOtvtIntegration(oeRuntimeTest):
         time.sleep(2)
         # kill the server process
         self.target.run("killall simpleserver")
+        time.sleep(1)
         (status, output) = self.target.run('cat /tmp/output')
         # judge if the values are correct
         if "Created resource." in output:
-            # Negative case, there must not be such string in output
-            self.assertEqual(1, 0, msg="By root, the simpleserver must not start: %s" % output) 
-            self.target.run("killall simpleserver")
-            time.sleep(1)
-        else:
             pass            
+        else:
+            # root account should also be able to do iotivity operations
+            self.assertEqual(1, 0, msg="By root, the simpleserver fails to start: %s" % output) 
 
 ##
 # @}
