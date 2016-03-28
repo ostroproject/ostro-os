@@ -16,9 +16,10 @@ import time
 import string
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import shell_cmd_timeout
+from oeqa.utils.helper import run_as, add_group, add_user, remove_user
 from oeqa.utils.decorators import tag
 
-@tag(TestType="FVT", FeatureID="IOTOS-498,IOTOS-450,IOTOS-1019")
+@tag(TestType="FVT", FeatureID="IOTOS-498,IOTOS-450,IOTOS-1019,IOTOS-1004")
 class IOtvtClient(oeRuntimeTest):
     """
     @class IOtvtClient
@@ -32,13 +33,17 @@ class IOtvtClient(oeRuntimeTest):
         '''
         cls.tc.target.run("killall simpleserver")
         cls.tc.target.run("killall simpleclient")
+        # add group and non-root user
+        add_group("tester")
+        add_user("iotivity-tester", "tester")
+
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/simpleserver > /tmp/svr_output &"
-        (status, output) = cls.tc.target.run(server_cmd)
+        run_as("iotivity-tester", server_cmd)
         time.sleep(1)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclient > /tmp/output &"
-        cls.tc.target.run(client_cmd)
+        run_as("iotivity-tester", client_cmd)
         print "\npatient... simpleclient needs long time for its observation"
         time.sleep(60)
         # If there is no 'Observe is used', give a retry.
@@ -61,6 +66,7 @@ class IOtvtClient(oeRuntimeTest):
         @param cls
         @return
         '''
+        remove_user("iotivity-tester")
         cls.tc.target.run("killall simpleserver")
         cls.tc.target.run("killall simpleclient")
 
@@ -140,7 +146,7 @@ class IOtvtClient(oeRuntimeTest):
         '''
         time.sleep(2)
         # check if simpleserver is there
-        (status, output) = self.target.run('ps')
+        (status, output) = self.target.run('ps -ef')
         ##
         # TESTPOINT: #1, test_iotvt_regresource
         #

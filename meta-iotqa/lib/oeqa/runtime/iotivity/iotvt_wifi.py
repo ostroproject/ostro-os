@@ -18,6 +18,7 @@ from oeqa.runtime.wifi import wifi
 import ConfigParser
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import shell_cmd_timeout
+from oeqa.utils.helper import run_as, add_group, add_user, remove_user
 from oeqa.utils.decorators import tag
 
 ssid_config = ConfigParser.ConfigParser()
@@ -36,22 +37,46 @@ class IOtvtWiFi(oeRuntimeTest):
         @param cls
         @return
         '''
-        wifi = wifi.WiFiFunction(cls.tc.target)
+        client_wifi = wifi.WiFiFunction(cls.tc.targets[0])
+        server_wifi = wifi.WiFiFunction(cls.tc.targets[1])
 
         ap_type = ssid_config.get("Connect","type")
         ssid = ssid_config.get("Connect","ssid")
         pwd = ssid_config.get("Connect","passwd")
 
-        wifi.execute_connection(ap_type, ssid, pwd)
+        # Connect wifi of two devices
+        client_wifi.execute_connection(ap_type, ssid, pwd)
+        server_wifi.execute_connection(ap_type, ssid, pwd)
         
-        # Clean up all iotivity related daemons
-        cls.tc.target.run("killall presenceserver presenceclient devicediscoveryserver devicediscoveryclient")        
-        cls.tc.target.run("killall fridgeserver fridgeclient garageserver garageclient groupserver groupclient")
-        cls.tc.target.run("killall roomserver roomclient simpleserver simpleclient simpleserverHQ simpleclientHQ")
-        cls.tc.target.run("killall simpleclientserver threadingsample")
+        # Init main target
+        run_as("root", "killall presenceserver presenceclient devicediscoveryserver devicediscoveryclient", target=cls.tc.targets[0])
+        run_as("root", "killall fridgeserver fridgeclient garageserver garageclient groupserver groupclient", target=cls.tc.targets[0])
+        run_as("root", "killall roomserver roomclient simpleserver simpleclient simpleserverHQ simpleclientHQ", target=cls.tc.targets[0])
+        run_as("root", "killall simpleclientserver threadingsample", target=cls.tc.targets[0])
+        # Init second target
+        run_as("root", "killall presenceserver presenceclient devicediscoveryserver devicediscoveryclient", target=cls.tc.targets[1])
+        run_as("root", "killall fridgeserver fridgeclient garageserver garageclient groupserver groupclient", target=cls.tc.targets[1])
+        run_as("root", "killall roomserver roomclient simpleserver simpleclient simpleserverHQ simpleclientHQ", target=cls.tc.targets[1])
+        run_as("root", "killall simpleclientserver threadingsample", target=cls.tc.targets[1])
+        # Clean output file on two targets, main is client part and second is server part
+        run_as("root", "rm -f /tmp/svr_output", target=cls.tc.targets[1])
+        run_as("root", "rm -f /tmp/output", target=cls.tc.targets[0])
+        # add group and non-root user on both sides
+        add_group("tester", target=cls.tc.targets[0])
+        add_user("iotivity-tester", "tester", target=cls.tc.targets[0])
+        add_group("tester", target=cls.tc.targets[1])
+        add_user("iotivity-tester", "tester", target=cls.tc.targets[1])
+        # Setup firewall accept for multicast, on both sides
+        run_as("root", "/usr/sbin/iptables -w -A INPUT -p udp --dport 5683 -j ACCEPT", target=cls.tc.targets[0])
+        run_as("root", "/usr/sbin/iptables -w -A INPUT -p udp --dport 5684 -j ACCEPT", target=cls.tc.targets[0])
+        run_as("root", "/usr/sbin/iptables -w -A INPUT -p udp --dport 5683 -j ACCEPT", target=cls.tc.targets[1])
+        run_as("root", "/usr/sbin/iptables -w -A INPUT -p udp --dport 5684 -j ACCEPT", target=cls.tc.targets[1])
+
         # Do simpleclient test
+        server_cmd = "/opt/iotivity/examples/resource/cpp/simpleserver > /tmp/srv_output &"
+        run_as("iotivity-tester", server_cmd, target=cls.tc.targets[1])
         client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclient > /tmp/output &"
-        cls.tc.target.run(client_cmd)
+        run_as("iotivity-tester", client_cmd, target=cls.tc.targets[0])
         print "\npatient... simpleclient needs long time for its observation"
         time.sleep(70)
 
@@ -62,10 +87,15 @@ class IOtvtWiFi(oeRuntimeTest):
         @param cls
         @return
         '''
-        wifi = wifi.WiFiFunction(cls.tc.target)
-        wifi.disable_wifi()
+        client_wifi = wifi.WiFiFunction(cls.tc.targets[0])
+        server_wifi = wifi.WiFiFunction(cls.tc.targets[1])
+        client_wifi.disable_wifi()
+        server_wifi.disable_wifi()
+       
+        run_as("root", "killall simpleserver simpleclient", target=cls.tc.targets[0])
+        run_as("root", "killall simpleserver simpleclient", target=cls.tc.targets[1])
 
-    def test_iotvt_wifi_findresource(self):
+    def test_mnode_iotvt_wifi_findresource(self):
         '''Target finds resource, registered by Host
         @fn test_iotvt_wifi_findresource
         @param self
@@ -82,7 +112,7 @@ class IOtvtWiFi(oeRuntimeTest):
         #
         self.assertEqual(ret, 0, msg="Error messages: %s" % output)
 
-    def test_iotvt_wifi_getstate(self):
+    def test_mnode_iotvt_wifi_getstate(self):
         '''Target gets resource state
         @fn test_iotvt_wifi_getstate
         @param self
@@ -99,7 +129,7 @@ class IOtvtWiFi(oeRuntimeTest):
         #
         self.assertEqual(ret, 0, msg="Error messages: %s" % output)
 
-    def test_iotvt_wifi_observer(self):
+    def test_mnode_iotvt_wifi_observer(self):
         '''Target sets observer
         @fn test_iotvt_wifi_observer
         @param self
@@ -116,7 +146,7 @@ class IOtvtWiFi(oeRuntimeTest):
         #
         self.assertEqual(ret, 0, msg="Error messages: %s" % output)
 
-    def test_iotvt_wifi_setstate(self):
+    def test_mnode_iotvt_wifi_setstate(self):
         '''Target sets resource state
         @fn test_iotvt_wifi_setstate
         @param self
