@@ -30,8 +30,10 @@ class SolettaStabilityTest(oeRuntimeTest):
         @param self
         @return
         '''
-        (status, output) = self.target.run('mkdir /tmp/soletta-stability')
+        (status, output) = self.target.run('if [ ! -d /tmp/soletta-stability ]; then mkdir /tmp/soletta-stability; else rm -rf /tmp/soletta-stability/*; fi')
         if (status != 0):
+            self.assertEqual(status, 0, msg="/tmp/soletta-stability error: %s" % output)
+        else:
             fbp_path = os.path.join(os.path.dirname(__file__), "files/soletta-stability.fbp")
             self.target.copy_to(fbp_path, "/tmp/soletta-stability")
             self.target.run('echo "test data" > /tmp/soletta-stability/1')
