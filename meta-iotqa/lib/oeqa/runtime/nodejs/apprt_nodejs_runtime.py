@@ -210,8 +210,8 @@ def choose_test_files_and_tar(local_nodejs_path, node_version):
     sys.stdout.write('\nRemoving blacklist tests')
     sys.stdout.flush()
     remove_blacklist(apprt_files_dir, node_version)
-    compact_cmd = ['tar', '-czf']
-    compact_cmd.append('%s.tar.gz' % node_test_dir)
+    compact_cmd = ['tar', '-cf']
+    compact_cmd.append('%s.tar' % node_test_dir)
     compact_cmd.append('node_%s_test' % node_version)
 
     p = subprocess.Popen(compact_cmd, cwd=apprt_files_dir)
