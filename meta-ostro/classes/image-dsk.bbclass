@@ -28,11 +28,9 @@ COMPRESSIONTYPES_append = " vdi"
 COMPRESS_CMD_vdi = "qemu-img convert -O vdi ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type} ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}.vdi"
 COMPRESS_DEPENDS_vdi = "qemu-native"
 
-IMAGE_DSK_ACTIVE = "${@ bool([x for x in d.getVar('IMAGE_FSTYPES', True).split() if x == 'dsk' or x.startswith('dsk.')])}"
-python () {
-    if d.getVar('IMAGE_DSK_ACTIVE', True) == 'True':
-        d.setVar('IMAGE_NAME_SUFFIX', '')
-}
+# Image files of machines using image-dsk.bbclass do not use the redundant ".rootfs"
+# suffix. Probably should be moved to ostro-os.conf eventually.
+IMAGE_NAME_SUFFIX = ""
 
 do_uefiapp[depends] += " \
                          systemd:do_deploy \
@@ -49,7 +47,15 @@ IMAGE_DEPENDS_dsk += " \
                        dosfstools-native:do_populate_sysroot \
                        dosfstools-native:do_populate_sysroot \
                      "
-INITRD_append = "${@ ('${DEPLOY_DIR_IMAGE}/' + d.getVar('INITRD_IMAGE', expand=True) + '-${MACHINE}.cpio.gz') if d.getVar('INITRD_IMAGE', True) and ${IMAGE_DSK_ACTIVE} else ''}"
+
+# Always ensure that the INITRD_IMAGE gets added to the initramfs .cpio.
+# This needs to be done even when the actual .dsk image format is inactive,
+# because the .cpio file gets copied into the rootfs, and that rootfs
+# must be consistent regardless of the image format. This became relevant
+# when adding swupd bundle support, because there virtual images
+# without active .dsk are used to generate the rootfs for other
+# images with .dsk format.
+INITRD_append = "${@ ('${DEPLOY_DIR_IMAGE}/' + d.getVar('INITRD_IMAGE', expand=True) + '-${MACHINE}.cpio.gz') if d.getVar('INITRD_IMAGE', True) else ''}"
 
 PACKAGES = " "
 EXCLUDE_FROM_WORLD = "1"
