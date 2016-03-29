@@ -1,7 +1,7 @@
 DESCRIPTION = "nodeJS Evented I/O for V8 JavaScript"
 HOMEPAGE = "http://nodejs.org"
 LICENSE = "MIT & BSD-2-Clause & BSD-3-Clause & ISC & AFL-2.0 & Apache-2.0 & OpenSSL & Zlib & Artistic-2.0 & (BSD-3-Clause | GPLv2)"
-LIC_FILES_CHKSUM = "file://LICENSE;md5=963ca39eebcb15ac618bc3006504ae3f"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=b70c304f43f326ddbc3474ba2b685522"
 
 DEPENDS = "openssl"
 DEPENDS_append_class-target = " nodejs-native"
@@ -17,10 +17,10 @@ SRC_URI = "http://nodejs.org/dist/v${PV}/node-v${PV}.tar.gz;name=node \
 SRC_URI_append_quark = "file://0001-nodejs-add-compile-flag-options-for-quark.patch"
 SRC_URI_append_intel-quark = "file://0001-nodejs-add-compile-flag-options-for-quark.patch"
 
-SRC_URI[node.md5sum] = "86e4d0d8b626f6e60ca7bef02f2543d2"
-SRC_URI[node.sha256sum] = "4ee244ffede7328d9fa24c3024787e71225b7abaac49fe2b30e68b27460c10ec"
-SRC_URI[node-headers.md5sum] = "d615efcc60fe631ebe4e2bcbaff88fd1"
-SRC_URI[node-headers.sha256sum] = "b1375e5296d0df6919fb1c3485d7174ac43a55a9507432d0e182c43c1cb5e3a0"
+SRC_URI[node.md5sum] = "ef756c3e773f08bccada08eb37ee699c"
+SRC_URI[node.sha256sum] = "f3e604cc4d05a4810c37cd43a838a2dc4399d517bd1e8c53b7670dcffc4dc481"
+SRC_URI[node-headers.md5sum] = "b021c28a69e29d152509c1606e1587b6"
+SRC_URI[node-headers.sha256sum] = "e759ee28a27dc47a5c80e48b063c0bee015f3b6d2f8f593ad0eabfab0ebb3922"
 
 S = "${WORKDIR}/node-v${PV}"
 
