@@ -36,7 +36,7 @@ TestStep,,,,3,"run app with valgrind: ""valgrind --tool=memcheck --leak-check=fu
 TestScript,dev_image_workable,OS / Image Configuration,To check dev image is bootable and SSH/serial/system log ready,1,Download dev image and install it on P1 platforms to check it can boot successfully,dev image boot successfully,FVT,ready,IOTOS-401,,,,
 TestStep,,,,2,"Check SSH connection to Ostro","Ostro can be connected successfully; no further setup need",,,,,,,
 TestStep,,,,3,"Check serial port connection to Ostro","Ostro can be connected successfully; no further setup need",,,,,,,
-TestStep,,,,4,"Check system log enabled in Ostro: /var/log/sys.log","the sytem log should be in and user can use cat command to check the log; no further setup need",,,,,,,
+TestStep,,,,4,"Check system log enabled in Ostro: a. /run/log/journal; b. run command ""journalctl""","the system log tool and folder should be in and user can use journalctl to check logs",,,,,,,
 TestScript,documentation_How to build/modify Ostro OS,Documentation,To check the Instruction correctness,1,Check the doc mentioned in this Requirement,The doc instruction is correct,FVT,design,IOTOS-835,,,,
 TestScript,documentation_Supported_HW_platforms,Documentation,To check the Instruction correctness,1,make sure platform description is accurate and the links provided are correct,The doc is correct,FVT,ready,IOTOS-837,,,,
 TestScript,sol_oic_find_single_resource,COMMS/Iotivity,Use soletta node type API to find single oic resource,1,"Put 3 test files ('light-client.fbp', 'light-server.fbp' and 'sol-flow.json' from soletta source src/examples/flow/oic/) to IoT device /home/root/ folder. ",,EFT,design,IOTOS-1019,,,,
