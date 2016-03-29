@@ -528,16 +528,3 @@ python swupd_replace_hardlinks () {
                 os.symlink(reltarget, path)
 }
 ROOTFS_POSTPROCESS_COMMAND += "swupd_replace_hardlinks; "
-
-python rm_bundle_image_manifests () {
-    if not d.getVar('PN_BASE', True):
-        return
-
-    manifest_link = d.expand('${DEPLOY_DIR_IMAGE}/${IMAGE_LINK_NAME}.manifest')
-    if os.path.exists(manifest_link):
-        os.unlink(manifest_link)
-    manifest = d.getVar('IMAGE_MANIFEST', True)
-    if os.path.exists(manifest):
-        os.unlink(manifest)
-}
-do_image_complete[postfuncs] += "rm_bundle_image_manifests"
