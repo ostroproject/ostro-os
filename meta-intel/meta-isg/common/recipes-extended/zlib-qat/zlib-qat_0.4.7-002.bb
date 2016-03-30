@@ -45,6 +45,7 @@ export ICP_DC_API_DIR = "${STAGING_DIR_TARGET}${includedir}/dc"
 export ZLIB_DH895XCC = "1"
 export ZLIB_MEMORY_DRIVER = "qat_mem"
 export ICP_BUILD_OUTPUT = "${STAGING_DIR_TARGET}"
+EXTRA_OEMAKE = "-e MAKEFLAGS="
 
 inherit module
 MEM_PATH = "${S}/contrib/qat"
