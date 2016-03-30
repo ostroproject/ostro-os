@@ -25,10 +25,6 @@ SWUPD_GENERATE ??= "1"
 SWUPD_DELTAPACKS ??= "1"
 # Create delta packs for N versions back — default 2
 SWUPD_N_DELTAPACK ??= "2"
-# Amount the OS_VERSION should be increased by for each release, used by the
-# delta pack looping to generate delta packs going back up toSWUPD_N_DELTAPACK
-# releases
-SWUPD_VERSION_STEP ??= "10"
 
 # This version number *must* map to VERSION_ID in /etc/os-release and *must* be
 # a non-negative integer that fits in an int.
@@ -472,25 +468,15 @@ END
 
     # Generate delta-packs going back SWUPD_N_DELTAPACK versions
     if [ ${SWUPD_DELTAPACKS} -eq 1 -a ${SWUPD_N_DELTAPACK} -gt 0 -a $PREVREL -gt 0 ]; then
-        bbdebug 1 "Generating delta pack with previous release $PREVREL"
         bundles="os-core ${SWUPD_BUNDLES}"
         for bndl in $bundles; do
             bndlcnt=0
-            prevver=$PREVREL
-            while [ $bndlcnt -lt ${SWUPD_N_DELTAPACK} -a $prevver -gt 0 ]; do
-                if [ -e ${DEPLOY_DIR_SWUPD}/image/$prevver/$bndl ]; then
-                    bbdebug 2 "Generating delta pack from $prevver to ${OS_VERSION} for $bndl"
-                    ${STAGING_BINDIR_NATIVE}/swupd_make_pack -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl
-                    bndlcnt=`expr $bndlcnt + 1`
-                fi
-                # Both let and expr return 1 if the expression evaluates to 0,
-                # bitbake catches the non-zero exit code from a shell command
-                # end exits with an error - special case to work around this.
-                if [ $prevver -eq ${SWUPD_VERSION_STEP} ]; then
-                    prevver=0
-                else
-                    prevver=`expr $prevver - ${SWUPD_VERSION_STEP}`
-                fi
+            # Build list of previous versions and pick the last n ones to build
+            # deltas against. Ignore the latest one, which is the one we build
+            # right now.
+            ls -d -1 ${DEPLOY_DIR_SWUPD}/image/*/$bndl | sed -e 's;${DEPLOY_DIR_SWUPD}/image/\([^/]*\)/.*;\1;' | grep -e '^[0-9]*$' | sort -n | head -n -1 | tail -n ${SWUPD_N_DELTAPACK} | while read prevver; do
+                bbdebug 2 "Generating delta pack from $prevver to ${OS_VERSION} for $bndl"
+                ${STAGING_BINDIR_NATIVE}/swupd_make_pack -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl
             done
         done
     fi
