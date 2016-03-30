@@ -16,6 +16,7 @@ SRC_URI = "\
     file://0007-Clean-up-tar-options-drop-a-for-the-extract-mode.patch \
     file://0008-Clean-up-tar-commands-always-put-files-after-options.patch \
     file://0009-Add-compatibility-with-libarchive-s-bsdtar-command.patch \
+    file://fullfiles.c-work-around-pseudo-bug.patch \
 "
 
 SRC_URI[md5sum] = "14f25677b5a4f0b33785910b03860939"
