@@ -6,7 +6,7 @@ Subject: [PATCH] Fix build failure on Yocto
 On install phase certificate files are being installed twice as included in
 _DATA twice. We can use EXTRA_DIST than dist_.
 
-Upstream-Status: Inappropriate
+Upstream-Status: Backported (v3.0.0+)
 
 Signed-off-by: Amarnath Valluri <amarnath.valluri@intel.com>
 ---
