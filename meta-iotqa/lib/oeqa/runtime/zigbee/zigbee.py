@@ -14,8 +14,8 @@
 import time
 import os
 import string
+import subprocess
 from oeqa.utils.helper import shell_cmd_timeout
-from oeqa.utils.helper import run_as
 
 class ZigBeeFunction(object):
     """
@@ -25,9 +25,8 @@ class ZigBeeFunction(object):
     atmel_mod_name = ""
     cc2520_mod_name = ""
     log = ""
-    def __init__(self, targets):
-        self.targets = targets
-        self.target = targets[0]
+    def __init__(self, target):
+        self.target = target
         self.init_platform()
 
     def target_collect_info(self, cmd):
@@ -91,42 +90,41 @@ class ZigBeeFunction(object):
         else:
             assert False, "Not initialize cc2520 module. see lsmod:\n%s" % output
 
-    def atmel_enable_lowpan0(self, target_number):
+    def atmel_enable_lowpan0(self, ip_number):
         ''' enable atmel chipset on target 
         @fn atmel_enable_lowpan0
         @param self
-        @param target_number: 0 stands for main_target, 1 stands for second target
+        @param ip_number: a0:0:0:0:0:0:0:[ip_number]
         @return
         '''
         # get device ip for debug
-        my_ip=self.targets[target_number].ip
+        my_ip=self.target.ip
       
         # insert module
-        cmd='modprobe %s' % self.atmel_mod_name
-        (status, output) = run_as('root', cmd, target=self.targets[target_number])
+        (status, output) = self.target.run('modprobe %s' % self.atmel_mod_name)
         time.sleep(1)
         assert status == 0, "[%s] Insert atmel module fails: %s" % (my_ip, output)
         # set wpan0
-        ip_set="ip link set wpan0 address a0:0:0:0:0:0:0:%d" % (target_number+1)
-        (status, output) = run_as('root', ip_set, target=self.targets[target_number]) 
+        ip_set="ip link set wpan0 address a0:0:0:0:0:0:0:%s" % ip_number
+        (status, output) = self.target.run(ip_set) 
         time.sleep(1)
         # set channel as 5
-        wpan_set="iz set wpan0 777 800%d 5" % (target_number+1)
-        (status, output) = run_as('root', wpan_set, target=self.targets[target_number]) 
+        wpan_set="iz set wpan0 777 800%s 5" % ip_number
+        (status, output) = self.target.run(wpan_set) 
         time.sleep(1)
         # bring up wpan0
-        (status, output) = run_as('root', 'ifconfig wpan0 up', target=self.targets[target_number]) 
+        (status, output) = self.target.run('ifconfig wpan0 up') 
         time.sleep(1)
         assert status == 0, "[%s] Bring up wpan0 fails: %s" % (my_ip, output)
         # add lowpan0 
-        (status, output) = run_as('root', 'ip link add link wpan0 name lowpan0 type lowpan', target=self.targets[target_number]) 
+        (status, output) = self.target.run('ip link add link wpan0 name lowpan0 type lowpan') 
         time.sleep(1)
         # bring up lowpan0
-        (status, output) = run_as('root', 'ifconfig lowpan0 up', target=self.targets[target_number]) 
+        (status, output) = self.target.run('ifconfig lowpan0 up') 
         time.sleep(1)
         assert status == 0, "[%s] Bring up lowpan0 fails: %s" % (my_ip, output)
 
-    def get_lowpan0_ip(self, target_number):  
+    def get_lowpan0_ip(self):  
         ''' Get lowpan0 (ipv6) address 
         @fn get_lowpan0_ip
         @param self
@@ -134,20 +132,59 @@ class ZigBeeFunction(object):
         @return
         '''
         cmd="ifconfig lowpan0 | grep 'inet6 addr:'"
-        (status, output) = run_as('root', cmd, target=self.targets[target_number])
+        (status, output) = self.target.run(cmd)
         return output.split('%')[0].split()[2]    
 
-    def lowpan0_ping6_check(self, main, second):
+    def lowpan0_ping6_check(self, ipv6):
         ''' On main target, run ping6 to ping second's ipv6 address 
-        @fn ping6_check
+        @fn lowpan0_ping6_check
         @param self
-        @param main: main target number
-        @param second: second target number 
+        @param ipv6: second target ipv6 address
         @return
         '''
-        cmd='ping6 -I lowpan0 -c 1 %s' % self.get_lowpan0_ip(second)
-        (status, output) = run_as('root', cmd, target=self.targets[main])
+        cmd='ping6 -I lowpan0 -c 5 %s' % ipv6
+        (status, output) = self.target.run(cmd)
         assert status == 0, "Ping second target lowpan0 ipv6 address fail: %s" % output
+
+    def clean_up(self):
+        ''' Clean up izchat process
+        @fn clean_up
+        @param self
+        @return
+        '''
+        # Clean up izchat process
+        self.target.run('killall izchat')
+        time.sleep(1)
+        # Turn down 6lowpan related network interfaces
+        self.target.run('ifconfig lowpan0 down')
+        time.sleep(1)
+        self.target.run('ifconfig wpan0 down')
+        time.sleep(1)
+
+    def lowpan0_izchat_check(self, remote_ip):
+        ''' On main target, run izchat to communicate with each other 
+        @fn lowpan0_izchat_check
+        @param self
+        @param remote_ip: the ipv4 address of the remote device
+        @return
+        '''
+        # By own ip6 address, identify src and tag
+        if self.get_lowpan0_ip().split(':')[-1] == "1":
+            src="8001"
+            tar="8002"
+        elif self.get_lowpan0_ip().split(':')[-1] == "2":
+            src="8002"
+            tar="8001"
+        print '\n'    
+        # Setup remote device to send a string for 5 times 
+        send_expect = os.path.join(os.path.dirname(__file__), "files/izchat_send.exp")
+        send_cmd = "expect %s 777 %s %s %s" % (send_expect, tar, src, remote_ip)
+        subprocess.Popen(send_cmd, shell=True)
+
+        # Setup device to receive the string
+        receive_expect = os.path.join(os.path.dirname(__file__), "files/izchat_receive.exp")
+        (status, output) = shell_cmd_timeout("expect %s 777 %s %s %s" % (receive_expect, src, tar, self.target.ip))
+        assert status == 2, "Izchat with each other fails: %s" % output
 
 ##
 # @}

@@ -1,0 +1,20 @@
+#!/usr/bin/expect
+set timeout 60
+set login 0
+set ip4      [lindex $argv 0]
+set ip6      [lindex $argv 1]
+
+spawn ssh root@$ip4 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR ssh root@$ip6%bt0 -i /tmp/ostro_qa_rsa ls /
+ expect {
+ "yes/no"
+   {
+    sleep 1; send "yes\n"; exp_continue
+   }
+ "home"
+   {
+    sleep 1; send "exit\n"; exit 2
+   }
+ eof
+   {}
+ }
+

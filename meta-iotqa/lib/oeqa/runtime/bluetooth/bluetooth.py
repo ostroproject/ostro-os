@@ -62,6 +62,26 @@ class BTFunction(object):
         shell_cmd_timeout('hciconfig hci0 piscan', timeout=100)
         shell_cmd_timeout('hciconfig hci0 noleadv', timeout=100)
         time.sleep(1)
+   
+    def get_bt_mac(self):
+        ''' Get hci0 MAC address
+        @fn get_bt_mac
+        @param self
+        @return
+        '''
+        (status, output) = self.target.run('hciconfig hci0 | grep "BD Address"')
+        return output.split()[2]
+
+    def get_bt0_ip(self):
+        ''' Get bt0 (ipv6) address
+        @fn get_bt0_ip
+        @param self
+        @return
+        '''
+        self.target_collect_info('ifconfig')
+        (status, output) = self.target.run('ifconfig bt0 | grep "inet6 addr"')
+        assert status == 0, "Get bt0 address failure: %s\n%s" % (output, self.log)
+        return output.split('%')[0].split()[2]
 
     def enable_bluetooth(self):
         ''' enable bluetooth after testing 
@@ -146,7 +166,7 @@ class BTFunction(object):
         if "bluetooth_6lowpan" in output:
             pass
         else:
-            target_collect_info('lsmod')
+            self.target_collect_info('lsmod')
             assert False, "BLE 6lowpan module insert fails. %s" % self.log       
 
     def enable_6lowpan_ble(self):
@@ -163,8 +183,76 @@ class BTFunction(object):
         if output == "1":
             pass
         else:
-            target_collect_info('lsmod')
+            self.target_collect_info('lsmod')
             assert False, "BLE 6lowpan interface is: %s\n%s" % (output, self.log) 
+
+    def disable_6lowpan_ble(self):
+        '''Disable 6lowpan over BLE
+        @fn disable_6lowpan_ble
+        @param self
+        @return
+        '''
+        status, output = self.target.run('echo 0 > /sys/kernel/debug/bluetooth/6lowpan_enable')
+        assert status == 0, "Disable ble 6lowpan fail: %s" % output
+        # check file number, it should be 1
+        status, output = self.target.run('ifconfig')
+        if "bt0" in output:
+            self.target_collect_info('ifconfig')
+            assert False, "Disable BLE 6lowpan fails: %s\n%s" % (output, self.log)
+        else:
+            pass
+
+    def bt0_ping6_check(self, ipv6):
+        ''' On main target, run ping6 to ping second's ipv6 address
+        @fn bt0_ping6_check
+        @param self
+        @param ipv6: second target ipv6 address
+        @return
+        '''
+        cmd='ping6 -I bt0 -c 5 %s' % ipv6
+        (status, output) = self.target.run(cmd)
+        assert status == 0, "Ping second target lowpan0 ipv6 address fail: %s" % output
+
+    def bt0_ssh_check(self, ipv6):
+        ''' On main target, ssh to second
+        @fn bt0_ssh_check
+        @param self
+        @param ipv6: second target ipv6 address
+        @return
+        '''
+        # ssh root@<ipv6 address>%bt0
+        ssh_key = os.path.join(os.path.dirname(__file__), "files/ostro_qa_rsa")
+        self.target.copy_to(ssh_key, "/tmp/")        
+
+        exp = os.path.join(os.path.dirname(__file__), "files/target_ssh.exp")
+        exp_cmd = 'expect %s %s %s' % (exp, self.target.ip, ipv6)
+        (status, output) = shell_cmd_timeout(exp_cmd)
+        assert status == 2, "Error messages: %s" % output
+
+    def connect_6lowpan_ble(self, second):
+        '''Build 6lowpan connection between taregts[0] and targets[1] over BLE
+        @fn connect_6lowpan_ble
+        @param self
+        @param second: second target
+        @return
+        '''
+        self.enable_6lowpan_ble()
+        second.enable_6lowpan_ble()
+        # Second target does advertising
+        second_mac = second.get_bt_mac()
+        (status, output) = second.target.run('hciconfig hci0 leadv')
+        time.sleep(1)
+        # Self connects to second
+
+        (status, output) = self.target.run('echo "connect %s 1" > /sys/kernel/debug/bluetooth/6lowpan_control' % second_mac)
+        time.sleep(10)
+        self.target_collect_info('hcitool con')
+        assert status == 0, "BLE 6lowpan connection fails: %s\n%s" % (output, self.log)
+        (status, output) = self.target.run('ifconfig')
+        if 'bt0' in output:
+            pass
+        else:
+            assert False, "No bt0 generated: %s\n%s" % (output, self.log)    
 
 ##
 # @}
