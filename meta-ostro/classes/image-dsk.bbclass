@@ -25,11 +25,12 @@
 
 
 # Ostro custom conversion types
-COMPRESSIONTYPES_append = " vdi bmap"
+COMPRESSIONTYPES_append = " vdi bmap ova"
 COMPRESS_CMD_vdi = "qemu-img convert -O vdi ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type} ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}.vdi"
 COMPRESS_CMD_bmap = "bmaptool create ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type} -o ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}.bmap"
 COMPRESS_DEPENDS_vdi = "qemu-native"
 COMPRESS_DEPENDS_bmap = "bmap-tools-native"
+COMPRESS_DEPENDS_ova = "vboxmanage-native"
 
 # Needed to use native python libraries
 inherit pythonnative
@@ -37,6 +38,78 @@ inherit pythonnative
 # Image files of machines using image-dsk.bbclass do not use the redundant ".rootfs"
 # suffix. Probably should be moved to ostro-os.conf eventually.
 IMAGE_NAME_SUFFIX = ""
+
+create_ova() {
+
+  if [ "x${MACHINE}x" != "xintel-corei7-64x" ]; then
+    exit 0
+  fi
+
+  # 64 bit linux with sata bus
+  OS_TYPE="Linux_64"
+  STORAGE_NAME="SATA"
+  STORAGE_BUS_TYPE="sata"
+
+  VM_NAME="${IMAGE_NAME}"
+  # 512 should be large enough value to run Ostro (Galileo has 256MB RAM for example)
+  # but small enough value that even a modest host machine can afford it
+  RAM="512"
+  # min allowed - as we do not run graphical environment, it should be enough
+  VRAM="12"
+  # As above with RAM, 2 cores should be enough for Ostro without crippling the host machine
+  CPU_CORE_COUNT=2
+  # required for successful boot
+  FIRMWARE="efi"
+  IOAPIC="on"
+
+  # default settings for hard drive
+  STORAGE_PORT="0"
+  STORAGE_DEVICE="0"
+  STORAGE_DEVICE_TYPE="hdd"
+
+  
+  RAW_IMAGE="${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.dsk"
+  VIRTUALBOX_IMAGE="${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.vmdk"
+  VIRTUALBOX_EXECUTABLE="${STAGING_BINDIR_NATIVE}/VBoxManage"
+
+  APPLIANCE_NAME="${VM_NAME}.dsk.ova"
+
+  FOLDER_NAME="virtualbox-vm"
+  WORK_FOLDER="${DEPLOY_DIR_IMAGE}/${FOLDER_NAME}"
+
+  mkdir -p ${WORK_FOLDER}
+
+  # erase any temp files from previous builds, as these can cause issues
+  # notably NS_ERROR_FACTORY_NOT_REGISTERED (0x80040154)
+  rm -rf /tmp/.vbox-root-ipc
+
+  # create vm
+  ${VIRTUALBOX_EXECUTABLE} createvm --name ${VM_NAME} --ostype ${OS_TYPE} --basefolder ${WORK_FOLDER} --register
+
+  #set core count, memory, firmware and ioapic
+  ${VIRTUALBOX_EXECUTABLE} modifyvm ${VM_NAME} --memory ${RAM} --vram ${VRAM} --cpus ${CPU_CORE_COUNT} --firmware ${FIRMWARE} --ioapic ${IOAPIC}
+
+  # add bus for hard drives
+  ${VIRTUALBOX_EXECUTABLE} storagectl ${VM_NAME} --name ${STORAGE_NAME} --add ${STORAGE_BUS_TYPE}
+  
+  # create virtual hard drive from the raw .dsk image
+  ${VIRTUALBOX_EXECUTABLE} internalcommands createrawvmdk -filename ${VIRTUALBOX_IMAGE} -rawdisk ${RAW_IMAGE}
+  
+  # attach the .vmdk image as hard drive
+  ${VIRTUALBOX_EXECUTABLE} storageattach ${VM_NAME} --storagectl ${STORAGE_NAME} --medium ${VIRTUALBOX_IMAGE} --port ${STORAGE_PORT} --device ${STORAGE_DEVICE} --type ${STORAGE_DEVICE_TYPE}
+
+  # export the image
+  ${VIRTUALBOX_EXECUTABLE} export ${VM_NAME} --output ${DEPLOY_DIR_IMAGE}/${APPLIANCE_NAME} --ovf20
+
+  # unregister the VM from virtualbox - 
+  ${VIRTUALBOX_EXECUTABLE} unregistervm  ${VM_NAME}
+
+  # chmod the outputs so that they can be accessed by non-owners as well
+  chmod +r ${APPLIANCE_NAME}
+  chmod +r ${VIRTUALBOX_IMAGE}
+}
+
+COMPRESS_CMD_ova = "create_ova"
 
 do_uefiapp[depends] += " \
                          systemd:do_deploy \
