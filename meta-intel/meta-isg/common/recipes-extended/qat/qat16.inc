@@ -15,6 +15,8 @@ SRC_URI="https://01.org/sites/default/files/page/qatmux.l.${PV}.tgz;name=qat \
          file://qat16_2.3.0-34-qat-fix-for-cross-compilation-issue.patch \
          file://qat16_2.3.0-34-qat-remove-local-path-from-makefile.patch \
          file://qat16_2.3.0-34-make-sure-CFLAGS-are-correct.patch \
+         file://qat16_2.5.0-80-qat-change-in-return-type-of-func-in-kernel-v4.4.patch \
+         file://qat16_2.5.0-80-qat-Added-include-dir-path.patch \
          "
 
 COMPATIBLE_MACHINE = "crystalforest|intel-corei7-64"
@@ -47,8 +49,8 @@ PARALLEL_MAKE = ""
 #To get around the double slashes in paths in QAT makefiles
 PACKAGE_DEBUG_SPLIT_STYLE = "debug-without-src"
 
-EXTRA_OEMAKE_append = " CFLAGS+=-fgnu89-inline"
-
+EXTRA_OEMAKE_append = " CFLAGS+='-fgnu89-inline -fPIC'"
+EXTRA_OEMAKE = "-e MAKEFLAGS="
 do_unpack2() {
         cd ${S}/
         tar xzvf ${ICP_DRIVER_TYPE}.L.${PV}.tar.gz
@@ -60,7 +62,7 @@ do_compile () {
         export LD="${LD} --hash-style=gnu"
         export MACHINE="${TARGET_ARCH}"
         cd ${S}/quickassist
-        oe_runmake EXTRA_OEMAKE="'CFLAGS=${CFLAGS} -fPIC'"
+        oe_runmake
 
         cd ${SAMPLE_CODE_DIR}
         touch ${SAMPLE_CODE_DIR}/performance/compression/calgary
