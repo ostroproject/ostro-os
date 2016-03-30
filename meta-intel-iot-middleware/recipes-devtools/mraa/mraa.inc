@@ -9,26 +9,44 @@ S = "${WORKDIR}/git"
 
 inherit distutils-base pkgconfig python-dir cmake
 
+PACKAGES =+ "python-${PN} node-${PN} ${PN}-java"
+
+# python-mraa package containing Python bindings
+FILES_python-${PN} = "${PYTHON_SITEPACKAGES_DIR}/ \
+                      ${datadir}/mraa/examples/python/ \
+                      ${prefix}/src/debug/${BPN}/${PV}-${PR}/build/src/python/ \
+                     "
+RDEPENDS_python-${PN} += "python"
+INSANE_SKIP_python-${PN} = "debug-files"
+
+# node-mraa package containing Nodejs bindings
+FILES_node-${PN} = "${libdir}/node_modules/ \
+                    ${datadir}/mraa/examples/javascript/ \
+                   "
+RDEPENDS_node-${PN} += "nodejs"
+INSANE_SKIP_node-${PN} = "debug-files"
+
+# mraa-java package containing Java bindings
+FILES_${PN}-java = "${libdir}/libmraajava.so \
+                    ${libdir}/java/ \
+                    ${datadir}/mraa/examples/java/ \
+                    ${libdir}/pkgconfig/mraajava.pc \
+                    ${prefix}/src/debug/${BPN}/${PV}-${PR}/build/src/java/ \
+                    ${libdir}/.debug/libmraajava.so \
+                   "
+# include .jar files in /usr/lib/java for 64 bit builds
+FILES_${PN}-java_append = "${@' ${libdir}/../lib/java' if '${TARGET_ARCH}' == 'x86_64' else ''}"
+
+RDEPENDS_${PN}-java += "java-runtime"
+INSANE_SKIP_${PN}-java = "debug-files"
+
+
 FILES_${PN}-doc += "${datadir}/mraa/examples/"
 
-FILES_${PN}-dbg += "${libdir}/node_modules/mraajs/.debug/ \
-                    ${PYTHON_SITEPACKAGES_DIR}/.debug/"
-
-# include .jar files in /usr/lib/java for 64 bit builds
-FILES_${PN}_append = "${@' ${libdir}/../lib/*' if '${TARGET_ARCH}' == 'x86_64' else ''}"
-
-# include .so symlinks in main package
-FILES_${PN}_append = "${@' ${libdir}/../lib64/*.so' if '${TARGET_ARCH}' == 'x86_64' else ' ${libdir}/../lib/*.so'}"
-INSANE_SKIP_${PN} = "dev-so"
-
 PACKAGECONFIG ??= "python nodejs java"
-PACKAGECONFIG[python] = "-DBUILDSWIGPYTHON=ON, -DBUILDSWIGPYTHON=OFF, swig-native python"
-PACKAGECONFIG[nodejs] = "-DBUILDSWIGNODE=ON, -DBUILDSWIGNODE=OFF, swig-native nodejs"
+PACKAGECONFIG[python] = "-DBUILDSWIGPYTHON=ON, -DBUILDSWIGPYTHON=OFF, swig-native python,"
+PACKAGECONFIG[nodejs] = "-DBUILDSWIGNODE=ON, -DBUILDSWIGNODE=OFF, swig-native nodejs,"
 PACKAGECONFIG[java] = "-DBUILDSWIGJAVA=ON, -DBUILDSWIGJAVA=OFF, swig-native icedtea7-native,"
-
-# for ftdi support, not included by default
-PACKAGECONFIG[usbplat] = "-DUSBPLAT=ON, -DUSBPLAT=OFF,,"
-PACKAGECONFIG[ftdi4222] = "-DFTDI4222=ON, -DFTDI4222=OFF, libft4222, libft4222"
 
 EXTRA_OECMAKE_append = "-DINSTALLGPIOTOOL=ON"
 
