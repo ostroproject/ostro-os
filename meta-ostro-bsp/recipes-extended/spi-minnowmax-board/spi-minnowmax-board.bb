@@ -4,6 +4,9 @@ LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://${THISDIR}/files/COPYING;md5=12f884d2ae1ff87c09e5b7ccc2c4ca7e"
 PR = "r0"
 
+# The module is compatible with intel-corei7-64/Minnowboard only
+COMPATIBLE_MACHINE="intel-corei7-64"
+
 inherit module
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/files/:"
