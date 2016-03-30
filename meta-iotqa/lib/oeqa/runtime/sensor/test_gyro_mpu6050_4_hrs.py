@@ -37,9 +37,9 @@ class TestGyroMPU6050FourHrs(oeRuntimeTest):
         (status, output) = self.target.run(renameTC) 
         print output
         
-    def testGyroMPU6050FourHrs(self):
+    def test_read_data_from_mpu6050_for_4_hrs(self):
         '''Execute the test app and verify sensor data
-        @fn testGyroMPU6050FourHrs
+        @fn test_read_data_from_mpu6050_for_4_hrs
         @param self
         @return'''
         self._setup()

@@ -37,9 +37,9 @@ class TestLightTsl2561FourHrs(oeRuntimeTest):
         renameTC = "mv /opt/apps/test_light_tsl2561.fbp /opt/apps/test_light_tsl2561_4_hrs.fbp"
         (status, output) = self.target.run(renameTC)        
         
-    def testLightTsl2561FourHrs(self):
+    def test_read_data_from_tsl2561_for_4_hrs(self):
         '''Execute the test app and verify sensor data
-        @fn testLightTsl2561FourHrs
+        @fn test_read_data_from_tsl2561_for_4_hrs
         @param self
         @return'''
         self._setup()
