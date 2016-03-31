@@ -420,10 +420,10 @@ class Wget(FetchMethod):
         version_dir = ['', '', '']
         version = ['', '', '']
 
-        dirver_regex = re.compile("(\D*)((\d+[\.\-_])+(\d+))")
+        dirver_regex = re.compile("(?P<pfx>\D*)(?P<ver>(\d+[\.\-_])+(\d+))")
         s = dirver_regex.search(dirver)
         if s:
-            version_dir[1] = s.group(2)
+            version_dir[1] = s.group('ver')
         else:
             version_dir[1] = dirver
 
@@ -438,9 +438,19 @@ class Wget(FetchMethod):
         for line in soup.find_all('a', href=True):
             s = dirver_regex.search(line['href'].strip("/"))
             if s:
-                version_dir_new = ['', s.group(2), '']
+                sver = s.group('ver')
+
+                # When prefix is part of the version directory it need to
+                # ensure that only version directory is used so remove previous
+                # directories if exists.
+                #
+                # Example: pfx = '/dir1/dir2/v' and version = '2.5' the expected
+                # result is v2.5.
+                spfx = s.group('pfx').split('/')[-1]
+
+                version_dir_new = ['', sver, '']
                 if self._vercmp(version_dir, version_dir_new) <= 0:
-                    dirver_new = s.group(1) + s.group(2)
+                    dirver_new = spfx + sver
                     path = ud.path.replace(dirver, dirver_new, True) \
                         .split(package)[0]
                     uri = bb.fetch.encodeurl([ud.type, ud.host, path,
