@@ -174,8 +174,8 @@ parts do not need to be rebuilt. The Yocto Project shared state code supports
 incremental builds and attempts to accelerate build time through the use
 of prebuilt data cache objects configured with the ``SSTATE_MIRRORS`` setting.
 
-By default, this ``SSTATE_MIRRORS`` configuration is disabled in :file:`conf/local.conf`
-but can be easily enabled by uncommenting the ``SSTATE_MIRRORS`` line
+By default, this ``SSTATE_MIRRORS`` configuration is enabled in :file:`conf/local.conf`
+but can be disabled (if desired) by commenting the ``SSTATE_MIRRORS`` line
 in your :file:`conf/local.conf` file, as shown here:::
 
    # Example for Ostro OS setup, recommended to use it:
