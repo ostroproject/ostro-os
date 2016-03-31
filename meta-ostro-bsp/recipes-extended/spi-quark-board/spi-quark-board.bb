@@ -12,6 +12,15 @@ SRC_URI = "file://spi-quark-at86rf230.c \
            file://spi-quark-board.c \
            file://spi-quark-board.h \
            file://Makefile \
+           file://modules-load.d/at86rf230.conf.sample \
            "
+
+FILES_${PN} += " /usr/lib/modules-load.d/at86rf230.conf.sample \
+               "
+# Sample configuring file
+do_install_append () {
+	install -d -m 755 ${D}${libdir}/modules-load.d
+	install -m 0644 modules-load.d/at86rf230.conf.sample ${D}${libdir}/modules-load.d/
+}
 
 S = "${WORKDIR}"

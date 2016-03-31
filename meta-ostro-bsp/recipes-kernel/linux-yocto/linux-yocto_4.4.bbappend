@@ -20,6 +20,16 @@ SRC_URI_append_beaglebone = " file://sensors.cfg"
 SRC_URI_append_intel-corei7-64 = " file://sensors.cfg"
 SRC_URI_append_intel-core2-32 = " file://sensors.cfg"
 
+# backport MMA7455 Accel sensor driver
+SRC_URI_append_intel-corei7-64 = " file://0001-iio-accel-add-Freescale-MMA7455L-MMA7456L-3-axis-acc.patch"
+SRC_URI_append_intel-core2-32 = " file://0001-iio-accel-add-Freescale-MMA7455L-MMA7456L-3-axis-acc.patch"
+SRC_URI_append_intel-quark = " file://0001-iio-accel-add-Freescale-MMA7455L-MMA7456L-3-axis-acc.patch"
+
+# backport lis2dh12 Accel sensor driver
+SRC_URI_append_intel-corei7-64 = " file://0001-iio-st-accel-add-support-for-lis2dh12.patch"
+SRC_URI_append_intel-core2-32 = " file://0001-iio-st-accel-add-support-for-lis2dh12.patch"
+SRC_URI_append_intel-quark = " file://0001-iio-st-accel-add-support-for-lis2dh12.patch"
+
 #  BeagleBone Black enable all I2Cs
 SRC_URI_append_beaglebone = " file://0001-v3.15.0-ARM-dts-am335x-boneblack-configure-i2c1-and-2.patch"
 
@@ -92,6 +102,11 @@ KERNEL_MODULE_AUTOLOAD_append_intel-quark = " g_acm_ms"
 KERNEL_MODULE_PROBECONF_append_intel-quark = " g_acm_ms"
 
 module_conf_g_acm_ms_intel-quark = "options g_acm_ms file=/dev/mmcblk0p1 removable=1 idVendor=0x8086 idProduct=0xDEAD"
+
+### Feature fragments
+
+# Enable eCryptFS
+SRC_URI_append = " file://ecryptfs.cfg"
 
 # Backport ambient capabilities support
 SRC_URI_append_edison = " file://0001-edison-capabilities-ambient-capabilities.patch"

@@ -96,6 +96,11 @@ KERNEL_MODULE_PROBECONF_append_intel-quark = " g_acm_ms"
 
 module_conf_g_acm_ms_intel-quark = "options g_acm_ms file=/dev/mmcblk0p1 removable=1 idVendor=0x8086 idProduct=0xDEAD"
 
+### Feature fragments
+
+# Enable eCryptFS
+SRC_URI_append = " file://ecryptfs.cfg"
+
 # Backport ambient capabilities support
 SRC_URI_append_intel-beaglebone = " file://0001-capabilities-ambient-capabilities.patch"
 SRC_URI_append_intel-beaglebone = " file://0002-capabilities-add-a-securebit-to-disable-PR_CAP_AMBIE.patch"

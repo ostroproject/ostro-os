@@ -19,7 +19,6 @@ Technical Notes
    modifying-ostro-kernel
    uefi-secure-boot
    certificate-handling
-   software-update-server
    firewall-configuration
    ip-address-config
 
