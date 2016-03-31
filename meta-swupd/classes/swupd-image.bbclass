@@ -530,3 +530,23 @@ python swupd_replace_hardlinks () {
                 os.symlink(reltarget, path)
 }
 ROOTFS_POSTPROCESS_COMMAND += "swupd_replace_hardlinks; "
+
+# swupd-client checks VERSION_ID, which must match the OS_VERSION
+# used for generating swupd bundles in the current build.
+#
+# We patch this during image creation and exclude OS_VERSION from the
+# dependencies because doing it during the compilation of os-release.bb
+# would trigger a rebuild even if all that changed is the OS_VERSION.
+# It would also affect builds of images where swupd is not active. Both
+# is undesirable.
+#
+# If triggering a rebuild on each OS_VERSION change is desired,
+# then this can be achieved by influencing the os-release package
+# by setting in local.conf:
+# VERSION_ID = "${OS_VERSION}"
+
+swupd_patch_os_release () {
+    sed -i -e 's/^VERSION_ID *=.*/VERSION_ID="${OS_VERSION}"/' ${IMAGE_ROOTFS}/usr/lib/os-release
+}
+swupd_patch_os_release[vardepsexclude] = "OS_VERSION"
+ROOTFS_POSTPROCESS_COMMAND += "swupd_patch_os_release; "
