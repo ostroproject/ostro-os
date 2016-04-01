@@ -423,3 +423,18 @@ python extra_motd () {
         f.write(d.getVar('OSTRO_EXTRA_MOTD', True))
 }
 ROOTFS_POSTPROCESS_COMMAND += "${@'extra_motd;' if d.getVar('OSTRO_EXTRA_MOTD', True) else ''}"
+
+# Ensure that the os-release file contains values matching the current image creation build.
+# We do not want to rebuild the the os-release package for that, because that would
+# also trigger image rebuilds when nothing else changed.
+ostro_image_patch_os_release () {
+    sed -i \
+        -e 's/distro-version-to-be-added-during-image-creation/${DISTRO_VERSION}/' \
+        -e 's/build-id-to-be-added-during-image-creation/${BUILD_ID}/' \
+        ${IMAGE_ROOTFS}/usr/lib/os-release
+}
+ostro_image_patch_os_release[vardepsexclude] = " \
+    DISTRO_VERSION \
+    BUILD_ID \
+"
+ROOTFS_POSTPROCESS_COMMAND += "ostro_image_patch_os_release; "
