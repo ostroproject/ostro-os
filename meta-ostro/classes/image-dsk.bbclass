@@ -55,7 +55,7 @@ IMAGE_DEPENDS_dsk += " \
 # when adding swupd bundle support, because there virtual images
 # without active .dsk are used to generate the rootfs for other
 # images with .dsk format.
-INITRD_append = "${@ ('${DEPLOY_DIR_IMAGE}/' + d.getVar('INITRD_IMAGE', expand=True) + '-${MACHINE}.cpio.gz') if d.getVar('INITRD_IMAGE', True) else ''}"
+INITRD_LIVE_append = "${@ ('${DEPLOY_DIR_IMAGE}/' + d.getVar('INITRD_IMAGE', expand=True) + '-${MACHINE}.cpio.gz') if d.getVar('INITRD_IMAGE', True) else ''}"
 
 PACKAGES = " "
 EXCLUDE_FROM_WORLD = "1"
@@ -144,7 +144,7 @@ python do_uefiapp() {
     # initrd is a concatenation of compressed cpio archives
     # (initramfs, microcode, etc.)
     with open(d.expand('${B}/initrd'), 'w') as dst:
-        for cpio in d.getVar('INITRD', True).split():
+        for cpio in d.getVar('INITRD_LIVE', True).split():
             with open(cpio, 'rb') as src:
                 dst.write(src.read())
     with open(d.expand('${B}/machine.txt'), 'w') as f:
@@ -217,7 +217,6 @@ IMAGE_DSK_VARIABLES = " \
     DSK_IMAGE_LAYOUT \
     IMAGE_NAME \
     IMAGE_ROOTFS \
-    INITRD \
     MACHINE \
     ROOTFS_TYPE \
     ROOTFS_PARTUUID_VALUE \
