@@ -306,8 +306,7 @@ IMAGE_FSTYPES_remove_intel-quark = "live"
 IMAGE_FSTYPES_append_intel-quark = " ${OSTRO_VM_IMAGE_TYPES}"
 
 # Activate "dsk" image type.
-# Currently this supports only EFI-based booting, so let's enable it only for the EFI platforms.
-IMAGE_CLASSES += "${@bb.utils.contains_any('MACHINE', 'intel-core2-32 intel-corei7-64 intel-quark', 'image-dsk', '', d)}"
+IMAGE_CLASSES += "${@ 'image-dsk' if ${OSTRO_USE_DSK_IMAGES} else ''}"
 
 # Inherit after setting variables that get evaluated when importing
 # the classes. In particular IMAGE_FSTYPES is relevant because it causes

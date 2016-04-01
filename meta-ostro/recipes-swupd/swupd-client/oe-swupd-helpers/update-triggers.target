@@ -1,6 +1,0 @@
-[Unit]
-Description=Post system update triggers
-Wants=ldconfig-trigger.service
-Wants=catalog-trigger.service
-Wants=tmpfiles-trigger.service
-Wants=efi-combo-trigger.service
