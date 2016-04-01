@@ -88,10 +88,10 @@ inherit ${@bb.utils.contains('IMAGE_FEATURES', 'swupd', 'swupd-image', '', d)}
 # which add packages (i.e. OSTRO_IMAGE_PKG_FEATURES).
 # In addition, for each of these we also create a development bundle
 # that also contains the development files.
-SWUPD_BUNDLES ??= " \
-    ${OSTRO_IMAGE_PKG_FEATURES} \
-    ${@ ' '.join([x + '-dev' for x in '${OSTRO_IMAGE_PKG_FEATURES}'.split()])} \
-"
+#SWUPD_BUNDLES ??= " \
+#    ${OSTRO_IMAGE_PKG_FEATURES} \
+#    ${@ ' '.join([x + '-dev' for x in '${OSTRO_IMAGE_PKG_FEATURES}'.split()])} \
+#"
 BUNDLE_CONTENTS[can] = "${FEATURE_PACKAGES_can}"
 BUNDLE_CONTENTS[connectivity] = "${FEATURE_PACKAGES_connectivity}"
 BUNDLE_CONTENTS[devkit] = "${FEATURE_PACKAGES_devkit}"
@@ -106,6 +106,33 @@ BUNDLE_CONTENTS[soletta] = "${FEATURE_PACKAGES_soletta}"
 BUNDLE_CONTENTS[soletta-tools] = "${FEATURE_PACKAGES_soletta-tools}"
 BUNDLE_CONTENTS[tools-debug] = "${FEATURE_PACKAGES_tools-debug}"
 BUNDLE_CONTENTS[tools-develop] = "${FEATURE_PACKAGES_tools-develop}"
+
+# Defining bundles as above is currently too slow (build times in the CI
+# of more than three hours despite reused sstate cache). Let's cut down
+# the number of bundles to something more manageable and increase it again
+# after improving bundle creation performance.
+SWUPD_BUNDLES ??= " \
+    reference \
+    full \
+    full-dev \
+"
+BUNDLE_CONTENTS[reference] = " \
+    ${FEATURE_PACKAGES_connectivity} \
+    ${FEATURE_PACKAGES_ssh-server-openssh} \
+"
+BUNDLE_CONTENTS[full] = " \
+    ${FEATURE_PACKAGES_can} \
+    ${FEATURE_PACKAGES_devkit} \
+    ${FEATURE_PACKAGES_iotivity} \
+    ${FEATURE_PACKAGES_java-jdk} \
+    ${FEATURE_PACKAGES_node-runtime} \
+    ${FEATURE_PACKAGES_python-runtime} \
+    ${FEATURE_PACKAGES_qatests} \
+    ${FEATURE_PACKAGES_soletta} \
+    ${FEATURE_PACKAGES_soletta-tools} \
+    ${FEATURE_PACKAGES_tools-debug} \
+    ${FEATURE_PACKAGES_tools-develop} \
+"
 
 # When swupd bundles are enabled, choose explicitly which images
 # are created. The base image will only have the core-os bundle and
@@ -129,10 +156,14 @@ SWUPD_IMAGES ??= " \
     dev \
     all \
 "
+# SWUPD_IMAGES[reference] = " \
+#     connectivity \
+#     ssh-server \
+# "
 SWUPD_IMAGES[reference] = " \
-    connectivity \
-    ssh-server \
+    reference \
 "
+
 # In practice the same as "all" at the moment, but conceptually different
 # and thus defined separately.
 SWUPD_IMAGES[dev] = " \
