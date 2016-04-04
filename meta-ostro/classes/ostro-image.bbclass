@@ -124,6 +124,7 @@ SWUPD_BUNDLES ??= " \
 "
 BUNDLE_CONTENTS[reference] = " \
     ${FEATURE_PACKAGES_connectivity} \
+    ${FEATURE_PACKAGES_tools-interactive} \
     ${FEATURE_PACKAGES_ssh-server-openssh} \
 "
 BUNDLE_CONTENTS[full] = " \
