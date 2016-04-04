@@ -26,6 +26,8 @@ SWUPD_DELTAPACKS ??= "1"
 # Create delta packs for N versions back — default 2
 SWUPD_N_DELTAPACK ??= "2"
 
+SWUPD_LOG_FN ??= "bbdebug 1"
+
 # This version number *must* map to VERSION_ID in /etc/os-release and *must* be
 # a non-negative integer that fits in an int.
 OS_VERSION ??= "${DISTRO_VERSION}"
@@ -412,7 +414,7 @@ fakeroot do_swupd_update () {
 
     export XZ_DEFAULTS="--threads 0"
 
-    bbdebug 1 "New OS_VERSION is ${OS_VERSION}"
+    ${SWUPD_LOG_FN} "New OS_VERSION is ${OS_VERSION}"
     # If the swupd directory already exists don't trample over it, but let
     # the user know we're not doing any update generation.
     if [ -e ${DEPLOY_DIR_SWUPD}/www/${OS_VERSION} ]; then
@@ -422,7 +424,7 @@ fakeroot do_swupd_update () {
     fi
 
     # Generate swupd-server configuration
-    bbdebug 1 "Writing ${DEPLOY_DIR_SWUPD}/server.ini"
+    bbdebug 2 "Writing ${DEPLOY_DIR_SWUPD}/server.ini"
     if [ -e "${DEPLOY_DIR_SWUPD}/server.ini" ]; then
        rm ${DEPLOY_DIR_SWUPD}/server.ini
     fi
@@ -436,13 +438,13 @@ END
     if [ -e ${DEPLOY_DIR_SWUPD}/image/latest.version ]; then
         PREVREL=`cat ${DEPLOY_DIR_SWUPD}/image/latest.version`
     else
-        bbdebug 1 "Stubbing out empty latest.version file"
+        bbdebug 2 "Stubbing out empty latest.version file"
         touch ${DEPLOY_DIR_SWUPD}/image/latest.version
         PREVREL="0"
     fi
 
     GROUPS_INI="${DEPLOY_DIR_SWUPD}/groups.ini"
-    bbdebug 1 "Writing ${GROUPS_INI}"
+    bbdebug 2 "Writing ${GROUPS_INI}"
     if [ -e "${DEPLOY_DIR_SWUPD}/groups.ini" ]; then
        rm ${DEPLOY_DIR_SWUPD}/groups.ini
     fi
@@ -453,16 +455,16 @@ END
         echo "" >> ${GROUPS_INI}
     done
 
-    bbdebug 1 "Generating update from $PREVREL to ${OS_VERSION}"
+    ${SWUPD_LOG_FN} "Generating update from $PREVREL to ${OS_VERSION}"
     ${STAGING_BINDIR_NATIVE}/swupd_create_update -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION}
 
-    bbdebug 1 "Generating fullfiles for ${OS_VERSION}"
+    ${SWUPD_LOG_FN} "Generating fullfiles for ${OS_VERSION}"
     ${STAGING_BINDIR_NATIVE}/swupd_make_fullfiles -S ${DEPLOY_DIR_SWUPD} ${OS_VERSION}
 
-    bbdebug 1 "Generating zero packs, this can take some time."
+    ${SWUPD_LOG_FN} "Generating zero packs, this can take some time."
     bundles="os-core ${SWUPD_BUNDLES}"
     for bndl in $bundles; do
-        bbdebug 2 "Generating zero pack for $bndl"
+        ${SWUPD_LOG_FN} "Generating zero pack for $bndl"
         ${STAGING_BINDIR_NATIVE}/swupd_make_pack -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl
     done
 
@@ -475,7 +477,7 @@ END
             # deltas against. Ignore the latest one, which is the one we build
             # right now.
             ls -d -1 ${DEPLOY_DIR_SWUPD}/image/*/$bndl | sed -e 's;${DEPLOY_DIR_SWUPD}/image/\([^/]*\)/.*;\1;' | grep -e '^[0-9]*$' | sort -n | head -n -1 | tail -n ${SWUPD_N_DELTAPACK} | while read prevver; do
-                bbdebug 2 "Generating delta pack from $prevver to ${OS_VERSION} for $bndl"
+                ${SWUPD_LOG_FN} "Generating delta pack from $prevver to ${OS_VERSION} for $bndl"
                 ${STAGING_BINDIR_NATIVE}/swupd_make_pack -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl
             done
         done
