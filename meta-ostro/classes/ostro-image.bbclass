@@ -80,6 +80,11 @@ IMAGE_FEATURES += " \
 OSTRO_IMAGE_EXTRA_FEATURES ?= ""
 inherit ${@bb.utils.contains('IMAGE_FEATURES', 'swupd', 'swupd-image', '', d)}
 
+# Make progress messages from do_swupd_update visible as normal command
+# line output, instead of just recording it to the logs. Useful
+# because that task can run for a long time without any output.
+SWUPD_LOG_FN ?= "bbplain"
+
 # When using the "swupd" image feature, ensure that OS_VERSION is
 # set as intended. The default for local build works, but yields very
 # unpredictable version numbers (see ostro.conf for details).
