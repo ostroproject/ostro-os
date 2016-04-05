@@ -8,18 +8,51 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=d1cc191275d6a8c5ce039c75b2b3dc29"
 DEPENDS = "nodejs swig-native mraa"
 
 SRC_URI = "git://github.com/intel-iot-devkit/upm.git;protocol=git;rev=655ccee9afd259bff1773e9e8aea860f6e06b69f \
-"
+           file://0001-cmake-Solved-issue-with-nodejs-installation-path.patch \
+          "
 
 S = "${WORKDIR}/git"
 
 inherit distutils-base pkgconfig python-dir cmake
 
-FILES_${PN}-doc += "${datadir}/upm/examples/"
+PACKAGES =+ "python-${PN} node-${PN} ${PN}-java"
+
+# python-upm package containing Python bindings
+FILES_python-${PN} = "${PYTHON_SITEPACKAGES_DIR}/ \
+                      ${datadir}/${BPN}/examples/python/ \
+                      ${prefix}/src/debug/${BPN}/${PV}-${PR}/build/src/*/pyupm_* \
+                     "
+RDEPENDS_python-${PN} += "python mraa"
+INSANE_SKIP_python-${PN} = "debug-files"
+
+# node-upm package containing Nodejs bindings
+FILES_node-${PN} = "${libdir}/node_modules/ \
+                    ${datadir}/${BPN}/examples/javascript/ \
+                   "
+RDEPENDS_node-${PN} += "nodejs mraa"
+INSANE_SKIP_node-${PN} = "debug-files"
+
+# upm-java package containing Java bindings
+FILES_${PN}-java = "${libdir}/libjava*.so \
+                    ${libdir}/java/ \
+                    ${datadir}/${BPN}/examples/java/ \
+                    ${prefix}/src/debug/${BPN}/${PV}-${PR}/build/src/*/*javaupm_* \
+                    ${libdir}/.debug/libjava*.so \
+                   "
+# include .jar files in /usr/lib/java for 64 bit builds
+FILES_${PN}-java_append = "${@' ${libdir}/../lib/java/*' if '${TARGET_ARCH}' == 'x86_64' else ''}"
+
+RDEPENDS_${PN}-java += "java-runtime mraa-java"
+INSANE_SKIP_${PN}-java = "debug-files"
+
+
+FILES_${PN}-doc += " ${datadir}/upm/examples/"
+RDEPENDS_${PN} += " mraa"
 
 PACKAGECONFIG ??= "python nodejs java"
-PACKAGECONFIG[python] = "-DBUILDSWIGPYTHON=OFF, -DBUILDSWIGPYTHON=OFF, swig-native python, python-mraa"
-PACKAGECONFIG[nodejs] = "-DBUILDSWIGNODE=OFF, -DBUILDSWIGNODE=OFF, swig-native nodejs, node-mraa"
-PACKAGECONFIG[java] = "-DBUILDSWIGJAVA=ON, -DBUILDSWIGJAVA=OFF, swig-native icedtea7-native, java-mraa"
+PACKAGECONFIG[python] = "-DBUILDSWIGPYTHON=ON, -DBUILDSWIGPYTHON=OFF, swig-native python,"
+PACKAGECONFIG[nodejs] = "-DBUILDSWIGNODE=ON, -DBUILDSWIGNODE=OFF, swig-native nodejs,"
+PACKAGECONFIG[java] = "-DBUILDSWIGJAVA=ON, -DBUILDSWIGJAVA=OFF, swig-native icedtea7-native,"
 
 export JAVA_HOME="${STAGING_DIR}/${BUILD_SYS}/usr/lib/jvm/icedtea7-native"
 
@@ -33,12 +66,3 @@ set (JAVA_JVM_LIBRARY ${JAVA_HOME}/jre/lib/amd64/libjvm.so CACHE FILEPATH \"path
 " >> ${WORKDIR}/toolchain.cmake
 }
 
-# include .jar files in /usr/lib/java for 64 bit builds
-FILES_${PN}_append = "${@' ${libdir}/../lib/java/*.jar' if '${TARGET_ARCH}' == 'x86_64' else ''}"
-
-# include nodejs files in /usr/lib/node_modules for 64 bit builds
-FILES_${PN}_append = "${@' ${libdir}/../lib/node_modules/*' if '${TARGET_ARCH}' == 'x86_64' else ''}"
-
-# include .so symlinks in main package
-FILES_${PN}_append = "${@' ${libdir}/../lib64/*.so' if '${TARGET_ARCH}' == 'x86_64' else ' ${libdir}/../lib/*.so'}"
-INSANE_SKIP_${PN} = "dev-so"
