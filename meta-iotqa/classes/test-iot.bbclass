@@ -24,9 +24,18 @@
 # TEST_QEMUBOOT_TIMEOUT can be used to set the maximum time in seconds the launch code will wait for the login prompt.
 
 inherit testimage
-#set dependency for test_ostro and test_iot_export
-TESTIMAGEDEPENDS = "ostro-image:do_build"
 DEPLOY_DIR_TESTSUITE ?= "${DEPLOY_DIR}/testsuite"
+
+# Extra target binaries not installed in the target image, required for image testing.
+IOTQA_TESTIMAGEDEPENDS += "mraa-test mmap-smack-test tcp-smack-test udp-smack-test read-map shm-util gdb"
+IOTQA_TESTIMAGEDEPENDS += "${@bb.utils.contains('IMAGE_FEATURES', 'app-privileges', 'app-runas', '', d)}"
+
+# When added to the task dependencies below, they get build before running those tasks.
+IOTQA_TASK_DEPENDS = "${@ ' '.join([x + ':do_build' for x in '${IOTQA_TESTIMAGEDEPENDS}'.split()])}"
+
+# When added to TESTIMAGEDEPENDS, they get built also if running do_testimage
+# (see testimage.bbclass) but not when merely building an image.
+TESTIMAGEDEPENDS_append = " ${IOTQA_TASK_DEPENDS}"
 
 #get layer dir
 def get_layer_dir(d, layer):
@@ -77,7 +86,7 @@ python do_test_iot() {
 }
 
 addtask test_iot
-do_test_iot[depends] += "${TESTIMAGEDEPENDS}"
+do_test_iot[depends] += "${IOTQA_TASK_DEPENDS} ${PN}:do_build"
 do_test_iot[lockfiles] += "${TESTIMAGELOCK}"
 
 #overwrite copy src dir to dest
@@ -199,5 +208,5 @@ python do_test_iot_export() {
 }
 
 addtask test_iot_export
-do_test_iot_export[depends] += "${TESTIMAGEDEPENDS}"
+do_test_iot_export[depends] += "${IOTQA_TASK_DEPENDS} ${PN}:do_build"
 do_test_iot_export[lockfiles] += "${TESTIMAGELOCK}"
