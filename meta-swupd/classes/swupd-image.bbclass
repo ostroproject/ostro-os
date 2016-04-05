@@ -565,3 +565,88 @@ swupd_patch_os_release () {
 }
 swupd_patch_os_release[vardepsexclude] = "OS_VERSION"
 ROOTFS_POSTPROCESS_COMMAND += "swupd_patch_os_release; "
+
+SWUPD_IMAGE_SANITY_CHECKS = ""
+# Add image-level QA/sanity checks to SWUPD_IMAGE_SANITY_CHECKS
+#
+# SWUPD_IMAGE_SANITY_CHECKS += " \
+#     swupd_check_dangling_symlinks \
+# "
+
+# This task runs all functions in SWUPD_IMAGE_SANITY_CHECKS after the image
+# construction has completed in order to validate the resulting image.
+# Image sanity checks should raise a NotImplementedError when they fail,
+# passing any failure messages to the Exception. For example:
+#
+#    python swupd_image_check_always_fails () {
+#        raise NotImplementedError('This check always fails')
+#    }
+python do_swupd_sanity_check_image () {
+    funcs = (d.getVar('SWUPD_IMAGE_SANITY_CHECKS', True) or '').split()
+    qasane = True
+
+    for func in funcs:
+        try:
+            bb.build.exec_func(func, d, pythonexception=True)
+        except NotImplementedError as e:
+            qasane = False
+            bb.error(str(e))
+
+    if not qasane:
+        bb.fatal('QA errors found whilst checking swupd image sanity.')
+}
+addtask swupd_sanity_check_image after do_image_complete before do_build
+
+# Check whether the constructed image contains any dangling symlinks, these
+# are likely to indicate deeper issues.
+# NOTE: you'll almost certainly want to override these for your distro.
+# /run, /var/volatile and /dev only get mounted at runtime.
+SWUPD_IMAGE_SYMLINK_WHITELIST ??= " \
+    /run/lock \
+    /var/volatile/tmp \
+    /var/volatile/log \
+    /dev/null \
+    /proc/mounts \
+    /run/resolv.conf \
+"
+
+python swupd_check_dangling_symlinks() {
+    rootfs = d.getVar("IMAGE_ROOTFS", True)
+
+    def resolve_links(target, root):
+        if not target.startswith('/'):
+            target = os.path.normpath(os.path.join(root, target))
+        else:
+            # Absolute links are in fact relative to the rootfs.
+            # Can't use os.path.join() here, it skips the
+            # components before absolute paths.
+            target = os.path.normpath(rootfs + target)
+        if os.path.islink(target):
+            root = os.path.dirname(target)
+            target = os.readlink(target)
+            target = resolve_links(target, root)
+        return target
+
+    # Check for dangling symlinks. One common reason for them
+    # in swupd images is update-alternatives where the alternative
+    # that gets chosen in the mega image then is not installed
+    # in a sub-image.
+    #
+    # Some allowed cases are whitelisted.
+    whitelist = d.getVar('SWUPD_IMAGE_SYMLINK_WHITELIST', True).split()
+    message = ''
+    for root, dirs, files in os.walk(rootfs):
+        for entry in files + dirs:
+            path = os.path.join(root, entry)
+            if os.path.islink(path):
+                target = os.readlink(path)
+                final_target = resolve_links(target, root)
+                if not os.path.exists(final_target) and not final_target[len(rootfs):] in whitelist:
+                    message = message + 'Dangling symlink: %s -> %s -> %s does not resolve to a valid filesystem entry.\n' % (path, target, final_target)
+
+    if message != '':
+        message = message + '\nIf these symlinks not pointing to a valid destination is not an issue \
+i.e. the link is to a file which only exists at runtime, such as files in /proc, add them to \
+SWUPD_IMAGE_SYMLINK_WHITELIST to resolve this error.'
+        raise NotImplementedError(message)
+}
