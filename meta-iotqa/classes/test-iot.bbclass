@@ -135,8 +135,7 @@ def dump_builddata(d, tdir):
     savedata = {}
     savedata["imagefeatures"] = d.getVar("IMAGE_FEATURES", True).split()
     savedata["distrofeatures"] = d.getVar("DISTRO_FEATURES", True).split()
-    manifest = os.path.join(d.getVar("DEPLOY_DIR_IMAGE", True),
-                              d.getVar("IMAGE_LINK_NAME", True) + ".manifest")
+    manifest = d.getVar("IMAGE_MANIFEST", True)
     try:
         with open(manifest) as f:
             pkgs = f.readlines()
