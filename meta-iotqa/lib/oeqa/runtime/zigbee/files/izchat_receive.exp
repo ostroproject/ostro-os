@@ -1,0 +1,16 @@
+#!/usr/bin/expect
+set timeout 10
+set pan     [lindex $argv 0]
+set src     [lindex $argv 1]
+set tag     [lindex $argv 2]
+set ip      [lindex $argv 3]
+spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR izchat $pan $src $tag
+ expect {
+ "HelloOstro"
+   {
+    sleep 1; exit 2
+   }
+ eof
+   {}
+ }
+ 

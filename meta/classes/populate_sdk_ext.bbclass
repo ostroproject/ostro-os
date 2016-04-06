@@ -51,6 +51,8 @@ def get_sdk_install_targets(d):
 
     return sdk_install_targets
 
+get_sdk_install_targets[vardepsexclude] = "BB_TASKDEPDATA"
+
 OE_INIT_ENV_SCRIPT ?= "oe-init-build-env"
 
 # The files from COREBASE that you want preserved in the COREBASE copied
@@ -164,6 +166,9 @@ python copy_buildsystem () {
         f.write('    $' + '{SDKBASEMETAPATH}/workspace \\\n')
         f.write('    "\n')
 
+    env_whitelist = (d.getVar('BB_ENV_EXTRAWHITE', True) or '').split()
+    env_whitelist_values = {}
+
     # Create local.conf
     builddir = d.getVar('TOPDIR', True)
     if derivative:
@@ -176,6 +181,8 @@ python copy_buildsystem () {
                 newlines.append('# Removed original setting of %s\n' % varname)
                 return None, op, 0, True
             else:
+                if varname in env_whitelist:
+                    env_whitelist_values[varname] = origvalue
                 return origvalue, op, 0, True
         varlist = ['[^#=+ ]*']
         with open(builddir + '/conf/local.conf', 'r') as f:
@@ -240,6 +247,21 @@ python copy_buildsystem () {
                 for line in newlines:
                     if line.strip() and not line.startswith('#'):
                         f.write(line)
+
+    # Ensure any variables set from the external environment (by way of
+    # BB_ENV_EXTRAWHITE) are set in the SDK's configuration
+    extralines = []
+    for name, value in env_whitelist_values.iteritems():
+        actualvalue = d.getVar(name, True) or ''
+        if value != actualvalue:
+            extralines.append('%s = "%s"\n' % (name, actualvalue))
+    if extralines:
+        with open(baseoutpath + '/conf/local.conf', 'a') as f:
+            f.write('\n')
+            f.write('# Extra settings from environment:\n')
+            for line in extralines:
+                f.write(line)
+            f.write('\n')
 
     # Filter the locked signatures file to just the sstate tasks we are interested in
     excluded_targets = d.getVar('SDK_TARGETS', True)
@@ -328,7 +350,7 @@ install_tools() {
 	install $buildtools_path ${SDK_OUTPUT}/${SDKPATH}
 
 	# For now this is where uninative.bbclass expects the tarball
-	chksum=`md5sum ${SDK_DEPLOY}/${BUILD_ARCH}-nativesdk-libc.tar.bz2 | cut -f 1 -d ' '`
+	chksum=`sha256sum ${SDK_DEPLOY}/${BUILD_ARCH}-nativesdk-libc.tar.bz2 | cut -f 1 -d ' '`
 	install -d ${SDK_OUTPUT}/${SDKPATH}/downloads/uninative/$chksum/
 	install ${SDK_DEPLOY}/${BUILD_ARCH}-nativesdk-libc.tar.bz2 ${SDK_OUTPUT}/${SDKPATH}/downloads/uninative/$chksum/
 	echo "UNINATIVE_CHECKSUM[${BUILD_ARCH}] = '$chksum'" >> ${SDK_OUTPUT}/${SDKPATH}/conf/local.conf
@@ -345,6 +367,12 @@ sdk_ext_preinst() {
 		exit 1
 	fi
 	SDK_EXTENSIBLE="1"
+	if [ "$publish" = "1" ] ; then
+		EXTRA_TAR_OPTIONS="$EXTRA_TAR_OPTIONS --exclude=ext-sdk-prepare.py"
+		if [ "${SDK_EXT_TYPE}" = "minimal" ] ; then
+			EXTRA_TAR_OPTIONS="$EXTRA_TAR_OPTIONS --exclude=sstate-cache"
+		fi
+	fi
 }
 SDK_PRE_INSTALL_COMMAND_task-populate-sdk-ext = "${sdk_ext_preinst}"
 
@@ -374,7 +402,7 @@ sdk_ext_postinst() {
 	# Warn if trying to use external bitbake and the ext SDK together
 	echo "(which bitbake > /dev/null 2>&1 && echo 'WARNING: attempting to use the extensible SDK in an environment set up to run bitbake - this may lead to unexpected results. Please source this script in a new shell session instead.') || true" >> $env_setup_script
 
-	if [ "$prepare_buildsystem" != "no" -a -n "${@SDK_INSTALL_TARGETS.strip()}" ]; then
+	if [ "$prepare_buildsystem" != "no" ]; then
 		printf "Preparing build system...\n"
 		# dash which is /bin/sh on Ubuntu will not preserve the
 		# current working directory when first ran, nor will it set $1 when

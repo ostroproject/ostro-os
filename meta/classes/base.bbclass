@@ -398,11 +398,11 @@ python () {
             if not appends:
                 return
             if varname.find("DEPENDS") != -1:
-                if pn.startswith("nativesdk-"):
+                if bb.data.inherits_class('nativesdk', d) or bb.data.inherits_class('cross-canadian', d) :
                     appends = expandFilter(appends, "", "nativesdk-")
-                if pn.endswith("-native"):
+                elif bb.data.inherits_class('native', d):
                     appends = expandFilter(appends, "-native", "")
-                if mlprefix:
+                elif mlprefix:
                     appends = expandFilter(appends, "", mlprefix)
             varname = d.expand(varname)
             d.appendVar(varname, " " + " ".join(appends))
@@ -499,31 +499,23 @@ python () {
 
             whitelist = []
             incompatwl = []
-            htincompatwl = []
             for lic in bad_licenses:
                 spdx_license = return_spdx(d, lic)
-                for w in ["HOSTTOOLS_WHITELIST_", "LGPLv2_WHITELIST_", "WHITELIST_"]:
+                for w in ["LGPLv2_WHITELIST_", "WHITELIST_"]:
                     whitelist.extend((d.getVar(w + lic, True) or "").split())
                     if spdx_license:
                         whitelist.extend((d.getVar(w + spdx_license, True) or "").split())
                     '''
-                    We need to track what we are whitelisting and why. If pn is 
-                    incompatible and is not HOSTTOOLS_WHITELIST_ we need to be 
-                    able to note that the image that is created may infact 
-                    contain incompatible licenses despite INCOMPATIBLE_LICENSE 
-                    being set.
+                    We need to track what we are whitelisting and why. If pn is
+                    incompatible we need to be able to note that the image that
+                    is created may infact contain incompatible licenses despite
+                    INCOMPATIBLE_LICENSE being set.
                     '''
-                    if "HOSTTOOLS" in w:
-                        htincompatwl.extend((d.getVar(w + lic, True) or "").split())
-                        if spdx_license:
-                            htincompatwl.extend((d.getVar(w + spdx_license, True) or "").split())
-                    else:
-                        incompatwl.extend((d.getVar(w + lic, True) or "").split())
-                        if spdx_license:
-                            incompatwl.extend((d.getVar(w + spdx_license, True) or "").split())
+                    incompatwl.extend((d.getVar(w + lic, True) or "").split())
+                    if spdx_license:
+                        incompatwl.extend((d.getVar(w + spdx_license, True) or "").split())
 
             if not pn in whitelist:
-                recipe_license = d.getVar('LICENSE', True)
                 pkgs = d.getVar('PACKAGES', True).split()
                 skipped_pkgs = []
                 unskipped_pkgs = []
@@ -535,19 +527,17 @@ python () {
                 all_skipped = skipped_pkgs and not unskipped_pkgs
                 if unskipped_pkgs:
                     for pkg in skipped_pkgs:
-                        bb.debug(1, "SKIPPING the package " + pkg + " at do_rootfs because it's " + recipe_license)
+                        bb.debug(1, "SKIPPING the package " + pkg + " at do_rootfs because it's " + license)
                         mlprefix = d.getVar('MLPREFIX', True)
                         d.setVar('LICENSE_EXCLUSION-' + mlprefix + pkg, 1)
                     for pkg in unskipped_pkgs:
                         bb.debug(1, "INCLUDING the package " + pkg)
                 elif all_skipped or incompatible_license(d, bad_licenses):
-                    bb.debug(1, "SKIPPING recipe %s because it's %s" % (pn, recipe_license))
-                    raise bb.parse.SkipPackage("incompatible with license %s" % recipe_license)
+                    bb.debug(1, "SKIPPING recipe %s because it's %s" % (pn, license))
+                    raise bb.parse.SkipPackage("incompatible with license %s" % license)
             elif pn in whitelist:
                 if pn in incompatwl:
                     bb.note("INCLUDING " + pn + " as buildable despite INCOMPATIBLE_LICENSE because it has been whitelisted")
-                elif pn in htincompatwl:
-                    bb.note("INCLUDING " + pn + " as buildable despite INCOMPATIBLE_LICENSE because it has been whitelisted for HOSTTOOLS")
 
     needsrcrev = False
     srcuri = d.getVar('SRC_URI', True)

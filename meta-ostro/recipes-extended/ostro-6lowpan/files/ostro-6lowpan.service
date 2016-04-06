@@ -1,0 +1,14 @@
+[Unit]
+Description=6loWPAN network setup
+Before=connman.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=-/etc/ostro-6lowpan.conf
+ExecStart=/usr/lib/ostro-scripts/ostro-6lowpan-start.sh
+ExecStop=/usr/lib/ostro-scripts/ostro-6lowpan-stop.sh
+
+[Install]
+WantedBy=multi-user.target
+

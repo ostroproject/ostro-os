@@ -18,6 +18,7 @@ import subprocess
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import get_files_dir
 from oeqa.utils.helper import shell_cmd_timeout
+from oeqa.utils.helper import run_as, add_group, add_user, remove_user
 from oeqa.utils.decorators import tag
 
 @tag(TestType="EFT", FeatureID="IOTOS-754,IOTOS-1019")
@@ -36,9 +37,36 @@ class IOtvtIntegration(oeRuntimeTest):
         cls.tc.target.run("killall fridgeserver fridgeclient garageserver garageclient groupserver groupclient")
         cls.tc.target.run("killall roomserver roomclient simpleserver simpleclient simpleserverHQ simpleclientHQ")
         cls.tc.target.run("killall simpleclientserver threadingsample")
+        cls.tc.target.run("rm -f /tmp/svr_output")
+        cls.tc.target.run("rm -f /tmp/output")
+        # add group and non-root user
+        add_group("tester")
+        add_user("iotivity-tester", "tester")
         # Setup firewall accept for multicast
         cls.tc.target.run("/usr/sbin/iptables -w -A INPUT -p udp --dport 5683 -j ACCEPT")
         cls.tc.target.run("/usr/sbin/iptables -w -A INPUT -p udp --dport 5684 -j ACCEPT")
+
+    @classmethod
+    def tearDownClass(cls):
+        '''Clean user
+        @fn setUpClass
+        @param cls
+        @return
+        '''
+        remove_user("iotivity-tester")
+
+    def get_ipv6(self):
+        """
+        @fn get_ipv6
+        @param self
+        @return
+        """
+        time.sleep(1)
+        # Check ip address by ifconfig command
+        interface = "nothing"
+        (status, interface) = self.target.run("ifconfig | grep '^enp' | awk '{print $1}'")
+        (status, output) = self.target.run("ifconfig %s | grep 'inet6 addr:' | awk '{print $3}'" % interface)
+        return output.split('%')[0]
 
     def presence_check(self, para):
         '''this is a function used by presence test
@@ -48,17 +76,18 @@ class IOtvtIntegration(oeRuntimeTest):
         '''
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/presenceserver > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd, timeout=20)
+        (status, output) = run_as("iotivity-tester", server_cmd)
         time.sleep(1)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/presenceclient -t %d > /tmp/output &" % para
-        self.target.run(client_cmd, timeout=20)
+        run_as("iotivity-tester", client_cmd)
         # Some platform is too slow, it needs more time to sleep. E.g. MinnowMax
-        time.sleep(25)
-        (status, output) = self.target.run("cat /tmp/output")
+        time.sleep(60)
+        (status, output) = run_as("iotivity-tester", "cat /tmp/output")
         self.target.run("killall presenceserver presenceclient") 
-        time.sleep(3)       
-        return output.count("Received presence notification from")
+        time.sleep(3)
+        return output.count("Received presence notification from : %s" % self.target.ip) + \
+               output.count("Received presence notification from : %s" % self.get_ipv6())
 
     def test_devicediscovery(self):
         '''
@@ -72,12 +101,12 @@ class IOtvtIntegration(oeRuntimeTest):
         # ensure env is clean
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/devicediscoveryserver > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd, timeout=20)
+        (status, output) = run_as("iotivity-tester", server_cmd, timeout=20)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/devicediscoveryclient > /tmp/output &"
-        self.target.run(client_cmd, timeout=20)
+        run_as("iotivity-tester", client_cmd, timeout=20)
         time.sleep(5)
-        (status, output) = self.target.run('cat /tmp/output')
+        (status, output) = run_as("iotivity-tester", 'cat /tmp/output')
         # judge if the values are correct
         ret = 0
         if "Device name" in output and "Bill's Battlestar" in output and \
@@ -106,13 +135,13 @@ class IOtvtIntegration(oeRuntimeTest):
         # ensure env is clean
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/fridgeserver > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd, timeout=20)
+        (status, output) = run_as("iotivity-tester", server_cmd, timeout=20)
         time.sleep(1)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/fridgeclient > /tmp/output &"
-        self.target.run(client_cmd, timeout=20)
+        run_as("iotivity-tester", client_cmd, timeout=20)
         time.sleep(5)
-        (status, output) = self.target.run('cat /tmp/output')
+        (status, output) = run_as("iotivity-tester", 'cat /tmp/output')
         # judge if the values are correct
         ret = 0
         if "Name of device: Intel Powered 2 door, 1 light refrigerator" in output and \
@@ -144,13 +173,13 @@ class IOtvtIntegration(oeRuntimeTest):
         '''
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/garageserver > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd, timeout=20)
+        (status, output) = run_as("iotivity-tester", server_cmd, timeout=20)
         time.sleep(1)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/garageclient > /tmp/output &"
-        self.target.run(client_cmd, timeout=20)
+        run_as("iotivity-tester", client_cmd, timeout=20)
         time.sleep(5)
-        (status, output) = self.target.run('cat /tmp/output')
+        (status, output) = run_as("iotivity-tester", 'cat /tmp/output')
         # judge if the values are correct
         ret = 0
         if "GET request was successful" in output and \
@@ -179,7 +208,7 @@ class IOtvtIntegration(oeRuntimeTest):
         '''
         # start light server and group server
         lightserver_cmd = "/opt/iotivity/examples/resource/cpp/lightserver > /tmp/svr_output &"
-        (status, output) = self.target.run(lightserver_cmd, timeout=20)
+        (status, output) = run_as("iotivity-tester", lightserver_cmd, timeout=20)
         time.sleep(2)
         ssh_cmd = "ssh root@%s -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR" % self.target.ip
         groupserver_cmd = "/opt/iotivity/examples/resource/cpp/groupserver > /dev/null 2>&1"
@@ -253,7 +282,7 @@ class IOtvtIntegration(oeRuntimeTest):
         ##
         # TESTPOINT: #1, test_presence_multicast
         #
-        self.assertEqual(number, 7, msg="type 4 should have 7 notifications")
+        self.assertEqual(number, 8, msg="type 4 should have 8 notifications")
 
     def test_presence_multicast_one_filter(self):
         ''' See instruction in test_presence_unicast. 
@@ -265,7 +294,7 @@ class IOtvtIntegration(oeRuntimeTest):
         ##
         # TESTPOINT: #1, test_presence_multicast_one_filter
         #
-        self.assertEqual(number, 3, msg="type 5 should have 3 notifications")
+        self.assertEqual(number, 4, msg="type 5 should have 4 notifications")
 
     def test_presence_multicast_two_filters(self):
         ''' See instruction in test_presence_unicast. 
@@ -277,7 +306,7 @@ class IOtvtIntegration(oeRuntimeTest):
         ##
         # TESTPOINT: #1, test_presence_multicast_two_filters
         #
-        self.assertEqual(number, 4, msg="type 6 should have 4 notifications")
+        self.assertEqual(number, 5, msg="type 6 should have 5 notifications")
  
     def test_room_default_collection(self):
         ''' 
@@ -290,13 +319,13 @@ class IOtvtIntegration(oeRuntimeTest):
         '''
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/roomserver 1 > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd)
+        (status, output) = run_as("iotivity-tester", server_cmd)
         time.sleep(1)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/roomclient > /tmp/output &"
-        self.target.run(client_cmd)
+        run_as("iotivity-tester", client_cmd)
         time.sleep(5)
-        (status, output) = self.target.run("cat /tmp/svr_output | grep 'In Server CPP entity handler' -c")
+        (status, output) = run_as("iotivity-tester", "cat /tmp/svr_output | grep 'In Server CPP entity handler' -c")
         # kill server and client
         self.target.run("killall roomserver roomclient")     
         time.sleep(3)   
@@ -315,13 +344,13 @@ class IOtvtIntegration(oeRuntimeTest):
         '''
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/roomserver 2 > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd, timeout=20)
+        run_as("iotivity-tester", server_cmd)
         time.sleep(1)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/roomclient > /tmp/output &"
-        self.target.run(client_cmd, timeout=20)
-        time.sleep(3)
-        (status, output) = self.target.run("cat /tmp/svr_output")
+        run_as("iotivity-tester", client_cmd)
+        time.sleep(6)
+        (status, output) = run_as("iotivity-tester", "cat /tmp/svr_output")
         # kill server and client
         self.target.run("killall roomserver roomclient")        
         time.sleep(3)
@@ -340,14 +369,14 @@ class IOtvtIntegration(oeRuntimeTest):
         '''
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/simpleserver > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd, timeout=90)
+        (status, output) = run_as("iotivity-tester", server_cmd, timeout=90)
         time.sleep(1)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclient > /tmp/output &"
-        self.target.run(client_cmd, timeout=90)
+        run_as("iotivity-tester", client_cmd, timeout=90)
         print "\npatient... simpleclient needs long time for its observation"
         time.sleep(70)
-        (status, output) = self.target.run('cat /tmp/output')
+        (status, output) = run_as("iotivity-tester", 'cat /tmp/output')
         # judge if the values are correct
         ret = 0
         if "DISCOVERED Resource" in output and \
@@ -378,14 +407,14 @@ class IOtvtIntegration(oeRuntimeTest):
         '''
         # start server
         server_cmd = "/opt/iotivity/examples/resource/cpp/simpleserverHQ > /tmp/svr_output &"
-        (status, output) = self.target.run(server_cmd, timeout=90)
+        (status, output) = run_as("iotivity-tester", server_cmd, timeout=90)
         time.sleep(1)
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclientHQ > /tmp/output &"
-        self.target.run(client_cmd, timeout=90)
+        run_as("iotivity-tester", client_cmd, timeout=90)
         print "\npatient... simpleclientHQ needs long time for its observation"
         time.sleep(70)
-        (status, output) = self.target.run('cat /tmp/output')
+        (status, output) = run_as("iotivity-tester", 'cat /tmp/output')
         # judge if the values are correct
         ret = 0
         if "DISCOVERED Resource" in output and \
@@ -412,9 +441,9 @@ class IOtvtIntegration(oeRuntimeTest):
         '''
         # start test
         client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclientserver > /tmp/output &"
-        self.target.run(client_cmd, timeout=20)
+        run_as("iotivity-tester", client_cmd, timeout=20)
         time.sleep(10)
-        (status, output) = self.target.run('cat /tmp/output')
+        (status, output) = run_as("iotivity-tester", 'cat /tmp/output')
         # judge if the values are correct
         ret = 0
         if "Found Resource" in output and \
@@ -445,10 +474,10 @@ class IOtvtIntegration(oeRuntimeTest):
         '''
         # start test
         client_cmd = "/opt/iotivity/examples/resource/cpp/threadingsample > /tmp/output &"
-        self.target.run(client_cmd, timeout=20)
+        run_as("iotivity-tester", client_cmd, timeout=20)
         print "\n patient, threadingsample needs some time to open 3 threads"
         time.sleep(20)
-        (status, output) = self.target.run('cat /tmp/output')
+        (status, output) = run_as("iotivity-tester", 'cat /tmp/output')
         # judge if the values are correct
         ret = 0
         if "URI:  /q/foo1" in output and \
@@ -465,6 +494,28 @@ class IOtvtIntegration(oeRuntimeTest):
         # TESTPOINT: #1, test_threadingsample
         #
         self.assertEqual(ret, 0, msg="Error messages: %s" % output)                      
+
+    @tag(TestType="FVT", FeatureID="IOTOS-1004")
+    def test_neg_register_resource_byroot(self):
+        ''' 
+            Start iotivity server by root account, it must fail
+        @fn test_neg_register_resource_byroot
+        @param self
+        @return
+        '''
+        cmd = "/opt/iotivity/examples/resource/cpp/simpleserver > /tmp/output &"
+        self.target.run(cmd, timeout=20)
+        time.sleep(2)
+        # kill the server process
+        self.target.run("killall simpleserver")
+        time.sleep(1)
+        (status, output) = self.target.run('cat /tmp/output')
+        # judge if the values are correct
+        if "Created resource." in output:
+            pass            
+        else:
+            # root account should also be able to do iotivity operations
+            self.assertEqual(1, 0, msg="By root, the simpleserver fails to start: %s" % output) 
 
 ##
 # @}

@@ -70,14 +70,13 @@ do_install_append() {
     install -m 755 ${WORKDIR}/init ${D}${sysconfdir}/init.d/snmpd
     install -m 644 ${WORKDIR}/snmpd.conf ${D}${sysconfdir}/snmp/
     install -m 644 ${WORKDIR}/snmptrapd.conf ${D}${sysconfdir}/snmp/
-    sed    -e "s@^prefix=.*@prefix=${STAGING_DIR_HOST}@g" \
-        -e "s@^exec_prefix=.*@exec_prefix=${STAGING_DIR_HOST}@g" \
-        -e "s@^includedir=.*@includedir=${STAGING_INCDIR}@g" \
-        -e "s@^libdir=.*@libdir=${STAGING_LIBDIR}@g" \
-        -i ${D}${bindir}/net-snmp-config
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/snmpd.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/snmptrapd.service ${D}${systemd_unitdir}/system
+    sed    -e "s@^NSC_SRCDIR=.*@NSC_SRCDIR=.@g" \
+        -i ${D}${bindir}/net-snmp-create-v3-user
+    sed    -e "s@^NSC_SRCDIR=.*@NSC_SRCDIR=.@g" \
+        -i ${D}${bindir}/net-snmp-config
 }
 
 do_install_ptest() {
@@ -105,6 +104,11 @@ net_snmp_sysroot_preprocess () {
         install -d ${SYSROOT_DESTDIR}${bindir_crossscripts}/
         install -m 755 ${D}${bindir}/net-snmp-config ${SYSROOT_DESTDIR}${bindir_crossscripts}/
         sed -e "s@-I/usr/include@-I${STAGING_INCDIR}@g" \
+            -e "s@^prefix=.*@prefix=${STAGING_DIR_HOST}${prefix}@g" \
+            -e "s@^exec_prefix=.*@exec_prefix=${STAGING_EXECPREFIXDIR}@g" \
+            -e "s@^includedir=.*@includedir=${STAGING_INCDIR}@g" \
+            -e "s@^libdir=.*@libdir=${STAGING_LIBDIR}@g" \
+            -e "s@^NSC_SRCDIR=.*@NSC_SRCDIR=${S}@g" \
           -i  ${SYSROOT_DESTDIR}${bindir_crossscripts}/net-snmp-config
     fi
 }

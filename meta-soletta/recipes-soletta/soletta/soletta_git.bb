@@ -8,12 +8,12 @@ DEPENDS = "glib-2.0 libpcre pkgconfig python3-jsonschema-native icu curl libmicr
 DEPENDS += " ${@bb.utils.contains('DISTRO_FEATURES','systemd','systemd','',d)}"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=93888867ace35ffec2c845ea90b2e16b"
-PV = "1_beta16+git${SRCPV}"
+PV = "1_beta17+git${SRCPV}"
 
 SRC_URI = "gitsm://github.com/solettaproject/soletta.git;protocol=git \
            file://run-ptest \
           "
-SRCREV = "b3e725a94cdd3fa5db34c1aecc26bbc330dfdc81"
+SRCREV = "5daa00eadbe275dbb696a749f22fd319e39d877f"
 
 S = "${WORKDIR}/git"
 

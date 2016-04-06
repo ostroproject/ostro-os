@@ -2,33 +2,63 @@ from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.decorators import tag
 import time
 
-class AppFWTest(oeRuntimeTest):
+class App(object):
+    def __init__(self,target):
+        self.target = target
 
-    node_app_name = 'iodine-nodetest'
-
-    def _getProcessInfo(self,name):
+    def getProcessInfo(self,keyword):
         ''' get username,pid and exec command of process '''
-        (status,output) = self.target.run(" ps axo user:20,pid,comm | grep -v grep | grep %s | head -1" % name)
+        (status,output) = self.target.run(" ps axo user:20,pid,comm | grep -v grep | grep %s | head -1" % keyword)
         if status == 0 and output.strip():
              return output
         else:
              return None
         
+    def startApp(self,service_name):
+        ''' start app '''
+        (status,output) = self.target.run("systemctl start %s" % service_name)
+        time.sleep(3)
+        if status != 0 :
+            return False
+
+        if self.getProcessInfo('node')!= None and \
+           self.getProcessInfo('systemd-nspawn') != None:
+            return True
+        else:
+            return False 
+         
+        
+    def stopApp(self,service_name):
+        ''' stop app '''
+        (status,output) = self.target.run("systemctl stop %s" % service_name)
+        time.sleep(3)
+        if status != 0 :
+            print output
+            return False
+        if self.getProcessInfo('node')== None and \
+           self.getProcessInfo('systemd-nspawn') == None :
+            return True
+        else:
+            return False
+        
+class AppFWTest(oeRuntimeTest):
+
+    node_app_name = 'iodine-nodetest'
+
+    def setUp(self):
+        self.app = App(self.target)
+
+    def _getProcessInfo(self,name):
+        ''' get username,pid and exec command of process '''
+        return self.app.getProcessInfo(name)
+
     def _startApp(self,name):
         ''' start app '''
-        (status,output) = self.target.run("systemctl start %s" % name)
-        time.sleep(3)
-        self.assertTrue(status == 0, output)
-        self.assertTrue(self._getProcessInfo('node')!=None and 
-                        self._getProcessInfo('systemd-nspawn') !=None,'App launch fail')
+        self.assertTrue(self.app.startApp(name),'Fail to start app')
         
     def _stopApp(self,name):
         ''' stop app '''
-        (status,output) = self.target.run("systemctl stop %s" % name)
-        time.sleep(3)
-        self.assertTrue(status == 0, output)
-        self.assertTrue(self._getProcessInfo('node')== None and 
-                        self._getProcessInfo('systemd-nspawn') == None,'App launch fail')
+        self.assertTrue(self.app.stopApp(name),'Fail to stop app')
 
     @tag(TestType = 'FVT', FeatureID = 'IOTOS-337')
     def test_appFW_install_pkg_during_img_creation(self):
@@ -45,6 +75,7 @@ class AppFWTest(oeRuntimeTest):
     @tag(TestType = 'FVT', FeatureID = 'IOTOS-337')
     def test_appFW_app_stop(self):
         ''' Check app stop successfully '''
+        self._startApp(self.node_app_name)
         self._stopApp(self.node_app_name)
 
     @tag(TestType = 'EFT', FeatureID = 'IOTOS-337')
@@ -102,3 +133,9 @@ class AppFWTest(oeRuntimeTest):
         (status,output) = self.target.run("su %s" % self.node_app_name)
         self.assertTrue(status != 0 , 'Test access of app user fail')
          
+    @tag(TestType = 'FVT', FeatureID = 'IOTOS-358')
+    def test_appFW_sqlite_integrated(self):
+        ''' Check sqlite is integrated in image'''
+        (status,output) = self.target.run("ls /usr/lib/libsqlite*.so || ls /lib/libsqlite*.so")
+        self.assertTrue(status == 0 , 'Check sqlite integration fail')
+       

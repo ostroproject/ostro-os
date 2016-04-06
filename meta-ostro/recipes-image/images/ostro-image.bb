@@ -25,6 +25,7 @@ IMAGE_FEATURES[validitems] += " \
     iotivity \
     java-jdk \
     node-runtime \
+    nodejs-runtime-tools \
     python-runtime \
     qatests \
     smack \
@@ -49,6 +50,7 @@ IMAGE_FEATURES[validitems] += " \
 # avoids unnecessary proliferation of image variations that
 # need to be built automatically.
 IMAGE_VARIANT[dev] = " \
+    nodejs-runtime-tools \
     ptest-pkgs \
     tools-debug \
     tools-develop \
@@ -65,6 +67,7 @@ IMAGE_VARIANT[minimal] = " \
     no-devkit \
     no-iotivity \
     no-node-runtime \
+    no-nodejs-runtime-tools \
     no-python-runtime \
     no-soletta \
     no-soletta-tools \
@@ -143,6 +146,7 @@ FEATURE_PACKAGES_iotivity = "packagegroup-iotivity"
 FEATURE_PACKAGES_devkit = "packagegroup-devkit"
 
 FEATURE_PACKAGES_node-runtime = "packagegroup-node-runtime"
+FEATURE_PACKAGES_nodejs-runtime-tools = "packagegroup-nodejs-runtime-tools"
 FEATURE_PACKAGES_python-runtime = "packagegroup-python-runtime"
 FEATURE_PACKAGES_java-jdk = "packagegroup-java-jdk"
 FEATURE_PACKAGES_soletta = "packagegroup-soletta"

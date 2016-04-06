@@ -30,7 +30,7 @@ PACKAGES =+ "${PN}-misc"
 PARALLEL_MAKE = ""
 
 AR_append = " r"
-EXTRA_OECONF = " -no-ssl3"
+EXTRA_OEMAKE = "-e MAKEFLAGS="
 
 export ICP_ROOT = "${WORKDIR}/git"
 export ICP_BUILD_OUTPUT = "${STAGING_DIR_TARGET}"
@@ -65,7 +65,7 @@ do_configure () {
 	os=linux
 	target=linux-x86_64
 
-	./Configure ${EXTRA_OECONF} enable-hw-qat --prefix=$OPENSSL_PREFIX --openssldir="${OPENSSL_PREFIX}${base_libdir}/ssl" --libdir="${base_libdir}" $target
+	./Configure -no-ssl3 enable-hw-qat --prefix=$OPENSSL_PREFIX --openssldir="${OPENSSL_PREFIX}${base_libdir}/ssl" --libdir="${base_libdir}" $target
 }
 
 do_compile() {

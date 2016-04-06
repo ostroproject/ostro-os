@@ -66,6 +66,7 @@ class TestContext(object):
 class RuntestTestContext(OETestContext):
     def __init__(self, tc):
         d = tc.d
+        self.targets = tc.targets
         super(RuntestTestContext, self).__init__(d)
         self.pkgmanifest = tc.pkgmanifest
         self.target = tc.target
@@ -146,7 +147,7 @@ def main():
     for each_manifest in options.tests_list.split():
         with open(each_manifest, "r") as f:
             map(lambda y:tclist.append(y) if y not in tclist else None, 
-                filter(lambda x: not x.startswith('#'),
+                filter(lambda x: x and not x.startswith('#'),
                               [n.strip() for n in f.readlines()])
                 )
     tc.testslist = tclist

@@ -1,10 +1,7 @@
-#oeqa.runtime.ping
-#oeqa.runtime.ping2
 oeqa.runtime.sanity.apprt_nodejs
 oeqa.runtime.sanity.apprt_python
 oeqa.runtime.sanity.apprt_java
 oeqa.runtime.sanity.baseos
-#oeqa.runtime.sanity.comm_btcheck
 oeqa.runtime.sanity.comm_managerdaemon
 oeqa.runtime.sanity.comm_ssh
 oeqa.runtime.smack.SmackFileLabels.test_smack_labels
@@ -12,5 +9,3 @@ oeqa.runtime.sanity.iotivity.IOtvtClient.test_iotvt_findresource
 oeqa.runtime.sanity.iotivity.IOtvtClient.test_iotvt_getstate
 oeqa.runtime.sanity.iotivity.IOtvtClient.test_iotvt_observer
 oeqa.runtime.sanity.iotivity.IOtvtClient.test_iotvt_setstate
-#oeqa.runtime.sanity.comm_wifi_connect
-oeqa.runtime.sanity.reboot

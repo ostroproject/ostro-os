@@ -89,8 +89,16 @@ def remove_user(username, target=None):
     target = target if target is not None else oeRuntimeTest.tc.target
     return target.run("userdel %s"%username)[0] == 0
 
-def run_as(username, cmd, timeout=None, target=None):
+def escape(s):
+    ret = s.replace(r'"', r'\"')
+    return ret
+
+def run_as(username, cmd, timeout=None, target=None, need_escape=True):
+    """
+    escape: if True, run_as will try to escape some special char. for example: '"$
+    """
     target = target if target is not None else oeRuntimeTest.tc.target
+    cmd = escape(cmd) if need_escape else cmd
     cmd = "su %s -c \"%s\""%(username, cmd)
     return target.run(cmd, timeout) if timeout else target.run(cmd)
     

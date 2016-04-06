@@ -1,0 +1,30 @@
+From 142bf81912701d94985ad656c2250650113d00de Mon Sep 17 00:00:00 2001
+From: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+Date: Tue, 22 Mar 2016 01:44:09 +0800
+Subject: [PATCH 2/2] qat: Added include dir path
+
+Upstream-Status: Inappropriate [Configuration]
+
+Make sure that we point to the correct include path to the local
+headers.
+
+Signed-off-by: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+---
+ quickassist/build_system/build_files/env_files/linux_2.6_user_space.mk | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/quickassist/build_system/build_files/env_files/linux_2.6_user_space.mk b/quickassist/build_system/build_files/env_files/linux_2.6_user_space.mk
+index b504f7f..a75f152 100755
+--- a/quickassist/build_system/build_files/env_files/linux_2.6_user_space.mk
++++ b/quickassist/build_system/build_files/env_files/linux_2.6_user_space.mk
+@@ -84,6 +84,7 @@ INCLUDES+=-I$(API_DIR)   \
+ 
+ EXTRA_CFLAGS += $(cmd_line_cflags)
+ EXTRA_CFLAGS += -fno-strict-aliasing
++EXTRA_CFLAGS += $(INCLUDES)
+ EXTRA_LDFLAGS +=-whole-archive
+ 
+ ifeq ($(ARCH), i386)
+-- 
+1.9.1
+

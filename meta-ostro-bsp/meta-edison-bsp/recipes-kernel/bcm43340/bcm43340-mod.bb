@@ -5,6 +5,9 @@ SRC_URI = "git://github.com/01org/edison-bcm43340.git;branch=master;protocol=git
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=f9986853fb3b3403700e7535a392d014"
 
+# The module is compatible with Edison kernel only
+COMPATIBLE_MACHINE="edison"
+
 inherit module
 
 PV = "1.141"

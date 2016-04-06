@@ -9,6 +9,7 @@ DISABLE_STATIC_pn-pciutils = ""
 # libcap aborts on unrecognised option
 DISABLE_STATIC_pn-libcap = ""
 DISABLE_STATIC_pn-libcap-native = ""
+DISABLE_STATIC_pn-nativesdk-libcap = ""
 # libpcap aborts on unrecognised option
 DISABLE_STATIC_pn-libpcap = ""
 # needed by gdb
@@ -26,6 +27,8 @@ DISABLE_STATIC_pn-openssl-native = ""
 DISABLE_STATIC_pn-nativesdk-openssl = ""
 # libssp-static-dev included in build-appliance
 DISABLE_STATIC_pn-gcc-runtime = ""
+# libusb1-native is used to build static dfu-util-native
+DISABLE_STATIC_pn-libusb1-native = ""
 
 EXTRA_OECONF_append = "${DISABLE_STATIC}"
 

@@ -60,7 +60,7 @@ python uninative_event_fetchloader() {
             localdata.setVar('FILESPATH', "")
             localdata.setVar('DL_DIR', tarballdir)
 
-            srcuri = d.expand("${UNINATIVE_URL}${UNINATIVE_TARBALL};md5sum=%s" % chksum)
+            srcuri = d.expand("${UNINATIVE_URL}${UNINATIVE_TARBALL};sha256sum=%s" % chksum)
             bb.note("Fetching uninative binary shim from %s" % srcuri)
 
             fetcher = bb.fetch2.Fetch([srcuri], localdata, cache=False)
@@ -127,10 +127,13 @@ python uninative_changeinterp () {
                 elf.open()
             except oe.qa.NotELFFileError:
                 continue
+            if not elf.isDynamic():
+                continue
 
             try:
                 subprocess.check_output(("patchelf-uninative", "--set-interpreter",
-                                         d.getVar("UNINATIVE_LOADER", True), f))
+                                         d.getVar("UNINATIVE_LOADER", True), f),
+                                        stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError as e:
                 bb.fatal("'%s' failed with exit code %d and the following output:\n%s" %
                          (e.cmd, e.returncode, e.output))

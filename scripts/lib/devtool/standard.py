@@ -205,7 +205,7 @@ def add(args, config, basepath, workspace):
     for fn in os.listdir(recipedir):
         _add_md5(config, recipename, os.path.join(recipedir, fn))
 
-    if args.fetch and not args.no_git:
+    if args.fetchuri and not args.no_git:
         setup_git_repo(srctree, args.version, 'devtool')
 
     initial_rev = None
@@ -236,6 +236,17 @@ def add(args, config, basepath, workspace):
             f.write('do_install_append() {\n')
             f.write('    rm -rf ${D}/.git\n')
             f.write('    rm -f ${D}/singletask.lock\n')
+            f.write('}\n')
+
+        if bb.data.inherits_class('npm', rd):
+            f.write('do_install_append() {\n')
+            f.write('    # Remove files added to source dir by devtool/externalsrc\n')
+            f.write('    rm -f ${NPM_INSTALLDIR}/singletask.lock\n')
+            f.write('    rm -rf ${NPM_INSTALLDIR}/.git\n')
+            f.write('    rm -rf ${NPM_INSTALLDIR}/oe-local-files\n')
+            f.write('    for symlink in ${EXTERNALSRC_SYMLINKS} ; do\n')
+            f.write('        rm -f ${NPM_INSTALLDIR}/${symlink%%:*}\n')
+            f.write('    done\n')
             f.write('}\n')
 
     _add_md5(config, recipename, appendfile)
@@ -793,6 +804,8 @@ def modify(args, config, basepath, workspace):
     _add_md5(config, pn, appendfile)
 
     logger.info('Recipe %s now set up to build from %s' % (pn, srctree))
+
+    tinfoil.shutdown()
 
     return 0
 

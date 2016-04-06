@@ -26,6 +26,8 @@ do_analysesource[depends] += "python-lxml-native:do_populate_sysroot"
 do_analysesource[nostamp] = "1"
 do_analysesource[cleandirs] = "${ISAFW_WORKDIR}"
 
+isafw_init[vardepsexclude] = "DATETIME"
+
 python do_analysesource() {
 
     from isafw import *

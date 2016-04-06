@@ -1,0 +1,40 @@
+From f056dbedd106e03860de66d5c84cd018da087dda Mon Sep 17 00:00:00 2001
+From: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+Date: Tue, 22 Mar 2016 00:59:36 +0800
+Subject: [PATCH 1/2] qat: change in return type of func in kernel v4.4
+
+Upstream-Status: Submitted
+
+The function 'seq_puts' return type is changed from 'int' to 'void'.
+Now use of 'ret' variable is not valid. So used another condition to check
+for overflow.
+
+Signed-off-by: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+---
+ quickassist/adf/drivers/common/linux/src/adf_proc_debug.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/quickassist/adf/drivers/common/linux/src/adf_proc_debug.c b/quickassist/adf/drivers/common/linux/src/adf_proc_debug.c
+index 7d81eaa..a1dd917 100755
+--- a/quickassist/adf/drivers/common/linux/src/adf_proc_debug.c
++++ b/quickassist/adf/drivers/common/linux/src/adf_proc_debug.c
+@@ -132,13 +132,13 @@ static int adf_debug_show(struct seq_file *sfile, void *v)
+ {
+         debug_file_info_t* file_info = sfile->private;
+         if (file_info && file_info->seq_read && file_info->page) {
+-                int ret = 0, old_offset = file_info->offset;
++                int old_offset = file_info->offset;
+                 file_info->offset =
+                                    file_info->seq_read(file_info->private_data,
+                                    file_info->page, PAGE_SIZE - 1,
+                                    file_info->offset);
+-                ret = seq_puts(sfile, (char*)file_info->page);
+-                if (ret) {
++                seq_puts(sfile, (char*)file_info->page);
++                if (sfile->count == sfile->size) {
+                         /* run out of space - need to reprint */
+                         file_info->offset = old_offset;
+                 }
+-- 
+1.9.1
+

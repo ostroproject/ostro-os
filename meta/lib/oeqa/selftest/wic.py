@@ -199,6 +199,7 @@ class Wic(oeSelfTest):
     def test_image_env(self):
         """Test generation of <image>.env files."""
         image = 'core-image-minimal'
+        self.assertEqual(0, bitbake('%s -c do_rootfs_wicenv' % image).status)
         stdir = get_bb_var('STAGING_DIR_TARGET', image)
         imgdatadir = os.path.join(stdir, 'imgdata')
 
@@ -265,6 +266,7 @@ class Wic(oeSelfTest):
                                    % image).status)
         self.assertEqual(1, len(glob(self.resultdir + "%s-*direct" % image)))
 
+    @testcase(1422)
     def test_qemu(self):
         """Test wic-image-minimal under qemu"""
         self.assertEqual(0, bitbake('wic-image-minimal').status)

@@ -20,7 +20,7 @@ def sanity_conf_find_line(pattern, lines):
         if re.search(pattern, line)), (None, None))
 
 def sanity_conf_update(fn, lines, version_var_name, new_version):
-    index, line = sanity_conf_find_line(version_var_name, lines)
+    index, line = sanity_conf_find_line(r"^%s" % version_var_name, lines)
     lines[index] = '%s = "%d"\n' % (version_var_name, new_version)
     with open(fn, "w") as f:
         f.write(''.join(lines))
@@ -42,7 +42,7 @@ python oecore_update_localconf() {
     current_conf  = d.getVar('CONF_VERSION', True)
     conf_version =  d.getVar('LOCALCONF_VERSION', True)
 
-    failmsg = "Your version of local.conf was generated from an older/newer version of 
+    failmsg = """Your version of local.conf was generated from an older/newer version of 
 local.conf.sample and there have been updates made to this file. Please compare the two 
 files and merge any changes before continuing.
 
@@ -50,7 +50,7 @@ Matching the version numbers will remove this message.
 
 \"${SANITY_DIFF_TOOL} conf/local.conf ${SANITY_LOCALCONF_SAMPLE}\" 
 
-is a good way to visualise the changes."
+is a good way to visualise the changes."""
     failmsg = d.expand(failmsg)
 
     raise NotImplementedError(failmsg)
@@ -62,7 +62,7 @@ python oecore_update_siteconf() {
     current_sconf = d.getVar('SCONF_VERSION', True)
     sconf_version = d.getVar('SITE_CONF_VERSION', True)
 
-    failmsg = "Your version of site.conf was generated from an older version of 
+    failmsg = """Your version of site.conf was generated from an older version of 
 site.conf.sample and there have been updates made to this file. Please compare the two 
 files and merge any changes before continuing.
 
@@ -70,7 +70,7 @@ Matching the version numbers will remove this message.
 
 \"${SANITY_DIFF_TOOL} conf/site.conf ${SANITY_SITECONF_SAMPLE}\" 
 
-is a good way to visualise the changes."
+is a good way to visualise the changes."""
     failmsg = d.expand(failmsg)
 
     raise NotImplementedError(failmsg)
@@ -125,12 +125,14 @@ is a good way to visualise the changes."""
 
         current_lconf += 1
         sanity_conf_update(bblayers_fn, lines, 'LCONF_VERSION', current_lconf)
+        bb.note("Your conf/bblayers.conf has been automatically updated.")
         return
 
     elif current_lconf == 5 and lconf_version > 5:
         # Null update, to avoid issues with people switching between poky and other distros
         current_lconf = 6
         sanity_conf_update(bblayers_fn, lines, 'LCONF_VERSION', current_lconf)
+        bb.note("Your conf/bblayers.conf has been automatically updated.")
         return
 
         if not status.reparse:
@@ -141,7 +143,7 @@ is a good way to visualise the changes."""
         # This marks the start of separate version numbers but code is needed in OE-Core
         # for the migration, one last time.
         layers = d.getVar('BBLAYERS', True).split()
-	layers = [ os.path.basename(path) for path in layers ]
+        layers = [ os.path.basename(path) for path in layers ]
         if 'meta-yocto' in layers:
             found = False
             while True:
@@ -160,9 +162,11 @@ is a good way to visualise the changes."""
                 raise NotImplementedError(failmsg)
             with open(bblayers_fn, "w") as f:
                 f.write(''.join(lines))
+            bb.note("Your conf/bblayers.conf has been automatically updated.")
             return
         current_lconf += 1
         sanity_conf_update(bblayers_fn, lines, 'LCONF_VERSION', current_lconf)
+        bb.note("Your conf/bblayers.conf has been automatically updated.")
         return
 
     raise NotImplementedError(failmsg)
@@ -559,12 +563,11 @@ def sanity_check_conffiles(status, d):
                 d.getVar(current_version, True) != d.getVar(required_version, True):
             success = True
             try:
-                bb.build.exec_func(func, d)
+                bb.build.exec_func(func, d, pythonexception=True)
             except NotImplementedError as e:
                 success = False
-                status.addresult(e.msg)
+                status.addresult(str(e))
             if success:
-                bb.note("Your %s file has been automatically updated." % conffile)
                 status.reparse = True
 
 def sanity_handle_abichanges(status, d):
@@ -646,9 +649,9 @@ def check_sanity_sstate_dir_change(sstate_dir, data):
     return testmsg
        
 def check_sanity_version_change(status, d):
-    # Sanity checks to be done when SANITY_VERSION changes
+    # Sanity checks to be done when SANITY_VERSION or NATIVELSBSTRING changes
     # In other words, these tests run once in a given build directory and then 
-    # never again until the sanity version changes.
+    # never again until the sanity version or host distrubution id/version changes.
 
     # Check the python install is complete. glib-2.0-natives requries
     # xml.parsers.expat
@@ -942,6 +945,7 @@ def check_sanity(sanity_data):
     last_sanity_version = 0
     last_tmpdir = ""
     last_sstate_dir = ""
+    last_nativelsbstr = ""
     sanityverfile = sanity_data.expand("${TOPDIR}/conf/sanity_info")
     if os.path.exists(sanityverfile):
         with open(sanityverfile, 'r') as f:
@@ -952,12 +956,17 @@ def check_sanity(sanity_data):
                     last_tmpdir = line.split()[1]
                 if line.startswith('SSTATE_DIR'):
                     last_sstate_dir = line.split()[1]
+                if line.startswith('NATIVELSBSTRING'):
+                    last_nativelsbstr = line.split()[1]
 
     check_sanity_everybuild(status, sanity_data)
     
     sanity_version = int(sanity_data.getVar('SANITY_VERSION', True) or 1)
     network_error = False
-    if last_sanity_version < sanity_version: 
+    # NATIVELSBSTRING var may have been overridden with "universal", so
+    # get actual host distribution id and version
+    nativelsbstr = lsb_distro_identifier(sanity_data)
+    if last_sanity_version < sanity_version or last_nativelsbstr != nativelsbstr: 
         check_sanity_version_change(status, sanity_data)
         status.addresult(check_sanity_sstate_dir_change(sstate_dir, sanity_data))
     else: 
@@ -969,6 +978,7 @@ def check_sanity(sanity_data):
             f.write("SANITY_VERSION %s\n" % sanity_version) 
             f.write("TMPDIR %s\n" % tmpdir) 
             f.write("SSTATE_DIR %s\n" % sstate_dir) 
+            f.write("NATIVELSBSTRING %s\n" % nativelsbstr) 
 
     sanity_handle_abichanges(status, sanity_data)
 

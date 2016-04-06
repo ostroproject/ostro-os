@@ -3,7 +3,7 @@
 #
 # Based in part on testlab.bbclass and packagehistory.bbclass
 #
-# Copyright (C) 2011-2014 Intel Corporation
+# Copyright (C) 2011-2016 Intel Corporation
 # Copyright (C) 2007-2011 Koen Kooi <koen@openembedded.org>
 #
 
@@ -42,7 +42,7 @@ BUILDHISTORY_COMMIT_AUTHOR ?= "buildhistory <buildhistory@${DISTRO}>"
 BUILDHISTORY_PUSH_REPO ?= ""
 
 SSTATEPOSTINSTFUNCS_append = " buildhistory_emit_pkghistory"
-# We want to avoid influence the signatures of sstate tasks - first the function itself:
+# We want to avoid influencing the signatures of sstate tasks - first the function itself:
 sstate_install[vardepsexclude] += "buildhistory_emit_pkghistory"
 # then the value added to SSTATEPOSTINSTFUNCS:
 SSTATEPOSTINSTFUNCS[vardepvalueexclude] .= "| buildhistory_emit_pkghistory"
@@ -416,15 +416,8 @@ buildhistory_get_installed() {
 	rm $1/depends.tmp
 
 	# Produce installed package sizes list
-	printf "" > $1/installed-package-sizes.tmp
-	cat $pkgcache | while read pkg pkgfile pkgarch
-	do
-		size=`oe-pkgdata-util -p ${PKGDATA_DIR} read-value "PKGSIZE" ${pkg}_${pkgarch}`
-		if [ "$size" != "" ] ; then
-			echo "$size $pkg" >> $1/installed-package-sizes.tmp
-		fi
-	done
-	cat $1/installed-package-sizes.tmp | sort -n -r | awk '{print $1 "\tKiB " $2}' > $1/installed-package-sizes.txt
+	oe-pkgdata-util -p ${PKGDATA_DIR} read-value "PKGSIZE" -n -f $pkgcache > $1/installed-package-sizes.tmp
+	cat $1/installed-package-sizes.tmp | awk '{print $2 "\tKiB " $1}' | sort -n -r > $1/installed-package-sizes.txt
 	rm $1/installed-package-sizes.tmp
 
 	# We're now done with the cache, delete it
@@ -432,7 +425,7 @@ buildhistory_get_installed() {
 
 	if [ "$2" != "sdk" ] ; then
 		# Produce some cut-down graphs (for readability)
-		grep -v kernel_image $1/depends.dot | grep -v kernel-2 | grep -v kernel-3 > $1/depends-nokernel.dot
+		grep -v kernel-image $1/depends.dot | grep -v kernel-3 | grep -v kernel-4 > $1/depends-nokernel.dot
 		grep -v libc6 $1/depends-nokernel.dot | grep -v libgcc > $1/depends-nokernel-nolibc.dot
 		grep -v update- $1/depends-nokernel-nolibc.dot > $1/depends-nokernel-nolibc-noupdate.dot
 		grep -v kernel-module $1/depends-nokernel-nolibc-noupdate.dot > $1/depends-nokernel-nolibc-noupdate-nomodules.dot
@@ -504,6 +497,7 @@ buildhistory_get_imageinfo() {
 		return
 	fi
 
+        mkdir -p ${BUILDHISTORY_DIR_IMAGE}
 	buildhistory_list_files ${IMAGE_ROOTFS} ${BUILDHISTORY_DIR_IMAGE}/files-in-image.txt
 
 	# Collect files requested in BUILDHISTORY_IMAGE_FILES
