@@ -49,7 +49,7 @@ ostro-image.bb recipe.
 The simpler case is to adjust the size of the partitions, to better
 match the space effectively available on a specific media.
 
-The system designer might want to add other partitons, for special
+The system designer might want to add other partitions, for special
 purposes, for example to preserve configuration or logging data.
 
 In this case, simply copy and modify one of the existing
