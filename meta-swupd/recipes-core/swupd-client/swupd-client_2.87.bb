@@ -17,9 +17,8 @@ SRC_URI = "\
 SRC_URI[md5sum] = "5d272c62edb8a9c576005ac5e1182ea3"
 SRC_URI[sha256sum] = "45df259a7dc2fed985ee9961e112120fc46670dd75476c3262fc6804b1c66fb8"
 
-DEPENDS = "glib-2.0 curl zlib bzip2 xz openssl"
-RDEPENDS_${PN} = "gzip bzip2 xz"
-RDEPENDS_${PN}_class-target = "oe-swupd-helpers bsdtar"
+DEPENDS = "glib-2.0 curl openssl libarchive"
+RDEPENDS_${PN}_append_class-target = " oe-swupd-helpers bsdtar"
 # We check /etc/os-release for the current OS version number
 RRECOMMENDS_${PN}_class-target = "os-release"
 
