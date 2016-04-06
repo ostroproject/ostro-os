@@ -52,6 +52,11 @@ OSTROPROJECT_CI_SDK_TARGETS=""
 OSTROPROJECT_CI_ESDK_TARGETS="${DISTRO}-image"
 # Following targets would be executed with do_test_iot_export task
 OSTROPROJECT_CI_TEST_EXPORT_TARGETS="${DISTRO}-image"
+# Execute automatic tests for following images with corresponding
+# test suite and test files.
+# Space separated list of tuples, each should in format:
+# <image_name>,<testsuite_name>,<testfiles_name>,$MACHINE
+OSTROPROJECT_CI_TEST_RUNS="${DISTRO}-image,iot-testsuite.tar.gz,iot-testfiles.${MACHINE}.tar.gz,${MACHINE}"
 
 #
 # Dymamic section.
