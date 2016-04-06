@@ -3,7 +3,7 @@ LICENSE = "GPL-2.0"
 LIC_FILES_CHKSUM = "file://COPYING;md5=04d0b48662817042d80393e7511fa41b \
                     file://bsdiff/LICENSE;md5=0dbe7a50f028269750631fcbded3846a"
 
-DEPENDS = "file xz glib-2.0 zlib bzip2 tar rsync openssl"
+DEPENDS = "file glib-2.0 rsync openssl libarchive"
 
 SRC_URI = "\
     https://download.clearlinux.org/releases/5940/clear/source/SRPMS/${BPN}-${PV}-4.src.rpm;extract=${BP}.tar.gz \
