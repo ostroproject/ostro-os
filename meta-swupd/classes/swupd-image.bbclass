@@ -185,14 +185,18 @@ fakeroot do_rootfs_append () {
 }
 
 def swupd_create_rootfs(d):
-    imagefstypes = d.getVar('IMAGE_FSTYPES', d)
-    if not imagefstypes:
-        # Not producing real images, so there's no need to copy
-        # files from the mega image.
-        return
+    # Create or replace the do_image rootfs output with the corresponding
+    # subset from the mega rootfs. Done even if there is no actual image
+    # getting produced, because there may be QA tests defined for
+    # do_image which depend on seeing the actual rootfs that would be
+    # used for images.
+    bndl = d.getVar('BUNDLE_NAME', True)
     pn = d.getVar('PN', True)
     pn_base = d.getVar('PN_BASE', True)
     imageext = d.getVar('IMAGE_BUNDLE_NAME', True) or ''
+    if bndl and bndl != 'os-core':
+        bb.debug(2, "Skipping swupd_create_rootfs() in bundle image %s for bundle %s." % (pn, bndl))
+        return
 
     # Sanity checking was already done in swupdimage.bbclass.
     # Here we can simply use the settings.
