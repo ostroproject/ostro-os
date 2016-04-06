@@ -409,6 +409,7 @@ fakeroot python do_prune_bundle () {
 }
 addtask prune_bundle after do_copy_bundle_contents before do_swupd_update
 
+SWUPD_FORMAT = "3"
 fakeroot do_swupd_update () {
     if [ -z "${BUNDLE_NAME}" ] || [ ! -z "${PN_BASE}" ] ; then
         bbwarn 'We only generate swupd updates for the base image, skipping ${PN}:do_swupd_update'
@@ -470,7 +471,7 @@ END
     done
 
     ${SWUPD_LOG_FN} "Generating update from $PREVREL to ${OS_VERSION}"
-    ${STAGING_BINDIR_NATIVE}/swupd_create_update -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION}
+    ${STAGING_BINDIR_NATIVE}/swupd_create_update -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION} --format ${SWUPD_FORMAT}
 
     ${SWUPD_LOG_FN} "Generating fullfiles for ${OS_VERSION}"
     ${STAGING_BINDIR_NATIVE}/swupd_make_fullfiles -S ${DEPLOY_DIR_SWUPD} ${OS_VERSION}
@@ -497,10 +498,10 @@ END
         done
     fi
 
-    # Write version to www/version/format3/latest and image/latest.version
+    # Write version to www/version/format${SWUPD_FORMAT}/latest and image/latest.version
     bbdebug 2 "Writing latest file"
-    mkdir -p ${DEPLOY_DIR_SWUPD}/www/version/format3
-    echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/www/version/format3/latest
+    mkdir -p ${DEPLOY_DIR_SWUPD}/www/version/format${SWUPD_FORMAT}
+    echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/www/version/format${SWUPD_FORMAT}/latest
     echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/image/latest.version
 }
 
