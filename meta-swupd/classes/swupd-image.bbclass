@@ -237,6 +237,7 @@ def swupd_create_rootfs(d):
             rootfs_contents.append(entry[1:])
 
     # Prune the items not in the manifest
+    bb.debug(3, 'Desired content of rootfs:\n' + '\n'.join(rootfs_contents))
     remove_unlisted_files_from_directory(rootfs_contents, rootfs)
 
     # Create .rootfs.manifest for bundle images as the union of all
@@ -339,11 +340,20 @@ def remove_unlisted_files_from_directory (file_list, directory, fullprune=False)
             replace = ''
         relroot = root.replace(directory, replace)
         #bb.debug(1, 'Substituting "%s" for %s in root of %s to give %s' % (replace, directory, root, relroot))
+        # Beware that os.walk() treats symlinks to directories like directories.
+        # We need to treat them like files because they get removed with os.remove().
         for f in files:
             fpath = os.path.join(relroot, f)
             if fpath not in file_list:
-                bb.debug(3, 'Pruning %s from the bundle (%s)' % (fpath, os.path.join(root, f)))
-                os.remove(os.path.join(root, f))
+                fpath_absolute = os.path.join(root, f)
+                bb.debug(3, 'Pruning %s from the bundle (%s)' % (fpath, fpath_absolute))
+                os.remove(fpath_absolute)
+        for d in dirs:
+            dpath = os.path.join(relroot, d)
+            dpath_absolute = os.path.join(root, d)
+            if os.path.islink(dpath_absolute) and dpath not in file_list:
+                bb.debug(3, 'Pruning %s from the bundle (%s)' % (dpath, dpath_absolute))
+                os.remove(dpath_absolute)
 
     # Now need to clean up empty directories, unless they were listed in the
     # the bundle's manifest
