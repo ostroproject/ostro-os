@@ -33,3 +33,5 @@ hob-image-*.bb
 !/meta-skeleton
 !/meta-soletta
 !/meta-yocto
+!/meta-swupd
+
