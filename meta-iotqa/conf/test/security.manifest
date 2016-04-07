@@ -6,3 +6,4 @@ oeqa.runtime.security.dac_config
 oeqa.runtime.security.firewall_rules
 oeqa.runtime.ima
 oeqa.runtime.security.openssl
+oeqa.runtime.security.app_data_protection
