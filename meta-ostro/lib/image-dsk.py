@@ -13,6 +13,7 @@ from re import sub
 from glob import glob
 from uuid import uuid4
 from subprocess import check_call
+from bmaptools import Filemap
 
 VARS = dict([x.split('=', 1) for x in sys.argv[1:]])
 
@@ -55,6 +56,40 @@ def expand_vars(arg_string, location=None):
     """Expand variables in arg_string."""
     return sub(r'\$\{([^}]+)\}', lambda x: lookup_var(x.group(1), location),
                arg_string)
+
+
+def truncate_mib(fname, fsize):
+    """Create sparse file with requested size (in MiB)."""
+    with open(fname, "a+b") as fobj:
+        fobj.truncate(int(fsize) * 1024 * 1024)
+
+
+def sparse_copy(src_fname, dst_fname, offset_mib=0):
+    """Efficiently copy sparse file to or into another file."""
+    filemap = Filemap.filemap(src_fname)
+    try:
+        dst_file = open(dst_fname, 'r+b')
+    except IOError:
+        dst_file = open(dst_fname, 'wb')
+
+    for first, last in filemap.get_mapped_ranges(0, filemap.blocks_cnt):
+        start = first * filemap.block_size
+        end = (last + 1) * filemap.block_size
+
+        filemap._f_image.seek(start, os.SEEK_SET)
+        dst_file.seek((offset_mib * 1024 * 1024) + start, os.SEEK_SET)
+
+        chunk_size = 1024 * 1024
+        to_read = end - start
+        read = 0
+
+        while read < to_read:
+            if read + chunk_size > to_read:
+                chunk_size = to_read - read
+            chunk = filemap._f_image.read(chunk_size)
+            dst_file.write(chunk)
+            read += chunk_size
+    dst_file.close()
 
 
 def do_dsk_image():
@@ -105,8 +140,7 @@ def do_dsk_image():
     full_image_name = \
         os.path.join(expand_vars("${DEPLOY_DIR_IMAGE}"),
                      expand_vars('${IMAGE_NAME}.dsk'))
-    check_call(['truncate', '-s', str(full_image_size_mb) + 'M',
-                full_image_name])
+    truncate_mib(full_image_name, full_image_size_mb)
     check_call(['sgdisk', '-o', full_image_name])
 
     partition_start_mb = partition_table["gpt_initial_offset_mb"]
@@ -122,8 +156,7 @@ def do_dsk_image():
         full_partition_name = \
             os.path.join(expand_vars("${DEPLOY_DIR_IMAGE}"), partition_name)
         # Create the temporary loop file for hostong the partition.
-        check_call(['truncate', '-s', str(partition_size_mb) + 'M',
-                    full_partition_name])
+        truncate_mib(full_partition_name, partition_size_mb)
         # Populate the partition accordingly to its parameters.
         eval('populate_' + str(partition_table[key]["filesystem"]) +
              '("' + expand_vars(partition_table[key]["source"]) + '", "' +
@@ -135,11 +168,7 @@ def do_dsk_image():
                     '-t=0:' + partition_type,
                     '-u=0:' + str(partition_table[key]["uuid"]),
                     full_image_name])
-        check_call(['dd', 'if=' + full_partition_name,
-                          'of=' + full_image_name,
-                          'bs=1M',
-                          'conv=notrunc',
-                          'seek=' + str(partition_start_mb)])
+        sparse_copy(full_partition_name, full_image_name, partition_start_mb)
         # Remove the partition, now that it exists in the disk image.
         if os.path.exists(full_partition_name):
             os.remove(full_partition_name)

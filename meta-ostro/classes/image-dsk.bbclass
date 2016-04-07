@@ -28,6 +28,9 @@ COMPRESSIONTYPES_append = " vdi"
 COMPRESS_CMD_vdi = "qemu-img convert -O vdi ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type} ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}.vdi"
 COMPRESS_DEPENDS_vdi = "qemu-native"
 
+# Needed to use native python libraries
+inherit pythonnative
+
 # Image files of machines using image-dsk.bbclass do not use the redundant ".rootfs"
 # suffix. Probably should be moved to ostro-os.conf eventually.
 IMAGE_NAME_SUFFIX = ""
@@ -46,6 +49,8 @@ IMAGE_DEPENDS_dsk += " \
                        mtools-native:do_populate_sysroot \
                        dosfstools-native:do_populate_sysroot \
                        dosfstools-native:do_populate_sysroot \
+                       python-native:do_populate_sysroot \
+                       bmap-tools-native:do_populate_sysroot \
                      "
 
 # Always ensure that the INITRD_IMAGE gets added to the initramfs .cpio.
