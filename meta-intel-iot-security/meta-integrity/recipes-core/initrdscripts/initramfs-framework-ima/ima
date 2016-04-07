@@ -27,7 +27,7 @@ ima_run() {
     for kind in ima evm; do
         key=/etc/keys/x509_$kind.der
         if [ -s $key ]; then
-            id=$(grep -w -e "\.$kind" /proc/keys | cut -d ' ' -f1 | head -1)
+            id=$(grep -w -e "\.$kind" /proc/keys | cut -d ' ' -f1 | head -n 1)
             if [ "$id" ]; then
                 id=$(printf "%d" 0x$id)
             fi
