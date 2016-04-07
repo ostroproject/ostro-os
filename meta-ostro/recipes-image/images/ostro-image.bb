@@ -207,6 +207,8 @@ IMAGE_CLASSES += "${@bb.utils.contains_any('MACHINE', 'intel-core2-32 intel-core
 inherit core-image extrausers image-buildinfo
 
 BUILD_ID ?= "${DATETIME}"
+# Do not re-trigger builds just because ${DATETIME} changed.
+BUILD_ID[vardepsexclude] += "DATETIME"
 IMAGE_BUILDINFO_VARS_append = " BUILD_ID"
 
 IMAGE_NAME = "${IMAGE_BASENAME}-${MACHINE}-${BUILD_ID}"

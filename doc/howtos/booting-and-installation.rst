@@ -27,19 +27,77 @@ additional build and debugging tools that wouldn't typically be included in a pr
 dev image also will auto-login as ``root`` at the console, something that normally would not be available
 in a production device image but is quite useful during development.
 
-Using dd to Create Bootable Media
-=================================
+
+Using bmaptool to Create Bootable Media
+=======================================
 
 Once you have the :file:`.dsk.xz` Ostro OS image you need to get it
 onto your hardware platform, typically by using removable media such as a
-USB thumb drive or SD card.  The usual way to do this is with the :command:`dd` command.
+USB thumb drive or SD card.
+
+The recommended way to do this is with the :command:`bmaptool` command from `bmap-tools`_.
+A copy of this utility is available in the :file:`deploy/tools` folder after a Yocto Project build
+for your image is finished.
+
+The ``bmaptool`` program automatically handles copying either compressed and uncompressed images to
+your removable media.  It also also uses a generated ``image.bmap`` file containing a checksum for
+itself and for all mapped data regions in the image file, making it possible to verify data integrity
+of the downloaded image. Be sure to download this ``.bmap`` file along with the image for your device.
+
+
+#. Connect your USB thumb drive or SD card to your Linux-based development system
+   (minimum 4 GB card required, for some images 8 GB card might be required).
+#. If you're not sure about your media device name, use the :command:`dmesg` command to view the system log
+   and see which device the USB thumb drive or SD card was assigned (e.g. :file:`/dev/sdb`)::
+
+      $ dmesg
+
+   or you can use the :command:`lsblk` command to show the block-level devices; a USB drive usually
+   shows up as ``/sdb`` or ``/sdc``
+   (almost never as ``/sda``) and an SD card would usually show up as :file:`/dev/mmcblk0`.
+
+   Note: You should specify the whole device you're writing to with
+   :command:`bmaptool`:  (e.g., :file:`/dev/sdb` or
+   :file:`/dev/mmcblk0`) and **not** just a partition on that device (e.g., :file:`/dev/sdb1` or
+   :file:`/dev/mmcblk0p1`) on that device.
+
+#. The :command:`bmaptool` command will overwrite all content on the device so be careful specifying
+   the correct media device. The ``bmaptool`` opens the removable media exclusively and helps prevent
+   writing on an unintended device. After verifying your removable media device name, you'll need
+   to ``umount`` the device before writing to it.
+
+   In the example below, :file:`/dev/sdb` is the
+   destination USB device on our development machine::
+
+      $ sudo umount /dev/sdb*
+      $ sudo -E bmaptool copy <ostro-os-image> /dev/sdb
+
+.. note::
+    The :command:`bmaptool` is intelligent enough to recognize images in different
+    formats, including compressed images (.gz, .bz2, .xz) as well as flashing
+    directly from remote URL (for example, you could specify the image source file with an
+    ``http://`` address instead of downloading it first; ``bmaptool`` will automatically retrieve
+    the .bmap file). The ``sudo -E`` option will propagate environment variables (such as http_proxy)
+    that bmaptool might need to access the website.
+
+
+Unplug the removable media from your development system and you're ready to plug
+it into your target system.
+
+.. _bmap-tools: http://git.infradead.org/users/dedekind/bmap-tools.git/blob/HEAD:/docs/README
+
+Using dd to Create Bootable Media
+=================================
+
+While using ``bmaptool``  to create your bootable media is preferred because it's faster and
+includes a checksum verification, you can also use the traditional :command:`dd` command instead :
 
 #. Connect your USB thumb drive or SD card to your Linux-based development system
    (minimum 8 GB card required).
 #. If you're not sure about your media device name, use the :command:`dmesg` command to view the system log
    and see which device the USB thumb drive or SD card was assigned (e.g. :file:`/dev/sdb`)::
 
-     $ dmesg
+      $ dmesg
 
    or you can use the :command:`lsblk` command to show the block-level devices; a USB drive usually
    shows up as ``/sdb`` or ``/sdc``
@@ -106,7 +164,7 @@ MinnowBoard MAX from the USB thumbdrive described above.
 Galileo Gen 2
 =============
 
-The `Intel Galileo Gen 2`_ is an Intel® Quark x1000 32-bit, single core, Intel Pentium |reg| Processor class 
+The `Intel Galileo Gen 2`_ is an Intel® Quark x1000 32-bit, single core, Intel Pentium |reg| Processor class
 SOC-based board, pin-compatible with shields designed for the Arduino Uno R3.
 
 Flashing an `Intel Galileo Gen 2`_ requires use of a microSD card (booting off USB is not supported).
@@ -147,7 +205,7 @@ Flashing an Intel Edison requires use of a breakout board and two micro-USB cabl
 #. Plug in the second micro-USB cable to the J16 connector as instructed by the running flashall script.
 #. Wait for all the images to flash. You will see the progress on the flasher.
 #. Once flashing is done, the image will automatically boot up and auto-login as ``root``, no password is required.
-   
+
 BeagleBone Black
 ================
 
@@ -155,16 +213,16 @@ BeagleBone Black is booted from a microSD card with MBR (Master Boot Record) and
 Most freshly unpackaged microSD cards come with MBR partitions, but previously used ones might not.  (We have
 instructions below to properly initialize the microSD card.)
 
-You'll probably need an adapter to use the microSD card on your host computer. If you use a microSD-to-SD adapter, 
-it will likely show up as ``/dev/mmcblk0`` when plugged into your host computer.  If you use a USB adapter, it 
+You'll probably need an adapter to use the microSD card on your host computer. If you use a microSD-to-SD adapter,
+it will likely show up as ``/dev/mmcblk0`` when plugged into your host computer.  If you use a USB adapter, it
 will show up as ``/dev/sdb`` or ``/dev/sdc``.  (On some computers with a built-in SD-card slot, the card may also
 show up as ``/dev/sdX`` rather than ``/dev/mmcblkX``.)
 
 
 You can verify the device name assigned by using ``dmesg`` or the
-``lsblk`` command to look for the device name for the microSD card (check for a device with the size you're expecting). 
+``lsblk`` command to look for the device name for the microSD card (check for a device with the size you're expecting).
 
-In our setup steps below, we're using an 8GB microSD card in an SD adapter that's showing up as ``/dev/mmcblk0``  
+In our setup steps below, we're using an 8GB microSD card in an SD adapter that's showing up as ``/dev/mmcblk0``
 (numbers and device name maybe different for your device and system).
 
 .. comment:   steps derived from http://www.armhf.com/boards/beaglebone-black/bbb-sd-install/
@@ -178,7 +236,7 @@ In our setup steps below, we're using an 8GB microSD card in an SD adapter that'
 
    Download these four files to your host computer::
 
-      MLO 
+      MLO
       ostro-image-dev-beaglebone-*.rootfs.tar.bz2
       u-boot.img
       zImage-am335x-boneblack.dtb
@@ -188,34 +246,34 @@ In our setup steps below, we're using an 8GB microSD card in an SD adapter that'
 
 .. _creating partitions:
 
-2. Now we're ready to prepare the microSD card.  Make sure the microSD card isn't already mounted 
+2. Now we're ready to prepare the microSD card.  Make sure the microSD card isn't already mounted
    and verify it is using MBR partitions. (Remember, your
    device name maybe different than what we're using in our examples.) Run ::
-   
+
    $ sudo umount /dev/mmcblk0*
    $ sudo fdisk /dev/mmcblk0
 
-   If you get an error saying "unable to open /dev/mmcblk0" then you should 
+   If you get an error saying "unable to open /dev/mmcblk0" then you should
    verify the device name assigned as described above.
-   If you get an error that GPT partitions are used, see the 
+   If you get an error that GPT partitions are used, see the
    section below on `Converting from GPT to MBR Partitions`_ and then return to retry this step.
-   
+
    If all is well, you'll see the fdisk prompt::
 
       Command (m for help):
 
-#. We want to create two partitions on the SD card: a small primary bootable active partition, 
-   and a second primary linux root filesystem partition for the remaining space on the device.  The 
+#. We want to create two partitions on the SD card: a small primary bootable active partition,
+   and a second primary linux root filesystem partition for the remaining space on the device.  The
    following ``fdisk`` commands will clean out all the existing partition information and set up two partitions:
 
    a. Initialize the partition table by typing **o**.
-   b. Create the boot partition by typing **n** for "new", then **p** for "primary", and **1** to specify the first partition. 
+   b. Create the boot partition by typing **n** for "new", then **p** for "primary", and **1** to specify the first partition.
       Press enter to accept the default first sector and specify 4095 for the last sector.
    c. Set the partition type to FAT16 by typing **t** for "type" and **e** for "W95 FAT16 (LBA)".
    d. Set the partition active (bootable) by typing **a** then **1** (for partition 1).
-   e. Next, create the root filesystem by typing **n** for "new", then **p** for "primary", 
+   e. Next, create the root filesystem by typing **n** for "new", then **p** for "primary",
       and **2** for the second partition. Accept the default values for the first and last sectors by pressing enter twice.
-   f. Type **p** to "print" the partition table. It should look about like this:: 
+   f. Type **p** to "print" the partition table. It should look about like this::
 
         ...
         Device          Boot    Start      End   Blocks     Id  System
@@ -223,27 +281,27 @@ In our setup steps below, we're using an 8GB microSD card in an SD adapter that'
         /dev/mmcblk0p2           4096 15523839   775872     83  Linux
 
    g. Finally, write these changes to the microSD card by typing **w** to "write" the partition table and exit.
-      
+
 #. At this point your microSD card is partitioned correctly but the partitions need to be formatted with
    partition 1 as FAT16 and partition 2 as ext4 (the normal linux journaled filesystem)::
 
      $ sudo mkfs.vfat -F 16 /dev/mmcblk0p1
      $ sudo mkfs.ext4  /dev/mmcblk0p2
 
-   This last ``mkfs``  command may take a few minutes to complete, depending on the size of your SD card.  
+   This last ``mkfs``  command may take a few minutes to complete, depending on the size of your SD card.
    You may optionally disable periodic filesystem checks on this partition with the command::
 
      $ sudo tune2fs -c0 -i0 /dev/mmcblk0p2
 
-#. Now we can install the ``MLO`` and ``u-boot.img`` (downloaded from `Ostro Project download server`_) 
+#. Now we can install the ``MLO`` and ``u-boot.img`` (downloaded from `Ostro Project download server`_)
    to the first partition of our microSD card.   ::
-   
+
      $ mkdir boot
      $ sudo mount /dev/mmcblk0p1 boot
      $ sudo cp MLO u-boot.img boot/
      $ sudo umount boot/
 
-#. And we can install the Ostro OS root filesystem to the second partition on our microSD card.  
+#. And we can install the Ostro OS root filesystem to the second partition on our microSD card.
    This step requires tar version 1.27 or later:  the xattrs flags are needed to preserve the Smack labels and IMA xattrs. ::
 
      $ mkdir rootfs
@@ -252,16 +310,16 @@ In our setup steps below, we're using an 8GB microSD card in an SD adapter that'
 
 #.  Before unmounting the device, we also need to add the device tree blob file (``zImage-am335x-boneblack.dtb``)
     that you downloaded (or from your own build).
-    Note that this step renames the file (without the ``zImage-`` prefix) to match what's expected by the kernel :: 
+    Note that this step renames the file (without the ``zImage-`` prefix) to match what's expected by the kernel ::
 
      $ sudo cp zImage-am335x-boneblack.dtb rootfs/boot/am335x-boneblack.dtb
      $ sudo umount rootfs
-   
-#. Remove the SD card from your host computer, remove the microSD card from its adapter, 
+
+#. Remove the SD card from your host computer, remove the microSD card from its adapter,
    insert the microSD card into the BeagleBone Black (slot is on the bottom of the board) and power up the device.
 
-Note:  The normal boot sequence is to use the on-board flash first (eMMC), then the microSD card, 
-then the USB port, and finally the serial port. You may need to use the **S2** alternate boot button, 
+Note:  The normal boot sequence is to use the on-board flash first (eMMC), then the microSD card,
+then the USB port, and finally the serial port. You may need to use the **S2** alternate boot button,
 by holding it down at power up, to change the boot order to use the microSD card first instead of eMMC first.
 
 Once booted from the microSD card, you can prevent boot from eMMC by using (on the BeagleBone Black) ::

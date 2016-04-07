@@ -45,6 +45,7 @@ from django.utils import formats
 from toastergui.templatetags.projecttags import json as jsonfilter
 from decimal import Decimal
 import json
+import os
 from os.path import dirname
 from functools import wraps
 import itertools
@@ -1875,6 +1876,7 @@ def managedcontextprocessor(request):
 import toastermain.settings
 
 from orm.models import Project, ProjectLayer, ProjectTarget, ProjectVariable
+from bldcontrol.models import  BuildEnvironment
 
 # we have a set of functions if we're in managed mode, or
 # a default "page not available" simple functions for interactive mode
@@ -2082,13 +2084,23 @@ if True:
 
         name = "_js_unit_test_prj_"
 
-        # If there is an existing project by this name delete it. We don't want
-        # Lots of duplicates cluttering up the projects.
+        # If there is an existing project by this name delete it.
+        # We don't want Lots of duplicates cluttering up the projects.
         Project.objects.filter(name=name).delete()
 
-        new_project = Project.objects.create_project(name=name, release=release)
+        new_project = Project.objects.create_project(name=name,
+                                                     release=release)
+        # Add a layer
+        layer = new_project.get_all_compatible_layer_versions().first()
 
-        context = { 'project' : new_project }
+        ProjectLayer.objects.get_or_create(layercommit=layer,
+                                           project=new_project)
+
+        # make sure we have a machine set for this project
+        ProjectVariable.objects.get_or_create(project=new_project,
+                                              name="MACHINE",
+                                              value="qemux86")
+        context = {'project': new_project}
         return render(request, "js-unit-tests.html", context)
 
     from django.views.decorators.csrf import csrf_exempt
@@ -2177,6 +2189,10 @@ if True:
             except ProjectVariable.DoesNotExist:
                 pass
             try:
+                return_data['dl_dir'] = ProjectVariable.objects.get(project = prj, name = "DL_DIR").value,
+            except ProjectVariable.DoesNotExist:
+                pass
+            try:
                 return_data['fstypes'] = ProjectVariable.objects.get(project = prj, name = "IMAGE_FSTYPES").value,
             except ProjectVariable.DoesNotExist:
                 pass
@@ -2186,6 +2202,10 @@ if True:
                 pass
             try:
                 return_data['package_classes'] = ProjectVariable.objects.get(project = prj, name = "PACKAGE_CLASSES").value,
+            except ProjectVariable.DoesNotExist:
+                pass
+            try:
+                return_data['sstate_dir'] = ProjectVariable.objects.get(project = prj, name = "SSTATE_DIR").value,
             except ProjectVariable.DoesNotExist:
                 pass
 
@@ -2795,9 +2815,9 @@ if True:
         }
 
         vars_blacklist  = {
-            'DL_DR','PARALLEL_MAKE','BB_NUMBER_THREADS','SSTATE_DIR',
+            'PARALLEL_MAKE','BB_NUMBER_THREADS',
             'BB_DISKMON_DIRS','BB_NUMBER_THREADS','CVS_PROXY_HOST','CVS_PROXY_PORT',
-            'DL_DIR','PARALLEL_MAKE','SSTATE_DIR','SSTATE_DIR','SSTATE_MIRRORS','TMPDIR',
+            'PARALLEL_MAKE','SSTATE_MIRRORS','TMPDIR',
             'all_proxy','ftp_proxy','http_proxy ','https_proxy'
             }
 
@@ -2835,6 +2855,19 @@ if True:
         except ProjectVariable.DoesNotExist:
             pass
         try:
+            if ProjectVariable.objects.get(project = prj, name = "DL_DIR").value == "${TOPDIR}/../downloads":
+                be = BuildEnvironment.objects.get(pk = str(1))
+                dl_dir = os.path.join(dirname(be.builddir), "downloads")
+                context['dl_dir'] =  dl_dir
+                pv, created = ProjectVariable.objects.get_or_create(project = prj, name = "DL_DIR")
+                pv.value = dl_dir
+                pv.save()
+            else:
+                context['dl_dir'] = ProjectVariable.objects.get(project = prj, name = "DL_DIR").value
+            context['dl_dir_defined'] = "1"
+        except ProjectVariable.DoesNotExist,BuildEnvironment.DoesNotExist:
+            pass
+        try:
             context['fstypes'] =  ProjectVariable.objects.get(project = prj, name = "IMAGE_FSTYPES").value
             context['fstypes_defined'] = "1"
         except ProjectVariable.DoesNotExist:
@@ -2848,6 +2881,19 @@ if True:
             context['package_classes'] =  ProjectVariable.objects.get(project = prj, name = "PACKAGE_CLASSES").value
             context['package_classes_defined'] = "1"
         except ProjectVariable.DoesNotExist:
+            pass
+        try:
+            if ProjectVariable.objects.get(project = prj, name = "SSTATE_DIR").value == "${TOPDIR}/../sstate-cache":
+                be = BuildEnvironment.objects.get(pk = str(1))
+                sstate_dir = os.path.join(dirname(be.builddir), "sstate-cache")
+                context['sstate_dir'] = sstate_dir
+                pv, created = ProjectVariable.objects.get_or_create(project = prj, name = "SSTATE_DIR")
+                pv.value = sstate_dir
+                pv.save()
+            else:
+                context['sstate_dir'] = ProjectVariable.objects.get(project = prj, name = "SSTATE_DIR").value
+            context['sstate_dir_defined'] = "1"
+        except ProjectVariable.DoesNotExist, BuildEnvironment.DoesNotExist:
             pass
 
         return context

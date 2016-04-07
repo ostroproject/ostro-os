@@ -32,7 +32,7 @@ import subprocess
 
 from toastermain import settings
 
-from bbcontroller import BuildEnvironmentController, ShellCmdException, BuildSetupException
+from bbcontroller import BuildEnvironmentController, ShellCmdException, BuildSetupException, BitbakeController
 
 import logging
 logger = logging.getLogger("toaster")
@@ -51,12 +51,14 @@ class LocalhostBEController(BuildEnvironmentController):
         self.pokydirname = None
         self.islayerset = False
 
-    def _shellcmd(self, command, cwd = None):
+    def _shellcmd(self, command, cwd=None, nowait=False):
         if cwd is None:
             cwd = self.be.sourcedir
 
         logger.debug("lbc_shellcmmd: (%s) %s" % (cwd, command))
         p = subprocess.Popen(command, cwd = cwd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if nowait:
+            return
         (out,err) = p.communicate()
         p.wait()
         if p.returncode:
@@ -69,38 +71,6 @@ class LocalhostBEController(BuildEnvironmentController):
         else:
             logger.debug("localhostbecontroller: shellcmd success")
             return out
-
-    def startBBServer(self):
-        assert self.pokydirname and os.path.exists(self.pokydirname)
-        assert self.islayerset
-
-        # find our own toasterui listener/bitbake
-        from toaster.bldcontrol.management.commands.loadconf import _reduce_canon_path
-
-        toaster = _reduce_canon_path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../../bin/toaster"))
-        assert os.path.exists(toaster) and os.path.isfile(toaster)
-
-        # restart bitbake server and toastergui observer
-        self._shellcmd("bash -c 'source %s restart-bitbake'" % toaster, self.be.builddir)
-        logger.debug("localhostbecontroller: restarted bitbake server")
-
-        # read port number from bitbake.lock
-        self.be.bbport = ""
-        bblock = os.path.join(self.be.builddir, 'bitbake.lock')
-        if os.path.exists(bblock):
-            with open(bblock) as fplock:
-                for line in fplock:
-                    if ":" in line:
-                        self.be.bbport = line.split(":")[-1].strip()
-                        logger.debug("localhostbecontroller: bitbake port %s", self.be.bbport)
-                        break
-
-        if not self.be.bbport:
-            raise BuildSetupException("localhostbecontroller: can't read bitbake port from %s" % bblock)
-
-        self.be.bbaddress = "localhost"
-        self.be.bbstate = BuildEnvironment.SERVER_STARTED
-        self.be.save()
 
     def getGitCloneDirectory(self, url, branch):
         """Construct unique clone directory name out of url and branch."""
@@ -212,11 +182,6 @@ class LocalhostBEController(BuildEnvironmentController):
 
         logger.debug("localhostbecontroller: current layer list %s " % pformat(layerlist))
 
-        # 4. update the bblayers.conf
-        bblayerconf = os.path.join(self.be.builddir, "conf/bblayers.conf")
-        if not os.path.exists(bblayerconf):
-            raise BuildSetupException("BE is not consistent: bblayers.conf file missing at %s" % bblayerconf)
-
         # 5. create custom layer and add custom recipes to it
         layerpath = os.path.join(self.be.builddir,
                                  CustomImageRecipe.LAYER_NAME)
@@ -279,60 +244,89 @@ class LocalhostBEController(BuildEnvironmentController):
         if os.path.isdir(layerpath):
             layerlist.append(layerpath)
 
-        BuildEnvironmentController._updateBBLayers(bblayerconf, layerlist)
-
         self.islayerset = True
-        return True
+        return layerlist
 
     def readServerLogFile(self):
         return open(os.path.join(self.be.builddir, "toaster_server.log"), "r").read()
 
-    def release(self):
-        assert self.be.sourcedir and os.path.exists(self.be.builddir)
-        import shutil
-        shutil.rmtree(os.path.join(self.be.sourcedir, "build"))
-        assert not os.path.exists(self.be.builddir)
 
+    def triggerBuild(self, bitbake, layers, variables, targets, brbe):
+        layers = self.setLayers(bitbake, layers, targets)
 
-    def triggerBuild(self, bitbake, layers, variables, targets):
-        # set up the build environment with the needed layers
-        self.setLayers(bitbake, layers, targets)
+        # init build environment from the clone
+        builddir = '%s-toaster-%d' % (self.be.builddir, bitbake.req.project.id)
+        oe_init = os.path.join(self.pokydirname, 'oe-init-build-env')
+        # init build environment
+        self._shellcmd("bash -c 'source %s %s'" % (oe_init, builddir),
+                       self.be.sourcedir)
+
+        # update bblayers.conf
+        bblconfpath = os.path.join(builddir, "conf/bblayers.conf")
+        conflines = open(bblconfpath, "r").readlines()
+        skip = False
+        with open(bblconfpath, 'w') as bblayers:
+            for line in conflines:
+                if line.startswith("# line added by toaster"):
+                    skip = True
+                    continue
+                if skip:
+                    skip = False
+                else:
+                    bblayers.write(line)
+
+            bblayers.write('# line added by toaster build control\n'
+                           'BBLAYERS = "%s"' % ' '.join(layers))
 
         # write configuration file
-        filepath = os.path.join(self.be.builddir, "conf/toaster.conf")
-        with open(filepath, 'w') as conf:
+        confpath = os.path.join(builddir, 'conf/toaster.conf')
+        with open(confpath, 'w') as conf:
             for var in variables:
                 conf.write('%s="%s"\n' % (var.name, var.value))
             conf.write('INHERIT+="toaster buildhistory"')
 
-        # get the bb server running with the build req id and build env id
-        bbctrl = self.getBBController()
+        # run bitbake server from the clone
+        bitbake = os.path.join(self.pokydirname, 'bitbake', 'bin', 'bitbake')
+        self._shellcmd('bash -c \"source %s %s; BITBAKE_UI="" %s --read %s '
+                       '--server-only -t xmlrpc -B 0.0.0.0:0\"' % (oe_init,
+                       builddir, bitbake, confpath), self.be.sourcedir)
 
-        # set variables; TOASTER_BRBE is not set on the server, as this
-        # causes events from command-line builds to be attached to the last
-        # Toaster-triggered build; instead, TOASTER_BRBE is fired as an event so
-        # that toasterui can set it on the buildinfohelper;
-        # see https://bugzilla.yoctoproject.org/show_bug.cgi?id=9021
-        for var in variables:
-            if var.name == 'TOASTER_BRBE':
-                bbctrl.triggerEvent('bb.event.MetadataEvent("SetBRBE", "%s")' \
-                                     % var.value)
-            else:
-                bbctrl.setVariable(var.name, var.value)
+        # read port number from bitbake.lock
+        self.be.bbport = ""
+        bblock = os.path.join(builddir, 'bitbake.lock')
+        with open(bblock) as fplock:
+            for line in fplock:
+                if ":" in line:
+                    self.be.bbport = line.split(":")[-1].strip()
+                    logger.debug("localhostbecontroller: bitbake port %s", self.be.bbport)
+                    break
 
-        # Add 'toaster' and 'buildhistory' to INHERIT variable
-        inherit = {item.strip() for item in bbctrl.getVariable('INHERIT').split()}
-        inherit = inherit.union(["toaster", "buildhistory"])
-        bbctrl.setVariable('INHERIT', ' '.join(inherit))
+        if not self.be.bbport:
+            raise BuildSetupException("localhostbecontroller: can't read bitbake port from %s" % bblock)
 
-        # trigger the build command
-        task = reduce(lambda x, y: x if len(y)== 0 else y, map(lambda y: y.task, targets))
-        if len(task) == 0:
-            task = None
+        self.be.bbaddress = "localhost"
+        self.be.bbstate = BuildEnvironment.SERVER_STARTED
+        self.be.lock = BuildEnvironment.LOCK_RUNNING
+        self.be.save()
 
-        bbctrl.build(list(map(lambda x:x.target, targets)), task)
+        bbtargets = ''
+        for target in targets:
+            task = target.task
+            if task:
+                if not task.startswith('do_'):
+                    task = 'do_' + task
+                task = ':%s' % task
+            bbtargets += '%s%s ' % (target.target, task)
 
-        logger.debug("localhostbecontroller: Build launched, exiting. Follow build logs at %s/toaster_ui.log" % self.be.builddir)
+        # run build with local bitbake. stop the server after the build.
+        log = os.path.join(builddir, 'toaster_ui.log')
+        local_bitbake = os.path.join(os.path.dirname(os.getenv('BBBASEDIR')),
+                                     'bitbake')
+        self._shellcmd(['bash -c \"(TOASTER_BRBE="%s" BBSERVER="0.0.0.0:-1" '
+                        '%s %s -u toasterui --token="" >>%s 2>&1;'
+                        'BITBAKE_UI="" BBSERVER=0.0.0.0:-1 %s -m)&\"' \
+                        % (brbe, local_bitbake, bbtargets, log, bitbake)],
+                        builddir, nowait=True)
 
-        # disconnect from the server
-        bbctrl.disconnect()
+        logger.debug('localhostbecontroller: Build launched, exiting. '
+                     'Follow build logs at %s' % log)

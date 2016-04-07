@@ -11,6 +11,8 @@ inherit module
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/files/:"
 
+RRECOMMENDS_${PN} = "ostro-6lowpan"
+
 SRC_URI = "file://spi-quark-at86rf230.c \
            file://spi-quark-board.c \
            file://spi-quark-board.h \

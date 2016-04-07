@@ -4,7 +4,8 @@ Sensors
 #######
 
 Drivers for these sensors are available for the Ostro |trade| OS and have been tested to work
-on the :ref:`platforms` as indicated in the following tables. 
+on the :ref:`platforms` as indicated in the following tables.  (Note that "MinnowBoard MAX" in
+this table indicates support for MinnowBoard Turbot and MinnowBoard MAX boards.)
 
 
 Accelerometer

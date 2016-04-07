@@ -218,6 +218,15 @@ class ORMWrapper(object):
         assert isinstance(errors, int)
         assert isinstance(warnings, int)
 
+        if build.outcome == Build.CANCELLED:
+            return
+        try:
+            if build.buildrequest.state == BuildRequest.REQ_CANCELLING:
+                return
+        except AttributeError:
+            # We may not have a buildrequest if this is a command line build
+            pass
+
         outcome = Build.SUCCEEDED
         if errors or taskfailures:
             outcome = Build.FAILED
@@ -241,14 +250,16 @@ class ORMWrapper(object):
             recipe__name = recipe_name
         )
 
-        task_to_update.started = self._timestamp_to_datetime(task_stats['started'])
-        task_to_update.ended = self._timestamp_to_datetime(task_stats['ended'])
-        task_to_update.elapsed_time = (task_stats['ended'] - task_stats['started'])
-        task_to_update.cpu_time_user = task_stats['cpu_time_user']
-        task_to_update.cpu_time_system = task_stats['cpu_time_system']
-        task_to_update.disk_io_read = task_stats['disk_io_read']
-        task_to_update.disk_io_write = task_stats['disk_io_write']
-        task_to_update.disk_io = task_stats['disk_io_read'] + task_stats['disk_io_write']
+        if 'started' in task_stats and 'ended' in task_stats:
+            task_to_update.started = self._timestamp_to_datetime(task_stats['started'])
+            task_to_update.ended = self._timestamp_to_datetime(task_stats['ended'])
+            task_to_update.elapsed_time = (task_stats['ended'] - task_stats['started'])
+        task_to_update.cpu_time_user = task_stats.get('cpu_time_user')
+        task_to_update.cpu_time_system = task_stats.get('cpu_time_system')
+        if 'disk_io_read' in task_stats and 'disk_io_write' in task_stats:
+            task_to_update.disk_io_read = task_stats['disk_io_read']
+            task_to_update.disk_io_write = task_stats['disk_io_write']
+            task_to_update.disk_io = task_stats['disk_io_read'] + task_stats['disk_io_write']
 
         task_to_update.save()
 
@@ -483,7 +494,7 @@ class ORMWrapper(object):
             parent_obj = self._cached_get(Target_File, target = target_obj, path = parent_path, inodetype = Target_File.ITYPE_DIRECTORY)
             tf_obj = Target_File.objects.create(
                         target = target_obj,
-                        path = path,
+                        path = unicode(path, 'utf-8'),
                         size = size,
                         inodetype = Target_File.ITYPE_DIRECTORY,
                         permission = permission,
@@ -508,7 +519,7 @@ class ORMWrapper(object):
 
             tf_obj = Target_File.objects.create(
                         target = target_obj,
-                        path = path,
+                        path = unicode(path, 'utf-8'),
                         size = size,
                         inodetype = inodetype,
                         permission = permission,
@@ -539,7 +550,9 @@ class ORMWrapper(object):
                 filetarget_path = "/".join(fcpl)
 
             try:
-                filetarget_obj = Target_File.objects.get(target = target_obj, path = filetarget_path)
+                filetarget_obj = Target_File.objects.get(
+                                     target = target_obj,
+                                     path = unicode(filetarget_path, 'utf-8'))
             except Target_File.DoesNotExist:
                 # we might have an invalid link; no way to detect this. just set it to None
                 filetarget_obj = None
@@ -548,7 +561,7 @@ class ORMWrapper(object):
 
             tf_obj = Target_File.objects.create(
                         target = target_obj,
-                        path = path,
+                        path = unicode(path, 'utf-8'),
                         size = size,
                         inodetype = Target_File.ITYPE_SYMLINK,
                         permission = permission,
@@ -849,7 +862,7 @@ class BuildInfoHelper(object):
     # pylint: disable=bad-continuation
     # we do not follow the python conventions for continuation indentation due to long lines here
 
-    def __init__(self, server, has_build_history = False):
+    def __init__(self, server, has_build_history = False, brbe = None):
         self.internal_state = {}
         self.internal_state['taskdata'] = {}
         self.internal_state['targets'] = []
@@ -865,7 +878,7 @@ class BuildInfoHelper(object):
 
         # this is set for Toaster-triggered builds by localhostbecontroller
         # via toasterui
-        self.brbe = None
+        self.brbe = brbe
 
         self.project = None
 
@@ -1220,8 +1233,8 @@ class BuildInfoHelper(object):
         for target in self.internal_state['targets']:
             if target.is_image:
                 pkgdata = BuildInfoHelper._get_data_from_event(event)['pkgdata']
-                imgdata = BuildInfoHelper._get_data_from_event(event)['imgdata'][target.target]
-                filedata = BuildInfoHelper._get_data_from_event(event)['filedata'][target.target]
+                imgdata = BuildInfoHelper._get_data_from_event(event)['imgdata'].get(target.target, {})
+                filedata = BuildInfoHelper._get_data_from_event(event)['filedata'].get(target.target, {})
 
                 try:
                     self.orm_wrapper.save_target_package_information(self.internal_state['build'], target, imgdata, pkgdata, self.internal_state['recipes'], built_package=True)
@@ -1244,7 +1257,6 @@ class BuildInfoHelper(object):
         assert 'layer-priorities' in event._depgraph
         assert 'pn' in event._depgraph
         assert 'tdepends' in event._depgraph
-        assert 'providermap' in event._depgraph
 
         errormsg = ""
 
@@ -1330,7 +1342,7 @@ class BuildInfoHelper(object):
                 if dep in assume_provided:
                     continue
                 via = None
-                if dep in event._depgraph['providermap']:
+                if 'providermap' in event._depgraph and dep in event._depgraph['providermap']:
                     deprecipe = event._depgraph['providermap'][dep][0]
                     dependency = self.internal_state['recipes'][deprecipe]
                     via = Provides.objects.get_or_create(name=dep,
@@ -1404,9 +1416,18 @@ class BuildInfoHelper(object):
         be.lock = BuildEnvironment.LOCK_LOCK
         be.save()
         br = BuildRequest.objects.get(pk = br_id)
+
+        # if we're 'done' because we got cancelled update the build outcome
+        if br.state == BuildRequest.REQ_CANCELLING:
+            logger.info("Build cancelled")
+            br.build.outcome = Build.CANCELLED
+            br.build.save()
+            self.internal_state['build'] = br.build
+            errorcode = 0
+
         if errorcode == 0:
             # request archival of the project artifacts
-            br.state = BuildRequest.REQ_ARCHIVE
+            br.state = BuildRequest.REQ_COMPLETED
         else:
             br.state = BuildRequest.REQ_FAILED
         br.save()

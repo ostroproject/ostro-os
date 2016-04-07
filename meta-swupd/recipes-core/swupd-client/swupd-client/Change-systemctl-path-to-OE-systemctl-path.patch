@@ -1,0 +1,26 @@
+From 259d86e64146c3156eccfcce0351a9cdc4714766 Mon Sep 17 00:00:00 2001
+From: Jaska Uimonen <jaska.uimonen@intel.com>
+Date: Thu, 14 Jan 2016 10:17:43 +0200
+Subject: [PATCH] change systemctl path to OE systemctl path
+
+Upstream-Status: Inappropriate
+
+---
+ src/scripts.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Index: git/src/scripts.c
+===================================================================
+--- git.orig/src/scripts.c
++++ git/src/scripts.c
+@@ -71,8 +71,8 @@ static void update_bootloader(void)
+ 
+ static void update_triggers(void)
+ {
+-	system("/usr/bin/systemctl daemon-reload");
+-	system("/usr/bin/systemctl restart update-triggers.target");
++	system("/bin/systemctl daemon-reload");
++	system("/bin/systemctl restart update-triggers.target");
+ }
+ 
+ void run_scripts(void)

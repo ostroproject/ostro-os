@@ -1457,7 +1457,8 @@ class RESTAPITest(oeRuntimeTest):
         @param cls
         @return
         '''
-
+        (_, pid) = cls.tc.target.run("ps | grep -v grep | grep 'ocserver' | awk '{print $1}'")
+        cls.tc.target.run('kill -9 %s' % pid.strip());
         if os.path.exists('%s.tar' % cls.rest_api_dir):
             os.remove('%s.tar' % cls.rest_api_dir)
         if os.path.exists(cls.nodeunit_zip):
@@ -1466,7 +1467,7 @@ class RESTAPITest(oeRuntimeTest):
         cls.tc.target.run('rm -f %s.tar' % cls.target_rest_api_dir)
         cls.tc.target.run('rm -fr %s/' % cls.target_rest_api_dir)
         cls.tc.target.run('rm -fr /tmp/nodeunit-master')
-        cls.tc.target.run('rm -f /tmp/master.zip')
+        cls.tc.target.run('rm -f /tmp/master.tar')
 
 ##
 # @}

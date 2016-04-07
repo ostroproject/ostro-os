@@ -195,7 +195,8 @@ def main(server, eventHandler, params):
     taskfailures = []
     first = True
 
-    buildinfohelper = BuildInfoHelper(server, build_history_enabled)
+    buildinfohelper = BuildInfoHelper(server, build_history_enabled,
+                                      os.getenv('TOASTER_BRBE'))
 
     # write our own log files into bitbake's log directory;
     # we're only interested in the path to the parent directory of
@@ -371,18 +372,21 @@ def main(server, eventHandler, params):
 
                 # update the build info helper on BuildCompleted, not on CommandXXX
                 buildinfohelper.update_build_information(event, errors, warnings, taskfailures)
+
+                brbe = buildinfohelper.brbe
                 buildinfohelper.close(errorcode)
-                # mark the log output; controllers may kill the toasterUI after seeing this log
-                logger.info("ToasterUI build done 1, brbe: %s", buildinfohelper.brbe )
 
                 # we start a new build info
-                logger.debug("ToasterUI prepared for new build")
-                errors = 0
-                warnings = 0
-                taskfailures = []
-                buildinfohelper = BuildInfoHelper(server, build_history_enabled)
+                if params.observe_only:
+                    logger.debug("ToasterUI prepared for new build")
+                    errors = 0
+                    warnings = 0
+                    taskfailures = []
+                    buildinfohelper = BuildInfoHelper(server, build_history_enabled)
+                else:
+                    main.shutdown = 1
 
-                logger.info("ToasterUI build done 2")
+                logger.info("ToasterUI build done, brbe: %s", brbe)
                 continue
 
             if isinstance(event, (bb.command.CommandCompleted,

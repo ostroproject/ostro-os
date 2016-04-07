@@ -1,0 +1,8 @@
+[Unit]
+Description=Rebuild Dynamic Linker Cache
+Documentation=man:ldconfig(8)
+BindsTo=update-triggers.target
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/ldconfig -X

@@ -197,7 +197,10 @@ class Project(models.Model):
     def get_number_of_builds(self):
         """Return the number of builds which have ended"""
 
-        return self.build_set.filter(~Q(outcome=Build.IN_PROGRESS)).count()
+        return self.build_set.exclude(
+            Q(outcome=Build.IN_PROGRESS) |
+            Q(outcome=Build.CANCELLED)
+        ).count()
 
     def get_last_build_id(self):
         try:
@@ -358,11 +361,13 @@ class Build(models.Model):
     SUCCEEDED = 0
     FAILED = 1
     IN_PROGRESS = 2
+    CANCELLED = 3
 
     BUILD_OUTCOME = (
         (SUCCEEDED, 'Succeeded'),
         (FAILED, 'Failed'),
         (IN_PROGRESS, 'In Progress'),
+        (CANCELLED, 'Cancelled'),
     )
 
     search_allowed_fields = ['machine', 'cooker_log_path', "target__target", "target__target_image_file__file_name"]
@@ -390,7 +395,10 @@ class Build(models.Model):
         if project:
             builds = builds.filter(project=project)
 
-        finished_criteria = Q(outcome=Build.SUCCEEDED) | Q(outcome=Build.FAILED)
+        finished_criteria = \
+                Q(outcome=Build.SUCCEEDED) | \
+                Q(outcome=Build.FAILED) | \
+                Q(outcome=Build.CANCELLED)
 
         recent_builds = list(itertools.chain(
             builds.filter(outcome=Build.IN_PROGRESS).order_by("-started_on"),
@@ -813,6 +821,13 @@ class Package_DependencyManager(models.Manager):
         thispackage.
         """
         return self.all().aggregate(Sum('depends_on__size'))
+
+    def get_total_revdeps_size(self):
+        """ Returns the total file size of all the packages that depend on
+        this package.
+        """
+        return self.all().aggregate(Sum('package_id__size'))
+
 
     def all_depends(self):
         """ Returns just the depends packages and not any other dep_type """

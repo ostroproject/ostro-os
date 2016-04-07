@@ -1,5 +1,9 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/linux-yocto:"
 
+# version overrides
+LINUX_VERSION_corei7-64-intel-common = "4.4.3"
+SRCREV_machine_corei7-64-intel-common = "73481a3abd4ee49c1cf5561fea997275f535098e"
+
 ### Config "fix" fragments
 
 # security fixes

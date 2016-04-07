@@ -334,7 +334,7 @@ def check_create_long_filename(filepath, pathname):
 
 def check_path_length(filepath, pathname, limit):
     if len(filepath) > limit:
-        return "The length of %s is longer than 410, this would cause unexpected errors, please use a shorter path.\n" % pathname
+        return "The length of %s is longer than %s, this would cause unexpected errors, please use a shorter path.\n" % (pathname, limit)
     return ""
 
 def get_filesystem_id(path):
@@ -531,14 +531,16 @@ def check_tar_version(sanity_data):
     return None
 
 # We use git parameters and functionality only found in 1.7.8 or later
+# The kernel tools assume git >= 1.8.3.1 (verified needed > 1.7.9.5) see #6162 
+# The git fetcher also had workarounds for git < 1.7.9.2 which we've dropped
 def check_git_version(sanity_data):
     from distutils.version import LooseVersion
     status, result = oe.utils.getstatusoutput("git --version 2> /dev/null")
     if status != 0:
         return "Unable to execute git --version, exit code %s\n" % status
     version = result.split()[2]
-    if LooseVersion(version) < LooseVersion("1.7.8"):
-        return "Your version of git is older than 1.7.8 and has bugs which will break builds. Please install a newer version of git.\n"
+    if LooseVersion(version) < LooseVersion("1.8.3.1"):
+        return "Your version of git is older than 1.8.3.1 and has bugs which will break builds. Please install a newer version of git.\n"
     return None
 
 # Check the required perl modules which may not be installed by default

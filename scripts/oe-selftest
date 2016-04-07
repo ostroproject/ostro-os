@@ -578,48 +578,47 @@ def buildResultClass(args):
                     # check if user can do coverage
                     import coverage
                 except:
-                    log.warn('\n'.join(["python coverage is not installed",
-                        "Make sure your coverage takes into account sub-process",
-                        "More info on https://pypi.python.org/pypi/coverage"]))
+                    log.warn("python coverage is not installed. More info on https://pypi.python.org/pypi/coverage")
                     self.coverage_installed = False
 
                 if self.coverage_installed:
                     log.info("Coverage is enabled")
 
-                # In case the user has not set the variable COVERAGE_PROCESS_START,
-                # create a default one and export it. The COVERAGE_PROCESS_START
-                # value indicates where the coverage configuration file resides
-                # More info on https://pypi.python.org/pypi/coverage
-                if not os.environ.get('COVERAGE_PROCESS_START'):
-                    os.environ['COVERAGE_PROCESS_START'] = coverage_setup(args.coverage_source, args.coverage_include, args.coverage_omit)
+                    # In case the user has not set the variable COVERAGE_PROCESS_START,
+                    # create a default one and export it. The COVERAGE_PROCESS_START
+                    # value indicates where the coverage configuration file resides
+                    # More info on https://pypi.python.org/pypi/coverage
+                    if not os.environ.get('COVERAGE_PROCESS_START'):
+                        os.environ['COVERAGE_PROCESS_START'] = coverage_setup(args.coverage_source, args.coverage_include, args.coverage_omit)
 
-                # Use default site.USER_SITE and write corresponding config file
-                site.ENABLE_USER_SITE = True
-                if not os.path.exists(site.USER_SITE):
-                    os.makedirs(site.USER_SITE)
-                self.coveragepth = os.path.join(site.USER_SITE, "coverage.pth")
-                with open(self.coveragepth, 'w') as cps:
-                    cps.write('import sys,site; sys.path.extend(site.getsitepackages()); import coverage; coverage.process_startup();')
+                    # Use default site.USER_SITE and write corresponding config file
+                    site.ENABLE_USER_SITE = True
+                    if not os.path.exists(site.USER_SITE):
+                        os.makedirs(site.USER_SITE)
+                    self.coveragepth = os.path.join(site.USER_SITE, "coverage.pth")
+                    with open(self.coveragepth, 'w') as cps:
+                        cps.write('import sys,site; sys.path.extend(site.getsitepackages()); import coverage; coverage.process_startup();')
 
         def stopTestRun(self):
             """ Report coverage data after the testcases are run """
 
-            if args.coverage and self.coverage_installed:
-                with open(os.environ['COVERAGE_PROCESS_START']) as ccf:
-                    log.info("Coverage configuration file (%s)" % os.environ.get('COVERAGE_PROCESS_START'))
-                    log.info("===========================")
-                    log.info("\n%s" % "".join(ccf.readlines()))
+            if args.coverage or args.coverage_source or args.coverage_include or args.coverage_omit:
+                if self.coverage_installed:
+                    with open(os.environ['COVERAGE_PROCESS_START']) as ccf:
+                        log.info("Coverage configuration file (%s)" % os.environ.get('COVERAGE_PROCESS_START'))
+                        log.info("===========================")
+                        log.info("\n%s" % "".join(ccf.readlines()))
 
-                log.info("Coverage Report")
-                log.info("===============")
-                try:
-                    coverage_report()
-                    # remove the pth file
-                finally:
+                    log.info("Coverage Report")
+                    log.info("===============")
                     try:
-                        os.remove(self.coveragepth)
-                    except OSError:
-                        log.warn("Expected temporal file from coverage is missing, ignoring removal.")
+                        coverage_report()
+                    finally:
+                        # remove the pth file
+                        try:
+                            os.remove(self.coveragepth)
+                        except OSError:
+                            log.warn("Expected temporal file from coverage is missing, ignoring removal.")
 
     return StampedResult
 
