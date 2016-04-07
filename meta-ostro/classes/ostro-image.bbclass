@@ -239,17 +239,6 @@ OSTRO_IMAGE_INSTALL_REFERENCE = "${@ostro_image_bundles_to_packages('reference',
 OSTRO_IMAGE_INSTALL_QA = "${@ostro_image_bundles_to_packages('qa', d)}"
 OSTRO_IMAGE_INSTALL_ALL = "${@ostro_image_bundles_to_packages('all', d)}"
 
-# Create compatibility symlinks for the Ostro OS CI system, which
-# currently expects to find "ostro-image-edison.ext4" inside the
-# archives prepared for Edison.
-IMAGE_CMD_toflash_append () {
-        if [ "${IMAGE_BASENAME}" != "ostro-image" ]; then
-            for i in ext4 hddimg update.hddimg; do
-                ln -s ${IMAGE_BASENAME}-${MACHINE}.$i ${WORKDIR}/toFlash/ostro-image-${MACHINE}.$i
-            done
-        fi
-}
-
 # The AppFW depends on the security framework and user management, and these frameworks
 # (currently?) make little sense without apps, therefore a single image feature is used
 # for all of these.
