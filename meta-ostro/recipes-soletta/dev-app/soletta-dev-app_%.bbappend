@@ -9,3 +9,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 SRC_URI += " file://0001-Add-firewall-rules-to-allow-access.patch"
 
 RDEPENDS_${PN} += " iptables"
+
+do_install_prepend() {
+    rm -rf ${S}/patches
+}
