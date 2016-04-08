@@ -24,7 +24,7 @@ do_install_append_class-native() {
 }
 
 do_deploy[sstate-outputdirs] = "${DEPLOY_DIR_TOOLS}"
-do_deploy() {
+do_deploy_class-native() {
     cp bmaptool __main__.py
     python -m zipfile -c bmaptool.zip bmaptools __main__.py
     echo '#!/usr/bin/env python' | cat - bmaptool.zip > bmaptool-standalone
@@ -33,4 +33,9 @@ do_deploy() {
     rm -f ${DEPLOYDIR}/bmaptool
     ln -sf ./bmaptool-${PV} ${DEPLOYDIR}/bmaptool
 }
+
+do_deploy() {
+        :
+}
+
 addtask deploy before do_package after do_install
