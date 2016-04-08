@@ -214,40 +214,49 @@ class ISA_CFChecker():
         return list_of_files
 
     def get_execstack(self, file_name):
+        DEVNULL = open(os.devnull, 'wb')
         cmd = ['execstack', '-q', file_name]
         try:
-            result = subprocess.check_output(cmd).decode("utf-8")
+            result = subprocess.check_output(cmd, stderr=DEVNULL).decode("utf-8")
         except:
+            DEVNULL.close()
             return "Not able to fetch execstack status"
         else:
             if result.startswith("X "):
                 self.execstack.append(file_name[:])
             if result.startswith("? "):
-                self.execstack_not_defined.append(file_name[:])             
+                self.execstack_not_defined.append(file_name[:])
+            DEVNULL.close()             
             return result
 
     def get_nodrop_groups(self, file_name):
+        DEVNULL = open(os.devnull, 'wb')
         cmd = ['readelf', '-s', file_name]
         try:
-            result = subprocess.check_output(cmd).decode("utf-8")
+            result = subprocess.check_output(cmd, stderr=DEVNULL).decode("utf-8")
         except:
+            DEVNULL.close()             
             return "Not able to fetch nodrop groups status"
         else:
             if ("setgid@GLIBC" in result) or ("setegid@GLIBC" in result) or ("setresgid@GLIBC" in result):
                 if ("setuid@GLIBC" in result) or ("seteuid@GLIBC" in result) or ("setresuid@GLIBC" in result):
                     if ("setgroups@GLIBC" not in result) and ("initgroups@GLIBC" not in result):
-                        self.nodrop_groups.append(file_name[:])       
+                        self.nodrop_groups.append(file_name[:])  
+            DEVNULL.close()                  
             return result
 
     def get_mpx(self, file_name):
+        DEVNULL = open(os.devnull, 'wb')
         cmd = ['objdump', '-d', file_name]
         try:
-            result = subprocess.check_output(cmd).decode("utf-8")
+            result = subprocess.check_output(cmd, stderr=DEVNULL).decode("utf-8")
         except:
+            DEVNULL.close()             
             return "Not able to fetch mpx status"
         else:
             if ("bndcu" not in result) and ("bndcl" not in result) and ("bndmov" not in result):
-                self.no_mpx.append(file_name[:])       
+                self.no_mpx.append(file_name[:])
+            DEVNULL.close()                 
             return result
 
     def get_security_flags(self, file_name):
