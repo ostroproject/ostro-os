@@ -69,7 +69,6 @@ class WiFiFunction(object):
         """
         if (ap_type == "hidden"):
             ssid = "hidden_managed_psk"
-
         # Retry 4 times scan if needed
         retry = 0
         while (retry < 4):
@@ -106,7 +105,7 @@ class WiFiFunction(object):
             exp = os.path.join(os.path.dirname(__file__), "files/wifi_hidden_connect.exp")
             cmd = "expect %s %s %s %s %s %s" % (exp, target_ip, "connmanctl", service, ssid, pwd)
         else:
-            assert False, "ap_type must be broadcast or hidd n, check config"
+            assert False, "ap_type must be broadcast or hidden, check config"
         # execute connection expect script
         status, output = shell_cmd_timeout(cmd, timeout=60)
         assert status == 2, "Error messages: %s" % output 
@@ -127,6 +126,24 @@ class WiFiFunction(object):
         self.target_collect_info("ifconfig")
 
         assert status == 0, "IP check failed" + self.log
+
+    def connect_without_password(self, ssid):
+        '''connmanctl to connect wifi AP without password
+        @fn connect_without_password
+        @param self
+        @param ssid: WiFi AP ssid, in the services list already
+        @return
+        '''
+        self.target.run('connmanctl scan wifi')
+        time.sleep(1)
+        self.target_collect_info('connmanctl services')
+        (status, service) = self.target.run('connmanctl services | grep "%s"' % ssid)
+        time.sleep(1)
+        assert status == 0, "Do not get AP service: %s" % self.log
+        # Directly execute connmanctl to connect AP
+        (status, service) = self.target.run('connmanctl connect %s' % service)
+        time.sleep(10)
+        self.wifi_ip_check()
 
     def check_internet_connection(self):
         # wget internet content
