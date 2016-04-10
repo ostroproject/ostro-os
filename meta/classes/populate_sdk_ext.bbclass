@@ -140,6 +140,10 @@ python copy_buildsystem () {
     with open(os.path.join(baseoutpath, 'conf', 'devtool.conf'), 'w') as f:
         config.write(f)
 
+    unlockedsigs =  os.path.join(baseoutpath, 'conf', 'unlocked-sigs.inc')
+    with open(unlockedsigs, 'w') as f:
+        pass
+
     # Create a layer for new recipes / appends
     bbpath = d.getVar('BBPATH', True)
     bb.process.run(['devtool', '--bbpath', bbpath, '--basepath', baseoutpath, 'create-workspace', '--create-only', os.path.join(baseoutpath, 'workspace')])
@@ -209,8 +213,15 @@ python copy_buildsystem () {
             # Bypass the default connectivity check if any
             f.write('CONNECTIVITY_CHECK_URIS = ""\n\n')
 
-            # Ensure locked sstate cache objects are re-used without error
-            f.write('SIGGEN_LOCKEDSIGS_CHECK_LEVEL = "none"\n\n')
+            # This warning will come out if reverse dependencies for a task
+            # don't have sstate as well as the task itself. We already know
+            # this will be the case for the extensible sdk, so turn off the
+            # warning.
+            f.write('SIGGEN_LOCKEDSIGS_SSTATE_EXISTS_CHECK = "none"\n\n')
+
+            # Error if the sigs in the locked-signature file don't match
+            # the sig computed from the metadata.
+            f.write('SIGGEN_LOCKEDSIGS_TASKSIG_CHECK = "error"\n\n')
 
             # Hide the config information from bitbake output (since it's fixed within the SDK)
             f.write('BUILDCFG_HEADER = ""\n')
@@ -231,6 +242,7 @@ python copy_buildsystem () {
                     f.write(line.strip() + '\n')
 
             f.write('require conf/locked-sigs.inc\n')
+            f.write('require conf/unlocked-sigs.inc\n')
 
     if os.path.exists(builddir + '/conf/auto.conf'):
         if derivative:
