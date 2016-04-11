@@ -20,9 +20,9 @@ class TestSensorWithHighCPUConsumption(oeRuntimeTest):
     """
     @class TestSensorWithHighCPUConsumption
     """
-    def _setup(self):
+    def setUp(self):
         '''Generate test app on target
-        @fn _setup
+        @fn setUp
         @param self
         @return'''
         print 'start!\n'
@@ -39,13 +39,21 @@ class TestSensorWithHighCPUConsumption(oeRuntimeTest):
         (status, output) = self.target.copy_to(copy_to_path, \
                           "/opt/")
         
+    def tearDown(self):
+        '''unload tsl2561 driver
+        @fn tearDown
+        @param self
+        @return'''
+        (status, output) = self.target.run(
+                         "cd /sys/bus/i2c/devices; \
+                          echo 0x39 >i2c-0/delete_device")
+
     def test_read_data_from_sensor_with_high_cpu_consumption(self):
         '''Execute the test app and verify sensor data
            at the same time, do tar/untar big files
         @fn test_read_data_from_sensor_with_high_cpu_consumption
         @param self
         @return'''
-        self._setup()
         (status, output) = self.target.run(
                          "chmod 777 /opt/apps/test_light_tsl2561.fbp")
         (status, output) = self.target.run(

@@ -20,9 +20,9 @@ class TestLightTsl2561FourHrs(oeRuntimeTest):
     """
     @class TestLightTsl2561FourHrs
     """
-    def _setup(self):
+    def setUp(self):
         '''Generate test app on target
-        @fn _setup
+        @fn setUp
         @param self
         @return'''
         print 'start!\n'
@@ -35,14 +35,22 @@ class TestLightTsl2561FourHrs(oeRuntimeTest):
         (status, output) = self.target.run(timeUpdate)
         print output
         renameTC = "mv /opt/apps/test_light_tsl2561.fbp /opt/apps/test_light_tsl2561_4_hrs.fbp"
-        (status, output) = self.target.run(renameTC)        
+        (status, output) = self.target.run(renameTC)
+
+    def tearDown(self):
+        '''unload tsl2561 driver
+        @fn tearDown
+        @param self
+        @return'''
+        (status, output) = self.target.run(
+                         "cd /sys/bus/i2c/devices; \
+                          echo 0x39 >i2c-0/delete_device")
         
     def test_read_data_from_tsl2561_for_4_hrs(self):
         '''Execute the test app and verify sensor data
         @fn test_read_data_from_tsl2561_for_4_hrs
         @param self
         @return'''
-        self._setup()
         print 'start reading data!'
         (status, output) = self.target.run(
                          "chmod 777 /opt/apps/test_light_tsl2561_4_hrs.fbp")        

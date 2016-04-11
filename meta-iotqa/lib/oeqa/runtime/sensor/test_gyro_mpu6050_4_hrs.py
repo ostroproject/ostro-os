@@ -19,9 +19,9 @@ class TestGyroMPU6050FourHrs(oeRuntimeTest):
     """
     @class TestGyroMPU6050FourHrs
     """
-    def _setup(self):
+    def setUp(self):
         '''Generate fbp file on target
-        @fn _setup
+        @fn setUp
         @param self
         @return'''
         print 'start!\n'
@@ -36,13 +36,21 @@ class TestGyroMPU6050FourHrs(oeRuntimeTest):
         renameTC = "cd /opt/apps; mv test_gyro_mpu6050.fbp test_gyro_mpu6050_4_hrs.fbp"
         (status, output) = self.target.run(renameTC) 
         print output
+
+    def tearDown(self):
+        '''unload mpu6050 driver
+        @fn tearDown
+        @param self
+        @return'''
+        (status, output) = self.target.run(
+                         "cd /sys/bus/i2c/devices; \
+                          echo 0x68 >i2c-0/delete_device")
         
     def test_read_data_from_mpu6050_for_4_hrs(self):
         '''Execute the test app and verify sensor data
         @fn test_read_data_from_mpu6050_for_4_hrs
         @param self
         @return'''
-        self._setup()
         print 'start reading data!'
         (status, output) = self.target.run(
                          "chmod 777 /opt/apps/test_gyro_mpu6050_4_hrs.fbp")
