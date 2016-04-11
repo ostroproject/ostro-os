@@ -1,0 +1,1 @@
+require('iotivity-node');
