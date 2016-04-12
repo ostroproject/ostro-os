@@ -11,8 +11,7 @@ LIC_FILES_CHKSUM = "\
 DEPENDS += "zlib openssl"
 PROVIDES += "virtual/qat"
 
-SRC_URI="https://01.org/sites/default/files/page/qatmux.l.${PV}.tgz;name=qat \
-         file://qat16_2.3.0-34-qat-fix-for-cross-compilation-issue.patch \
+SRC_URI="file://qat16_2.3.0-34-qat-fix-for-cross-compilation-issue.patch \
          file://qat16_2.3.0-34-qat-remove-local-path-from-makefile.patch \
          file://qat16_2.3.0-34-make-sure-CFLAGS-are-correct.patch \
          file://qat16_2.5.0-80-qat-change-in-return-type-of-func-in-kernel-v4.4.patch \
