@@ -214,8 +214,13 @@ by using image recipes like ``ostro-image-noswupd`` where swupd is
 turned off, because:
 
 a) swupd support is still new and may have unexpected problems.
-b) image and swupd bundle creation cause additional overhead
-   due to the extra work that needs to be done.
+b) image and swupd bundle creation cause additional overhead (disk
+   space, compile time) due to the extra work that needs to be done
+   (creating multiple rootfs directories to simulate what needs to be
+   in each bundle, preparing the data that the swupd client pulls via
+   HTTP(S) when checking for updates). This can increase the build
+   time from several minutes to over an hour or more (depending on the
+   number of bundles and files).
 
 The following instructions assume that swupd is not used.
 
