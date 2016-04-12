@@ -73,6 +73,7 @@ do_compile () {
 }
 
 do_install() {
+        export MACHINE="${TARGET_ARCH}"
         cd ${S}/quickassist
         oe_runmake install
 
