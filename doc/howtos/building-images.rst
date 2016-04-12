@@ -247,14 +247,12 @@ Alternatively, ``CORE_IMAGE_EXTRA_INSTALL`` can also be used. The
 difference is that this will also affect the initramfs images, which is
 often not intended.
 
-Including ``ostro-os-development.inc`` will automatically extend the
-configuration of ``ostro-image-noswupd`` such that the content matches
-what gets published as the ``ostro-image-swupd-reference``. For
-example, an ssh server gets added. If that is not desired, uncomment
-the following lines in ``conf/local.conf``::
+The example ``ostro-image-swupd`` is defined such that its default
+content corresponds to ``ostro-image-noswupd``. It is possible to
+reconfigure it so that it matches ``ostro-image-swupd-dev``::
 
-  OSTRO_DEVELOPMENT_EXTRA_FEATURES = ""
-  OSTRO_DEVELOPMENT_EXTRA_INSTALL = ""
+    OSTRO_IMAGE_NOSWUPD_EXTRA_FEATURES_append = "${OSTRO_IMAGE_FEATURES_DEV}"
+    OSTRO_IMAGE_NOSWUPD_EXTRA_INSTALL_append = "${OSTRO_IMAGE_INSTALL_DEV}"
 
 
 Accelerating Build Time Using Shared-State Files Cache

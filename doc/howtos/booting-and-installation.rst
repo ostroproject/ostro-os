@@ -190,7 +190,7 @@ Flashing an Intel Edison requires use of a breakout board and two micro-USB cabl
    for recovery cases.)
 #. Plug in a micro-USB cable to the J3 connector on the board (corner next to the FTDI chip).
 #. Flip the DIP switch towards jumper J16.
-#. Download the ``ostro-image-swupd-reference`` image from the Ostro OS download folder for
+#. Download the ``ostro-image-swupd`` image from the Ostro OS download folder for
    Edison (on https://download.ostroproject.org/releases/ostro-os/milestone/).
 #. Extract the image from the archive using the command::
 
@@ -237,7 +237,7 @@ In our setup steps below, we're using an 8GB microSD card in an SD adapter that'
    Download these four files to your host computer::
 
       MLO
-      ostro-image-swupd-reference-beaglebone-*.rootfs.tar.bz2
+      ostro-image-swupd-beaglebone-*.rootfs.tar.bz2
       u-boot.img
       zImage-am335x-boneblack.dtb
 
@@ -306,7 +306,7 @@ In our setup steps below, we're using an 8GB microSD card in an SD adapter that'
 
      $ mkdir rootfs
      $ sudo mount /dev/mmcblk0p2 rootfs
-     $ sudo tar xvjf ostro-image-swupd-reference-beaglebone*.rootfs.tar.bz2 --wildcards --xattrs --xattrs-include=*  -C rootfs
+     $ sudo tar xvjf ostro-image-swupd-beaglebone*.rootfs.tar.bz2 --wildcards --xattrs --xattrs-include=*  -C rootfs
 
 #.  Before unmounting the device, we also need to add the device tree blob file (``zImage-am335x-boneblack.dtb``)
     that you downloaded (or from your own build).

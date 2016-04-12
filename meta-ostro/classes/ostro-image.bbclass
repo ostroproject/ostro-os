@@ -29,8 +29,13 @@ IMAGE_INSTALL += "dash"
 # via FEATURE_PACKAGES.
 #
 # This is the list of image features which merely add packages.
-# This list also gets turned into the default set of swupd bundles.
+#
+# When using swupd bundles, each name here can be used to define a bundle,
+# for example like this:
+# SWUPD_BUNDLES = "tools-debug"
+# BUNDLE_CONTENTS[tools-debug] = "${FEATURE_PACKAGES_tools-debug}"
 OSTRO_IMAGE_PKG_FEATURES = " \
+    app-framework \
     can \
     connectivity \
     devkit \
@@ -40,7 +45,6 @@ OSTRO_IMAGE_PKG_FEATURES = " \
     nodejs-runtime-tools \
     python-runtime \
     qatests \
-    ssh-server \
     soletta \
     soletta-tools \
     tools-debug \
@@ -60,18 +64,20 @@ IMAGE_FEATURES[validitems] += " \
     ima \
     smack \
     swupd \
-    app-framework \
     ${OSTRO_IMAGE_PKG_FEATURES} \
 "
 
-# The default "ostro-image" is very minimal. Its content determines
-# the "core-os" swupd bundle which always must be present on a
-# device. All additional components must be added explicitly to the
-# image by setting OSTRO_IMAGE_EXTRA_FEATURES or
-# OSTRO_IMAGE_EXTRA_INSTALL (making it part of the core-os bundle and
-# the "ostro-image" image file) or by defining additional bundles via
-# SWUPD_BUNDLES.
+# An image derived from ostro-image.bbclass without additional configuration
+# is very minimal. When building with swupd enabled, the content of the
+# base image determines the "core-os" swupd bundle which contains the components
+# which always must be present on a device.
 #
+# All additional components on top of the minimal ones defined by ostro-image.bbclass
+# must be added explicitly by setting OSTRO_IMAGE_EXTRA_FEATURES or
+# OSTRO_IMAGE_EXTRA_INSTALL (making them part of the core-os bundle when building
+# with swupd and thus part of each image, or directly adding them to the image when
+# building without swupd), or by defining additional bundles via
+# SWUPD_BUNDLES.
 IMAGE_FEATURES += " \
     ${@bb.utils.contains('DISTRO_FEATURES', 'ima', 'ima', '', d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', 'smack', 'smack', '', d)} \
@@ -94,110 +100,11 @@ SWUPD_LOG_FN ?= "bbplain"
 #   BB_ENV_EXTRAWHITE="$BB_ENV_EXTRAWHITE OS_VERSION" OS_VERSION=110 bitbake ostro-image-swupd
 #   ...
 
-# Define additional bundles. This matches 1:1 to image features
-# which add packages (i.e. OSTRO_IMAGE_PKG_FEATURES).
-# In addition, for each of these we also create a development bundle
-# that also contains the development files.
-#SWUPD_BUNDLES ??= " \
-#    ${OSTRO_IMAGE_PKG_FEATURES} \
-#    ${@ ' '.join([x + '-dev' for x in '${OSTRO_IMAGE_PKG_FEATURES}'.split()])} \
-#"
-BUNDLE_CONTENTS[can] = "${FEATURE_PACKAGES_can}"
-BUNDLE_CONTENTS[connectivity] = "${FEATURE_PACKAGES_connectivity}"
-BUNDLE_CONTENTS[devkit] = "${FEATURE_PACKAGES_devkit}"
-BUNDLE_CONTENTS[iotivity] = "${FEATURE_PACKAGES_iotivity}"
-BUNDLE_CONTENTS[java-jdk] = "${FEATURE_PACKAGES_java-jdk}"
-BUNDLE_CONTENTS[node-runtime] = "${FEATURE_PACKAGES_node-runtime}"
-BUNDLE_CONTENTS[nodejs-runtime-tools] = "${FEATURE_PACKAGES_nodejs-runtime-tools}"
-BUNDLE_CONTENTS[python-runtime] = "${FEATURE_PACKAGES_python-runtime}"
-BUNDLE_CONTENTS[qatests] = "${FEATURE_PACKAGES_qatests}"
-BUNDLE_CONTENTS[ssh-server] = "${FEATURE_PACKAGES_ssh-server-openssh}"
-BUNDLE_CONTENTS[soletta] = "${FEATURE_PACKAGES_soletta}"
-BUNDLE_CONTENTS[soletta-tools] = "${FEATURE_PACKAGES_soletta-tools}"
-BUNDLE_CONTENTS[tools-debug] = "${FEATURE_PACKAGES_tools-debug}"
-BUNDLE_CONTENTS[tools-develop] = "${FEATURE_PACKAGES_tools-develop}"
-BUNDLE_CONTENTS[tools-interactive] = "${FEATURE_PACKAGES_tools-interactive}"
-BUNDLE_CONTENTS[app-framework] = "${FEATURE_PACKAGES_app-framework}"
-
-# Defining bundles as above is currently too slow (build times in the CI
-# of more than three hours despite reused sstate cache). Let's cut down
-# the number of bundles to something more manageable and increase it again
-# after improving bundle creation performance.
-SWUPD_BUNDLES ??= " \
-    reference \
-    full \
-    full-dev \
-"
-BUNDLE_CONTENTS[reference] = " \
-    ${FEATURE_PACKAGES_connectivity} \
-    ${FEATURE_PACKAGES_tools-interactive} \
-    ${FEATURE_PACKAGES_ssh-server-openssh} \
-"
-BUNDLE_CONTENTS[full] = " \
-    ${FEATURE_PACKAGES_can} \
-    ${FEATURE_PACKAGES_devkit} \
-    ${FEATURE_PACKAGES_iotivity} \
-    ${FEATURE_PACKAGES_java-jdk} \
-    ${FEATURE_PACKAGES_node-runtime} \
-    ${FEATURE_PACKAGES_python-runtime} \
-    ${FEATURE_PACKAGES_qatests} \
-    ${FEATURE_PACKAGES_soletta} \
-    ${FEATURE_PACKAGES_soletta-tools} \
-    ${FEATURE_PACKAGES_tools-debug} \
-    ${FEATURE_PACKAGES_tools-develop} \
-    ${FEATURE_PACKAGES_tools-interactive} \
-    ${FEATURE_PACKAGES_app-framework} \
-"
-
-# When swupd bundles are enabled, choose explicitly which images
-# are created. The base image will only have the core-os bundle and
-# thus might not be very useful. For use in ostro-image-swupd.bb we
-# pre-define additional images:
-# ostro-image-swupd-reference -
-#    Base image plus login via getty and ssh, plus connectivity.
-#    This is what developers  are expected to start with when
-#    building their first image.
-# ostro-image-swupd-dev -
-#    Image used for testing Ostro OS. Contains most of the software
-#    pre-installed, including the corresponding development files
-#    for on-target compilation.
-# ostro-image-swupd-all -
-#    Contains all defined bundles. Useful as meta target, but not
-#    guaranteed to build images successfully, for example because
-#    the content might get too large for machines with a fixed image
-#    size.
-SWUPD_IMAGES ??= " \
-    reference \
-    dev \
-    all \
-"
-# SWUPD_IMAGES[reference] = " \
-#     connectivity \
-#     ssh-server \
-# "
-SWUPD_IMAGES[reference] = " \
-    reference \
-"
-
-# In practice the same as "all" at the moment, but conceptually different
-# and thus defined separately.
-SWUPD_IMAGES[dev] = " \
-    ${SWUPD_BUNDLES} \
-"
-SWUPD_IMAGES[all] = " \
-    ${SWUPD_BUNDLES} \
-"
-
-# When building without swupd, choose which content is to be included
-# in the image. If the default "ostro-image-noswupd" name is
-# undesirable, write a custom image recipe or customize the image file
-# names. We provide variables that can be used to select the same
-# content as in the swupd images.
+# ostro-image.bbclass intentionally does not define any bundles.
+# That belongs into image recipes, like the example ostro-image-swupd.bb.
 #
-# Example for local.conf, partly covered already by ostro-development.inc:
-# IMAGE_BASENAME_pn-ostro-image-noswupd = "my-ostro-image-reference"
-# OSTRO_IMAGE_EXTRA_INSTALL = "${OSTRO_IMAGE_INSTALL_REFERENCE} my-own-package"
-# OSTRO_IMAGE_EXTRA_FEATURES = "${OSTRO_IMAGE_FEATURES_REFERENCE}"
+# When building without swupd, choose which content is to be included
+# in the image. See the example ostro-image-noswupd.bb.
 
 # Customize priorities of alternative components. See ostro.conf.
 #
@@ -228,18 +135,23 @@ export ALTERNATIVE_PRIORITY_UTIL_LINUX ?= "305"
 # just mount/umount as overrides for Toybox/Busybox.
 IMAGE_INSTALL += "util-linux"
 
-# Currently the definitions of swupd images depend on bundles and thus
-# BUNDLE_CONTENTS. OSTRO_IMAGE_FEATURES are defined as empty in case
-# that this will change in the future.
-OSTRO_IMAGE_FEATURES_REFERENCE = ""
-OSTRO_IMAGE_FEATURES_QA = ""
-OSTRO_IMAGE_FEATURES_ALL = ""
-def ostro_image_bundles_to_packages (image, d):
-    bundles = (d.getVarFlag('SWUPD_IMAGES', image, True) or '').split()
-    return ' '.join([(d.getVarFlag('BUNDLE_CONTENTS', bundle, True) or '') for bundle in bundles])
-OSTRO_IMAGE_INSTALL_REFERENCE = "${@ostro_image_bundles_to_packages('reference', d)}"
-OSTRO_IMAGE_INSTALL_QA = "${@ostro_image_bundles_to_packages('qa', d)}"
-OSTRO_IMAGE_INSTALL_ALL = "${@ostro_image_bundles_to_packages('all', d)}"
+# Additional features and packages used in the base images of
+# ostro-image-swupd.bb and ostro-image-noswupd.bb.
+OSTRO_IMAGE_FEATURES_REFERENCE ?= " \
+    connectivity \
+    tools-interactive \
+    ssh-server-openssh \
+"
+OSTRO_IMAGE_INSTALL_REFERENCE ?= ""
+
+# Additional features and packages required to build something similar
+# to the "dev" bundle in ostro-image-swupd.bb and thus
+# ostro-image-swupd-dev.
+OSTRO_IMAGE_FEATURES_DEV ?= " \
+    ${OSTRO_IMAGE_PKG_FEATURES} \
+    dev-pkgs \
+"
+OSTRO_IMAGE_INSTALL_DEV ?= ""
 
 FEATURE_PACKAGES_app-framework = " \
     packagegroup-app-framework \

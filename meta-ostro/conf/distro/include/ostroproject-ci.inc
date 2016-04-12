@@ -45,7 +45,7 @@ OSTRO_VM_IMAGE_TYPES = "dsk.xz dsk.zip dsk.vdi.zip dsk.bmap dsk.xz.sha256sum dsk
 # Any other symbols would be skipped in parser.
 #
 # Following targets would be used to perform default build task:
-OSTROPROJECT_CI_BUILD_TARGETS="ostro-image-noswupd ostro-image-swupd ostro-image-swupd-dev ostro-image-swupd-reference"
+OSTROPROJECT_CI_BUILD_TARGETS="ostro-image-noswupd ostro-image-swupd ostro-image-swupd-dev"
 # Following targets would be executed with do_populate_sdk task
 OSTROPROJECT_CI_SDK_TARGETS=""
 # Following targets would be executed with do_populate_sdk_ext task.
