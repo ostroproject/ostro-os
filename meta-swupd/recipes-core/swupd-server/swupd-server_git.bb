@@ -14,7 +14,7 @@ SRCREV = "51c0bf200792b19593782bf819bbc3d239ec0b50"
 
 S = "${WORKDIR}/git"
 
-inherit autotools
+inherit pkgconfig autotools
 
 EXTRA_OECONF = "--enable-bzip2 --enable-lzma --disable-stateless --disable-tests --enable-bsdtar"
 
