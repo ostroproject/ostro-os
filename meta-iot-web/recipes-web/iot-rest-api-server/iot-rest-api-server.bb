@@ -2,7 +2,7 @@ DESCRIPTION = "Server for IOT REST APIs."
 HOMEPAGE = "https://github.com/01org/iot-rest-api-server"
 LICENSE = "Apache-2.0"
 
-LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSE;md5=fa818a259cbed7ce8bc2a22d35a464fc"
+LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSE;md5=f38da8c6b0e047c28fd0952ad7b59784"
 
 DEPENDS = "nodejs-native iotivity iotivity-node"
 RDEPENDS_${PN} += "bash iotivity-node iptables"
@@ -14,7 +14,7 @@ SRC_URI = "git://git@github.com/01org/iot-rest-api-server.git;protocol=https \
            file://${PN}-ipv4.conf \
            file://${PN}-ipv6.conf \
           "
-SRCREV = "be42a70843cf0651ffd09c4c2913ceec4bf3f9fa"
+SRCREV = "2f1a59bde895062c1d4eb46cd5676df0c55ace3e"
 
 S = "${WORKDIR}/git"
 
