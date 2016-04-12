@@ -4,9 +4,10 @@ addhandler ostro_sanity_check_eventhandler
 ostro_sanity_check_eventhandler[eventmask] = "bb.event.SanityCheck"
 python ostro_sanity_check_eventhandler() {
     if not d.getVar('OSTRO_IMAGE_BUILD_MODE_SELECTED', True):
-        bb.fatal('''local.conf must be explicitly edited to select between building
-production and development images. See the comments in local.conf.sample
-and doc/howtos/building-images.rst.''')
+        import os
+        bb.fatal('''"conf/local.conf" must be explicitly edited to select between building
+production and development images. See the comments in local.conf
+and "%s".''' % os.path.normpath(d.expand('${META_OSTRO_BASE}/../doc/howtos/building-images.rst')))
 }
 
 # /run, /proc, /var/volatile and /dev only get mounted at runtime.
