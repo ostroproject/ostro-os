@@ -10,8 +10,10 @@ inherit packagegroup
 
 RDEPENDS_${PN} = " \
     atop \
+    bzip2 \
     curl \
     gawk \
+    gzip \
     htop \
     iftop \
     iotop \
@@ -27,4 +29,5 @@ RDEPENDS_${PN} = " \
     traceroute \
     vim \
     wget \
+    zip \
 "
