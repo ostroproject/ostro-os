@@ -33,13 +33,16 @@ Initial Steps
    This will leave you in the ``ostro-os/build`` folder.
 
 #. Edit the :file:`conf/local.conf` configuration text file and verify general configuration information is
-   how you want it (more details about this in the sections below)
+   how you want it (more details about this in the sections below). In particular define which additional
+   software that your want to have included and choose between building images in development or
+   production configuration (build configurations without that choice will fail a sanity check and
+   builds get aborted with an error message).
 
 #. Be sure you're still in the ``ostro-os/build`` folder, and then generate an Ostro OS development 
    image using :command:`bitbake`. (additional build target options are explained
    in the sections below.) ::
 
-   $ bitbake ostro-image-dev
+   $ bitbake ostro-image-noswupd
 
    Depending on the number of processors and cores, the amount of RAM, the speed of the internet connection and
    other factors, the build process could take several hours the first time you run it. 
@@ -50,7 +53,7 @@ Initial Steps
    run much faster since parts of the build are cached. 
           
    If errors occur during the build, refer to the `Yocto Project Errors and Warnings`_ documentation to help 
-   resolve the issues, and repeat the ``bitbake ostro-image-dev`` command to continue.
+   resolve the issues, and repeat the ``bitbake ostro-image-noswupd`` command to continue.
    
    When the build process completes, the generated image will be in the folder 
    :file:`build/tmp-glibc/deploy/images/$(MACHINE)`
@@ -78,6 +81,51 @@ the existing user accounts (including root) has a password set, so
 logging into the running system is impossible. Before building an image,
 you must choose a way of interacting with the system after it has booted.
 
+.. NOTE: this section introduces the difference between development and production
+   images first because it is a choice that must be made before building. Choosing
+   architecture, image format and image content are more important than optional
+   build tweaks (sstate, removal of old images), so those come last.
+
+
+Development Images
+------------------
+
+All images provided by the Ostro Project are intended for
+developers and not directly for production use. To avoid having developers
+accidentally build images for real products that have development
+features enabled, you must make explicit changes in ``local.conf`` to
+enable them.
+
+Developers building their own images for personal use can follow these
+instructions to replicate the configuration of the published Ostro OS images. All necessary
+private keys are provided in the ``ostro-os`` repository.
+
+To do this, before building,  edit the :file:`conf/local.conf` configuration file,
+find the line
+with ``# require conf/distro/include/ostro-os-development.inc`` and
+uncomment it. This will also add some recommended software to the ``ostro-image-noswupd``
+reference image, see below for details.
+
+
+Production Images
+-----------------
+
+When building production images, first follow the instructions
+provided in :file:`meta-intel-iot-security/meta-integrity/README.md` for creating your own
+keys. Then edit the :file:`conf/local.conf` configuration file and
+set ``IMA_EVM_KEY_DIR`` to the directory containing
+these keys or set the individual variables for each required
+key (see ``ima-evm-rootfs.bbclass``).
+
+In addition, find the line
+with ``# require conf/distro/include/ostro-os-production.inc`` and
+uncomment it. This documents that the intention really is to build
+production images and disables a sanity check that would otherwise
+abort a build.
+
+Then add your custom applications and services by listing them as
+additional packages as described in the next section.
+
 
 Target MACHINE Architecture
 ----------------------------
@@ -103,31 +151,6 @@ For currently :ref:`platforms`, the appropriate ``MACHINE`` selections are:
 
 Virtual machine images (a :file:`.vdi` file) are created for the ``intel-corei7-64``  hardware platforms as part 
 of the build process (and included in the prebuilt image folder too).
-
-Base Images
------------
-
-In your cloned ``ostro-os`` repository folder, ``./meta-ostro/recipes-image/images/ostro-image.bb`` is the 
-image recipe used for the Ostro
-project. This recipe file uses image features (configured via ``IMAGE_FEATURES``) to
-control the content and the image configuration.
-
-Internally, several image variants can be created from that base
-recipe. They differ in the set of image features added or removed
-from the base recipe:
-
-ostro-image:
-    The default image. Contains all programming runtimes.
-
-ostro-image-dev:
-    The same as ostro-image, plus build and debugging tools.
-
-Additional image variants can be defined in the ``local.conf``. For
-example, the following adds ``ostro-image-noima`` and
-``ostro-image-dev-noima`` as build targets where IMA is disabled and thus
-no IMA keys are needed::
-
-    OSTRO_EXTRA_IMAGE_VARIANTS = "imagevariant:noima imagevariant:dev,noima"
 
 
 Image Formats for EFI platforms
@@ -171,24 +194,63 @@ Example::
 will create both the raw and the VirtualBox images, both compressed.
 
 
+Base Images
+-----------
 
-Development Images
-------------------
+In your cloned ``ostro-os`` repository folder, ``./meta-ostro/classes/ostro-image.bbclass``
+contains the base definitions for building Ostro OS images. ``./meta-ostro/recipes-image/images/``
+contains some example image recipes.
 
-All images provided by the Ostro Project are intended for
-developers and not directly for production use. To avoid having developers
-accidentally build images for real products that have development
-features enabled, you must make explicit changes in ``local.conf`` to
-enable them.
+The ``ostro-image.bbclass`` can be used in two modes, depending on the ``swupd`` image feature:
 
-Developers building their own images for personal use can follow these
-instructions to replicate the published Ostro OS images. All necessary
-private keys are provided in the ``ostro-os`` repository.
+* swupd active: produces a swupd update stream when building images and in
+  addition defines virtual image recipes which produce image files that are
+  compatible with that update stream.
+* swupd not active: this is the traditional way of building images, where
+  variables directly control what goes into the image.
 
-To do this, before building,  edit the :file:`conf/local.conf` configuration file, 
-find the line
-with ``# require conf/distro/include/ostro-os-development.inc`` and
-uncomment it.
+Developers are encouraged to start building images the traditional way
+by using image recipes like ``ostro-image-noswupd`` where swupd is
+turned off, because:
+
+a) swupd support is still new and may have unexpected problems.
+b) image and swupd bundle creation cause additional overhead
+   due to the extra work that needs to be done.
+
+The following instructions assume that swupd is not used.
+
+.. TODO: document how to configure swupd once it is better understood
+   and tested.
+
+.. TODO: document how to create custom image recipes based on ostro-image.bbclass.
+
+
+Installing Additional Packages without swupd
+--------------------------------------------
+
+``ostro-image.bbclass`` defines several image features which can be enabled
+to install additional sets of components. For example, to install debugging
+tools, compilers and development files for all components in the image, add::
+
+    OSTRO_IMAGE_EXTRA_FEATURES += "tools-debug tools-develop dev-pkgs"
+
+Extend ``OSTRO_IMAGE_EXTRA_INSTALL`` to install additional individual packages,
+for example with::
+
+    OSTRO_IMAGE_EXTRA_INSTALL += "strace"
+
+Alternatively, ``CORE_IMAGE_EXTRA_INSTALL`` can also be used. The
+difference is that this will also affect the initramfs images, which is
+often not intended.
+
+Including ``ostro-os-development.inc`` will automatically extend the
+configuration of ``ostro-image-noswupd`` such that the content matches
+what gets published as the ``ostro-image-swupd-reference``. For
+example, an ssh server gets added. If that is not desired, uncomment
+the following lines in ``conf/local.conf``::
+
+  OSTRO_DEVELOPMENT_EXTRA_FEATURES = ""
+  OSTRO_DEVELOPMENT_EXTRA_INSTALL = ""
 
 
 Accelerating Build Time Using Shared-State Files Cache
@@ -211,50 +273,6 @@ in your :file:`conf/local.conf` file, as shown here:::
 
 .. _Yocto Project Shared State Cache documentation: http://www.yoctoproject.org/docs/2.0/mega-manual/mega-manual.html#shared-state-cache
 
-Production Images
------------------
-
-When building production images, first follow the instructions
-provided in :file:`meta-intel-iot-security/meta-integrity/README.md` for creating your own
-keys. Then edit the :file:`conf/local.conf` configuration file and
-set ``IMA_EVM_KEY_DIR`` to the directory containing
-these keys or set the individual variables for each required
-key (see ``ima-evm-rootfs.bbclass``).
-
-In addition, find the line
-with ``# require conf/distro/include/ostro-os-production.inc`` and
-uncomment it. This documents that the intention really is to build
-production images and disables a sanity check that would otherwise
-abort a build.
-
-Then add your custom applications and services by listing them as
-additional packages as described in the next section.
-
-
-Installing Additional Packages
-------------------------------
-
-Extend ``OSTRO_IMAGE_EXTRA_INSTALL`` to install additional packages
-into all Ostro OS image variants, for example with::
-
-    OSTRO_IMAGE_EXTRA_INSTALL += "strace"
-
-It is possible to limit the change to specific images. Let's assume
-for example that you want to add strace to your development image (and
-only that one), here is how you can proceed::
-
-    OSTRO_IMAGE_EXTRA_INSTALL_append_pn-ostro-image-dev = " strace"
-
-Be careful to use a leading space when specifying additional packages with ``_append``.
-
-This example assumes that :command:`bitbake ostro-image-dev` is used to build
-an image. By making the append conditional on the name of the image,
-different images can be built with different content inside the same
-build configuration.
-
-Alternatively, ``CORE_IMAGE_EXTRA_INSTALL`` can also be used, though not recommended. The
-difference is that this will also affect the initramfs images, which is
-often not intended.
 
 Removing Previous Image to Save Disk Space
 ------------------------------------------
