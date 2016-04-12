@@ -211,16 +211,15 @@ The ``ostro-image.bbclass`` can be used in two modes, depending on the ``swupd``
 
 Developers are encouraged to start building images the traditional way
 by using image recipes like ``ostro-image-noswupd`` where swupd is
-turned off, because:
+turned off and only use swupd during deployment.
 
-a) swupd support is still new and may have unexpected problems.
-b) image and swupd bundle creation cause additional overhead (disk
-   space, compile time) due to the extra work that needs to be done
-   (creating multiple rootfs directories to simulate what needs to be
-   in each bundle, preparing the data that the swupd client pulls via
-   HTTP(S) when checking for updates). This can increase the build
-   time from several minutes to over an hour or more (depending on the
-   number of bundles and files).
+That's because image creation based on swupd bundles and swupd bundle
+creation itself cause additional overhead (disk space, compile time)
+due to the extra work that needs to be done (creating multiple rootfs
+directories to simulate what needs to be in each bundle, preparing the
+data that the swupd client pulls via HTTP(S) when checking for
+updates). This can increase the build time from several minutes to
+over an hour or more (depending on the number of bundles and files).
 
 The following instructions assume that swupd is not used.
 
