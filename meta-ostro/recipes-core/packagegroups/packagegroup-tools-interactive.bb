@@ -24,9 +24,11 @@ RDEPENDS_${PN} = " \
     iputils-tracepath \
     iputils-tracepath6 \
     iputils-traceroute6 \
+    pciutils \
     procps \
     rsync \
     traceroute \
+    usbutils \
     vim \
     wget \
     zip \
