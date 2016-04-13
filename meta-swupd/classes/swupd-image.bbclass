@@ -121,8 +121,19 @@ python () {
     bundles = (d.getVar('SWUPD_BUNDLES', True) or "").split()
     extended = (d.getVar('BBCLASSEXTEND', True) or "").split()
 
-    if 'mega' in bundles:
-        bb.error('SWUPD_BUNDLES contains an item named "mega", this is a reserved name. Please rename that bundle.')
+    # We need to prevent the user defining bundles where the name might clash
+    # with naming in meta-swupd and swupd itself:
+    #  * mega is the name of our super image, an implementation detail in
+    #     meta-swupd
+    #  * full is the name used by swupd for the super manifest (listing all
+    #     files in all bundles of the OS)
+    def check_reserved_name(name):
+        reserved_bundles = ['mega', 'full']
+        if name in reserved_bundles:
+            bb.error('SWUPD_BUNDLES contains an item named "%s", this is a reserved name. Please rename that bundle.' % name)
+
+    for bndl in bundles:
+        check_reserved_name(bndl)
 
     # Generate virtual images for each of the bundles, the base image + the
     # bundle contents. Add each virtual image's do_prune_bundle task as a
