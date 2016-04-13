@@ -5,10 +5,9 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=9331186f4f80db7da0e724bdd6554ee5"
 SECTION = "net"
 DEPENDS = "libgcrypt gnutls file"
 
-SRC_URI[md5sum] = "23d5ee02cc9f16bff676b3c460b7b602"
-SRC_URI[sha256sum] = "414bb37471fd91646a7a41c6877a5be2d03871e8d9f845fd3ee55d0970d9069f"
-
 SRC_URI = "http://ftp.gnu.org/gnu/libmicrohttpd/${BPN}-${PV}.tar.gz"
+SRC_URI[md5sum] = "86c9cb728b4bd4fcb8aeca18ba6c0548"
+SRC_URI[sha256sum] = "4f937b6065c366d776be86b1d24b8fc400ebc7ea006a9d77c49a8f2f0cd7e373"
 
 inherit autotools lib_package pkgconfig
 
