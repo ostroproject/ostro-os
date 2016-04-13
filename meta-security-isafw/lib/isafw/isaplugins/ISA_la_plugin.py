@@ -36,6 +36,7 @@ LicenseChecker = None
 flicenses = "/configs/la/licenses"
 fapproved_non_osi = "/configs/la/approved-non-osi"
 fexceptions = "/configs/la/exceptions"
+funwanted = "/configs/la/violations"
 
 class ISA_LicenseChecker():    
     initialized = False
@@ -43,6 +44,7 @@ class ISA_LicenseChecker():
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
         self.logfile = ISA_config.logdir + "/isafw_lalog"
+        self.unwanted = []
         self.report_name = ISA_config.reportdir + "/la_problems_report_"  + ISA_config.machine + "_"+ ISA_config.timestamp
         # check that rpm is installed (supporting only rpm packages for now)
         DEVNULL = open(os.devnull, 'wb')
@@ -90,6 +92,10 @@ class ISA_LicenseChecker():
                         # log the package as not following correct license
                         with open(self.report_name, 'a') as freport:
                             freport.write(ISA_pkg.name + ": " + l + "\n")
+                    if (self.check_license(l, funwanted)):
+                        # log the package as having license that should not be used
+                        with open(self.report_name + "_unwanted", 'a') as freport:
+                            freport.write(ISA_pkg.name + ": " + l + "\n")
             else:
                 self.initialized = False
                 with open(self.logfile, 'a') as flog:
@@ -104,6 +110,9 @@ class ISA_LicenseChecker():
             with open(self.logfile, 'a') as flog:
                 flog.write("Creating report in XML format.\n")
             self.write_report_xml()
+            with open(self.logfile, 'a') as flog:
+                flog.write("Creating report with violating licenses.\n")
+            self.write_report_unwanted()
 
     def write_report_xml(self):
         try:
@@ -133,6 +142,14 @@ class ISA_LicenseChecker():
         except TypeError:
             tree.write(output, encoding='UTF-8', xml_declaration=True)
 
+    def write_report_unwanted(self):
+        if os.path.isfile (self.report_name + "_unwanted"):
+            with open(self.report_name, 'a') as fout:
+                with open(self.report_name + "_unwanted", 'r') as f:
+                    fout.write("\n\nPackages that violate mandatory license requirements:\n")
+                    for line in f:
+                        fout.write(line)
+            os.remove(self.report_name + "_unwanted")
 
     def find_files(self, init_path):
         list_of_files = []
