@@ -110,6 +110,21 @@ class WiFiFunction(object):
         status, output = shell_cmd_timeout(cmd, timeout=60)
         assert status == 2, "Error messages: %s" % output 
 
+    def get_wifi_ipv4(self):
+        ''' Get wifi ipv4 address
+        @fn get_wifi_ipv4
+        @param self
+        @return
+        '''
+        time.sleep(3)
+        # Check ip address by ifconfig command
+        wifi_interface = "nothing"
+        (status, wifi_interface) = self.target.run("ifconfig | grep '^wlp\|^wlan' | awk '{print $1}'")
+        (status, output) = self.target.run("ifconfig %s | grep 'inet addr:'" % wifi_interface)
+        self.target_collect_info("ifconfig")
+        assert status == 0, "Error messages: %s" % self.log
+        return output.split()[1].split(':')[1]
+
     def wifi_ip_check(self):
         '''check if the target gets ip address
         @fn wifi_ip_check
@@ -146,6 +161,11 @@ class WiFiFunction(object):
         self.wifi_ip_check()
 
     def check_internet_connection(self):
+        ''' Check if the target is able to connect to internet by wget
+        @fn check_internet_connection
+        @param self
+        @return
+        '''
         # wget internet content
         self.target.run("rm -f index.html")
         time.sleep(1)
@@ -167,6 +187,34 @@ class WiFiFunction(object):
         time.sleep(30)
         self.connect_wifi(ap_type, ssid, pwd)
         self.wifi_ip_check()                
+
+    def ipv4_ssh_to(self, ipv4):
+        ''' On main target, ssh to second
+        @fn ipv4_ssh_to
+        @param self
+        @param ipv4: second target ipv4 address
+        @return
+        '''
+        ssh_key = os.path.join(os.path.dirname(__file__), "../bluetooth/files/ostro_qa_rsa")
+        self.target.copy_to(ssh_key, "/tmp/")
+
+        exp = os.path.join(os.path.dirname(__file__), "files/ssh_to.exp")
+        exp_cmd = 'expect %s %s %s' % (exp, self.target.ip, ipv4)
+        (status, output) = shell_cmd_timeout(exp_cmd)
+        assert status == 2, "Error messages: %s" % output
+
+    def scp_to(self, file_path, ipv4):
+        ''' On main target, scp file to second
+        @fn scp_to
+        @param self
+        @param file_path: the file to be scp to second device
+        @param ipv4: second target ipv4 address
+        @return
+        '''
+        # This function assumes two devices already get ssh-key exchanged.
+        scp_cmd = 'scp -i /tmp/ostro_qa_rsa %s root@%s:/tmp/' % (file_path, ipv4)
+        (status, output) = self.target.run(scp_cmd, timeout=2000)
+        assert status == 0, "Scp fails: %s" % output
 
 ##
 # @}

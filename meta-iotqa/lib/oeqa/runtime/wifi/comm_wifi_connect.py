@@ -138,7 +138,7 @@ class CommWiFiConect(oeRuntimeTest):
         self.wifi.execute_connection(ap_type, ssid, pwd)
         self.wifi.check_internet_connection()
 
-    @tag(TestType="EFT", FeatureID="IOTOS-458")
+    @tag(FeatureID="IOTOS-458")
     def test_connect_wep(self):
         '''connmanctl to connect to WEP encryption AP
         @fn test_connect_wep
@@ -151,7 +151,7 @@ class CommWiFiConect(oeRuntimeTest):
 
         self.wifi.execute_connection(ap_type, ssid, pwd)
 
-    @tag(TestType="EFT", FeatureID="IOTOS-458")
+    @tag(FeatureID="IOTOS-458")
     def test_connect_80211ac(self):
         '''connmanctl to connect to 802.11ac AP
         @fn test_connect_80211ac
@@ -164,7 +164,7 @@ class CommWiFiConect(oeRuntimeTest):
 
         self.wifi.execute_connection(ap_type, ssid, pwd)
 
-    @tag(TestType="EFT", FeatureID="IOTOS-458")
+    @tag(FeatureID="IOTOS-458")
     def test_connect_save_password(self):
         '''When connecting to an AP connected before, do not need input password
         @fn test_connect_save_password
