@@ -4,6 +4,12 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/linux-yocto:"
 LINUX_VERSION_corei7-64-intel-common = "4.4.3"
 SRCREV_machine_corei7-64-intel-common = "73481a3abd4ee49c1cf5561fea997275f535098e"
 
+### linux-stable/linux-4.4.y backports
+
+SRC_URI_append_intel-quark = " file://0001-sched-cgroup-Fix-cleanup-cgroup-teardown-init.patch"
+SRC_URI_append_intel-corei7-64 = " file://0001-sched-cgroup-Fix-cleanup-cgroup-teardown-init.patch"
+SRC_URI_append_intel-core2-32 = " file://0001-sched-cgroup-Fix-cleanup-cgroup-teardown-init.patch"
+
 ### Config "fix" fragments
 
 # security fixes

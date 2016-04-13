@@ -33,6 +33,7 @@ class SolettaDevAppTest(oeRuntimeTest):
         self.sda_pid = ''
 
     @tag(TestType="FVT")
+    @tag(FeatureID="IOTOS-1468")
     def test_sda_server_integration(self):
         ''' check if the soletta-dev-app server start up after Ostro bootup
         @fn test_sda_server_integration
@@ -51,6 +52,7 @@ class SolettaDevAppTest(oeRuntimeTest):
         self.assertFalse((not self.sda_pid), msg="Cannot get soletta-dev-app pid")
 
     @tag(TestType="FVT")
+    @tag(FeatureID="IOTOS-1468")
     @skipUnlessPassed("test_server_integration")
     def test_sda_server_restart(self):
         ''' restart soletta-dev-app server with default configuration

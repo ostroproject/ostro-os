@@ -10,8 +10,10 @@ inherit packagegroup
 
 RDEPENDS_${PN} = " \
     atop \
+    bzip2 \
     curl \
     gawk \
+    gzip \
     htop \
     iftop \
     iotop \
@@ -22,9 +24,12 @@ RDEPENDS_${PN} = " \
     iputils-tracepath \
     iputils-tracepath6 \
     iputils-traceroute6 \
+    pciutils \
     procps \
     rsync \
     traceroute \
+    usbutils \
     vim \
     wget \
+    zip \
 "

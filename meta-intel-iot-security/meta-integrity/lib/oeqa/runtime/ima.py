@@ -33,20 +33,27 @@ class IMACheck(oeRuntimeTest):
         self.assertEqual(status, 0, "Cannot create file %s on target" %filename)
 
         # wait for the IMA system to update the entry
-        sleep(10)
-        status, output = self.target.run("cat %s | grep %s" \
-                                        %(ima_measure_file, filename))
-        self.assertEqual(status, 0, "Cannot find entry for %s in IMA" %filename)
-        # get last entry, 4th field
-        tokens = output.split("\n")[-1].split()[3]
-        alg = tokens.split(":")[0]
-        ima_hash = tokens.split(":")[1]
-        status, output = self.target.run("%ssum %s" %(alg, filename))
-        self.assertEqual(status, 0,"Cannot check current hash for %s" %filename)
+        maximum_tries = 30
+        tries = 0
+        status, output = self.target.run("sha1sum %s" %filename)
         current_hash = output.split()[0]
+        ima_hash = ""
+        
+        while tries < maximum_tries:
+            status, output = self.target.run("cat %s | grep %s" \
+                                            %(ima_measure_file, filename))
+            # get last entry, 4th field
+            if status == 0:
+                tokens = output.split("\n")[-1].split()[3]
+                ima_hash = tokens.split(":")[1]
+                if ima_hash == current_hash:
+                    break
+
+            tries += 1
+            sleep(1)
+
         # clean target
         self.target.run("rm %s" %filename)
-
         if ima_hash != current_hash:
             self.fail("Hash stored by IMA does not match actual hash")
 
