@@ -12,6 +12,7 @@ SRC_URI = "\
     file://0005-swupd-client-Add-existence-check-to-staging-target.patch \
     file://0006-Backport-Use-rename-instead-of-tar-transform.patch \
     file://0007-Add-compatibility-with-libarchive-s-bsdtar-command.patch \
+    file://0001-log.c-Check-filename-for-NULL-before-logging-it.patch \
 "
 
 SRC_URI[md5sum] = "5d272c62edb8a9c576005ac5e1182ea3"
