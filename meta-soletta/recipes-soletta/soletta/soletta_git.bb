@@ -17,6 +17,8 @@ SRC_URI = "gitsm://github.com/solettaproject/soletta.git;protocol=git \
            file://0048-oic-gen-ReadOnly-props-from-imported-json-objs-were-.patch \
            file://0049-oic-gen-Don-t-add-client-to_repr_vec-when-all-props-.patch \
            file://0050-oic-gen-Always-generate-code-using-same-order-of-res.patch \
+           file://i2c-dev.conf \
+           file://iio-trig-sysfs.conf \
           "
 SRCREV = "97091af414193c37278ba5ff88c70c596eecd7ea"
 
@@ -47,6 +49,7 @@ FILES_${PN}-dev = " \
                 ${libdir}/soletta/modules/pin-mux/* \
                 ${libdir}/soletta/modules/linux-micro/* \
                 ${libdir}/soletta/modules/flow-metatype/* \
+                ${sysconfdir}/modules-load.d/* \
 "
 
 FILES_${PN} = " \
@@ -94,6 +97,12 @@ do_install() {
    ln -sf libsoletta.so ${WORKDIR}/image/usr/lib/libsoletta.so.0.0.1
    COMMIT_ID=`git --git-dir=${WORKDIR}/git/.git rev-parse --verify HEAD`
    echo "Soletta: $COMMIT_ID" > ${D}/usr/lib/soletta/soletta-image-hash
+}
+
+do_install_append() {
+   install -d ${D}${sysconfdir}/modules-load.d
+   install -m 0644 ${WORKDIR}/i2c-dev.conf ${D}${sysconfdir}/modules-load.d
+   install -m 0644 ${WORKDIR}/iio-trig-sysfs.conf ${D}${sysconfdir}/modules-load.d
 }
 
 inherit ptest
