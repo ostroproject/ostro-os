@@ -44,7 +44,8 @@ python swupdbundle_virtclass_handler () {
         basebundle = bundle
 
     # Not producing any real images, only the rootfs directory.
-    e.data.setVar("IMAGE_FSTYPES", "")
+    e.data.setVarFlag("do_image", "noexec", "1")
+    e.data.setVarFlag("do_bootimg", "noexec", "1")
     curr_install = (e.data.getVar('IMAGE_INSTALL', True) or "").split()
 
     def get_bundle_contents(bndl):
