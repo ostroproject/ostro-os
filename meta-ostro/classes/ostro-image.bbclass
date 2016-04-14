@@ -61,6 +61,7 @@ OSTRO_IMAGE_PKG_FEATURES = " \
 # swupd = install swupd client and enabled generation of swupd bundles
 IMAGE_FEATURES[validitems] += " \
     autologin \
+    muted \
     ima \
     smack \
     swupd \
@@ -394,6 +395,39 @@ inherit xattr-images
 
 # Create all users and groups normally created only at runtime already at build time.
 inherit systemd-sysusers
+
+# Provide an image feature that disables all consoles and makes
+# journald mute.
+python() {
+    if bb.utils.contains('IMAGE_FEATURES', 'muted', True, False, d):
+        import re
+
+        # Mangle cmdline to drop all consoles and add quiet option
+        cmdline = d.getVar('APPEND', True)
+        new=re.sub('console=\w+(,\w*)*\s','', cmdline) + ' quiet'
+        d.setVar('APPEND', new)
+}
+
+# In addition to cmdline mangling, make sure journal only gets
+# emergency errors and any lower priority messages do not get
+# logged. This is temporary approach and the cleanest way to disable
+# logging (compared with removing the journald binary and related
+# services here). Once the systemd recipe gives us better granulatiry
+# for packaging, the preferred way to avoid logging is
+# to not install systemd-journald at all.
+ostro_image_muted () {
+    sed -i -e 's/^#\(MaxLevelStore=\).*/\1emerg/'\
+           -e 's/^\(ForwardToSyslog=yes\)/#\1/' \
+           ${IMAGE_ROOTFS}${sysconfdir}/systemd/journald.conf
+
+    # Remove systemd-getty-generator to avoid (serial-)getty services
+    # being created for kernel detected consoles.
+    rm ${IMAGE_ROOTFS}${systemd_unitdir}/system-generators/systemd-getty-generator
+
+    # systemd installs getty@tty1.service by default so remove it too
+    rm -r ${IMAGE_ROOTFS}${sysconfdir}/systemd/system/getty.target.wants
+}
+ROOTFS_POSTPROCESS_COMMAND += "${@bb.utils.contains('IMAGE_FEATURES', 'muted', 'ostro_image_muted;', '', d)}"
 
 # Disable images that are unbuildable, with an explanation why.
 # Attempts to build disabled images will show that explanation.
