@@ -39,11 +39,12 @@ class EnvirSetup(oeRuntimeTest):
         if "Minnow" in output:
            print "DUT is MinnowMax\n"
            time.sleep(1)
+           (status, output) = self.target.run("modprobe i2c-dev")
+           self.assertTrue(status == 0)
+           (status, output) = self.target.run("modprobe iio-trig-sysfs")
+           self.assertTrue(status == 0)
            if sensorName == "mpu6050":
               (status, output) = self.target.run("modprobe i2c-minnow-mpu6050")
-              self.assertTrue(status == 0)
-           if sensorName == "lis3dh":
-              (status, output) = self.target.run("modprobe iio-trig-sysfs")
               self.assertTrue(status == 0)
            copy_to_path = os.path.join(os.path.dirname(__file__) + \
                           '/config/sol-flow-intel-minnow-max-linux_gt_3_17.json')
@@ -53,11 +54,19 @@ class EnvirSetup(oeRuntimeTest):
         if "Galileo" in output:
            print "DUT is Galileo\n"
            time.sleep(1)
+           (status, output) = self.target.run("echo -n \"60\" >/sys/class/gpio/export")
+           (status, output) = self.target.run("echo -n \"out\" >/sys/class/gpio/gpio60/direction")
+           (status, output) = self.target.run("echo -n \"0\" >/sys/class/gpio/gpio60/value")
            (status, output) = self.target.run("modprobe i2c-dev")
+           self.assertTrue(status == 0)
+           (status, output) = self.target.run("modprobe iio-trig-sysfs")
            self.assertTrue(status == 0)
            if sensorName == "mpu6050":
               (status, output) = self.target.run("modprobe i2c-quark-mpu6050")
               self.assertTrue(status == 0)
+           #if sensorName == "lsm330dlc":
+              #(status, output) = self.target.run("modprobe i2c-quark-lsm330dlc_gyro")
+              #self.assertTrue(status == 0)
            #if sensorName == "tsl2561":
               #(status, output) = self.target.run("echo tsl2561 0x39 > /sys/bus/i2c/devices/i2c-0/new_device")
            copy_to_path = os.path.join(os.path.dirname(__file__) + '/config/sol-flow-intel-galileo-rev-g.json')
@@ -65,7 +74,36 @@ class EnvirSetup(oeRuntimeTest):
                           "/opt/apps/")  
         if "BODEGA" in output:
            print "DUT is Edison\n"
-
+           (status, output) = self.target.run("echo 28 > /sys/class/gpio/export")
+           (status, output) = self.target.run("echo 27 > /sys/class/gpio/export")
+           (status, output) = self.target.run("echo 204 > /sys/class/gpio/export")
+           (status, output) = self.target.run("echo 205 > /sys/class/gpio/export")
+           (status, output) = self.target.run("echo 236 > /sys/class/gpio/export")
+           (status, output) = self.target.run("echo 237 > /sys/class/gpio/export")
+           (status, output) = self.target.run("echo 14 > /sys/class/gpio/export")
+           (status, output) = self.target.run("echo 165 > /sys/class/gpio/export")
+           (status, output) = self.target.run("echo 212 > /sys/class/gpio/export")
+           (status, output) = self.target.run("echo 213 > /sys/class/gpio/export")
+           (status, output) = self.target.run("echo 214 > /sys/class/gpio/export")
+           (status, output) = self.target.run("echo low > /sys/class/gpio/gpio214/direction")
+           (status, output) = self.target.run("echo low > /sys/class/gpio/gpio204/direction")
+           (status, output) = self.target.run("echo low > /sys/class/gpio/gpio205/direction")
+           (status, output) = self.target.run("echo in > /sys/class/gpio/gpio14/direction")
+           (status, output) = self.target.run("echo in > /sys/class/gpio/gpio165/direction")
+           (status, output) = self.target.run("echo low > /sys/class/gpio/gpio236/direction")
+           (status, output) = self.target.run("echo low > /sys/class/gpio/gpio237/direction")
+           (status, output) = self.target.run("echo in > /sys/class/gpio/gpio212/direction")
+           (status, output) = self.target.run("echo in > /sys/class/gpio/gpio213/direction")
+           (status, output) = self.target.run("echo mode1 > /sys/kernel/debug/gpio_debug/gpio28/current_pinmux")
+           (status, output) = self.target.run("echo mode1 > /sys/kernel/debug/gpio_debug/gpio27/current_pinmux")
+           (status, output) = self.target.run("echo high > /sys/class/gpio/gpio214/direction")
+           (status, output) = self.target.run("modprobe i2c-dev")
+           self.assertTrue(status == 0)
+           (status, output) = self.target.run("modprobe iio-trig-sysfs")
+           self.assertTrue(status == 0)
+           copy_to_path = os.path.join(os.path.dirname(__file__) + '/config/sol-flow-intel-edison-rev-c.json')
+           (status, output) = self.target.copy_to(copy_to_path, \
+                          "/opt/apps/")
 
     def FBPGenerate(self, sensorType, sensorName):
         '''Generate content for FBP files

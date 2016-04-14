@@ -1,0 +1,19 @@
+#!/usr/bin/expect
+set timeout 60
+set first      [lindex $argv 0]
+set second     [lindex $argv 1]
+
+spawn ssh root@$first -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR ssh root@$second -i /tmp/ostro_qa_rsa ls /
+ expect {
+ "yes/no"
+   {
+    sleep 1; send "yes\n"; exp_continue
+   }
+ "home"
+   {
+    sleep 1; send "exit\n"; exit 2
+   }
+ eof
+   {}
+ }
+

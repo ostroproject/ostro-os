@@ -1,6 +1,7 @@
 include qat16.inc
 
-SRC_URI += "file://qat16_2.5.0-80-qat-add-install-target-to-makefiles.patch \
+SRC_URI += "https://01.org/sites/default/files/page/qatmux.l.${PV}.tgz;name=qat \
+            file://qat16_2.5.0-80-qat-add-install-target-to-makefiles.patch \
             "
 
 SRC_URI[qat.md5sum] = "e3c2ceeec7ed8b36d75682742caff81e"

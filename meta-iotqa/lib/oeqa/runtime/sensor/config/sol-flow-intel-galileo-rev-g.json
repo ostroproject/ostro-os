@@ -8,7 +8,7 @@
            "buffer_size": "-1"
      },
      "type": "iio/light"
-  }
+  },
   {
      "name": "MyGyroMpu6050",
      "options": {
@@ -16,6 +16,150 @@
            "buffer_size": "-1"
      },
      "type": "iio/gyroscope"
+  },
+  {
+     "name": "MyGyroMpu9250",
+     "options": {
+           "iio_device": "mpu9250 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x68,mpu9250 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/gyroscope"
+  },
+  {
+     "name": "MyGyroLsm330dlc",
+     "options": {
+           "iio_device": "lsm330dlc_gyro create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x6b,lsm330dlc_gyro 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/gyroscope"
+  },
+  {
+     "name": "MyAccelLis3dh",
+     "options": {
+           "iio_device": "lis3dh create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x19,lis3dh 0",
+           "buffer_size": "20"
+     },
+     "type": "iio/accelerate"
+  },
+  {
+     "name": "MyAccelLis2dh",
+     "options": {
+           "iio_device": "lis2dh create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x19,lis2dh 0",
+           "buffer_size": "20"
+     },
+     "type": "iio/accelerate"
+  },
+  {
+     "name": "MyAccelBma180",
+     "options": {
+           "iio_device": "bma180 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x40,bma180 0",
+           "buffer_size": "20"
+     },
+     "type": "iio/accelerate"
+  },
+  {
+     "name": "MyAccelBma250",
+     "options": {
+           "iio_device": "bma250 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x18,bma180 0",
+           "buffer_size": "20"
+     },
+     "type": "iio/accelerate"
+  },
+  {
+     "name": "MyAccelBma255",
+     "options": {
+           "iio_device": "bma255 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x19,bma255 0",
+           "buffer_size": "20"
+     },
+     "type": "iio/accelerate"
+  },
+  {
+     "name": "MyAccelBma222e",
+     "options": {
+           "iio_device": "bma222e create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x19,bma222e 0",
+           "buffer_size": "20"
+     },
+     "type": "iio/accelerate"
+  },
+  {
+     "name": "MyAccelBma280",
+     "options": {
+           "iio_device": "bma280 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x19,bma280 0",
+           "buffer_size": "20"
+     },
+     "type": "iio/accelerate"
+  },
+  {
+     "name": "MyAccelMma7455",
+     "options": {
+           "iio_device": "mma7455 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x1d,mma7455 0",
+           "buffer_size": "20"
+     },
+     "type": "iio/accelerate"
+  },
+  {
+     "name": "MyMagnetHmc5983",
+     "options": {
+           "iio_device": "hmc5983 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x1e,hmc5983 0",
+           "buffer_size": "2"
+     },
+     "type": "iio/magnet"
+  },
+  {
+     "name": "MyMagnetHmc5883",
+     "options": {
+           "iio_device": "hmc5883 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x1e,hmc5883 0",
+           "buffer_size": "2"
+     },
+     "type": "iio/magnet"
+  },
+  {
+     "name": "MyHumiditySi7021",
+     "options": {
+           "iio_device": "si7021 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x40,si7021 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/humidity"
+  },
+  {
+     "name": "MyPressureMpl3115",
+     "options": {
+           "iio_device": "mpl3115 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x60,mpl3115 0",
+           "buffer_size": "20"
+     },
+     "type": "iio/pressure"
+  },
+  {
+     "name": "MyTemperatureMpl3115",
+     "options": {
+           "iio_device": "mpl3115 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x60,mpl3115 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/temperature"
+  },
+  {
+     "name": "MyPressureBmp280",
+     "options": {
+           "iio_device": "bmp280 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x76,bmp280 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/pressure"
+  },
+  {
+     "name": "MyTemperatureBmp280",
+     "options": {
+           "iio_device": "bmp280 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x76,bmp280 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/temperature"
+  },
+  {
+     "name": "MyAdcInt3495",
+     "options": {
+           "iio_device": "int3495 0",
+           "buffer_size": "20"
+     },
+     "type": "iio/adc"
   }
  ]
 }

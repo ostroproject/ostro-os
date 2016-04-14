@@ -1,5 +1,6 @@
 #!/usr/bin/expect
 set timeout 100
+set retry 0
 set login 0
 set ip       [lindex $argv 0]
 set cmd      [lindex $argv 1]
@@ -11,19 +12,19 @@ spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -
  "Agent registered"
    {
     send "config $service --remove\n";
-    sleep 2; send "connect $service\n"; exp_continue
+    if {$retry < 4} {incr retry; sleep 1; send "connect $service\n"; exp_continue} else {send "exit\n"; exit 3}
    }
  "Operation timeout"
    {
-    sleep 1; send "connect $service\n"; exp_continue
+    if {$retry < 4} {incr retry; sleep 1; send "connect $service\n"; exp_continue} else {send "exit\n"; exit 3}
    }
  "Operation aborted"
    {
-    sleep 1; send "connect $service\n"; exp_continue
+    if {$retry < 4} {incr retry; sleep 1; send "connect $service\n"; exp_continue} else {send "exit\n"; exit 3}
    }
  "Input/output error"
    {
-    sleep 1; send "connect $service\n"; exp_continue
+    if {$retry < 4} {incr retry; sleep 1; send "connect $service\n"; exp_continue} else {send "exit\n"; exit 3}
    }
  "Retry (yes/no)?"
    {

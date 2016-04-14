@@ -103,7 +103,7 @@ do_rootfs[recrdeptask] += "do_packagedata"
 
 def rootfs_command_variables(d):
     return ['ROOTFS_POSTPROCESS_COMMAND','ROOTFS_PREPROCESS_COMMAND','ROOTFS_POSTINSTALL_COMMAND','ROOTFS_POSTUNINSTALL_COMMAND','OPKG_PREPROCESS_COMMANDS','OPKG_POSTPROCESS_COMMANDS','IMAGE_POSTPROCESS_COMMAND',
-            'IMAGE_PREPROCESS_COMMAND','ROOTFS_POSTPROCESS_COMMAND','RPM_PREPROCESS_COMMANDS','RPM_POSTPROCESS_COMMANDS']
+            'IMAGE_PREPROCESS_COMMAND','RPM_PREPROCESS_COMMANDS','RPM_POSTPROCESS_COMMANDS','DEB_PREPROCESS_COMMANDS','DEB_POSTPROCESS_COMMANDS']
 
 python () {
     variables = rootfs_command_variables(d) + sdk_command_variables(d)
@@ -455,8 +455,7 @@ def get_rootfs_size(d):
                                       d.getVar('IMAGE_ROOTFS', True)])
     size_kb = int(output.split()[0])
     base_size = size_kb * overhead_factor
-    base_size = (base_size, rootfs_req_size)[base_size < rootfs_req_size] + \
-        rootfs_extra_space
+    base_size = max(base_size, rootfs_req_size) + rootfs_extra_space
 
     if base_size != int(base_size):
         base_size = int(base_size + 1)
@@ -544,4 +543,3 @@ do_bundle_initramfs () {
 	:
 }
 addtask bundle_initramfs after do_image_complete
-

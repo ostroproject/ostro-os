@@ -22,7 +22,7 @@ SRC_URI = "\
 SRC_URI[md5sum] = "14f25677b5a4f0b33785910b03860939"
 SRC_URI[sha256sum] = "c2d0e595444fe198c4092dd83d20a929fd1402a13b66b410b76677ed3a993d99"
 
-inherit autotools
+inherit pkgconfig autotools
 
 EXTRA_OECONF = "--enable-bzip2 --enable-lzma --disable-stateless --enable-bsdtar"
 

@@ -1,4 +1,4 @@
-KBRANCH ?= "standard/tiny/base"
+KBRANCH ?= "standard/tiny/common-pc"
 LINUX_KERNEL_TYPE = "tiny"
 KCONFIG_MODE = "--allnoconfig"
 
@@ -9,8 +9,8 @@ LINUX_VERSION ?= "4.4.3"
 KMETA = "kernel-meta"
 KCONF_BSP_AUDIT_LEVEL = "2"
 
-SRCREV_machine ?= "73481a3abd4ee49c1cf5561fea997275f535098e"
-SRCREV_meta ?= "770996a263e22562c81f48fde0f0dc647156abce"
+SRCREV_machine ?= "1a72cec834de2c80b5563f8afbeea7664fd5ee05"
+SRCREV_meta ?= "bcc65090840f51a6ac937297be5c22fe268d01ab"
 
 PV = "${LINUX_VERSION}+git${SRCPV}"
 

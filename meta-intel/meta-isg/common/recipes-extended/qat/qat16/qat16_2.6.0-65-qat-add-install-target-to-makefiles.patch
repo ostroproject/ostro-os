@@ -1,6 +1,6 @@
-From 5c47f906182b19eee7a26c5f76b31c9bd5f29c78 Mon Sep 17 00:00:00 2001
-From: Anuj Mittal <anujx.mittal@intel.com>
-Date: Wed, 8 Jul 2015 11:35:27 +0800
+From f53aeef0ae6a89066cca8c9a9154e70408f6ef68 Mon Sep 17 00:00:00 2001
+From: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+Date: Thu, 24 Mar 2016 01:11:02 +0800
 Subject: [PATCH] qat: add install target to makefiles
 
 Upstream-Status: Inappropriate [Configuration]
@@ -8,27 +8,27 @@ Upstream-Status: Inappropriate [Configuration]
 Added an install target to makefiles to help
 install ingredients at a proper path.
 
-Signed-off-by: Anuj Mittal <anujx.mittal@intel.com>
+Signed-off-by: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
 ---
- quickassist/Makefile                               |   36 +++++-----
- .../access_layer/src/sample_code/Makefile          |   18 +++--
- .../src/sample_code/functional/Makefile            |   71 +++++++++++---------
- 3 files changed, 71 insertions(+), 54 deletions(-)
+ quickassist/Makefile                               | 29 ++++++---
+ .../access_layer/src/sample_code/Makefile          | 19 ++++--
+ .../src/sample_code/functional/Makefile            | 74 ++++++++++++----------
+ 3 files changed, 75 insertions(+), 47 deletions(-)
 
 diff --git a/quickassist/Makefile b/quickassist/Makefile
-index dcea692..01848e6 100644
+index 6c5d436..0a1ee4c 100644
 --- a/quickassist/Makefile
 +++ b/quickassist/Makefile
-@@ -104,7 +104,7 @@ export DRBG_POLL_AND_WAIT=1
- ifdef WITH_CPA_MUX
+@@ -109,7 +109,7 @@ ifdef WITH_CPA_MUX
  ALL_TARGETS = clean lac_lib_dir libosal libosal_user qat_mux hal adf adf_user lac lac_user qat-fw install_scripts
+ ALL_TARGETS_CI = lac_lib_dir qat_mux_ci lac_ci lac_user_ci qat-fw install_scripts
  else
 -ALL_TARGETS =  clean lac_lib_dir libosal libosal_user hal adf adf_user lac lac_user qat-fw install_scripts
 +ALL_TARGETS =  clean lac_lib_dir libosal libosal_user hal adf adf_user lac lac_user
+ ALL_TARGETS_CI =  lac_lib_dir lac_ci lac_user_ci qat-fw install_scripts
  endif
  ICP_ARCH_USER?=`uname -m`
- 
-@@ -116,7 +116,16 @@ all: $(ALL_TARGETS)
+@@ -125,7 +125,16 @@ all_ci: $(ALL_TARGETS_CI)
  	@echo 'Build Done';
  
  user: lac_lib_dir libosal_user adf_user lac_user
@@ -46,7 +46,7 @@ index dcea692..01848e6 100644
  
  install_scripts:
  	@echo ; echo 'Copying Install Scripts';
-@@ -124,10 +133,10 @@ ifdef WITH_CPA_MUX
+@@ -133,10 +142,10 @@ ifdef WITH_CPA_MUX
  	@cp $(ICP_BUILDSYSTEM_PATH)/build_files/qat_service_mux $(ICP_BUILD_OUTPUT)/qat_service;
  endif
  ifndef WITH_CPA_MUX
@@ -60,49 +60,16 @@ index dcea692..01848e6 100644
  #	@cp $(CONFIG_PATH)/dh89xxcc_qa_dev1.conf $(ICP_BUILD_OUTPUT)/;
  #	@cp $(CONFIG_PATH)/dh89xxcc_qa_dev0_single_accel.conf $(ICP_BUILD_OUTPUT)/;
  
-@@ -146,7 +155,6 @@ libosal_user: output_dir lac_lib_dir
- 	@echo ; echo 'Building OSAL for user space';
- 	@cd $(OSAL_PATH)/src && $(MAKE) ARCH=$(ICP_ARCH_USER) ICP_ENV_DIR=$(ICP_TOP_ENV) OS_LEVEL=linux ICP_OS_LEVEL=user_space lib;\
- 	echo ; echo 'Copying OSAL library';
--	cp $(OSAL_PATH)/src/build/linux_2.6/user_space/libosal.a $(ICP_BUILD_OUTPUT)/;
- 
- hal: output_dir libosal
- 	@echo ; echo 'Building Hal Libs';
-@@ -171,7 +179,6 @@ libosal_uservf: output_dir lac_lib_dir
- 	@echo ; echo 'Building OSAL for user space';
- 	@cd $(OSAL_PATH)/src && export ICP_WITHOUT_IOMMU=1 && $(MAKE) ICP_ENV_DIR=$(ICP_TOP_ENV) OS_LEVEL=linux ICP_OS_LEVEL=user_space lib;\
- 	echo ; echo 'Copying OSAL library';
--	cp $(OSAL_PATH)/src/build/linux_2.6/user_space/libosal.a $(ICP_BUILD_OUTPUT)/;
- 
- adfvf: output_dir lac_lib_dir libosalvf
- 	@echo ; echo 'Building ADFVF';
-@@ -181,13 +188,10 @@ adfvf: output_dir lac_lib_dir libosalvf
- adf_user: output_dir lac_lib_dir libosal_user
- 	@echo ; echo 'Building user ADF';
- 	@cd $(ADF_PATH) && export ADF_PLATFORM=ACCELDEV && export ICP_ENV_DIR=$(ICP_TOP_ENV) && export ONE_KO_RELEASE_PACKAGE=1 && ICP_OS_LEVEL=user_space && $(MAKE) ARCH=$(ICP_ARCH_USER) adf_user;
--	cp $(ADF_PATH)/build/linux_2.6/libadf_proxy.a $(ICP_BUILD_OUTPUT)/;
--	cp $(ADF_PATH)/build/linux_2.6/adf_ctl $(ICP_BUILD_OUTPUT)/;
- 
- lac: output_dir libosal hal adf
- 	@echo ; echo 'Building LAC';
- 	@cd $(LAC_PATH) && export ICP_ENV_DIR=$(ICP_TOP_ENV) && export ONE_KO_RELEASE_PACKAGE=1 && cd src && $(MAKE) ICP_OS_LEVEL=kernel_space OS_LEVEL=linux;
--	@cp $(LAC_PATH)/src/build/linux_2.6/kernel_space/$(DRIVER) $(ICP_BUILD_OUTPUT)/;
- 
- lacvf: output_dir libosalvf adfvf
- 	@echo ; echo 'Building LACVF';
-@@ -195,20 +199,18 @@ ifdef WITH_CPA_MUX
- 	@cp $(CPA_MUX_PATH)/Module.symvers $(LAC_PATH)/src/
- endif
- 	@cd $(LAC_PATH) && export ADF_PLATFORM=ACCELDEVVF && export ICP_ENV_DIR=$(ICP_TOP_ENV) && export ONE_KO_RELEASE_PACKAGE=1 && cd src && $(MAKE) ICP_OS_LEVEL=kernel_space OS_LEVEL=linux;
--	@cp $(LAC_PATH)/src/build/linux_2.6/kernel_space/$(BASENAME)_vf.ko $(ICP_BUILD_OUTPUT)/;
- 
- lac_user: output_dir libosal_user adf_user
- 	@echo ; echo 'Building LAC in user space';
+@@ -233,7 +242,7 @@ lac_user: output_dir libosal_user adf_user
  	@cd $(LAC_PATH) && export ICP_ENV_DIR=$(ICP_TOP_ENV) && export ONE_KO_RELEASE_PACKAGE=1 && cd src && $(MAKE) ARCH=$(ICP_ARCH_USER) lib_static ICP_OS_LEVEL=user_space;
--	cp $(LAC_PATH)/src/build/linux_2.6/user_space/lib$(BASENAME).a $(ICP_BUILD_OUTPUT)/;
+ 	cp $(LAC_PATH)/src/build/linux_2.6/user_space/lib$(BASENAME).a $(ICP_BUILD_OUTPUT)/;
  	@cd $(LAC_PATH) && export ICP_ENV_DIR=$(ICP_TOP_ENV) && export ONE_KO_RELEASE_PACKAGE=1 && cd src && $(MAKE) ARCH=$(ICP_ARCH_USER) lib_shared ICP_OS_LEVEL=user_space;
 -	cp $(LAC_PATH)/src/build/linux_2.6/user_space/lib$(BASENAME)_s.so $(ICP_BUILD_OUTPUT)/;
 +	cp $(LAC_PATH)/src/build/linux_2.6/user_space/lib$(BASENAME)_s.so $(ICP_BUILD_OUTPUT);
+ 
+ lac_user_ci: output_dir 
+ 	@echo ; echo 'Building LAC in user space';
+@@ -244,9 +253,9 @@ lac_user_ci: output_dir
  
  qat-fw: output_dir
  	@echo ; echo 'Copying QAT-FW Binary';
@@ -114,7 +81,7 @@ index dcea692..01848e6 100644
  
  qat_mux: output_dir libosal
  	@echo ; echo 'Building qat_mux module'
-@@ -244,6 +246,10 @@ endif
+@@ -306,6 +315,10 @@ endif
  
  output_dir:
  	test -d $(ICP_BUILD_OUTPUT) || mkdir -p $(ICP_BUILD_OUTPUT);
@@ -126,10 +93,10 @@ index dcea692..01848e6 100644
  lac_lib_dir:
  	test -d $(LAC_LIB_DIR) || mkdir -p $(LAC_LIB_DIR);
 diff --git a/quickassist/lookaside/access_layer/src/sample_code/Makefile b/quickassist/lookaside/access_layer/src/sample_code/Makefile
-index 91c7373..8c6901a 100644
+index c66ecfb..4cc3dbf 100644
 --- a/quickassist/lookaside/access_layer/src/sample_code/Makefile
 +++ b/quickassist/lookaside/access_layer/src/sample_code/Makefile
-@@ -95,6 +95,7 @@ SAMPLE_PATH?=$(ICP_ROOT)/quickassist/lookaside/access_layer/src/sample_code
+@@ -89,6 +89,7 @@ SAMPLE_PATH?=$(ICP_ROOT)/quickassist/lookaside/access_layer/src/sample_code
  PERF_PATH?=$(ICP_ROOT)/quickassist/lookaside/access_layer/src/sample_code/performance
  FIPS_PATH?=$(ICP_ROOT)/quickassist/lookaside/access_layer/src/sample_code/fips
  FUNC_PATH=$(SAMPLE_PATH)/functional
@@ -137,7 +104,7 @@ index 91c7373..8c6901a 100644
  
  #include the makefile with all the default and common Make variable definitions
  include $(ICP_BUILDSYSTEM_PATH)/build_files/common.mk
-@@ -106,6 +107,8 @@ SAMPLE_BUILD_OUTPUT?=$(SAMPLE_PATH)/build
+@@ -100,6 +101,8 @@ SAMPLE_BUILD_OUTPUT?=$(SAMPLE_PATH)/build
  
  output_dir:
  	test -d $(SAMPLE_BUILD_OUTPUT) || mkdir $(SAMPLE_BUILD_OUTPUT);
@@ -146,14 +113,10 @@ index 91c7373..8c6901a 100644
  fips_code:
  	@if test -d $(FIPS_PATH); then echo ; echo 'Building FIPS Code'; fi;
  	@if test -d $(FIPS_PATH); \
-@@ -157,17 +160,13 @@ PERF_ALL=$(MEM_DRIVER) perf_user perf_kernel
- perf_all: $(PERF_ALL)
- 	@echo ; echo "Build output location $(SAMPLE_BUILD_OUTPUT)"; 
- 
--
+@@ -154,14 +157,11 @@ perf_all: $(PERF_ALL)
  perf_user: output_dir
  	@echo ; echo "Building perf_user";
- 	@cd $(PERF_PATH) && $(MAKE) clean ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=user_space lib_shared exe
+ 	@cd $(PERF_PATH) && $(MAKE) clean ICP_OS_LEVEL=user_space && $(MAKE) ARCH=$(ICP_ARCH_USER) ICP_OS_LEVEL=user_space lib_shared exe
 -	@cp $(PERF_PATH)/build/linux_2.6/user_space/$(PERF_OUTPUT_NAME)_s.so $(SAMPLE_BUILD_OUTPUT)/;
 -	@cp $(PERF_PATH)/build/linux_2.6/user_space/$(PERF_OUTPUT_NAME) $(SAMPLE_BUILD_OUTPUT)/;
  
@@ -161,10 +124,12 @@ index 91c7373..8c6901a 100644
  	@echo ; echo "Building perf_kernel";
  	@cd $(PERF_PATH) && $(MAKE)  ICP_OS_LEVEL=kernel_space 
 -	@cp $(PERF_PATH)/build/linux_2.6/$(ICP_OS_LEVEL)/$(PERF_OUTPUT_NAME).ko $(SAMPLE_BUILD_OUTPUT)/;
- 	
- common_mem_drv: output_dir
+-	
++
+ common_mem_drv_kernel: output_dir
  	@echo ; echo "Building common_mem_drv kernel space";
-@@ -180,12 +179,19 @@ common_mem_drv: output_dir
+ 	@cd $(CMN_ROOT) && $(MAKE)  ICP_OS_LEVEL=user_space cm_kernel 
+@@ -175,12 +175,19 @@ common_mem_drv_user: output_dir
  perf_qae: output_dir
  	@echo ; echo "Building perf_qae";
  	@cd $(CMN_ROOT)/linux/kernel_space && $(MAKE)  ICP_OS_LEVEL=kernel_space 
@@ -187,7 +152,7 @@ index 91c7373..8c6901a 100644
  all: $(MEM_DRIVER) fips_code perf_user perf_kernel func
  perf: $(MEM_DRIVER) perf_kernel
 diff --git a/quickassist/lookaside/access_layer/src/sample_code/functional/Makefile b/quickassist/lookaside/access_layer/src/sample_code/functional/Makefile
-index 8944883..0355a70 100644
+index 3208acf..41754e8 100644
 --- a/quickassist/lookaside/access_layer/src/sample_code/functional/Makefile
 +++ b/quickassist/lookaside/access_layer/src/sample_code/functional/Makefile
 @@ -64,6 +64,8 @@ SYM_PATH?=$(SAMPLE_PATH)/sym
@@ -197,9 +162,9 @@ index 8944883..0355a70 100644
 +BIN_INSTALLPATH=$(SAMPLE_BUILD_OUTPUT)$(DEST_BINDIR)/
 +MODULE_INSTALLPATH=$(SAMPLE_BUILD_OUTPUT)/lib/modules/$(QAT_KERNEL_VER)/kernel/drivers
  
- ifeq ($(WITH_CMDRV),1)
-     CMN_ROOT?=$(ICP_ROOT)/quickassist/utilities/libqae_mem/
-@@ -110,6 +112,7 @@ SAMPLE_BUILD_OUTPUT?=$(SAMPLE_PATH)/build
+ CMN_ROOT?=$(ICP_ROOT)/quickassist/lookaside/access_layer/src/sample_code/performance/qae/
+ CMN_MODULE_NAME?=qaeMemDrv
+@@ -105,6 +107,7 @@ SAMPLE_BUILD_OUTPUT?=$(SAMPLE_PATH)/build
  
  output_dir:
  	test -d $(SAMPLE_BUILD_OUTPUT) || mkdir $(SAMPLE_BUILD_OUTPUT);
@@ -207,17 +172,23 @@ index 8944883..0355a70 100644
  
  BUILD_DC=dc_dp_sample stateless_sample stateful_sample \
           stateless_multi_op_checksum_sample
-@@ -119,23 +122,15 @@ dc: $(BUILD_DC)
+@@ -114,31 +117,23 @@ dc: $(BUILD_DC)
  
  dc_dp_sample: output_dir
- 	@cd $(DC_PATH)/dc_dp_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=kernel_space
+ 	@cd $(DC_PATH)/dc_dp_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(DC_PATH)/dc_dp_sample/dc_dp_sample $(SAMPLE_BUILD_OUTPUT)/;
+ ifneq ($(WITH_UPSTREAM),1)
+ 	@cd $(DC_PATH)/dc_dp_sample && $(MAKE) ICP_OS_LEVEL=kernel_space
 -	@cp $(DC_PATH)/dc_dp_sample/dc_dp_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ endif
  
  stateless_sample: output_dir
- 	@cd $(DC_PATH)/stateless_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=kernel_space
--	@cp $(DC_PATH)/stateless_sample/dc_stateless_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ 	@cd $(DC_PATH)/stateless_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(DC_PATH)/stateless_sample/dc_stateless_sample $(SAMPLE_BUILD_OUTPUT)/;
+ ifneq ($(WITH_UPSTREAM),1)
+ 	@cd $(DC_PATH)/stateless_sample && $(MAKE) ICP_OS_LEVEL=kernel_space
+-	@cp $(DC_PATH)/stateless_sample/dc_stateless_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ endif
  	
  stateful_sample: output_dir
  	@cd $(DC_PATH)/stateful_sample && $(MAKE) clean ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=user_space
@@ -225,119 +196,158 @@ index 8944883..0355a70 100644
 -	@cp $(DC_PATH)/stateful_sample/paper4 $(SAMPLE_BUILD_OUTPUT)/;
  
  stateless_multi_op_checksum_sample: output_dir
- 	@cd $(DC_PATH)/stateless_multi_op_checksum_sample && $(MAKE) ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=kernel_space
--	@cp $(DC_PATH)/stateless_multi_op_checksum_sample/dc_stateless_multi_op_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ 	@cd $(DC_PATH)/stateless_multi_op_checksum_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(DC_PATH)/stateless_multi_op_checksum_sample/dc_stateless_multi_op_sample $(SAMPLE_BUILD_OUTPUT)/;
+ ifneq ($(WITH_UPSTREAM),1)
+ 	@cd $(DC_PATH)/stateless_multi_op_checksum_sample && $(MAKE) ICP_OS_LEVEL=kernel_space
+-	@cp $(DC_PATH)/stateless_multi_op_checksum_sample/dc_stateless_multi_op_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ endif
  
  BUILD_SYN=algchaining_sample ccm_sample cipher_sample  \
-           drbg_sample gcm_sample hash_file_sample      \
-@@ -146,57 +141,36 @@ sym:$(BUILD_SYN)
+@@ -154,86 +149,65 @@ sym:$(BUILD_SYN)
  	@echo ; echo "Build sym component";
  algchaining_sample: output_dir
- 	@cd $(SYM_PATH)/alg_chaining_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=kernel_space
--	@cp $(SYM_PATH)/alg_chaining_sample/algchaining_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ 	@cd $(SYM_PATH)/alg_chaining_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(SYM_PATH)/alg_chaining_sample/algchaining_sample $(SAMPLE_BUILD_OUTPUT)/;
+ ifneq ($(WITH_UPSTREAM),1)
+ 	@cd $(SYM_PATH)/alg_chaining_sample && $(MAKE) ICP_OS_LEVEL=kernel_space
+-	@cp $(SYM_PATH)/alg_chaining_sample/algchaining_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ endif
  	
  ccm_sample: output_dir
- 	@cd $(SYM_PATH)/ccm_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=kernel_space
--	@cp $(SYM_PATH)/ccm_sample/ccm_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ 	@cd $(SYM_PATH)/ccm_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(SYM_PATH)/ccm_sample/ccm_sample $(SAMPLE_BUILD_OUTPUT)/;
+ ifneq ($(WITH_UPSTREAM),1)
+ 	@cd $(SYM_PATH)/ccm_sample && $(MAKE) ICP_OS_LEVEL=kernel_space
+-	@cp $(SYM_PATH)/ccm_sample/ccm_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ endif
  	
  cipher_sample: output_dir
- 	@cd $(SYM_PATH)/cipher_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=kernel_space
--	@cp $(SYM_PATH)/cipher_sample/cipher_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ 	@cd $(SYM_PATH)/cipher_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(SYM_PATH)/cipher_sample/cipher_sample $(SAMPLE_BUILD_OUTPUT)/;
+ ifneq ($(WITH_UPSTREAM),1)
+ 	@cd $(SYM_PATH)/cipher_sample && $(MAKE) ICP_OS_LEVEL=kernel_space
+-	@cp $(SYM_PATH)/cipher_sample/cipher_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ endif
  	
  drbg_sample: output_dir
- 	@cd $(SYM_PATH)/drbg_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=kernel_space
--	@cp $(SYM_PATH)/drbg_sample/drbg_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ 	@cd $(SYM_PATH)/drbg_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(SYM_PATH)/drbg_sample/drbg_sample $(SAMPLE_BUILD_OUTPUT)/;
+ ifneq ($(WITH_UPSTREAM),1)
+ 	@cd $(SYM_PATH)/drbg_sample && $(MAKE) ICP_OS_LEVEL=kernel_space
+-	@cp $(SYM_PATH)/drbg_sample/drbg_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ endif
  	
  gcm_sample: output_dir
- 	@cd $(SYM_PATH)/gcm_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=kernel_space
--	@cp $(SYM_PATH)/gcm_sample/gcm_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ 	@cd $(SYM_PATH)/gcm_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(SYM_PATH)/gcm_sample/gcm_sample $(SAMPLE_BUILD_OUTPUT)/;
+ ifneq ($(WITH_UPSTREAM),1)
+ 	@cd $(SYM_PATH)/gcm_sample && $(MAKE) ICP_OS_LEVEL=kernel_space
+-	@cp $(SYM_PATH)/gcm_sample/gcm_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ endif
  	
  hash_file_sample: output_dir
  	@cd $(SYM_PATH)/hash_file_sample && $(MAKE) clean  ICP_OS_LEVEL=user_space&& $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(SYM_PATH)/hash_file_sample/hash_file_sample $(SAMPLE_BUILD_OUTPUT)/;
  	
  hash_sample: output_dir
- 	@cd $(SYM_PATH)/hash_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=kernel_space
--	@cp $(SYM_PATH)/hash_sample/hash_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ 	@cd $(SYM_PATH)/hash_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(SYM_PATH)/hash_sample/hash_sample $(SAMPLE_BUILD_OUTPUT)/;
+ ifneq ($(WITH_UPSTREAM),1)
+ 	@cd $(SYM_PATH)/hash_sample && $(MAKE) ICP_OS_LEVEL=kernel_space
+-	@cp $(SYM_PATH)/hash_sample/hash_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ endif
  	
  ipsec_sample: output_dir
- 	@cd $(SYM_PATH)/ipsec_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=kernel_space
--	@cp $(SYM_PATH)/ipsec_sample/ipsec_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ 	@cd $(SYM_PATH)/ipsec_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(SYM_PATH)/ipsec_sample/ipsec_sample $(SAMPLE_BUILD_OUTPUT)/;
+ ifneq ($(WITH_UPSTREAM),1)
+ 	@cd $(SYM_PATH)/ipsec_sample && $(MAKE) ICP_OS_LEVEL=kernel_space
+-	@cp $(SYM_PATH)/ipsec_sample/ipsec_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ endif
  	
  nrbg_sample: output_dir
- 	@cd $(SYM_PATH)/nrbg_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=kernel_space
+ 	@cd $(SYM_PATH)/nrbg_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(SYM_PATH)/nrbg_sample/nrbg_sample $(SAMPLE_BUILD_OUTPUT)/;
+ ifneq ($(WITH_UPSTREAM),1)
+ 	@cd $(SYM_PATH)/nrbg_sample && $(MAKE) && $(MAKE) ICP_OS_LEVEL=kernel_space
 -	@cp $(SYM_PATH)/nrbg_sample/nrbg_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ endif
  	
  ssl_sample: output_dir
- 	@cd $(SYM_PATH)/ssl_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=kernel_space
--	@cp $(SYM_PATH)/ssl_sample/ssl_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ 	@cd $(SYM_PATH)/ssl_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(SYM_PATH)/ssl_sample/ssl_sample $(SAMPLE_BUILD_OUTPUT)/;
+ ifneq ($(WITH_UPSTREAM),1)
+ 	@cd $(SYM_PATH)/ssl_sample && $(MAKE) ICP_OS_LEVEL=kernel_space
+-	@cp $(SYM_PATH)/ssl_sample/ssl_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ endif
  	
  sym_dp_sample: output_dir
- 	@cd $(SYM_PATH)/symdp_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=kernel_space
--	@cp $(SYM_PATH)/symdp_sample/sym_dp_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ 	@cd $(SYM_PATH)/symdp_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(SYM_PATH)/symdp_sample/sym_dp_sample $(SAMPLE_BUILD_OUTPUT)/;
+ ifneq ($(WITH_UPSTREAM),1)
+ 	@cd $(SYM_PATH)/symdp_sample && $(MAKE) ICP_OS_LEVEL=kernel_space
+-	@cp $(SYM_PATH)/symdp_sample/sym_dp_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ endif
  
  BUILD_ASYM=diffie_hellman_sample prime_sample
- 
-@@ -205,13 +179,44 @@ asym: $(BUILD_ASYM)
+@@ -243,18 +217,52 @@ asym: $(BUILD_ASYM)
  
  diffie_hellman_sample: output_dir
- 	@cd $(ASYM_PATH)/diffie_hellman_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=kernel_space
--	@cp $(ASYM_PATH)/diffie_hellman_sample/dh_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ 	@cd $(ASYM_PATH)/diffie_hellman_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(ASYM_PATH)/diffie_hellman_sample/dh_sample $(SAMPLE_BUILD_OUTPUT)/;
+ ifneq ($(WITH_UPSTREAM),1)
+ 	@cd $(ASYM_PATH)/diffie_hellman_sample && $(MAKE) ICP_OS_LEVEL=kernel_space
+-	@cp $(ASYM_PATH)/diffie_hellman_sample/dh_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ endif
  
  prime_sample: output_dir
- 	@cd $(ASYM_PATH)/prime_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space && $(MAKE) ICP_OS_LEVEL=kernel_space
--	@cp $(ASYM_PATH)/prime_sample/prime_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
+ 	@cd $(ASYM_PATH)/prime_sample && $(MAKE) clean && $(MAKE) ICP_OS_LEVEL=user_space
 -	@cp $(ASYM_PATH)/prime_sample/prime_sample $(SAMPLE_BUILD_OUTPUT)/;
+ ifneq ($(WITH_UPSTREAM),1)
+ 	@cd $(ASYM_PATH)/prime_sample && $(MAKE) ICP_OS_LEVEL=kernel_space
+-	@cp $(ASYM_PATH)/prime_sample/prime_sample.ko $(SAMPLE_BUILD_OUTPUT)/;
++endif
 +
 +install: output_dir
-+	@cp $(DC_PATH)/stateless_multi_op_checksum_sample/dc_stateless_multi_op_sample.ko $(MODULE_INSTALLPATH);
 +	@cp $(DC_PATH)/stateless_multi_op_checksum_sample/dc_stateless_multi_op_sample $(BIN_INSTALLPATH);
 +	@cp $(DC_PATH)/stateful_sample/dc_stateful_sample $(BIN_INSTALLPATH);
 +	@cp $(DC_PATH)/stateful_sample/paper4 $(BIN_INSTALLPATH);
 +	@cp $(DC_PATH)/dc_dp_sample/dc_dp_sample $(BIN_INSTALLPATH);
-+	@cp $(DC_PATH)/dc_dp_sample/dc_dp_sample.ko $(MODULE_INSTALLPATH);
-+	@cp $(DC_PATH)/stateless_sample/dc_stateless_sample.ko $(MODULE_INSTALLPATH);
 +	@cp $(DC_PATH)/stateless_sample/dc_stateless_sample $(BIN_INSTALLPATH);
-+	@cp $(ASYM_PATH)/prime_sample/prime_sample.ko $(MODULE_INSTALLPATH);
 +	@cp $(ASYM_PATH)/prime_sample/prime_sample $(BIN_INSTALLPATH);
-+	@cp $(ASYM_PATH)/diffie_hellman_sample/dh_sample.ko $(MODULE_INSTALLPATH);
 +	@cp $(ASYM_PATH)/diffie_hellman_sample/dh_sample $(BIN_INSTALLPATH);
-+	@cp $(SYM_PATH)/symdp_sample/sym_dp_sample.ko $(MODULE_INSTALLPATH);
 +	@cp $(SYM_PATH)/symdp_sample/sym_dp_sample $(BIN_INSTALLPATH);
-+	@cp $(SYM_PATH)/ssl_sample/ssl_sample.ko $(MODULE_INSTALLPATH);
 +	@cp $(SYM_PATH)/ssl_sample/ssl_sample $(BIN_INSTALLPATH);
 +	@cp $(SYM_PATH)/nrbg_sample/nrbg_sample $(BIN_INSTALLPATH);
-+	@cp $(SYM_PATH)/nrbg_sample/nrbg_sample.ko $(MODULE_INSTALLPATH);
-+	@cp $(SYM_PATH)/ipsec_sample/ipsec_sample.ko $(MODULE_INSTALLPATH);
 +	@cp $(SYM_PATH)/hash_file_sample/hash_file_sample $(BIN_INSTALLPATH);
 +	@cp $(SYM_PATH)/ipsec_sample/ipsec_sample $(BIN_INSTALLPATH);
-+	@cp $(SYM_PATH)/hash_sample/hash_sample.ko $(MODULE_INSTALLPATH);
 +	@cp $(SYM_PATH)/hash_sample/hash_sample $(BIN_INSTALLPATH);
-+	@cp $(SYM_PATH)/gcm_sample/gcm_sample.ko $(MODULE_INSTALLPATH);
 +	@cp $(SYM_PATH)/gcm_sample/gcm_sample $(BIN_INSTALLPATH);
-+	@cp $(SYM_PATH)/alg_chaining_sample/algchaining_sample.ko $(MODULE_INSTALLPATH);
 +	@cp $(SYM_PATH)/alg_chaining_sample/algchaining_sample $(BIN_INSTALLPATH);
-+	@cp $(SYM_PATH)/ccm_sample/ccm_sample.ko $(MODULE_INSTALLPATH);
 +	@cp $(SYM_PATH)/ccm_sample/ccm_sample $(BIN_INSTALLPATH);
-+	@cp $(SYM_PATH)/drbg_sample/drbg_sample.ko $(MODULE_INSTALLPATH);
 +	@cp $(SYM_PATH)/drbg_sample/drbg_sample $(BIN_INSTALLPATH);
-+	@cp $(SYM_PATH)/cipher_sample/cipher_sample.ko $(MODULE_INSTALLPATH);
 +	@cp $(SYM_PATH)/cipher_sample/cipher_sample $(BIN_INSTALLPATH);
++
++ifneq ($(WITH_UPSTREAM),1)
++	@cp $(DC_PATH)/stateless_multi_op_checksum_sample/dc_stateless_multi_op_sample.ko $(MODULE_INSTALLPATH);
++	@cp $(DC_PATH)/dc_dp_sample/dc_dp_sample.ko $(MODULE_INSTALLPATH);
++	@cp $(DC_PATH)/stateless_sample/dc_stateless_sample.ko $(MODULE_INSTALLPATH);
++	@cp $(ASYM_PATH)/prime_sample/prime_sample.ko $(MODULE_INSTALLPATH);
++	@cp $(ASYM_PATH)/diffie_hellman_sample/dh_sample.ko $(MODULE_INSTALLPATH);
++	@cp $(SYM_PATH)/symdp_sample/sym_dp_sample.ko $(MODULE_INSTALLPATH);
++	@cp $(SYM_PATH)/ssl_sample/ssl_sample.ko $(MODULE_INSTALLPATH);
++	@cp $(SYM_PATH)/nrbg_sample/nrbg_sample.ko $(MODULE_INSTALLPATH);
++	@cp $(SYM_PATH)/ipsec_sample/ipsec_sample.ko $(MODULE_INSTALLPATH);
++	@cp $(SYM_PATH)/hash_sample/hash_sample.ko $(MODULE_INSTALLPATH);
++	@cp $(SYM_PATH)/gcm_sample/gcm_sample.ko $(MODULE_INSTALLPATH);
++	@cp $(SYM_PATH)/alg_chaining_sample/algchaining_sample.ko $(MODULE_INSTALLPATH);
++	@cp $(SYM_PATH)/ccm_sample/ccm_sample.ko $(MODULE_INSTALLPATH);
++	@cp $(SYM_PATH)/drbg_sample/drbg_sample.ko $(MODULE_INSTALLPATH);
++	@cp $(SYM_PATH)/cipher_sample/cipher_sample.ko $(MODULE_INSTALLPATH);
+ endif
  
  CLEAN_DC=clean_dc_dp_sample clean_stateless_sample     \
- 	 clean_stateful_sample                         \
 -- 
-1.7.9.5
+1.9.1
 

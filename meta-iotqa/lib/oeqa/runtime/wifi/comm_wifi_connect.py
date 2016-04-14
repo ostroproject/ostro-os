@@ -138,6 +138,54 @@ class CommWiFiConect(oeRuntimeTest):
         self.wifi.execute_connection(ap_type, ssid, pwd)
         self.wifi.check_internet_connection()
 
+    @tag(FeatureID="IOTOS-458")
+    def test_connect_wep(self):
+        '''connmanctl to connect to WEP encryption AP
+        @fn test_connect_wep
+        @param self
+        @return
+        '''
+        ap_type = "hidden"
+        ssid = ssid_config.get("Connect","ssid_wep")
+        pwd = ssid_config.get("Connect","passwd_wep")
+
+        self.wifi.execute_connection(ap_type, ssid, pwd)
+
+    @tag(FeatureID="IOTOS-458")
+    def test_connect_80211ac(self):
+        '''connmanctl to connect to 802.11ac AP
+        @fn test_connect_80211ac
+        @param self
+        @return
+        '''
+        ap_type = "hidden"
+        ssid = ssid_config.get("Connect","ssid_80211ac")
+        pwd = ssid_config.get("Connect","passwd_80211ac")
+
+        self.wifi.execute_connection(ap_type, ssid, pwd)
+
+    @tag(FeatureID="IOTOS-458")
+    def test_connect_save_password(self):
+        '''When connecting to an AP connected before, do not need input password
+        @fn test_connect_save_password
+        @param self
+        @return
+        '''
+        # Connect to 80211n AP firstly
+        ap_type = "hidden"
+        ssid_n = ssid_config.get("Connect","ssid_80211n")
+        pwd_n = ssid_config.get("Connect","passwd_80211n")
+
+        self.wifi.execute_connection(ap_type, ssid_n, pwd_n)
+        # Connect to 80211g AP
+        ssid_g = ssid_config.get("Connect","ssid_80211g")
+        pwd_g = ssid_config.get("Connect","passwd_80211g")
+        self.wifi.execute_connection(ap_type, ssid_g, pwd_g)
+
+        # Then, connect back to 80211n, without inputting password
+        self.wifi.connect_without_password(ssid_n)
+        
+
 ##
 # @}
 # @}

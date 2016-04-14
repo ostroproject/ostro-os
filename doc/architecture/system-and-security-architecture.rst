@@ -235,7 +235,7 @@ User, Group and Privilege Management
 
 User and group management files (like ``/etc/passwd``) are
 read-only. That means that the core system can only have static system
-users. It is not possible to set a root password.
+users. Setting a root password is not supported.
 
 To become root in the core system:
 
@@ -337,9 +337,9 @@ System Updates
 Ostro OS binaries are delivered as bundles, as in the Clear Linux OS.
 Bundles are a bit like traditional packages, but can overlap with
 other bundles and come with less metadata. Instead of thousands of
-packages, the entire distro consists of about 10 to 20 bundles.
+packages, the entire distro consists of a few bundles (less than 10).
 There is a core bundle with all the
-essential files required to boot the system. Several optional bundles
+essential files required to boot the system. Optional bundles
 contain individual runtimes and applications that were built together
 with the OS.
 
@@ -432,13 +432,9 @@ images.
 perfectly secure! Do not use them in products built for end-customers and
 use them only in secure environments.
 
-
-The Ostro Project provides two different pre-compiled images,
-``ostro-image`` and ``ostro-image-dev``. Despite the name, currently *both*
-are compiled as development images. The only difference is that
-``ostro-image-dev`` already includes development (``gcc``) and debugging
-tools (``strace``, ``valgrind``, etc.). There are no pre-compiled
-production images.
+The Ostro Project provides pre-compiled development images that can receive
+security updates using the software update mechanism. No pre-compiled
+production images are provided.
 
 The following table summarizes the differences between the default
 configuration for production images and images built with
@@ -454,7 +450,6 @@ Usage                         Reference platform for products  Experimenting wit
 Kernel                        Production kernel                Development kernel
 IMA signing key               Product-specific, secret         Published together with the Ostro OS
                                                                source code
-swupd signature validation    TBD
 ----------------------------- ---------------------------------------------------------------------------
 Kernel debug interfaces       Disabled                         Disabled (may get enabled in the future)
 Root password                 Not set

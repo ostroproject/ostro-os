@@ -9,17 +9,17 @@ Signed-off-by: Sudarsana Nagineni <sudarsana.nagineni@intel.com>
  1 file changed, 1 deletion(-)
 
 diff --git a/package.json b/package.json
-index dc5b071..209d9ff 100644
+index 03ec481..8eba909 100644
 --- a/package.json
 +++ b/package.json
 @@ -12,7 +12,6 @@
    "dependencies": {
      "body-parser": "^1.12.4",
      "express": "^4.12.3",
--    "iotivity-node": "^1.0.0-3",
-     "minimist": "^1.2.0",
-     "systemd": "^0.2.6"
+-    "iotivity-node": "^1.0.1-1",
+     "minimist": "^1.2.0"
    },
+   "devDependencies": {
 -- 
 1.9.1
 

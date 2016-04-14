@@ -727,6 +727,7 @@ python fixup_perms () {
     dvar = d.getVar('PKGD', True)
 
     fs_perms_table = {}
+    fs_link_table = {}
 
     # By default all of the standard directories specified in
     # bitbake.conf will get 0755 root:root.
@@ -773,24 +774,32 @@ python fixup_perms () {
                     continue
                 entry = fs_perms_entry(d.expand(line))
                 if entry and entry.path:
-                    fs_perms_table[entry.path] = entry
+                    if entry.link:
+                        fs_link_table[entry.path] = entry
+                        if entry.path in fs_perms_table:
+                            fs_perms_table.pop(entry.path)
+                    else:
+                        fs_perms_table[entry.path] = entry
+                        if entry.path in fs_link_table:
+                            fs_link_table.pop(entry.path)
             f.close()
 
     # Debug -- list out in-memory table
     #for dir in fs_perms_table:
     #    bb.note("Fixup Perms: %s: %s" % (dir, str(fs_perms_table[dir])))
+    #for link in fs_link_table:
+    #    bb.note("Fixup Perms: %s: %s" % (link, str(fs_link_table[link])))
 
     # We process links first, so we can go back and fixup directory ownership
     # for any newly created directories
-    for dir in fs_perms_table:
-        if not fs_perms_table[dir].link:
-            continue
-
+    # Process in sorted order so /run gets created before /run/lock, etc.
+    for entry in sorted(fs_link_table.values(), key=lambda x: x.link):
+        link = entry.link
+        dir = entry.path
         origin = dvar + dir
         if not (cpath.exists(origin) and cpath.isdir(origin) and not cpath.islink(origin)):
             continue
 
-        link = fs_perms_table[dir].link
         if link[0] == "/":
             target = dvar + link
             ptarget = link
@@ -810,9 +819,6 @@ python fixup_perms () {
         os.symlink(link, origin)
 
     for dir in fs_perms_table:
-        if fs_perms_table[dir].link:
-            continue
-
         origin = dvar + dir
         if not (cpath.exists(origin) and cpath.isdir(origin)):
             continue
