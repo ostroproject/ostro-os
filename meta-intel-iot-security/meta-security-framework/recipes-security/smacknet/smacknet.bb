@@ -12,6 +12,9 @@ S = "${WORKDIR}"
 
 inherit systemd
 
+inherit distro_features_check
+REQUIRED_DISTRO_FEATURES = "smack"
+
 #netlabel configuration service
 SYSTEMD_SERVICE_${PN} = "smacknet.service"
 SYSTEMD_AUTO_ENABLE = "enable"

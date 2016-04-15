@@ -8,10 +8,10 @@ Merely adding the layers has little influence on the resulting
 packages and images, therefore it is possible to build a distro where
 security is an optional feature.
 
-All layers can be used without the others, but then some features
-might not be possible. For example, SecurityServer in
-meta-security-framwork has a hard dependency on Smack from
-meta-security-smack.
+meta-security-framework is a general-purpose utility layer. Both
+meta-security-smack and meta-integrity depend on
+it. meta-security-smack and meta-integrity do not depend on each
+other.
 
 See the individual layer README's for further instructions.
 

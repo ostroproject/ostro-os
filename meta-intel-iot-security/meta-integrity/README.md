@@ -16,6 +16,10 @@ This layer depends on:
     layers: meta
     branch: master
 
+    URI: git://github.com/01org/meta-intel-iot-security
+    layers: security-framework
+    branch: master
+
 
 Patches
 =======
