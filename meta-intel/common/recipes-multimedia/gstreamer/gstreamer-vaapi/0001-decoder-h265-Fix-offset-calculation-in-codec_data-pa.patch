@@ -1,0 +1,31 @@
+From dd227da41e953e79c8e05cd6f838a0e267d2d9b5 Mon Sep 17 00:00:00 2001
+From: Sreerenj Balachandran <sreerenj.balachandran@intel.com>
+Date: Fri, 11 Mar 2016 17:44:07 +0200
+Subject: [PATCH] decoder: h265: Fix offset calculation in codec_data parsing
+
+Upstream-status: Backport
+
+https://bugzilla.gnome.org/show_bug.cgi?id=762922
+
+Signed-off-by: Sreerenj Balachandran <sreerenj.balachandran@intel.com>
+Signed-off-by: Azril Ahmad <mohd.azril.ahmad@intel.com>
+Signed-off-by: Chang Rebecca Swee Fun <rebecca.swee.fun.chang@intel.com>
+---
+ gst-libs/gst/vaapi/gstvaapidecoder_h265.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/gst-libs/gst/vaapi/gstvaapidecoder_h265.c b/gst-libs/gst/vaapi/gstvaapidecoder_h265.c
+index 3c5a9d9..fd8250a 100644
+--- a/gst-libs/gst/vaapi/gstvaapidecoder_h265.c
++++ b/gst-libs/gst/vaapi/gstvaapidecoder_h265.c
+@@ -2688,6 +2688,7 @@ gst_vaapi_decoder_h265_decode_codec_data (GstVaapiDecoder *
+             goto cleanup;
+           break;
+       }
++      ofs = pi->nalu.offset + pi->nalu.size;
+       gst_vaapi_parser_info_h265_replace (&pi, NULL);
+     }
+   }
+-- 
+1.9.1
+
