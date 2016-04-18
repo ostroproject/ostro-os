@@ -59,6 +59,8 @@ ${localstatedir}/local		0755	root	root	false - - -
 # Set 1777
 /tmp				01777	root	root	false - - -
 ${localstatedir}/volatile/tmp	01777	root	root	false - - -
+
+# Set 0700
 ${ROOT_HOME}			0700	root	root	false - - -
 
 # Set 755-lsb

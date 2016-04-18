@@ -41,7 +41,7 @@ OSTRO_IMAGE_PKG_FEATURES = " \
     devkit \
     iotivity \
     java-jdk \
-    node-runtime \
+    nodejs-runtime \
     nodejs-runtime-tools \
     python-runtime \
     qatests \
@@ -167,7 +167,7 @@ FEATURE_PACKAGES_ima = "packagegroup-ima-evm-utils"
 FEATURE_PACKAGES_iotivity = "packagegroup-iotivity"
 FEATURE_PACKAGES_devkit = "packagegroup-devkit"
 
-FEATURE_PACKAGES_node-runtime = "packagegroup-node-runtime"
+FEATURE_PACKAGES_nodejs-runtime = "packagegroup-nodejs-runtime"
 FEATURE_PACKAGES_nodejs-runtime-tools = "packagegroup-nodejs-runtime-tools"
 FEATURE_PACKAGES_python-runtime = "packagegroup-python-runtime"
 FEATURE_PACKAGES_java-jdk = "packagegroup-java-jdk"

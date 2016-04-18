@@ -226,7 +226,7 @@ def findBestProvider(pn, cfgData, dataCache, pkg_pn = None, item = None):
 def _filterProviders(providers, item, cfgData, dataCache):
     """
     Take a list of providers and filter/reorder according to the
-    environment variables and previous build results
+    environment variables
     """
     eligible = []
     preferred_versions = {}
@@ -283,7 +283,7 @@ def _filterProviders(providers, item, cfgData, dataCache):
 def filterProviders(providers, item, cfgData, dataCache):
     """
     Take a list of providers and filter/reorder according to the
-    environment variables and previous build results
+    environment variables
     Takes a "normal" target item
     """
 
@@ -311,38 +311,56 @@ def filterProviders(providers, item, cfgData, dataCache):
 def filterProvidersRunTime(providers, item, cfgData, dataCache):
     """
     Take a list of providers and filter/reorder according to the
-    environment variables and previous build results
+    environment variables
     Takes a "runtime" target item
     """
 
     eligible = _filterProviders(providers, item, cfgData, dataCache)
 
-    # Should use dataCache.preferred here?
-    preferred = []
-    preferred_vars = []
-    pns = {}
-    for p in eligible:
-        pns[dataCache.pkg_fn[p]] = p
-    for p in eligible:
-        pn = dataCache.pkg_fn[p]
-        provides = dataCache.pn_provides[pn]
-        for provide in provides:
-            prefervar = cfgData.getVar('PREFERRED_PROVIDER_%s' % provide, True)
-            #logger.debug(1, "checking PREFERRED_PROVIDER_%s (value %s) against %s", provide, prefervar, pns.keys())
-            if prefervar in pns and pns[prefervar] not in preferred:
-                var = "PREFERRED_PROVIDER_%s = %s" % (provide, prefervar)
-                logger.verbose("selecting %s to satisfy runtime %s due to %s", prefervar, item, var)
-                preferred_vars.append(var)
-                pref = pns[prefervar]
-                eligible.remove(pref)
-                eligible = [pref] + eligible
-                preferred.append(pref)
+    # First try and match any PREFERRED_RPROVIDER entry
+    prefervar = cfgData.getVar('PREFERRED_RPROVIDER_%s' % item, True)
+    foundUnique = False
+    if prefervar:
+        for p in eligible:
+            pn = dataCache.pkg_fn[p]
+            if prefervar == pn:
+                logger.verbose("selecting %s to satisfy %s due to PREFERRED_RPROVIDER", pn, item)
+                eligible.remove(p)
+                eligible = [p] + eligible
+                foundUnique = True
+                numberPreferred = 1
                 break
 
-    numberPreferred = len(preferred)
+    # If we didn't find an RPROVIDER entry, try and infer the provider from PREFERRED_PROVIDER entries
+    # by looking through the provides of each eligible recipe and seeing if a PREFERRED_PROVIDER was set.
+    # This is most useful for virtual/ entries rather than having a RPROVIDER per entry.
+    if not foundUnique:
+        # Should use dataCache.preferred here?
+        preferred = []
+        preferred_vars = []
+        pns = {}
+        for p in eligible:
+            pns[dataCache.pkg_fn[p]] = p
+        for p in eligible:
+            pn = dataCache.pkg_fn[p]
+            provides = dataCache.pn_provides[pn]
+            for provide in provides:
+                prefervar = cfgData.getVar('PREFERRED_PROVIDER_%s' % provide, True)
+                #logger.debug(1, "checking PREFERRED_PROVIDER_%s (value %s) against %s", provide, prefervar, pns.keys())
+                if prefervar in pns and pns[prefervar] not in preferred:
+                    var = "PREFERRED_PROVIDER_%s = %s" % (provide, prefervar)
+                    logger.verbose("selecting %s to satisfy runtime %s due to %s", prefervar, item, var)
+                    preferred_vars.append(var)
+                    pref = pns[prefervar]
+                    eligible.remove(pref)
+                    eligible = [pref] + eligible
+                    preferred.append(pref)
+                    break
+
+        numberPreferred = len(preferred)
 
     if numberPreferred > 1:
-        logger.error("Trying to resolve runtime dependency %s resulted in conflicting PREFERRED_PROVIDER entries being found.\nThe providers found were: %s\nThe PREFERRED_PROVIDER entries resulting in this conflict were: %s", item, preferred, preferred_vars)
+        logger.error("Trying to resolve runtime dependency %s resulted in conflicting PREFERRED_PROVIDER entries being found.\nThe providers found were: %s\nThe PREFERRED_PROVIDER entries resulting in this conflict were: %s. You could set PREFERRED_RPROVIDER_%s" % (item, preferred, preferred_vars, item))
 
     logger.debug(1, "sorted runtime providers for %s are: %s", item, eligible)
 
