@@ -1,2 +1,3 @@
 oeqa.runtime.bsp.bsp
 oeqa.runtime.bsp.galileo_gen2
+oeqa.runtime.bsp.kernel_check
