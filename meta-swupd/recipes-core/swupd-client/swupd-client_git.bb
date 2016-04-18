@@ -9,6 +9,7 @@ PV = "3.3.0+git${SRCPV}"
 SRC_URI = "\
     git://github.com/clearlinux/swupd-client.git;protocol=https \
     file://Change-systemctl-path-to-OE-systemctl-path.patch \
+    file://0001-staging.c-Protect-tar-command-against-special-charac.patch \
 "
 SRCREV = "e4b2a32448d9fd9ab494f861f1bb143468659c75"
 
