@@ -45,6 +45,10 @@ python swupdbundle_virtclass_handler () {
 
     # Not producing any real images, only the rootfs directory.
     e.data.setVar("IMAGE_FSTYPES", "")
+    # Delete the bootimg task as we don't require it for transient images and
+    # its dependent tasks are unlikely to be scheduled due to unsetting
+    # IMAGE_FSTYPES above.
+    bb.build.deltask('do_bootimg', e.data)
     curr_install = (e.data.getVar('IMAGE_INSTALL', True) or "").split()
 
     def get_bundle_contents(bndl):
