@@ -10,9 +10,6 @@ TestStep,,,,4,"Write new value into the handle by:
 gatttool -b <iot BT MAC> --char-write-req -a <handle> -n abcd",return write success,,,,,,,
 TestStep,,,,5,"Read this handle again.
 gatttool -b <iot BT MAC> --char-read -a <handle>",the value has been modified to 'ab cd ...',,,,,,,
-TestScript,comm_can_can0,COMMS/CAN,enable CAN bus to recognize can0,1,Run ifconfig after system boots up.,There should be 'can0' interface,FVT,ready,IOTOS-385,,,,
-TestScript,comm_can_data_dump,COMMS/CAN,send data to can0 and dump data,1,Send message to can0 bus. Command is: ./cansend can0 500#1E.10.10,command return 0 (success),FVT,ready,IOTOS-385,,,,
-TestStep,,,,2,"In another terminal, receive message on can0: Command is: ./candump can0","It will print ""can0 500 [3] 1E 10 10""",,,,,,,
 TestScript,comm_rs232_debugging,COMMS/rs232,connect rs232 cable for debugging,1,Plug RS232 cable to the main-board,,FVT,ready,IOTOS-379,,,,
 TestStep,,,,2,Check by minicom on PC to get the debugging output,info could be output on minicom,,,,,,,
 TestScript,comm_rs232_usb_to_serial,COMMS/rs232,Plug usb port to IoT and plug rs232 to PC,1,Plug usb port to IoT device ,,FVT,ready,IOTOS-381,,,,
