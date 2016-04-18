@@ -17,6 +17,7 @@ SRC_URI = "\
     file://0001-globals.c-Use-fake-address-as-default-updates-url.patch \
     file://0001-manifest.c-Always-initialize-preserver-pointer-of-fi.patch \
     file://0001-Add-configure-option-to-re-enable-updating-of-config.patch \
+    file://0001-staging.c-Protect-tar-command-against-special-charac.patch \
 "
 
 SRC_URI[md5sum] = "5d272c62edb8a9c576005ac5e1182ea3"
