@@ -9,7 +9,7 @@ pointer inside deduplicate_files_from_manifest() isn't
 initialized which leads to NULL as output of the function.
 As result no files of the deleted bundle get deleted at all.
 
-Upstream-Status: Backported [v3.5.0+]
+Upstream-Status: Backported [v3.0.0+]
 
 Signed-off-by: Dmitry Rozhkov <dmitry.rozhkov@linux.intel.com>
 ---
