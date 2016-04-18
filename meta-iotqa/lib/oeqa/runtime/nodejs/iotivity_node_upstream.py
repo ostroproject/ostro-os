@@ -5,6 +5,7 @@ import shutil
 
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.decorators import tag
+from get_source import get_test_module_repo
 
 
 COPY_NODE_MODULES_LIST = []
@@ -140,11 +141,11 @@ class IotivitynodeRuntimeTest(oeRuntimeTest):
         @fn set_up
         @param self
         '''
-        if not os.path.exists('/tmp/iotivity-node'):
-            sys.stdout.write('\nPlease download repository \
-                of iotivity-node at first')
-            sys.stdout.flush()
-            sys.exit(1)
+        # Download the repository of soletta
+        sys.stdout.write('\nDownloading the repository of iotivity-node...')
+        sys.stdout.flush()
+        iotivity_url = 'https://github.com/otcshare/iotivity-node.git'
+        get_test_module_repo(iotivity_url, 'iotivity-node')
 
         sys.stdout.write('\nCopying necessary node modules to target device...')
         sys.stdout.flush()

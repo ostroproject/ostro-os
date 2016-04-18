@@ -5,9 +5,11 @@ import commands
 
 def check_sudo_status():
     sudo_status = commands.getstatusoutput('sudo')
-    if sudo_status[0] != 0:
+    if "sudo -h" not in sudo_status[1]:
         print '\nThe command "sudo" dose not exists'
-    return False
+        return False
+    else:
+        return True
 
 def get_test_module_repo(url, module):
     repo_target_path = '/tmp'
@@ -15,7 +17,7 @@ def get_test_module_repo(url, module):
     if os.path.exists(repo_path):
         status = check_sudo_status()
         if status is False:
-            print 'Please remove the exists repository of %s at first using root' % module
+            print '\nPlease remove the exists repository of %s at first using root' % module
             sys.exit(1)
         else:
             shutil.rmtree(repo_path)
@@ -28,7 +30,7 @@ def get_test_module_repo(url, module):
 
     git_status = commands.getstatusoutput(git_cmd)
     if git_status[0] != 0:
-        print 'Clone into iotivity-node failed! %s' % git_status[1]
+        print '\nClone into %s failed! %s' % (module, git_status[1])
         sys.exit(1)
     inst_node_modules(module)
 
@@ -43,9 +45,11 @@ def inst_node_modules(module):
             print '%s \n Install node modules failed! Please check it!' % \
             inst_node[1]
             sys.exit(1)
-    if module == "iotivity_node":
-        inst_grunt_cli_cmd = 'sudo npm install grunt-cli'
+    if module == "iotivity-node":
+        inst_grunt_cli_cmd = 'npm install grunt-cli'
         inst_grunt_cli_status = commands.getstatusoutput(inst_grunt_cli_cmd)
         if inst_grunt_cli_status[0] != 0:
             print '\nInstall grunt-cli failed! %s' % inst_grunt_cli_status[1]
             sys.exit(1)
+        else:
+            print '\nInstall grunt-cli done!'
