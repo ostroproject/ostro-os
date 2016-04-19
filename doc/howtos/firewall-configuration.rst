@@ -119,3 +119,19 @@ Opening holes to firewall using this method is not absolutely mandatory.
 If you are building a device without dynamic services or applications,
 you can simply add the necessary rules to the custom ruleset that is
 loaded upon device startup.
+
+Note that if you are starting your service as non-root user (as you
+probably should be) using systemd's ``User=`` option, you'll need to
+make sure that the firewall manipulation commands are run with original
+permissions. An easy way to do that is to use
+``PermissionsStartOnly=true`` option in the service file. This works if
+you don't need to run any other ``ExecStartPre=`` or similar commands
+with the reduced non-root privileges.
+
+Opening firewall holes for applications
+=======================================
+
+All this work for opening necessary firewall holes is abstracted away
+for applications. It's enough for applications to declare the ports that
+they are using in the application manifest. The application framework
+will take care of generating and applying suitable firewall rules.
