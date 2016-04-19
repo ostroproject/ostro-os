@@ -22,6 +22,9 @@ SRC_URI_append_edison = " file://edison-iptables.cfg"
 
 ### Hardware support fragments
 
+# generic support for Broxton platform
+SRC_URI_append_intel-corei7-64 = " file://broxton.cfg"
+
 # I2C sensors
 SRC_URI_append_intel-quark = " file://sensors.cfg"
 SRC_URI_append_edison = " file://sensors.cfg"

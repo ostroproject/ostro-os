@@ -41,7 +41,7 @@ class SolettaDevAppTest(oeRuntimeTest):
         @return
         '''
 
-        (status, output) = self.target.run('ps -ef | grep node | grep soletta-dev-app')
+        (status, output) = self.target.run('ps | grep node | grep soletta-dev-app')
         self.assertEqual(status, 0, msg="Cannot find the soletta-dev-app server start: %s" % output)
         cmd_list = output.split()
         sda_app = [ s for s in cmd_list if 'app.js' in s ]
@@ -53,7 +53,7 @@ class SolettaDevAppTest(oeRuntimeTest):
 
     @tag(TestType="FVT")
     @tag(FeatureID="IOTOS-1468")
-    @skipUnlessPassed("test_server_integration")
+    @skipUnlessPassed("test_sda_server_integration")
     def test_sda_server_restart(self):
         ''' restart soletta-dev-app server with default configuration
         @fn test_sda_server_restart
@@ -69,7 +69,7 @@ class SolettaDevAppTest(oeRuntimeTest):
         # sleep 5 seconds to ensure the server started
         time.sleep(5)
         
-        (status, output) = self.target.run('ps -ef | grep node | grep soletta-dev-app')
+        (status, output) = self.target.run('ps | grep node | grep soletta-dev-app')
         self.assertEqual(status, 0, msg="Cannot find the soletta-dev-app server restart: %s" % output)
         cmd_list = output.split()
         sda_app = [ s for s in cmd_list if 'app.js' in s ]
