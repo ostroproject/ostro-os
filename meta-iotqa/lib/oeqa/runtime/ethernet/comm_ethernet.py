@@ -14,14 +14,9 @@
 import time
 import os
 import string
-import ConfigParser
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import shell_cmd_timeout
 from oeqa.utils.decorators import tag
-
-eth_config = ConfigParser.ConfigParser()
-config_path = os.path.join(os.path.dirname(__file__), "files/config.ini")
-eth_config.readfp(open(config_path))
 
 @tag(TestType="EFT")
 class CommEthernet(oeRuntimeTest):
@@ -39,7 +34,45 @@ class CommEthernet(oeRuntimeTest):
         interface = "nothing"
         (status, interface) = self.target.run("ifconfig | grep '^enp' | awk '{print $1}'")
         (status, output) = self.target.run("ifconfig %s | grep 'inet6 addr:' | awk '{print $3}'" % interface)
-        return output.split('%')[0]
+        if output.split('%')[0] == '':
+            assertEqual(status, 0, msg="Target ipv6 address get fail: %s" % output)
+        else:
+            return output.split('%')[0]
+
+    def get_ipv4(self):
+        """
+        @fn get_ipv4
+        @param self
+        @return
+        """
+        time.sleep(1)
+        # Check ip address by ifconfig command
+        interface = "nothing"
+        (status, interface) = self.target.run("ifconfig | grep '^enp' | awk '{print $1}'")
+        (status, output) = self.target.run("ifconfig %s | grep 'inet addr:' | awk '{print $2}'" % interface)
+        if output.split(':')[1] == '':
+            assertEqual(status, 0, msg="Target ipv4 address get fail: %s" % output)
+        else:
+            return output.split(':')[1]
+
+    def get_interface(self):
+        """
+        @fn get_interface
+        @param self
+        @return
+        """
+        # Get target ip address prefix of LAN, for example, 192.168.8.100 is 192.168.8
+        ipv4 = self.get_ipv4().split('.')
+        prefix = "%s.%s.%s" % (ipv4[0], ipv4[1], ipv4[2])
+        # Use this prefix to get corresponding interface of the host
+        (status, ifconfig) = shell_cmd_timeout('ifconfig')
+        for line in ifconfig.splitlines():
+            if "inet addr:%s" % prefix in line:
+                index = ifconfig.splitlines().index(line)
+                return ifconfig.splitlines()[index - 1].split()[0]
+
+        # if above return is not OK, there might be error, return Blank
+        self.assertEqual(1, 0, msg="Target with address %s is not connectable" % ipv4)
 
     @tag(FeatureID="IOTOS-489")
     def test_ethernet_ipv6_ping(self):
@@ -52,7 +85,7 @@ class CommEthernet(oeRuntimeTest):
         ip6_address = self.get_ipv6()
         # ping6 needs host's ethernet interface by -I, 
         # because default gateway is only for ipv4
-        host_eth = eth_config.get("Ethernet","interface")
+        host_eth = self.get_interface()
         cmd = "ping6 -I %s %s -c 1" % (host_eth, ip6_address) 
         status, output = shell_cmd_timeout(cmd, timeout=60)
         ##
@@ -71,7 +104,8 @@ class CommEthernet(oeRuntimeTest):
         ip6_address = self.get_ipv6()
         # Same as ping6, ssh with ipv6 also need host's ethernet interface
         # ssh root@<ipv6 address>%<eth>
-        host_eth = eth_config.get("Ethernet","interface")
+        host_eth = self.get_interface()
+
         exp = os.path.join(os.path.dirname(__file__), "files/ipv6_ssh.exp")
         cmd = "expect %s %s %s %s" % (exp, ip6_address, "ostro", host_eth)
         status, output = shell_cmd_timeout(cmd, timeout=60)
