@@ -45,7 +45,8 @@ class BTFunction(object):
         @param self
         @return
         '''
-        self.target.run('hciconfig hci0 reset')
+        (status, output) = self.target.run('hciconfig hci0 reset')
+        assert status == 0, "reset hci0 fails, please check if your BT device exists"
         time.sleep(1)
         self.target.run('hciconfig hci0 up')
         self.target.run('hciconfig hci0 piscan')
