@@ -1,0 +1,84 @@
+From a99cba2755935b01c80cbd7b83eba3a6d788d5d6 Mon Sep 17 00:00:00 2001
+From: Petre Eftime <petre.p.eftime@intel.com>
+Date: Wed, 20 Apr 2016 09:11:18 +0300
+Subject: [PATCH] Fix incorrect pointer in read_value, get_value
+
+Signed-off-by: Petre Eftime <petre.p.eftime@intel.com>
+---
+ CMakeLists.txt       |  2 +-
+ src/generated-code.c | 14 +++++++-------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 7644acb..ab9cba4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -8,7 +8,7 @@ PKG_CHECK_MODULES (GLIB2 REQUIRED glib-2.0>=2.40)
+ PKG_CHECK_MODULES (GIO REQUIRED gio-2.0>=2.40)
+ PKG_CHECK_MODULES (GIO-UNIX REQUIRED gio-unix-2.0>=2.40)
+ 
+-set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -fno-omit-frame-pointer -DDEBUG")
++set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -fno-omit-frame-pointer -DDEBUG")
+ set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
+ set (LIB_INSTALL_DIR "lib${LIB_SUFFIX}" CACHE PATH "Installation path for libraries")
+ 
+diff --git a/src/generated-code.c b/src/generated-code.c
+index 15ae94d..45f1e89 100644
+--- a/src/generated-code.c
++++ b/src/generated-code.c
+@@ -8081,7 +8081,7 @@ gatt_characteristic1_call_read_value_finish (
+   }
+ 
+   array = g_malloc((g_variant_iter_n_children(iter)) * sizeof(guchar));
+-  while (g_variant_iter_loop(iter, "y", array[i++]));
++  while (g_variant_iter_loop(iter, "y", &array[i++]));
+   *out_value = g_bytes_new_take(array, g_variant_iter_n_children(iter));
+   g_variant_iter_free(iter);
+ 
+@@ -8745,10 +8745,10 @@ gatt_characteristic1_proxy_get_value (GattCharacteristic1 *object)
+   variant = g_dbus_proxy_get_cached_property (G_DBUS_PROXY (proxy), "Value");
+   if (variant != NULL)
+     {
+-      g_variant_get (variant, "(ay)", &iter);
++      g_variant_get (variant, "ay", &iter);
+ 
+       array = g_malloc((g_variant_iter_n_children(iter)) * sizeof(guchar));
+-      while (g_variant_iter_loop(iter, "y", array[i++]));
++      while (g_variant_iter_loop(iter, "y", &array[i++]));
+       value = g_bytes_new_take(array, g_variant_iter_n_children(iter));
+       g_variant_iter_free(iter);
+ 
+@@ -10053,7 +10053,7 @@ gatt_descriptor1_call_read_value_finish (
+                  &iter);
+ 
+   array = g_malloc((g_variant_iter_n_children(iter)) * sizeof(guchar));
+-  while (g_variant_iter_loop(iter, "y", array[i++]));
++  while (g_variant_iter_loop(iter, "y", &array[i++]));
+   *out_value = g_bytes_new_take(array, g_variant_iter_n_children(iter));
+   g_variant_iter_free(iter);
+ 
+@@ -10102,7 +10102,7 @@ gatt_descriptor1_call_read_value_sync (
+                  &iter);
+ 
+   array = g_malloc((g_variant_iter_n_children(iter)) * sizeof(guchar));
+-  while (g_variant_iter_loop(iter, "y", array[i++]));
++  while (g_variant_iter_loop(iter, "y", &array[i++]));
+   *out_value = g_bytes_new_take(array, g_variant_iter_n_children(iter));
+   g_variant_iter_free(iter);
+ 
+@@ -10492,10 +10492,10 @@ gatt_descriptor1_proxy_get_value (GattDescriptor1 *object)
+   variant = g_dbus_proxy_get_cached_property (G_DBUS_PROXY (proxy), "Value");
+   if (variant != NULL)
+     {
+-      g_variant_get (variant, "(ay)", &iter);
++      g_variant_get (variant, "ay", &iter);
+ 
+       array = g_malloc((g_variant_iter_n_children(iter)) * sizeof(guchar));
+-      while (g_variant_iter_loop(iter, "y", array[i++]));
++      while (g_variant_iter_loop(iter, "y", &array[i++]));
+       value = g_bytes_new_take(array, g_variant_iter_n_children(iter));
+       g_variant_iter_free(iter);
+ 
+-- 
+2.1.0
+
