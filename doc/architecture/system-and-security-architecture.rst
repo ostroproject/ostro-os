@@ -33,8 +33,8 @@ full disk image is fast. Less common configurations are still
 possible, but may require compiling from source.
 
 The expectation is that most devices will have just a few trusted
-applications and not have access to an application store. Compared to,
-say, a mobile phone OS, the security focus is moved from protecting
+applications and won't have access to an application store. Compared to,
+for example, a mobile phone OS, the security focus is moved from protecting
 against malicious application to protecting against attacks coming
 from outside the device (network or malicious physical
 access). However, the security is planned to be scalable. If there is
@@ -50,8 +50,8 @@ through applications, not by logging into the core system directly.
 This architecture documentation explains how the security is currently
 integrated into the Ostro OS. Especially covered are the
 places where the security model differs from baseline Linux security
-that can be expected from any mainstream desktop Linux distribution.
-Where necessary for the understandig of the architecture, future work
+expected from any mainstream desktop Linux distribution.
+Where necessary for the understanding of the architecture, future work
 and enhancements are described, but in such a way that it is possible
 to determine what the current Ostro OS already provides.
 
@@ -240,7 +240,7 @@ users. Setting a root password is not supported.
 To become root in the core system:
 
 * Add a personal public key to the ``~root/.ssh/authorized_keys`` file,
-  then use ssh. There are different approaches for this (build-time
+  then use ``ssh`` for remote access. There are different approaches for this (build-time
   configuration option, modifying pre-built images, customizing a
   running image) which are described in detail elsewhere.
 
@@ -283,7 +283,7 @@ controlling processes.
 Applications
 ============
 
-At the moment, applications are only supported when built
+Currently, applications are only supported when built
 into the image (“pre-installed applications”) installed on a
 device. Such applications can use the normal Yocto Project configuration
 tools for creating
@@ -417,20 +417,20 @@ For a detailed discussion of firewall configuration, see
 Production and Development Images
 =================================
 
-By default, building an image results in something that is locked-down
-and secure. This is how real products should be built. Unless some
-kind of application gets installed during image creation, one cannot
-do much with the running image (no user interface, no way to log into
-the system).
+By default, building an image results in a software system that is locked-down
+and secure.  This is how real product images should be built. Unless an 
+application gets installed during image creation, one cannot
+do much with the running image; there would be no user interface, and no way to log into
+the system.
 
-During development, a more open image is more useful. The Ostro project
+During development though, a more open image is very useful. The Ostro project
 contains a ``ostro-os-development.inc`` file that can be included
 in a build configuration's ``local.conf`` to produce "development"
 images.
 
-*IMPORTANT*: such development images are intentionally not built to be
-perfectly secure! Do not use them in products built for end-customers and
-use them only in secure environments.
+.. warning:: Development images allow your development work to be done, but are are intentionally insecure.
+   Do not use development images in products built for end-customers and
+   use them only in secure development environments.
 
 The Ostro Project provides pre-compiled development images that can receive
 security updates using the software update mechanism. No pre-compiled

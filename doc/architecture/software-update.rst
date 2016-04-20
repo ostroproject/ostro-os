@@ -54,7 +54,7 @@ SW Bundles
 
 The software update mechanism supports the concept of bundles_: groups of files
 that provide one functionality.
-It is similar to the concept of a package used in the vast majority of linux distros,
+It is similar to the concept of a package used in the vast majority of Linux distros,
 but in general one software update bundle maps to several packages (ex: .rpm or .deb)
 
 There is one main os-core bundle containing everything that is mandatory for having
