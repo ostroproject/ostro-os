@@ -39,9 +39,6 @@ FILES_${PN}-java = "${libdir}/libjava*.so \
                     ${prefix}/src/debug/${BPN}/${PV}-${PR}/build/src/*/*javaupm_* \
                     ${libdir}/.debug/libjava*.so \
                    "
-# include .jar files in /usr/lib/java for 64 bit builds
-FILES_${PN}-java_append = "${@' ${libdir}/../lib/java/*' if '${TARGET_ARCH}' == 'x86_64' else ''}"
-
 RDEPENDS_${PN}-java += "java-runtime mraa-java"
 INSANE_SKIP_${PN}-java = "debug-files"
 
