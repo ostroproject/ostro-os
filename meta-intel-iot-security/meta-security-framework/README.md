@@ -63,7 +63,7 @@ also changing the D-Bus behavior. When enabled, the regular "dbus"
 package gets replaced with an empty one that pulls in a separate
 "dbus-cynara" package automatically.
 
-The necessary Cyanara rules granting "System" and "User" process the
+The necessary Cyanara rules granting "System" processes the
 http://tizen.org/privilege/internal/dbus privilege can be created
 by installing the "security-manager-policy" package.
 

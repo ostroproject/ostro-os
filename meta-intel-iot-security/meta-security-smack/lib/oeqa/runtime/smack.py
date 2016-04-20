@@ -566,8 +566,8 @@ class SmackFileLabels(SmackBasicTest):
 /etc access="System::Shared" transmute="TRUE"
 /etc/passwd access="System::Shared"
 /etc/terminfo access="System::Shared" transmute="TRUE"
-/etc/skel access="User::Home"
-/etc/skel/.profile access="User"
+/etc/skel access="System::Shared" transmute="TRUE"
+/etc/skel/.profile access="System::Shared"
 /var/log access="System::Log" transmute="TRUE"
 /var/tmp access="*"
 '''

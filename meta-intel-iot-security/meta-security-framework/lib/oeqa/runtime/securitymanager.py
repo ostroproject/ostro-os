@@ -74,6 +74,7 @@ class SecurityManagerApp(SecurityManagerBasicTest):
         cmd = 'grep -r %s /var/cynara/db/' % self.appid
         status, output = self.target.run(cmd)
         self.assertFalse(status, msg="%s failed: %s" % (cmd, output))
+        # User::App:: prefix still hard-coded here because it is not customizable at the moment.
         self.assertEqual(output, '/var/cynara/db/_MANIFESTS:User::App::%s;%s;%s;0xFFFF;' % \
                          (self.appid, self.uid, self.privileges[0]))
 

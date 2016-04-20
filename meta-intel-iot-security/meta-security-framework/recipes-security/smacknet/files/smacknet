@@ -60,13 +60,7 @@ def loadnetlabelrules():
 		"System Network::Local w\n",
 		"Network::Cloud System w\n",
 		"Network::Local System w\n"]
-	rulesUser = [
-		"User Network::Cloud w\n",
-		"User Network::Local w\n",
-		"Network::Cloud User w\n",
-		"Network::Local User w\n"]
 	smackfs_load2(rulesSystem)
-	smackfs_load2(rulesUser)
 
 def smackfs_load2 (rules):
 	with open(SMACKFS_LOAD, "w") as load2:

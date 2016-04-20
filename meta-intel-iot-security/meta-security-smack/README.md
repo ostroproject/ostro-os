@@ -110,3 +110,12 @@ This layer intentionally limits itself to configuration changes of
 existing components, plus the new Smack userspace library and
 tools. See the other layer(s) in this repository for higher level
 security components meant to work together with Smack.
+
+The layer limits itself to just setting up Smack rules for system
+components (the "System" domain in the Tizen three-domain Smack
+model). See recipes-core/base-files/base-files_%.bbappend for details.
+
+That is because the "User" part heavily depends on how applications
+are managed, which is out-of-scope for this layer. Whoever adds an
+application framework which depends on Smack will also have to add the
+necessary Smack rules and file attributes.
