@@ -29,3 +29,4 @@ oeqa.runtime.iotivity.iotvt_integration_mnode
 oeqa.runtime.iotivity.iotvt_wifi
 oeqa.runtime.bluetooth.comm_bt_6lowpan
 oeqa.runtime.bluetooth.comm_bt_6lowpan_mnode
+oeqa.runtime.bluetooth.comm_bt_command_mnode

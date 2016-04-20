@@ -31,3 +31,4 @@ oeqa.runtime.zigbee.comm_zigbee_basic
 oeqa.runtime.zigbee.comm_zigbee_mnode
 oeqa.runtime.bluetooth.comm_bt_6lowpan
 oeqa.runtime.bluetooth.comm_bt_6lowpan_mnode
+oeqa.runtime.bluetooth.comm_bt_command_mnode

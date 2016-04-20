@@ -25,6 +25,8 @@ class BTFunction(object):
         self.target = target
         # un-block software rfkill lock
         self.target.run('rfkill unblock all')
+        self.target.run('killall gatttool')
+        self.target.run('killall hcitool')
 
     def target_collect_info(self, cmd):
         """
@@ -50,19 +52,16 @@ class BTFunction(object):
         self.target.run('hciconfig hci0 noleadv')
         time.sleep(1)
 
-    def host_hciconfig_init(self):
-        ''' init host bluetooth by hciconfig commands 
-        @fn host_hciconfig_init
+    def set_leadv(self):
+        ''' Get hci0 MAC address
+        @fn get_bt_mac
         @param self
         @return
         '''
-        shell_cmd_timeout('hciconfig hci0 reset', timeout=200)
-        time.sleep(1)
-        shell_cmd_timeout('hciconfig hci0 up', timeout=100)
-        shell_cmd_timeout('hciconfig hci0 piscan', timeout=100)
-        shell_cmd_timeout('hciconfig hci0 noleadv', timeout=100)
-        time.sleep(1)
-   
+        (status, output) = self.target.run('hciconfig hci0 leadv')
+        time.sleep(2)
+        assert status == 0, "Set leadv fail: %s" % (output)
+ 
     def get_bt_mac(self):
         ''' Get hci0 MAC address
         @fn get_bt_mac
@@ -82,6 +81,22 @@ class BTFunction(object):
         (status, output) = self.target.run('ifconfig bt0 | grep "inet6 addr"')
         assert status == 0, "Get bt0 address failure: %s\n%s" % (output, self.log)
         return output.split('%')[0].split()[2]
+
+    def get_name(self):
+        ''' Get bt0 device name by bluetoothctl
+        @fn get_name
+        @param self
+        @return
+        '''
+        exp = os.path.join(os.path.dirname(__file__), "files/bt_get_name.exp")
+        btmac = self.get_bt_mac()
+        cmd = 'expect %s %s %s' % (exp, self.target.ip, btmac)
+        (status, output) = shell_cmd_timeout(cmd)
+        assert status == 0, "Get hci0 name fails: %s" % output
+        for line in output.splitlines():
+            if "Controller %s" % btmac in line:
+                return line.split()[3]
+        return ""
 
     def enable_bluetooth(self):
         ''' enable bluetooth after testing 
@@ -253,6 +268,31 @@ class BTFunction(object):
             pass
         else:
             assert False, "No bt0 generated: %s\n%s" % (output, self.log)    
+
+    def gatt_basic_check(self, btmac, point):
+        '''Do basic gatt tool check points.
+        @fn gatt_basic_check
+        @param self
+        @param btmac: remote advertising device BT MAC address
+        @param point: a string for basic checking points.
+        @return
+        '''
+        # Local does gatttool commands
+        if point == "connect":
+            exp = os.path.join(os.path.dirname(__file__), "files/gatt_connect.exp")
+            cmd = "expect %s %s %s" % (exp, self.target.ip, btmac)
+            return shell_cmd_timeout(cmd, timeout=100)
+           
+        if point == "primary":
+            cmd = "/tmp/gatttool -b %s --%s | grep '^attr handle'" % (btmac, point)
+        elif point == "characteristics":
+            cmd = "/tmp/gatttool -b %s --%s | grep '^handle'" % (btmac, point)
+        elif point == "handle":
+            cmd = "/tmp/gatttool -b %s --char-read -a 0x0002 | grep '02 03 00 00 2a'" % btmac
+        else:
+            assert False, "Wrong check point name, please check case"
+
+        return self.target.run(cmd, timeout=20)
 
 ##
 # @}

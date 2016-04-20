@@ -1,1 +1,4 @@
 oeqa.runtime.bluetooth.comm_bt_command
+oeqa.runtime.bluetooth.comm_bt_6lowpan
+oeqa.runtime.bluetooth.comm_bt_command_mnode
+oeqa.runtime.bluetooth.comm_bt_6lowpan_mnode

@@ -1,13 +1,13 @@
 #!/usr/bin/expect
 set timeout 100
-set ip     [lindex $argv 0] 
+set ip      [lindex $argv 0]
+set mac     [lindex $argv 1]
 spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR bluetoothctl
  expect {
  "NEW* Controller"
    {
-    send "paired-devices\n"; 
-    sleep 1;
-    send "exit\n"; exp_continue
+    send "show $mac \n"; 
+    sleep 2; send "exit\n"; exp_continue
    }
  eof
    {}
