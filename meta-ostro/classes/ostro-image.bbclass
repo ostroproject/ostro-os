@@ -46,7 +46,6 @@ OSTRO_IMAGE_PKG_FEATURES = " \
     python-runtime \
     qatests \
     soletta \
-    soletta-tools \
     tools-debug \
     tools-develop \
     tools-interactive \
