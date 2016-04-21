@@ -1,5 +1,5 @@
 About the ostro-os repository
-===========================
+=============================
 
 The ostro-os repository is a combination of several different components
 in a single repository. It contains everything that is needed to build
@@ -9,23 +9,29 @@ Ostro OS:
 - openembedded-core
 - meta-intel
 - meta-ostro
-- meta-oic
-- meta-intel-iot-middleware
-- meta-intel-iot-security
 - meta-ostro-fixes
 - meta-ostro-bsp
-- meta-iot-web
-- meta-yocto
-- meta-iotqa
+- meta-intel-iot-security
 - meta-appfw
+- meta-openembedded
+- meta-oic
+- meta-intel-iot-middleware
+- meta-iotqa
+- meta-iot-web
+- meta-security-isafw
+- meta-yocto
 - meta-java
 - meta-soletta
-- meta-openembedded
+- meta-swupd
 
 The top-level directory comes from openembedded-core and meta-ostro
 (including this README.rst), everything else is in its own
 sub-directory. The ostro-os repository gets updated by importing
 commits from the component's repostories.
+
+For more information about each of these components including exact URL,
+branch and current revision used, please refer to the ``conf/combo-layer.conf``
+file in your top-level ``ostro-os`` repository.
 
 Updating the repository
 =======================

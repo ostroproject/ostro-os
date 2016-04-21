@@ -10,7 +10,7 @@ ConnMan supports these network technologies:
 
 * Ethernet, using a built-in card, connected via host or client side USB
 * WiFi, using wpa_supplicant
-* Celluar connectivity using oFono
+* Cellular connectivity using oFono
 * Bluetooth connectivity using BlueZ
 
 By default all technologies are disabled at the very first startup

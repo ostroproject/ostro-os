@@ -35,7 +35,7 @@ documentation, and support systems:
    about the repository and its organization.
 
 * Documentation
-   Project techical documentation is under development along with the Ostro OS itself, and
+   Project technical documentation is under development along with the Ostro OS itself, and
    can be found at https://ostroproject.org/documentation. 
    Document sources are
    stored within the meta-ostro GitHub repo for the Ostro Project.  The document sources are processed 
