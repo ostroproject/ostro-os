@@ -577,7 +577,7 @@ swupd_patch_os_release () {
 swupd_patch_os_release[vardepsexclude] = "OS_VERSION"
 ROOTFS_POSTPROCESS_COMMAND += "swupd_patch_os_release; "
 
-SWUPD_IMAGE_SANITY_CHECKS = ""
+SWUPD_IMAGE_SANITY_CHECKS ??= ""
 # Add image-level QA/sanity checks to SWUPD_IMAGE_SANITY_CHECKS
 #
 # SWUPD_IMAGE_SANITY_CHECKS += " \
