@@ -25,6 +25,8 @@ FILES_python-${PN} = "${PYTHON_SITEPACKAGES_DIR}/ \
 RDEPENDS_python-${PN} += "python mraa"
 INSANE_SKIP_python-${PN} = "debug-files"
 
+CFLAGS_append_edison = " -msse3 -mfpmath=sse"
+
 # node-upm package containing Nodejs bindings
 FILES_node-${PN} = "${libdir}/node_modules/ \
                     ${datadir}/${BPN}/examples/javascript/ \
@@ -47,7 +49,7 @@ FILES_${PN}-doc += " ${datadir}/upm/examples/"
 RDEPENDS_${PN} += " mraa"
 
 PACKAGECONFIG ??= "python nodejs java"
-PACKAGECONFIG[python] = "-DBUILDSWIGPYTHON=ON, -DBUILDSWIGPYTHON=OFF, swig-native python,"
+PACKAGECONFIG[python] = "-DBUILDSWIGPYTHON=ON, -DBUILDSWIGPYTHON=OFF, swig-native python python3,"
 PACKAGECONFIG[nodejs] = "-DBUILDSWIGNODE=ON, -DBUILDSWIGNODE=OFF, swig-native nodejs,"
 PACKAGECONFIG[java] = "-DBUILDSWIGJAVA=ON, -DBUILDSWIGJAVA=OFF, swig-native icedtea7-native,"
 
