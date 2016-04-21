@@ -29,6 +29,10 @@ The top-level directory comes from openembedded-core and meta-ostro
 sub-directory. The ostro-os repository gets updated by importing
 commits from the component's repostories.
 
+For more information about each of these components including exact URL,
+branch and current revision used, please refer to the ``conf/combo-layer.conf``
+file in your top-level ``ostro-os`` repository.
+
 Updating the repository
 =======================
 
