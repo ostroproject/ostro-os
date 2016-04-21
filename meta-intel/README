@@ -116,28 +116,39 @@ Building for Intel Quark X1000 microprocessor
 
 To target the Intel Quark X1000. 
 
- 1. In conf/local.conf set the MACHINE type to be intel-quark.
+  1. In conf/local.conf set the MACHINE type to be intel-quark.
 
-    MACHINE ??= "intel-quark"
+     MACHINE ??= "intel-quark"
 
- 2. Build a target image of your choice. 
-    
-    $ bitbake core-image-minimal
+  2. Build a target image of your choice.
 
- 3. Use the provided wic script to create an SD card image. 
+     $ bitbake core-image-minimal
 
-    $ wic list images
-  mkgalileodisk                         Create an Galileo Gen 1/2 disk image
-  mkgummidisk                           Create an EFI disk image
-    ...
+  3. For the first time, you need to build parted-native too. (You will get an
+     error message when running wic script without it at later steps.)
 
-    $ wic create mkgalileodisk -e core-image-minimal
+     $ bitbake parted-native
 
-  4. Write the output image to an SD Card
+  4. Use the provided wic script to create an SD card image.
 
-    $ sudo dd if=~/mkgalileodisk-*-mmcblk0.direct of=/dev/mmcblk0
+     $ wic list images
+       mkgalileodisk                         Create an Galileo Gen 1/2 disk image
+       mkgummidisk                           Create an EFI disk image
+       ...
+
+     $ wic create mkgalileodisk -e core-image-minimal
+
+      wic script outputs the image and its location in success, something like:
+       ...
+       Info: The new image(s) can be found here:
+         /var/tmp/wic/build/mkgalileodisk-201604211444-mmcblk0.direct
+       ...
+
+  5. Write the output image to an SD Card
+
+     $ sudo dd if=/path/to/image/mkgalileodisk-*-mmcblk0.direct of=/dev/your_sd_dev
  
-  5. Insert the SD Card into the reference platform and power on. 
+  6. Insert the SD Card into the reference platform and power on.
 
 Available machine features
 --------------------------
