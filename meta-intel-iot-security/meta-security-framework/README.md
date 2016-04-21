@@ -9,16 +9,12 @@ Dependencies
 
 This layer depends on:
 
-  URI: git://git.openembedded.org/bitbake
-  branch: master
+    URI: git://git.openembedded.org/bitbake
+    branch: master
 
-  URI: git://git.openembedded.org/openembedded-core
-  layers: meta
-  branch: master
-
-  URI: git://github.com/01org/meta-intel-iot-security
-  layers: security-smack
-  branch: master
+    URI: git://git.openembedded.org/openembedded-core
+    layers: meta
+    branch: master
 
 
 Patches

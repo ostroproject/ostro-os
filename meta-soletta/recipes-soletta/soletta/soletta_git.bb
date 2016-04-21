@@ -12,6 +12,11 @@ PV = "1_beta18+git${SRCPV}"
 
 SRC_URI = "gitsm://github.com/solettaproject/soletta.git;protocol=git \
            file://run-ptest \
+           file://0013-lib-sol-iio-release-buffer-on-sol_iio_close.patch \
+           file://0047-oic-gen-fix-rep_vec-issue.patch \
+           file://0048-oic-gen-ReadOnly-props-from-imported-json-objs-were-.patch \
+           file://0049-oic-gen-Don-t-add-client-to_repr_vec-when-all-props-.patch \
+           file://0050-oic-gen-Always-generate-code-using-same-order-of-res.patch \
           "
 SRCREV = "97091af414193c37278ba5ff88c70c596eecd7ea"
 

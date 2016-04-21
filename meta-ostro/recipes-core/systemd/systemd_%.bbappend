@@ -1,5 +1,10 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
+# Prefer systemd way of creating getty@.service symlinks using
+# systemd-getty-generator (instead of the Yocto default
+# systemd-serialgetty that creates everything in do_install).
+PACKAGECONFIG_append = "serial-getty-generator"
+
 # This .bbappend enables systemd-boot from systemd source similar
 # to gummiboot_git.bb (in meta/) and .bbappend (in meta-ostro-fixes/).
 

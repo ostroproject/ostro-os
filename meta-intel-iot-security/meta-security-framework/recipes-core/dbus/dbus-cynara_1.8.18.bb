@@ -33,6 +33,9 @@ SRC_URI += "file://Perform-Cynara-runtime-policy-checks-by-default.patch"
 DEPENDS += "cynara smack"
 EXTRA_OECONF += "--enable-cynara"
 
+inherit distro_features_check
+REQUIRED_DISTRO_FEATURES += "smack"
+
 # Only the main package gets created here, everything else remains in the
 # normal dbus recipe.
 do_install_append () {
