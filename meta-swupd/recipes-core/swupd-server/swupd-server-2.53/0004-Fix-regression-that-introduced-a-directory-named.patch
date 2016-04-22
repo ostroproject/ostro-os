@@ -5,7 +5,7 @@ Subject: [PATCH] Fix regression that introduced a directory named '/ '
 
 Signed-off-by: Patrick McCarty <patrick.mccarty@intel.com>
 
-Upstream-Status: Backport (v3.0+)
+Upstream-Status: Backport [v3.0+]
 
 ---
  src/chroot.c | 2 +-
@@ -18,12 +18,11 @@ index cb6a04a..58e1f1a 100644
 @@ -41,7 +41,7 @@ void chroot_create_full(int newversion)
  	struct stat buf;
  	char *full_dir;
- 
+
 -	string_or_die(&full_dir, "%s/%i/full/ ", image_dir, newversion);
 +	string_or_die(&full_dir, "%s/%i/full/", image_dir, newversion);
- 
- 	g_mkdir_with_parents(full_dir, S_IRWXU);
- 
--- 
-2.5.0
 
+ 	g_mkdir_with_parents(full_dir, S_IRWXU);
+
+--
+2.5.0
