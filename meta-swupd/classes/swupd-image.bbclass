@@ -420,7 +420,7 @@ fakeroot python do_prune_bundle () {
 }
 addtask prune_bundle after do_copy_bundle_contents before do_swupd_update
 
-SWUPD_FORMAT = "3"
+SWUPD_FORMAT ??= "3"
 fakeroot do_swupd_update () {
     if [ -z "${BUNDLE_NAME}" ] || [ ! -z "${PN_BASE}" ] ; then
         bbwarn 'We only generate swupd updates for the base image, skipping ${PN}:do_swupd_update'
