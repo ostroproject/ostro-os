@@ -99,7 +99,8 @@ class ISA_config:
     timestamp = ""                # timestamp of the build provided by build system
     full_reports = False          # produce full reports for plugins, False by default
     machine = ""                  # name of machine build is produced for
-
+    la_plugin_image_whitelist = ""# whitelist of images for violating license checks
+    la_plugin_image_blacklist = ""# blacklist of images for violating license checks
 
 class ISA:
 
