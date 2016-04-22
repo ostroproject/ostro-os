@@ -5,14 +5,13 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=f8d90fb802930e30e49c39c8126a959e"
 
 DEPENDS = "glib-2.0 curl openssl libarchive bsdiff"
 
-PV = "3.3.0+git${SRCPV}"
+PV = "3.5.3+git${SRCPV}"
 SRC_URI = "\
     git://github.com/clearlinux/swupd-client.git;protocol=https \
     file://Change-systemctl-path-to-OE-systemctl-path.patch \
-    file://0001-staging.c-Protect-tar-command-against-special-charac.patch \
     file://0001-Add-configure-option-to-re-enable-updating-of-config.patch \
 "
-SRCREV = "e4b2a32448d9fd9ab494f861f1bb143468659c75"
+SRCREV = "42c02c5f4a91f3ef2cdb9f80fa7ca79dfbab1ac0"
 
 S = "${WORKDIR}/git"
 
@@ -20,19 +19,31 @@ RDEPENDS_${PN}_append_class-target = " oe-swupd-helpers bsdtar"
 # We check /etc/os-release for the current OS version number
 RRECOMMENDS_${PN}_class-target = "os-release"
 
-inherit pkgconfig autotools systemd
+# TODO: we inherit autotools-brokensep because the Makefile calls a perl script
+# in ${S} during one of its steps.
+inherit pkgconfig autotools-brokensep systemd
 
 EXTRA_OECONF = "\
     --with-systemdsystemunitdir=${systemd_system_unitdir} \
     --enable-bsdtar \
+    --disable-tests \
 "
 
 PACKAGECONFIG ??= "stateless"
 PACKAGECONFIG[stateless] = ",--disable-stateless"
 
+SWUPD_VERSION_URL ??= "example.com"
+SWUPD_CONTENT_URL ??= "example.com"
+SWUPD_FORMAT ??= "3"
 do_install_append () {
     # TODO: This should be a less os-specific directory and not hard-code datadir
-    install -d ${D}${datadir}/clear/bundles
+    install -d ${D}$/usr/share/clear/bundles
+
+    # Write default values to the configuration hierarchy (since 3.4.0)
+    install -d ${D}/usr/share/defaults/swupd
+    echo "{SWUPD_VERSION_URL}" >> ${D}/usr/share/defaults/swupd/versionurl
+    echo "{SWUPD_CONTENT_URL}" >> ${D}/usr/share/defaults/swupd/contenturl
+    echo "{SWUPD_FORMAT}" >> ${D}/usr/share/defaults/swupd/format
 }
 
 FILES_${PN} += "\
