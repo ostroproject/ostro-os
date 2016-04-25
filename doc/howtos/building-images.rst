@@ -13,7 +13,7 @@ Initial Steps
 =============
 
 #. If your development system is behind a firewall, verify that your proxy settings are configured 
-   to allow access to    the internet for http, https, ftp, and git resources needed by 
+   to allow access to the internet for HTTP, HTTPS, FTP, and Git resources needed by 
    the Yocto Project build tools, as  explained in `Yocto Project Quick Start: Building Images`_ 
    and with more details in `Yocto Project: Working Behind a Network Proxy`_
 
@@ -42,10 +42,11 @@ Initial Steps
    image using :command:`bitbake`. (additional build target options are explained
    in the sections below.) ::
 
-   $ bitbake ostro-image-noswupd
+   $ bitbake -k ostro-image-noswupd
 
    Depending on the number of processors and cores, the amount of RAM, the speed of the internet connection and
-   other factors, the build process could take several hours the first time you run it. 
+   other factors, the build process could take several hours the first time you run it. The ``-k`` option tells
+   bitbake to continue as far as possible after finding an error (instead of stopping at the first error).
    It will download and compile all the source code needed to create the binary image, including the Linux kernel, 
    compiler tools, upstream components and Ostro OS-specific patches.  (If you haven't 
    done so yet, this might be a good time to read through 
@@ -53,7 +54,7 @@ Initial Steps
    run much faster since parts of the build are cached. 
           
    If errors occur during the build, refer to the `Yocto Project Errors and Warnings`_ documentation to help 
-   resolve the issues, and repeat the ``bitbake ostro-image-noswupd`` command to continue.
+   resolve the issues, and repeat the ``bitbake -k ostro-image-noswupd`` command to continue.
    
    When the build process completes, the generated image will be in the folder 
    :file:`build/tmp-glibc/deploy/images/$(MACHINE)`
@@ -134,7 +135,7 @@ Target MACHINE Architecture
 
 The build's default target architecture ``MACHINE`` is ``intel-corei7-64``, appropriate for the
 MinnowBoard Turbot and GigaByte platforms, 
-as configured in :file:`build/conf/local.conf`. 
+as configured in :file:`conf/local.conf`. 
 You can edit the :file:`local.conf` file to change this to a different machine appropriate for your platform. 
 
 For currently :ref:`platforms`, the appropriate ``MACHINE`` selections are:
@@ -203,6 +204,17 @@ In your cloned ``ostro-os`` repository folder, ``./meta-ostro/classes/ostro-imag
 contains the base definitions for building Ostro OS images. ``./meta-ostro/recipes-image/images/``
 contains some example image recipes.
 
+A Yocto Project recipe is a set of instructions for building packages, including:
+* where to obtain the upstream sources (``SRC_URI``) and which patches to apply (Yocto Project call this "fetching")
+* dependencies on libraries or other recipes: ``DEPENDS`` and ``RDEPENDS``.
+* configuration and compilation options: ``EXTRA_OECONF, EXTRA_OEMAKE``
+* define which files go into what output packages: ``FILES_*``
+
+Recipes can build one or more packages from source code, including the kernel as well as userspace applications.
+Recipes can also build package groups and even full system images. Inheritance can be used for 
+common design patterns by providing a class file which is then inherited by other recipes.
+
+
 The ``ostro-image.bbclass`` can be used in two modes, depending on the ``swupd`` image feature:
 
 * swupd active: produces a swupd update stream when building images and in
@@ -213,8 +225,7 @@ The ``ostro-image.bbclass`` can be used in two modes, depending on the ``swupd``
 
 Developers are encouraged to start building images the traditional way
 by using image recipes like ``ostro-image-noswupd`` where swupd is
-turned off and only use swupd during deployment.
-
+turned off and only use swupd during deployment. 
 That's because image creation based on swupd bundles and swupd bundle
 creation itself cause additional overhead (disk space, compile time)
 due to the extra work that needs to be done (creating multiple rootfs
@@ -230,17 +241,34 @@ The following instructions assume that swupd is not used.
 
 .. TODO: document how to create custom image recipes based on ostro-image.bbclass.
 
+.. _`ostro-image.bbclass`: https://github.com/ostroproject/meta-ostro/blob/master/meta-ostro/classes/ostro-image.bbclass
 
-Installing Additional Packages without swupd
---------------------------------------------
+Installing Additional Packages (without swupd)
+----------------------------------------------
+
+An image derived from ``ostro-image.bbclass`` without additional
+configuration is minimal and establishes a core OS with components
+that must always be present on a device. All additional components beyond
+this minimal configuration must be added explicitly by setting
+``OSTRO_IMAGE_EXTRA_FEATURES`` and/or ``OSTRO_IMAGE_EXTRA_INSTALL`` adding them
+to the image when building without swupd.  
+
+The ``ostro-os`` repo contains many layers and recipes that are not enabled
+but are available for your use. You can see these by using the commands:::
+
+   $ bitbake-layers show-recipes
+   $ bitbake-layers show-layers
 
 ``ostro-image.bbclass`` defines several image features which can be enabled
-to install additional sets of components. For example, to install debugging
+to install additional sets of pre-defined components. For example, to install debugging
 tools, compilers and development files for all components in the image, add::
 
     OSTRO_IMAGE_EXTRA_FEATURES += "tools-debug tools-develop dev-pkgs"
 
-Extend ``OSTRO_IMAGE_EXTRA_INSTALL`` to install additional individual packages,
+See your local copy of ``ostro-image.bbclass`` for more image feature options or
+you can view `ostro-image.bbclass`_ from the upstream GitHub repository.
+
+Use ``OSTRO_IMAGE_EXTRA_INSTALL`` to install additional individual packages,
 for example with::
 
     OSTRO_IMAGE_EXTRA_INSTALL += "strace"
@@ -256,6 +284,68 @@ reconfigure it so that it matches ``ostro-image-swupd-dev``::
     OSTRO_IMAGE_NOSWUPD_EXTRA_FEATURES_append = "${OSTRO_IMAGE_FEATURES_DEV}"
     OSTRO_IMAGE_NOSWUPD_EXTRA_INSTALL_append = "${OSTRO_IMAGE_INSTALL_DEV}"
 
+
+Adding a Custom Layer in Ostro OS
+---------------------------------
+
+.. _`Creating Your Own Layer`: http://www.yoctoproject.org/docs/current/mega-manual/mega-manual.html#creating-your-own-layer
+.. _`Open Embedded Layers Index`:  http://layers.openembedded.org/layerindex/branch/master/layers/
+
+The Yocto Project documentation explains the steps you'd follow for `Creating Your Own Layer`_. 
+
+#. Within your
+   cloned copy of ``ostro-os``, here's how you can easily add a custom layer into your Ostro OS build:::
+
+      $ git clone <meta-custom-layer-name>     # clone the git repo for your custom layer 
+      $ source oe-init-build-env               # initialize the build environment 
+
+#. Use the ``bitbake-layers`` command to manipulate the ``bblayers.conf`` file for you:::
+
+     $ bitbake-layers add-layer meta-custom-layer-name 
+     $ bitbake-layers show-layers                        # verify bitbake sees the layer
+
+   or alternatively, you can manually edit your ``conf/bblayers.conf`` file and add a line to add the layer:::
+
+      BBLAYERS += "/PATH/TO/LAYERS/meta-custom-layer-name"
+
+#. If this new layer depends on others that aren't already included in the build, you'll 
+   need to add additional ``BBLAYERS += "..."`` lines (either manually or by using
+   the ``bitbake-layers add-layer`` command)
+
+#. Add this to the end of your ``conf/local.conf`` file:::
+
+      OSTRO_IMAGE_EXTRA_INSTALL += "one or more recipes from custom-layer-name"
+
+#. And with that, we're ready to do a build:::
+
+   $ bitbake -k ostro-image-noswupd       # for example
+
+If errors occur during the build, refer to the `Yocto Project Errors and Warnings`_ documentation to help 
+resolve the issues, and repeat the ``bitbake -k ostro-image-noswupd`` command to continue.
+
+Whitelisting a Recipe
+---------------------
+
+The `Open Embedded Layers Index`_ is a database that's searchable by layer and recipe name.  For example
+if you wanted to add `opencv` (open computer vision layer) you can find the recipe there and also a list 
+of other layers it depends on.
+
+Only specific recipes from the layers in meta-openembedded are
+supported in combination with Ostro OS, even though all of
+meta-openembedded gets imported into the ``ostro-os`` combined repository. 
+Ostro OS maintains a list of approved (white-listed) and unapproved (black-listed) recipies.
+
+To use recipes from meta-openembedded, they must be added to the
+respective ``PNWHITELIST`` variables, in ``meta-ostro/conf/ostro/ostro.conf`` for officially supported ones
+or in a ``local.conf`` for unofficial ones in a personal build.  
+You can refer to ``meta-ostro/conf/ostro/ostro.conf`` for more information about white- and black-listing.
+
+For example, you can add the ``tcpdump`` recipe to your default image (from the ``meta-networking`` layer) 
+by adding these lines to your ``local.conf`` file:::
+
+   PNWHITELIST += "tcpdump"
+   OSTRO_IMAGE_EXTRA_INSTALL += "tcpdump"
+   
 
 Accelerating Build Time Using Shared-State Files Cache
 ------------------------------------------------------
