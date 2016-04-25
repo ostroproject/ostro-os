@@ -133,5 +133,5 @@ Opening firewall holes for applications
 
 All this work for opening necessary firewall holes is abstracted away
 for applications. It's enough for applications to declare the ports that
-they are using in the application manifest. The application framework
+they are using in the application manifest. The :ref:`application-framework`
 will take care of generating and applying suitable firewall rules.
