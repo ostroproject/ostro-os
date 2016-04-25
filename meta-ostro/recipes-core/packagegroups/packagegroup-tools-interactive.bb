@@ -27,7 +27,6 @@ RDEPENDS_${PN} = " \
     pciutils \
     procps \
     rsync \
-    traceroute \
     usbutils \
     vim \
     wget \
