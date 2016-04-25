@@ -4,7 +4,7 @@
 ##
 # @addtogroup soletta sensor
 # @brief This is sensor test based on soletta app
-# @brief test adc sensor SI7021 on Galileo
+# @brief test adc sensor int3495 on Galileo
 ##
 
 import os

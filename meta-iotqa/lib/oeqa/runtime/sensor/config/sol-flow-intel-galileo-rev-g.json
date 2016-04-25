@@ -4,10 +4,50 @@
   {
      "name": "MyLightTsl2561",
      "options": {
-           "iio_device": "tsl2561 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x39,tsl2561 0",
+           "iio_device": "tsl2563 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x39,tsl2563 0",
            "buffer_size": "-1"
      },
      "type": "iio/light"
+  },
+  {
+     "name": "MyLightBh1750",
+     "options": {
+           "iio_device": "bh1750 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x23,bh1750 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/light"
+  },
+  {
+     "name": "MyLightVcnl4000",
+     "options": {
+           "iio_device": "vcnl4000 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x13,vcnl4000 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/light"
+  },
+  {
+     "name": "MyColorIsl29125",
+     "options": {
+           "iio_device": "isl29125 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x44,isl29125 0",
+           "buffer_size": "20"
+     },
+     "type": "iio/color"
+  },
+  {
+     "name": "MyColorTcs34725",
+     "options": {
+           "iio_device": "tcs3472 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x29,tcs3472 0",
+           "buffer_size": "20"
+     },
+     "type": "iio/color"
+  },
+  {
+     "name": "MyColorTcs3414cs",
+     "options": {
+           "iio_device": "tcs3414 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x39,tcs3414 0",
+           "buffer_size": "20"
+     },
+     "type": "iio/color"
   },
   {
      "name": "MyGyroMpu6050",
@@ -20,7 +60,7 @@
   {
      "name": "MyGyroMpu9250",
      "options": {
-           "iio_device": "mpu9250 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x68,mpu9250 0",
+           "iio_device": "mpu6050 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x68,mpu6050 0",
            "buffer_size": "-1"
      },
      "type": "iio/gyroscope"
@@ -29,6 +69,14 @@
      "name": "MyGyroLsm330dlc",
      "options": {
            "iio_device": "lsm330dlc_gyro create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x6b,lsm330dlc_gyro 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/gyroscope"
+  },
+  {
+     "name": "MyGyroL3g4200",
+     "options": {
+           "iio_device": "l3g4200d create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x69,l3g4200d 0",
            "buffer_size": "-1"
      },
      "type": "iio/gyroscope"
@@ -44,7 +92,7 @@
   {
      "name": "MyAccelLis2dh",
      "options": {
-           "iio_device": "lis2dh create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x19,lis2dh 0",
+           "iio_device": "lis2dh12_accel create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x19,lis2dh12_accel 0",
            "buffer_size": "20"
      },
      "type": "iio/accelerate"
@@ -93,7 +141,7 @@
      "name": "MyAccelMma7455",
      "options": {
            "iio_device": "mma7455 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x1d,mma7455 0",
-           "buffer_size": "20"
+           "buffer_size": "2"
      },
      "type": "iio/accelerate"
   },
@@ -101,7 +149,7 @@
      "name": "MyMagnetHmc5983",
      "options": {
            "iio_device": "hmc5983 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x1e,hmc5983 0",
-           "buffer_size": "2"
+           "buffer_size": "-1"
      },
      "type": "iio/magnet"
   },
@@ -110,6 +158,30 @@
      "options": {
            "iio_device": "hmc5883 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x1e,hmc5883 0",
            "buffer_size": "2"
+     },
+     "type": "iio/magnet"
+  },
+  {
+     "name": "MyMagnetLsm303",
+     "options": {
+           "iio_device": "lsm303dlhc_magn create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x1e,lsm303dlhc_magn 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/magnet"
+  },
+  {
+     "name": "MyMagnetMag3110",
+     "options": {
+           "iio_device": "mag3110 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x0e,mag3110 0",
+           "buffer_size": "2"
+     },
+     "type": "iio/magnet"
+  },
+  {
+     "name": "MyMagnetAk8975",
+     "options": {
+           "iio_device": "ak8975 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x0c,ak8975 0",
+           "buffer_size": "-1"
      },
      "type": "iio/magnet"
   },
@@ -133,6 +205,54 @@
      "name": "MyTemperatureMpl3115",
      "options": {
            "iio_device": "mpl3115 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x60,mpl3115 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/temperature"
+  },
+  {
+     "name": "MyPressureTmp006",
+     "options": {
+           "iio_device": "0-0040 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x40,0-0040 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/pressure"
+  },
+  {
+     "name": "MyTemperatureTmp006",
+     "options": {
+           "iio_device": "0-0040 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x40,0-0040 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/temperature"
+  },
+  {
+     "name": "MyPressureMpl115",
+     "options": {
+           "iio_device": "mpl115 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x60,mpl115 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/pressure"
+  },
+  {
+     "name": "MyTemperatureMpl115",
+     "options": {
+           "iio_device": "mpl115 create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x60,mpl115 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/temperature"
+  },
+  {
+     "name": "MyPressureLps331ap",
+     "options": {
+           "iio_device": "lps331ap create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x5d,lps331ap 0",
+           "buffer_size": "2"
+     },
+     "type": "iio/pressure"
+  },
+  {
+     "name": "MyTemperatureLps331ap",
+     "options": {
+           "iio_device": "lps331ap create,i2c,pci0000:00/0000:00:15.2/i2c_designware.0,0x5d,lps331ap 0",
            "buffer_size": "-1"
      },
      "type": "iio/temperature"

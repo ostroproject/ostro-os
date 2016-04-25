@@ -8,6 +8,70 @@
            "buffer_size": "20"
      },
      "type": "iio/adc"
+  },
+  {
+     "name": "MyGyroLsm330dlc",
+     "options": {
+           "iio_device": "lsm330dlc_gyro create,i2c,pci0000:00/0000:00:09.1,0x6b,lsm330dlc_gyro 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/gyroscope"
+  },
+  {
+     "name": "MyGyroMpu6050",
+     "options": {
+           "iio_device": "mpu6050 create,i2c,pci0000:00/0000:00:09.1,0x68,mpu6050 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/gyroscope"
+  },
+  {
+     "name": "MyGyroL3g4200",
+     "options": {
+           "iio_device": "l3g4200d create,i2c,pci0000:00/0000:00:09.1,0x69,l3g4200d 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/gyroscope"
+  },
+  {
+     "name": "MyMagnetLsm303",
+     "options": {
+           "iio_device": "lsm303dlhc_magn create,i2c,pci0000:00/0000:00:09.1,0x1e,lsm303dlhc_magn 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/magnet"
+  },
+  {
+     "name": "MyMagnetHmc5883",
+     "options": {
+           "iio_device": "hmc5883 create,i2c,pci0000:00/0000:00:09.1,0x1e,hmc5883 0",
+           "buffer_size": "2"
+     },
+     "type": "iio/magnet"
+  },
+  {
+     "name": "MyMagnetAk8975",
+     "options": {
+           "iio_device": "ak8975 create,i2c,pci0000:00/0000:00:09.1,0x0c,ak8975 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/magnet"
+  },
+  {
+     "name": "MyLightTsl2561",
+     "options": {
+           "iio_device": "tsl2561 create,i2c,pci0000:00/0000:00:09.1,0x39,tsl2561 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/light"
+  },
+  {
+     "name": "MyLightVcnl4000",
+     "options": {
+           "iio_device": "vcnl4000 create,i2c,pci0000:00/0000:00:09.1,0x13,vcnl4000 0",
+           "buffer_size": "-1"
+     },
+     "type": "iio/light"
   }
  ]
 }
