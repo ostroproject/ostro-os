@@ -420,7 +420,7 @@ fakeroot python do_prune_bundle () {
 }
 addtask prune_bundle after do_copy_bundle_contents before do_swupd_update
 
-SWUPD_FORMAT = "3"
+SWUPD_FORMAT ??= "3"
 fakeroot do_swupd_update () {
     if [ -z "${BUNDLE_NAME}" ] || [ ! -z "${PN_BASE}" ] ; then
         bbwarn 'We only generate swupd updates for the base image, skipping ${PN}:do_swupd_update'
@@ -577,7 +577,7 @@ swupd_patch_os_release () {
 swupd_patch_os_release[vardepsexclude] = "OS_VERSION"
 ROOTFS_POSTPROCESS_COMMAND += "swupd_patch_os_release; "
 
-SWUPD_IMAGE_SANITY_CHECKS = ""
+SWUPD_IMAGE_SANITY_CHECKS ??= ""
 # Add image-level QA/sanity checks to SWUPD_IMAGE_SANITY_CHECKS
 #
 # SWUPD_IMAGE_SANITY_CHECKS += " \

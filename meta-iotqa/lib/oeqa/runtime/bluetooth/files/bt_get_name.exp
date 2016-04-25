@@ -1,0 +1,15 @@
+#!/usr/bin/expect
+set timeout 100
+set ip      [lindex $argv 0]
+set mac     [lindex $argv 1]
+spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR bluetoothctl
+ expect {
+ "NEW* Controller"
+   {
+    send "show $mac \n"; 
+    sleep 2; send "exit\n"; exp_continue
+   }
+ eof
+   {}
+ }
+

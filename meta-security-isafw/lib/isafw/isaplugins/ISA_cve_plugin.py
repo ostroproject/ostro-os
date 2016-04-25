@@ -45,7 +45,7 @@ class ISA_CVEChecker:
         output = ""
         # check that cve-check-tool is installed
         try:
-            popen = subprocess.Popen("which cve-check-tool", shell=True, stdout=subprocess.PIPE)
+            popen = subprocess.Popen("which cve-check-tool", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             popen.wait()
             output = popen.stdout.read()
         except:

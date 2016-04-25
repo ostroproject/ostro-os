@@ -39,8 +39,6 @@ class EnvirSetup(oeRuntimeTest):
         if "Minnow" in output:
            print "DUT is MinnowMax\n"
            time.sleep(1)
-           (status, output) = self.target.run("modprobe i2c-dev")
-           self.assertTrue(status == 0)
            (status, output) = self.target.run("modprobe iio-trig-sysfs")
            self.assertTrue(status == 0)
            if sensorName == "mpu6050":
@@ -64,11 +62,9 @@ class EnvirSetup(oeRuntimeTest):
            if sensorName == "mpu6050":
               (status, output) = self.target.run("modprobe i2c-quark-mpu6050")
               self.assertTrue(status == 0)
-           #if sensorName == "lsm330dlc":
-              #(status, output) = self.target.run("modprobe i2c-quark-lsm330dlc_gyro")
-              #self.assertTrue(status == 0)
-           #if sensorName == "tsl2561":
-              #(status, output) = self.target.run("echo tsl2561 0x39 > /sys/bus/i2c/devices/i2c-0/new_device")
+           if sensorName == "mpu9250":
+              (status, output) = self.target.run("modprobe i2c-quark-mpu6050")
+              self.assertTrue(status == 0)
            copy_to_path = os.path.join(os.path.dirname(__file__) + '/config/sol-flow-intel-galileo-rev-g.json')
            (status, output) = self.target.copy_to(copy_to_path, \
                           "/opt/apps/")  
@@ -97,13 +93,17 @@ class EnvirSetup(oeRuntimeTest):
            (status, output) = self.target.run("echo mode1 > /sys/kernel/debug/gpio_debug/gpio28/current_pinmux")
            (status, output) = self.target.run("echo mode1 > /sys/kernel/debug/gpio_debug/gpio27/current_pinmux")
            (status, output) = self.target.run("echo high > /sys/class/gpio/gpio214/direction")
-           (status, output) = self.target.run("modprobe i2c-dev")
-           self.assertTrue(status == 0)
            (status, output) = self.target.run("modprobe iio-trig-sysfs")
            self.assertTrue(status == 0)
+           if sensorName == "mpu6050":
+              (status, output) = self.target.run("modprobe inv-mpu6050")
+              self.assertTrue(status == 0)
+           if sensorName == "mpu9250":
+              (status, output) = self.target.run("modprobe i2c-quark-mpu6050")
+              self.assertTrue(status == 0)
            copy_to_path = os.path.join(os.path.dirname(__file__) + '/config/sol-flow-intel-edison-rev-c.json')
            (status, output) = self.target.copy_to(copy_to_path, \
-                          "/opt/apps/")
+                          "/opt/apps/") 
 
     def FBPGenerate(self, sensorType, sensorName):
         '''Generate content for FBP files
@@ -119,7 +119,7 @@ class EnvirSetup(oeRuntimeTest):
         str_list = [sensorType, '(My', sensorType.capitalize(), sensorName.capitalize(), ')']
         fbpMethodContent = ''.join(str_list)
         fbpTimer1Content = "timer1(timer:interval=1000)"
-        fbpTimer2Content = "timer2(timer:interval=3000)"
+        fbpTimer2Content = "timer2(timer:interval=6000)"
         str_list = ['timer1 OUT -> TICK ', sensorType, ' OUT -> IN _(console)']
         fbpKick1Content = ''.join(str_list)
         fbpKick2Content = "timer2 OUT -> QUIT _(app/quit)"

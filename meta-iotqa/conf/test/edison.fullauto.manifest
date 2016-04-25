@@ -27,3 +27,4 @@ oeqa.runtime.security.openssl
 oeqa.runtime.wifi.comm_wifi_connect
 oeqa.runtime.iotivity.iotvt_integration_mnode
 oeqa.runtime.iotivity.iotvt_wifi
+oeqa.runtime.bluetooth.comm_bt_command_mnode

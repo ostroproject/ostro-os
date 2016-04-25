@@ -80,6 +80,9 @@ do_install () {
 
     install -d ${D}${libdir}/node_modules/iotivity-node/build/Release/
     install -m 0755 ${S}/build/Release/iotivity.node ${D}${libdir}/node_modules/iotivity-node/build/Release/
+
+    # Remove nan module as it is not needed.
+    rm -rf ${D}${libdir}/node_modules/iotivity-node/node_modules/nan
 }
 
 FILES_${PN} = "${libdir}/node_modules/iotivity-node/ \

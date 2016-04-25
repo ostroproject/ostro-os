@@ -2,10 +2,6 @@ DESCRIPTION = "CTDB is a cluster implementation of the TDB database \
 used by Samba and other projects to store temporary data. If an \
 application is already using TDB for temporary data it is very easy \
 to convert that application to be cluster aware and use CTDB instead."
-DESCRIPTION = "CTDB is a cluster implementation of the TDB database \
-used by Samba and other projects to store temporary data. If an \
-application is already using TDB for temporary data it is very easy \
-to convert that application to be cluster aware and use CTDB instead."
 HOMEPAGE = "https://ctdb.samba.org/"
 LICENSE = "GPL-2.0+ & LGPL-3.0+ & GPL-3.0+"
 
@@ -32,6 +28,9 @@ PARALLEL_MAKE = ""
 
 DEPENDS += "popt libtevent libtalloc libldb"
 
+# ctdbd_wrapper requires pgrep, hence procps
+RDEPENDS_${PN} += "procps"
+
 do_configure() {
     oe_runconf
 }
@@ -45,6 +44,10 @@ do_install_append() {
     rm -r ${D}/${localstatedir}/run
 }
 
+# The systemd service is disabled by default, as the service will fail to
+# start without /etc/ctdb/nodes. If the user supplies this, they can re-enable
+# the service.
+SYSTEMD_AUTO_ENABLE = "disable"
 SYSTEMD_SERVICE_${PN} = "ctdb.service"
 
 # onnode is a shell script with bashisms and bash #!

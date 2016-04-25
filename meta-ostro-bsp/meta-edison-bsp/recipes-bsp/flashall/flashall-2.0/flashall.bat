@@ -18,6 +18,8 @@ set VARIANT_NAME_DEFAULT=edison-defaultrndis
 set VARIANT_NAME_BLANK=edison-blankrndis
 set VARIANT_NAME=%VARIANT_NAME_BLANK%
 
+set IMAGE_NAME=
+
 set LOG_FILENAME=flash.log
 set /a verbose_output=0
 :: ********************************************************************
@@ -37,10 +39,13 @@ if -%1- == -/?- set /a show_help=1
 if -%1- == --h- set /a show_help=1
 if -%1- == ---help- set /a show_help=1
 if -%1- == --v- set /a verbose_output=1
+if -%1- == --i- set IMAGE_NAME=%2
 set /a argcount+= 1
 shift
 goto :parse_arg_start
 :parse_arg_end
+
+if -%IMAGE_NAME%-==-- set show_help=1
 
 :: handle help on cmd arg
 if %show_help% == 1 (
@@ -136,15 +141,15 @@ if %errorlevel% neq 0 ( exit /b %errorlevel%)
 
 
 echo Flashing boot partition ^(kernel^)
-call:flash-command --alt boot -D "%BASE_DIR%edison-image-edison.hddimg"
+call:flash-command --alt boot -D "%BASE_DIR%\%IMAGE_NAME%-edison.hddimg"
 if %errorlevel% neq 0 ( exit /b %errorlevel%)
 
 echo Flashing update partition
-call:flash-command --alt update -D "%BASE_DIR%edison-image-edison.update.hddimg"
+call:flash-command --alt update -D "%BASE_DIR%\%IMAGE_NAME%-edison.update.hddimg"
 if %errorlevel% neq 0 ( exit /b %errorlevel%)
 
 echo Flashing rootfs, ^(it can take up to 5 minutes... Please be patient^)
-call:flash-command --alt rootfs -D "%BASE_DIR%edison-image-edison.ext4" -R
+call:flash-command --alt rootfs -D "%BASE_DIR%\%IMAGE_NAME%-edison.ext4" -R
 if %errorlevel% neq 0 ( exit /b %errorlevel% )
 
 echo Rebooting
@@ -167,6 +172,7 @@ exit /b 0
 	echo  --recovery    recover the board to DFU mode using a dedicated tool,
 	echo                available only on linux and window hosts.
 	echo  --keep-data   preserve user data when flashing.
+	echo  -i imagename  flash image with image name "imagename"
 	exit /b 5
 
 :flash-dfu-ifwi

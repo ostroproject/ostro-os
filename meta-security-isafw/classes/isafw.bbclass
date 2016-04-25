@@ -38,16 +38,6 @@ python do_analysesource() {
         # Recipe didn't fetch any sources, nothing to do here I assume?
         return
 
-    # Unpack the sources again, because we need the pristine sources
-    # (we could do this after do_unpack instead and save some time, but that
-    # would necessitate having a way of restoring the results of the scan
-    # from sstate as well)
-
-    fetch = bb.fetch2.Fetch([], d)
-    for url in fetch.urls:
-        workdir = d.getVar('ISAFW_WORKDIR', True)
-        fetch.unpack(workdir, (url,))
-
     recipe = isafw.ISA_package()
     recipe.name = d.getVar('BPN', True)
     recipe.version = d.getVar('PV', True)
@@ -78,24 +68,20 @@ python do_analysesource() {
         faliases = list(set(faliases))
         recipe.aliases = faliases
 
-    recipe.path_to_sources = workdir
-
     for patch in src_patches(d):
         _,_,local,_,_,_=bb.fetch.decodeurl(patch)
         recipe.patch_files.append(os.path.basename(local))
     if (not recipe.patch_files) :
         recipe.patch_files.append("None")
+
     # Pass the recipe object to the security framework
-
-    bb.debug(1, '%s: analyse sources in %s' % (d.getVar('PN', True), workdir))
+    bb.debug(1, '%s: analyse sources' % (d.getVar('PN', True)))
     imageSecurityAnalyser.process_package(recipe)
-
-    # If we're unpacking our own sources we might want to discard them at this point
 
     return
 }
 
-addtask do_analysesource after do_unpack before do_build
+addtask do_analysesource before do_build
 
 # This task intended to be called after default task to process reports
 

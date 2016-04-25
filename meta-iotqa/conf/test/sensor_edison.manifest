@@ -1,0 +1,10 @@
+oeqa.runtime.sensor.test_gyro_l3g4200
+oeqa.runtime.sensor.test_gyro_lsm330dlc
+oeqa.runtime.sensor.test_gyro_mpu6050
+oeqa.runtime.sensor.test_gyro_mpu9250
+oeqa.runtime.sensor.test_light_tsl2561
+oeqa.runtime.sensor.test_light_vcnl4000
+oeqa.runtime.sensor.test_magnet_ak8975
+oeqa.runtime.sensor.test_magnet_hmc5883
+oeqa.runtime.sensor.test_magnet_lsm303
+oeqa.runtime.sensor.test_adc_ads7955
