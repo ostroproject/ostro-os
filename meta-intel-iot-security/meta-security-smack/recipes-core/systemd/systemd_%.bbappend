@@ -18,7 +18,6 @@ SYSTEMD_SMACK_PATCHES_216 = " \
 file://0003-tizen-smack-Handling-of-run-and-sys-fs-cgroup-v216.patch \
 file://0004-tizen-smack-Handling-of-dev-v216.patch \
 file://0005-tizen-smack-Handling-network-v216.patch \
-file://0006-tizen-smack-Tuning-user-.service.m4.in-v216.patch \
 file://0007-tizen-smack-Runs-systemd-journald-with-v216.patch \
 "
 
@@ -26,25 +25,17 @@ SYSTEMD_SMACK_PATCHES_219 = " \
 file://0003-tizen-smack-Handling-of-run-and-sys-fs-cgroup.patch \
 file://0004-tizen-smack-Handling-of-dev.patch \
 file://0005-tizen-smack-Handling-network.patch \
-file://0006-tizen-smack-Tuning-user-.service.m4.in.patch \
 file://0007-tizen-smack-Runs-systemd-journald-with.patch \
 "
 SYSTEMD_SMACK_PATCHES_225 = " \
 file://0003-tizen-smack-Handling-of-run-and-sys-fs-cgroup.patch \
 file://0004-tizen-smack-Handling-of-dev.patch \
 file://0005-tizen-smack-Handling-network-v225.patch \
-file://0006-tizen-smack-Tuning-user-.service.m4.in.patch \
 file://0007-tizen-smack-Runs-systemd-journald-with.patch \
 "
 
-# TODO: 0006-tizen-smack-Tuning-user-.service.m4.in.patch must be re-evaluated
-# in combination with user session handling via PAM (should set SmackProcessLabel=User),
-# D-Bus 1.10 per-user sessions (should set DBUS_SESSION_BUS_ADDRESS, currently
-# pending for merging into OE-core master). Capability handling probably belongs into
-# some application framework layer, it is not specific to core Smack support.
 SYSTEMD_SMACK_PATCHES_228 = " \
 file://0005-tizen-smack-Handling-network-v228.patch \
-file://0006-tizen-smack-Tuning-user-.service.m4.in.patch \
 file://mount-setup.c-fix-handling-of-symlink-Smack-labellin-v228.patch \
 "
 
@@ -90,7 +81,8 @@ EOF
     # for this purpose. The journal daemon is the only part of the
     # System domain that needs read access to the User domain. Giving
     # the journal daemon the hat label means that we can remove the
-    # System domain's read access to the User domain.
+    # System domain's read access to the User domain and we can avoid
+    # hard-coding a specific label name for that domain.
     #
     # Original author: Casey Schaufler <casey@schaufler-ca.com>
     #

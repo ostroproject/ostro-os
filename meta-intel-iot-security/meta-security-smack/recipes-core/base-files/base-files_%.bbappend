@@ -9,19 +9,11 @@ System System::Log rwxa--
 System System::Run rwxat-
 System System::Shared rwxat-
 System ^ rwxa--
-System User rwx---
 _ System::Run rwxat-
 _ System -wx---
 ^ System::Log rwxa--
 ^ System::Run rwxat-
 ^ System rwxa--
-User _ -----l
-User User::App:Shared rwxat-
-User User::Home rwxat-
-User System::Log rwxa--
-User System::Run rwxat-
-User System::Shared r-x---
-User System -wx---
 EOF
 }
 
@@ -60,8 +52,4 @@ pkg_postinst_${PN}_smack() {
     # <filesystem path="/var/tmp" label="*" />
     # These are in a file system mounted by systemd. We patch the systemd service
     # to set these attributes.
-
-    # From https://review.tizen.org/git/?p=platform/core/appfw/tizen-platform-config.git;a=blob;f=packaging/tizen-platform-config.spec
-    find $D${sysconfdir}/skel | xargs chsmack -a User
-    chsmack -a User::Home $D${sysconfdir}/skel
 }

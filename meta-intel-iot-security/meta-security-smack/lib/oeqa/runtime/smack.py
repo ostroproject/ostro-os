@@ -562,18 +562,27 @@ class SmackFileLabels(SmackBasicTest):
     def test_smack_labels(self):
         '''Check for correct Smack labels.'''
         expected = '''
-/tmp access="*"
-/etc access="System::Shared" transmute="TRUE"
+/tmp/ access="*"
+/etc/ access="System::Shared" transmute="TRUE"
 /etc/passwd access="System::Shared"
 /etc/terminfo access="System::Shared" transmute="TRUE"
-/etc/skel access="User::Home"
-/etc/skel/.profile access="User"
-/var/log access="System::Log" transmute="TRUE"
-/var/tmp access="*"
+/etc/skel/ access="System::Shared" transmute="TRUE"
+/etc/skel/.profile access="System::Shared"
+/var/log/ access="System::Log" transmute="TRUE"
+/var/tmp/ access="*"
 '''
-        (status, output) = self.target.run(
-            'chsmack -L ' +
-            ' '.join([x.split()[0] for x in expected.split('\n') if x]))
+        files = ' '.join([x.split()[0] for x in expected.split('\n') if x])
+        files_wildcard = ' '.join([x + '/*' for x in files.split()])
+        # Auxiliary information.
+        status, output = self.target.run(
+            'set -x; mount; ls -l -d %s; find %s | xargs ls -d -l; find %s | xargs chsmack' % (
+                ' '.join([x.rstrip('/') for x in files.split()]), files, files
+            )
+        )
+        msg = "File status:\n" + output
+        status, output = self.target.run('chsmack %s' % files)
         self.assertEqual(
-            status, 0, msg="status and output: %s and %s" %(status,output))
-        self.assertEqual(output.strip(), expected.strip())
+            status, 0, msg="status and output: %s and %s\n%s" % (status,output, msg))
+        self.longMessage = True
+        self.maxDiff = None
+        self.assertEqual(output.strip().split('\n'), expected.strip().split('\n'), msg=msg)
