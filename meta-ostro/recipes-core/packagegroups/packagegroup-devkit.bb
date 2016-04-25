@@ -4,9 +4,7 @@ LICENSE = "MIT"
 inherit packagegroup
 
 RDEPENDS_${PN} = " \
-    hid-api \
     linuxptp \
     mraa \
-    tempered \
     upm \
 "
