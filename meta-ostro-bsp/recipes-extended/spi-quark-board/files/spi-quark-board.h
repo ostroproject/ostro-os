@@ -3,6 +3,8 @@
 
 #include <linux/platform_device.h>
 #include <linux/module.h>
+#include <linux/interrupt.h>
+#include <linux/irq.h>
 #include <linux/spi/spi.h>
 #include <linux/gpio.h>
 #include <linux/spi/pxa2xx_spi.h>

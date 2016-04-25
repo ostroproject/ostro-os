@@ -42,8 +42,10 @@ static int __init galileo_module_init(void)
 	if (!dev)
 		goto out;
 
-	if (spi_irq)
+	if (spi_irq) {
 		dev->irq = gpio_to_irq(spi_irq);
+		irq_set_irq_type(dev->irq, IRQF_TRIGGER_RISING);
+	}
 
 	pr_info("802.15.4 chip registered\n");
 	err = 0;
