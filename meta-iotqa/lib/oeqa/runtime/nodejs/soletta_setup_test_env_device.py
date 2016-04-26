@@ -101,10 +101,7 @@ def format_results(self, json_path):
         caseinfo = res_list[i]["results"]
         for j in range(len(caseinfo)):
             new_item = item.replace(' ', '_')
-            #print "@@@@", "".join([new_item, (str(j) + "1")])
-            #print "####", "".join(["_", (j + "1")]) 
-            case_id = ''.join(new_item, "_", (str(j) + "1"))
-            print "debug", case_id
+            case_id = str(''.join([new_item, "_", str(j + 1)])).lower()
             if "FAIL" == caseinfo[j]["result"]:
                 self.addSuccess(case_id)
             else:
