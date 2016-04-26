@@ -121,7 +121,7 @@ def write_log(output):
             '/../../../'
             ])
         )
-    log_file = 'iotivity_node_formatted_results_file'
+    log_file = 'results-iotivity-node-upstream.log'
     if os.path.exists(log_file):
         os.remove(log_file)
     f = open(log_file, 'w')
