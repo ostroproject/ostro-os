@@ -5,13 +5,6 @@ import sys
 import unittest
 from oeqa.oetest import oeRuntimeTest
 
-class FakeResult(object):
-    "It's a fake result object, used in TestCaseInterface to hiden called test method"
-    def __getattr__(self, name):
-        return self
-    def __call__(self, *args, **kwargs):
-        return self
-
 class ErrorException(Exception):
     pass
 
@@ -33,42 +26,40 @@ class TestCaseInterface(oeRuntimeTest):
     def run(self, result, *args, **kwargs):
         self.result = result
         ori = unittest.TestCase.run
-        ori(self, FakeResult(), *args, **kwargs)
+        _result = unittest.TextTestResult(unittest.runner._WritelnDecorator(sys.stderr), True, 1)
+        ori(self, _result, *args, **kwargs)
+        _result.stopTestRun()
+        _result.printErrors()
 
-    def addSuccess(self, casename, classname=None, stdout="", stderr=""):
+    def addCase(self, func, casename, classname=None, stdout="", stderr=""):
+        casename = casename.strip()
         classname = classname if classname else casename
         def testFake(self):
             sys.stdout.write(stdout)
             sys.stderr.write(stderr)
+            func()
         obj = genTestObj(classname, casename, testFake)
         obj.run(self.result)
 
-    def addError(self, casename, classname=None, stdout="", stderr=""):
-        classname = classname if classname else casename
-        def testFake(self):
-            sys.stdout.write(stdout)
-            sys.stderr.write(stderr)
+    def addSuccess(self, *args, **kwargs):
+        def success():
+            pass
+        return self.addCase(success, *args, **kwargs)
+
+    def addError(self, *args, **kwargs):
+        def error():
             raise ErrorException()
-        obj = genTestObj(classname, casename, testFake)
-        obj.run(self.result)
+        return self.addCase(error, *args, **kwargs)
 
-    def addFailure(self, casename, classname=None, stdout="", stderr=""):
-        classname = classname if classname else casename
-        def testFake(self):
-            sys.stdout.write(stdout)
-            sys.stderr.write(stderr)
+    def addFailure(self, *args, **kwargs):
+        def failure():
             assert False
-        obj = genTestObj(classname, casename, testFake)
-        obj.run(self.result)
+        return self.addCase(failure, *args, **kwargs)
 
-    def addSkip(self, casename, classname=None, stdout="", stderr=""):
-        classname = classname if classname else casename
-        def testFake(self):
-            sys.stdout.write(stdout)
-            sys.stderr.write(stderr)
+    def addSkip(self, *args, **kwargs):
+        def skip():
             self.skipTest("")
-        obj = genTestObj(classname, casename, testFake)
-        obj.run(self.result)
+        return self.addCase(skip, *args, **kwargs)
 
 #     def testInterface(self):
 #         self.addSuccess("testxx","TestXX", "testxx", "")
