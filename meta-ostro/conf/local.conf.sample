@@ -145,7 +145,7 @@ PACKAGE_CLASSES ?= "package_ipk"
 # to the ostro-initramfs image which is most likely not the desired outcome.
 #
 # To use this variable, uncomment the following line and set it to what you want:
-# OSTRO_EXTRA_IMAGE_FEATURES = "dev-pkgs tools-sdk debug-tweaks"
+#OSTRO_EXTRA_IMAGE_FEATURES = "dev-pkgs tools-sdk debug-tweaks"
 
 # By default, the root account has no password set and thus cannot
 # be logged into from outside. Local root access can be enabled
@@ -156,7 +156,7 @@ PACKAGE_CLASSES ?= "package_ipk"
 # as part of image creation, by setting OSTRO_ROOT_AUTHORIZED_KEYS
 # in local.conf. Its content will be installed as ~root/.ssh/authorized_keys.
 #
-# OSTRO_ROOT_AUTHORIZED_KEYS = "ssh-rsa AAA...== john@example.com\nssh-dss AA...FPaQ== joan@example.com"
+#OSTRO_ROOT_AUTHORIZED_KEYS = "ssh-rsa AAA...== john@example.com\nssh-dss AA...FPaQ== joan@example.com"
 
 # When using ssh to access such a developer image, ssh will typically
 # complain about the ssh host key because it gets re-created anew on
@@ -174,8 +174,8 @@ PACKAGE_CLASSES ?= "package_ipk"
 # ROOTFS_DEBUG_FILES entry will be silently ignored, so it is okay to set
 # this in local.conf before placing the file there.
 #
-# INHERIT += "rootfsdebugfiles"
-# ROOTFS_DEBUG_FILES += "${TOPDIR}/conf/dropbear_rsa_host_key ${IMAGE_ROOTFS}/etc/dropbear/dropbear_rsa_host_key ;"
+#INHERIT += "rootfsdebugfiles"
+#ROOTFS_DEBUG_FILES += "${TOPDIR}/conf/dropbear_rsa_host_key ${IMAGE_ROOTFS}/etc/dropbear/dropbear_rsa_host_key ;"
 
 #
 # Additional image features
@@ -271,17 +271,17 @@ CONF_VERSION = "2"
 # following line. Do not do this in production! The resulting images
 # are not secure.
 #
-# require conf/distro/include/ostro-os-development.inc
+#require conf/distro/include/ostro-os-development.inc
 
 # When building production images, configure IMA signing
 # as described in meta-integrity/README.md if IMA is enabled
 # and uncomment the following line.
 #
-# require conf/distro/include/ostro-os-production.inc
+#require conf/distro/include/ostro-os-production.inc
 
 #
 # Misc configuration
 #
 # Remove the old image from the deploy directory before the new
 # one gets created. This is useful to save disk space.
-# RM_OLD_IMAGE = "1"
+#RM_OLD_IMAGE = "1"
