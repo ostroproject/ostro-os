@@ -37,11 +37,9 @@ python swupdbundle_virtclass_handler () {
     e.data.setVar("BUNDLE_NAME", bundle)
     # -dev bundles enable the dev-pkgs image feature for the bundle they are derived from,
     # i.e. they have the same content of the base but also the development files.
-    if bundle.endswith('-dev'):
-        basebundle = bundle[0:-len('-dev')]
-        d.appendVar('IMAGE_FEATURES', ' dev-pkgs')
-    else:
-        basebundle = bundle
+    features = d.getVarFlag("BUNDLE_FEATURES", bundle, True) or ""
+    if features:
+        d.appendVar('IMAGE_FEATURES', ' ' + features)
 
     # Not producing any real images, only the rootfs directory.
     e.data.setVar("IMAGE_FSTYPES", "")
@@ -56,24 +54,21 @@ python swupdbundle_virtclass_handler () {
         if contents:
             return contents.split()
         else:
-            bb.fatal('%s/%s: BUNDLE_CONTENTS[%s] is not set, this should list the packages to be included in the bundle.' % (basebundle, bundle, bndl))
+            bb.fatal('%s/%s: BUNDLE_CONTENTS[%s] is not set, this should list the packages to be included in the bundle.' % (bundle, bundle, bndl))
 
     if bundle == 'mega':
         bundles = (e.data.getVar('SWUPD_BUNDLES', True) or "").split()
-        # If any of our bundles contains development files, we also need
+        # If any of our bundles uses special features, we also need
         # to enable that for the mega image.
-        dodev = False
+        features = set()
         for bndl in bundles:
-            if bndl.endswith('-dev'):
-                basebndl = bndl[0:-len('-dev')]
-                dodev = True
-            else:
-                basebndl = bndl
-            curr_install += get_bundle_contents(basebndl)
-        if dodev:
-            d.appendVar('IMAGE_FEATURES', ' dev-pkgs')
+            newfeatures = (d.getVarFlag("BUNDLE_FEATURES", bundle, True) or "").split()
+            curr_install += get_bundle_contents(bndl)
+            features.update(newfeatures)
+        if features:
+            d.appendVar('IMAGE_FEATURES', ' ' + ' '.join(features))
     else:
-        curr_install += get_bundle_contents(basebundle)
+        curr_install += get_bundle_contents(bundle)
 
     e.data.setVar('IMAGE_INSTALL', ' '.join(curr_install))
 }
