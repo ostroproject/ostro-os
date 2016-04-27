@@ -145,7 +145,7 @@ class CommWiFiConect(oeRuntimeTest):
         @param self
         @return
         '''
-        ap_type = "hidden"
+        ap_type = "hidden-wep"
         ssid = ssid_config.get("Connect","ssid_wep")
         pwd = ssid_config.get("Connect","passwd_wep")
 

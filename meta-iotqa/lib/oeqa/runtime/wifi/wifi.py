@@ -69,6 +69,8 @@ class WiFiFunction(object):
         """
         if (ap_type == "hidden"):
             ssid = "hidden_managed_psk"
+        elif (ap_type == "hidden-wep"):
+            ssid = "hidden_managed_wep"
         # Retry 4 times scan if needed
         retry = 0
         while (retry < 4):
@@ -84,7 +86,7 @@ class WiFiFunction(object):
         self.target_collect_info("ifconfig")
         assert status == 0, "Not found hidden AP service" + self.log
 
-        if (ap_type == "hidden"):
+        if "hidden" in ap_type:
             return output.strip()
         elif (ap_type == "broadcast"):
             return output.split(" ")[-1]
@@ -101,7 +103,7 @@ class WiFiFunction(object):
         if (ap_type == "broadcast"):
             exp = os.path.join(os.path.dirname(__file__), "files/wifi_connect.exp")
             cmd = "expect %s %s %s %s %s" % (exp, target_ip, "connmanctl", service, pwd)
-        elif (ap_type == "hidden"):
+        elif "hidden" in ap_type:
             exp = os.path.join(os.path.dirname(__file__), "files/wifi_hidden_connect.exp")
             cmd = "expect %s %s %s %s %s %s" % (exp, target_ip, "connmanctl", service, ssid, pwd)
         else:

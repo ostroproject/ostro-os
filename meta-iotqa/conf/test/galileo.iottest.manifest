@@ -10,6 +10,6 @@ oeqa.runtime.sanity.iotivity.IOtvtClient.test_iotvt_findresource
 oeqa.runtime.sanity.iotivity.IOtvtClient.test_iotvt_getstate
 oeqa.runtime.sanity.iotivity.IOtvtClient.test_iotvt_observer
 oeqa.runtime.sanity.iotivity.IOtvtClient.test_iotvt_setstate
-oeqa.runtime.sanity.comm_wifi_connect_7260
+oeqa.runtime.sanity.comm_wifi_connect
 oeqa.runtime.sanity.apprt_iotivity_node
 oeqa.runtime.sanity.apprt_restapi
