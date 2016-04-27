@@ -239,6 +239,7 @@ class BTFunction(object):
         # ssh root@<ipv6 address>%bt0
         ssh_key = os.path.join(os.path.dirname(__file__), "files/ostro_qa_rsa")
         self.target.copy_to(ssh_key, "/tmp/")        
+        self.target.run("chmod 400 /tmp/ostro_qa_rsa")        
 
         exp = os.path.join(os.path.dirname(__file__), "files/target_ssh.exp")
         exp_cmd = 'expect %s %s %s' % (exp, self.target.ip, ipv6)

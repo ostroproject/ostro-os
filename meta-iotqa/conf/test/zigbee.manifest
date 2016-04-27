@@ -1,3 +1,4 @@
 #this is only for Galileo and MinnowMax
 oeqa.runtime.zigbee.comm_zigbee_basic
 oeqa.runtime.zigbee.comm_zigbee_mnode
+oeqa.runtime.zigbee.comm_zigbee_cc2520
