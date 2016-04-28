@@ -97,7 +97,7 @@ echo "Check image manifest file to ensure the components are not built-in"
 TC_RESULT="PASS"
 for comp in ${COMPONENT_LIST[@]}; do
     echo "===  check $comp ==="
-    cat "$1" | grep -w "$comp"
+    cat "$1" | grep "$comp"
     [ $? -eq 0 ] && TC_RESULT="FAIL?" &&  echo "found suspected GPL/Less GPL/Affero GPL v3.0 component, need manual check"
 done
 echo "TEST_$TC_RESULT"
