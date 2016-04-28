@@ -108,8 +108,14 @@ Here are guidelines for the review process that you and the maintainers will fol
      * Layer Maintainers should respond to a PR within two business days. 
      * If no discussion has occurred within this timeframe, maintainers are responsible for contacting the PR
        submitter and other developers to request feedback, or close the pull request.
+     * Layer maintainers can merge their own PRs after others have reviewed it and there is consensus
+       to go ahead with merging, or no-one has objected against it during two business days and the PR
+       is simple enough that reviews are not necessary (use common sense).
 
 Please feel free to make comments on this code review process to the `Ostro-dev mailing list`_ mailing list.
+
+To assist submitters and reviewers with handling PRs consistently and catch common (and not so common)
+mistakes, there are additional notes in :ref:`pull-request-guidelines`.
 
 Bug and Feature Request Tracking Process
 ========================================
