@@ -11,6 +11,7 @@ inherit packagegroup
 RDEPENDS_${PN} = " \
     atop \
     bzip2 \
+    connman-client \
     curl \
     gawk \
     gzip \
@@ -24,10 +25,10 @@ RDEPENDS_${PN} = " \
     iputils-tracepath \
     iputils-tracepath6 \
     iputils-traceroute6 \
+    lowpan-tools \
     pciutils \
     procps \
     rsync \
-    traceroute \
     usbutils \
     vim \
     wget \

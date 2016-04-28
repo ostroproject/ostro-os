@@ -33,8 +33,6 @@ SWUPD_LOG_FN ??= "bbdebug 1"
 OS_VERSION ??= "${DISTRO_VERSION}"
 
 IMAGE_INSTALL_append = " swupd-client os-release"
-# We need full-fat versions of these for swupd (at least as of 2.87)
-IMAGE_INSTALL_append = " gzip bzip2 tar xz"
 
 # We need to preserve xattrs which is only supported by GNU tar >= 1.27
 # to be sure this functionality works as expected use the tar-replacement-native
@@ -519,6 +517,7 @@ END
 SWUPDDEPENDS = "\
     virtual/fakeroot-native:do_populate_sysroot \
     rsync-native:do_populate_sysroot \
+    bsdiff-native:do_populate_sysroot \
     swupd-server-native:do_populate_sysroot \
 "
 addtask swupd_update after do_image_complete after do_copy_bundle_contents after do_prune_bundle before do_build
