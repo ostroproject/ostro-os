@@ -5,7 +5,10 @@ LINUX_VERSION_corei7-64-intel-common = "4.4.3"
 SRCREV_machine_corei7-64-intel-common = "076cc85486fda808582bd1e77400a5c49dea3e2e"
 
 ### linux-stable/linux-4.4.y backports
-
+SRC_URI_append_intel-edison = " file://0001-USB-usbip-fix-potential-out-of-bounds-write.patch"
+SRC_URI_append_intel-quark = " file://0001-USB-usbip-fix-potential-out-of-bounds-write.patch"
+SRC_URI_append_intel-core2-32 = " file://0001-USB-usbip-fix-potential-out-of-bounds-write.patch"
+SRC_URI_append_intel-corei7-64 = " file://0001-USB-usbip-fix-potential-out-of-bounds-write.patch"
 
 ### Config "fix" fragments
 
