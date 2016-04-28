@@ -4,7 +4,7 @@ set login 0
 set ip4      [lindex $argv 0]
 set ip6      [lindex $argv 1]
 
-spawn ssh root@$ip4 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR ssh root@$ip6%bt0 -i /tmp/ostro_qa_rsa ls /
+spawn ssh root@$ip4 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR
  expect {
  "yes/no"
    {
@@ -13,6 +13,11 @@ spawn ssh root@$ip4 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no 
  "home"
    {
     sleep 1; send "exit\n"; exit 2
+   }
+ "#"
+   {
+    sleep 1;
+    if {$login==0} {set login 1; send "ssh root@$ip6%bt0 -i /tmp/ostro_qa_rsa ls /\n"; exp_continue} else {exp_continue}
    }
  eof
    {}

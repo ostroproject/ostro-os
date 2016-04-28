@@ -1,9 +1,10 @@
 #!/usr/bin/expect
 set timeout 60
+set condition  0
 set first      [lindex $argv 0]
 set second     [lindex $argv 1]
 
-spawn ssh root@$first -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR ssh root@$second -i /tmp/ostro_qa_rsa ls /
+spawn ssh root@$first -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR
  expect {
  "yes/no"
    {
@@ -12,6 +13,11 @@ spawn ssh root@$first -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=n
  "home"
    {
     sleep 1; send "exit\n"; exit 2
+   }
+ "#"
+   {
+    sleep 1;
+    if {$condition==0} {set condition 1; send "ssh -i /tmp/ostro_qa_rsa root@$second ls /\n"; exp_continue} else {exp_continue}
    }
  eof
    {}

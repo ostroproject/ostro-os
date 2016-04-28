@@ -199,6 +199,7 @@ class WiFiFunction(object):
         '''
         ssh_key = os.path.join(os.path.dirname(__file__), "../bluetooth/files/ostro_qa_rsa")
         self.target.copy_to(ssh_key, "/tmp/")
+        self.target.run("chmod 400 /tmp/ostro_qa_rsa")
 
         exp = os.path.join(os.path.dirname(__file__), "files/ssh_to.exp")
         exp_cmd = 'expect %s %s %s' % (exp, self.target.ip, ipv4)
