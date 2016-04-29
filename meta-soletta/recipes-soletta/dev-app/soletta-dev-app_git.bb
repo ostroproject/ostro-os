@@ -2,11 +2,11 @@ DESCRIPTION = "Soletta Development Application"
 RDEPENDS_${PN} = "soletta nodejs systemd graphviz libmicrohttpd avahi-daemon bash git"
 LICENSE = "Apache-2.0"
 
-PV = "1_beta8"
+PV = "1_beta9"
 
 LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=93888867ace35ffec2c845ea90b2e16b"
-SRC_URI[md5sum] = "557e80c99ac34d1c55dcb18423a1c308"
-SRC_URI[sha256sum] = "141a3e6df771d64fcb46c41489837b938995c4d0b7997e384232cc7d11303fbf"
+SRC_URI[md5sum] = "33f2eba375ec72f8eb7a39d32e3acb1a"
+SRC_URI[sha256sum] = "f225d43265a474a97c22c237c30237fb3a4e01a272538a32379b2fc4e62413f0"
 SRC_URI = "https://github.com/solettaproject/soletta-dev-app/releases/download/v${PV}/soletta-dev-app_standalone_v${PV}.tar.gz;protocol=archive \
            file://soletta-dev-app.service \
            file://soletta-dev-app-mac.sh \
