@@ -1,1 +1,3 @@
 oeqa.runtime.wifi.comm_wifi_connect
+oeqa.runtime.wifi.comm_wifi_mnode.CommWiFiMNode.test_wifi_ssh
+oeqa.runtime.wifi.comm_wifi_mnode.CommWiFiMNode.test_wifi_scp_file

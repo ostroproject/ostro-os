@@ -138,8 +138,6 @@ def write_tc_result(tc_result, tc):
         tc.append('PASSED')
     elif 'FAIL' in tc_result or 'fail' in tc_result:
         tc.append('FAILED')
-    elif 'skipped' in tc_result or 'SKIPPED' in tc_result:
-        tc.append('SKIPPED')
     elif 'ERROR' in tc_result or 'error' in tc_result:
         tc.append('ERROR')
     else:

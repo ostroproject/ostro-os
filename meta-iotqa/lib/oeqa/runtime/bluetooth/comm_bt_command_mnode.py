@@ -1,5 +1,5 @@
 """
-@file comm_bt_command.py
+@file comm_bt_command_mnode.py
 """
 
 ##
@@ -21,9 +21,9 @@ from oeqa.utils.helper import get_files_dir
 from oeqa.utils.decorators import tag
 
 @tag(TestType="FVT")
-class CommBTTest(oeRuntimeTest):
+class CommBTTestMNode(oeRuntimeTest):
     """
-    @class CommBTTest
+    @class CommBTTestMNode
     """
     @classmethod
     def setUpClass(cls):

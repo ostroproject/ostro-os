@@ -21,7 +21,7 @@ from oeqa.utils.decorators import tag
 @tag(TestType="EFT")
 class CommBT6LowPanMNode(oeRuntimeTest):
     """
-    @class CommBTTest
+    @class CommBT6LowPanMNode
     """
     def setUp(self):
         """

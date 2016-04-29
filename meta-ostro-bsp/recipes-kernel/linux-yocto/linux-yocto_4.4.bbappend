@@ -2,13 +2,13 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/linux-yocto:"
 
 # version overrides
 LINUX_VERSION_corei7-64-intel-common = "4.4.3"
-SRCREV_machine_corei7-64-intel-common = "1a72cec834de2c80b5563f8afbeea7664fd5ee05"
+SRCREV_machine_corei7-64-intel-common = "076cc85486fda808582bd1e77400a5c49dea3e2e"
 
 ### linux-stable/linux-4.4.y backports
-
-SRC_URI_append_intel-quark = " file://0001-sched-cgroup-Fix-cleanup-cgroup-teardown-init.patch"
-SRC_URI_append_intel-corei7-64 = " file://0001-sched-cgroup-Fix-cleanup-cgroup-teardown-init.patch"
-SRC_URI_append_intel-core2-32 = " file://0001-sched-cgroup-Fix-cleanup-cgroup-teardown-init.patch"
+SRC_URI_append_intel-edison = " file://0001-USB-usbip-fix-potential-out-of-bounds-write.patch"
+SRC_URI_append_intel-quark = " file://0001-USB-usbip-fix-potential-out-of-bounds-write.patch"
+SRC_URI_append_intel-core2-32 = " file://0001-USB-usbip-fix-potential-out-of-bounds-write.patch"
+SRC_URI_append_intel-corei7-64 = " file://0001-USB-usbip-fix-potential-out-of-bounds-write.patch"
 
 ### Config "fix" fragments
 
@@ -42,6 +42,11 @@ SRC_URI_append_intel-quark = " file://0001-iio-accel-add-Freescale-MMA7455L-MMA7
 SRC_URI_append_intel-corei7-64 = " file://0001-iio-st-accel-add-support-for-lis2dh12.patch"
 SRC_URI_append_intel-core2-32 = " file://0001-iio-st-accel-add-support-for-lis2dh12.patch"
 SRC_URI_append_intel-quark = " file://0001-iio-st-accel-add-support-for-lis2dh12.patch"
+
+# Add patch to fix incorrect device name of IIO device TMP006
+SRC_URI_append_intel-corei7-64 = " file://0001-iio-tmp006-Set-correct-iio-name.patch"
+SRC_URI_append_intel-core2-32 = " file://0001-iio-tmp006-Set-correct-iio-name.patch"
+SRC_URI_append_intel-quark = " file://0001-iio-tmp006-Set-correct-iio-name.patch"
 
 #  BeagleBone Black enable all I2Cs
 SRC_URI_append_beaglebone = " file://0001-v3.15.0-ARM-dts-am335x-boneblack-configure-i2c1-and-2.patch"
@@ -124,3 +129,6 @@ SRC_URI_append = " file://ecryptfs.cfg"
 # Backport ambient capabilities support
 SRC_URI_append_edison = " file://0001-edison-capabilities-ambient-capabilities.patch"
 SRC_URI_append_edison = " file://0002-edison-capabilities-add-a-securebit-to-disable-PR_CAP_AMBIE.patch"
+
+# Backport AK8975 iio device name support
+SRC_URI_append_edison = " file://0001-iio-ak8975-Add-device-name.patch"

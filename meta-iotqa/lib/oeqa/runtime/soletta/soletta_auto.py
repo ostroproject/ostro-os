@@ -23,7 +23,7 @@ from oeqa.utils.case_interface import *
 
 @tag(TestType="EFT")
 @tag(FeatureID="IOTOS-1467")
-@tag(CasesNumber=195)
+@tag(CasesNumber=198)
 class SolettaUpstreamTestCase(TestCaseInterface):
     """
     @class SolettaUpstreamTestCase

@@ -1,0 +1,33 @@
+From f7be643cc62860a986c9e0aec990c90bfc58a941 Mon Sep 17 00:00:00 2001
+From: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+Date: Fri, 1 Apr 2016 17:31:55 +0800
+Subject: [PATCH] dpdk: enable ip_fragmentation in common_base config
+
+Upstream-Status: Inappropriate [Configuration]
+
+This configuration need to set for ip_fragmentation application.
+
+Signed-off-by: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+---
+ config/common_base | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/config/common_base b/config/common_base
+index abd6a64..90259f0 100644
+--- a/config/common_base
++++ b/config/common_base
+@@ -442,6 +442,11 @@ CONFIG_RTE_LIBRTE_POWER_DEBUG=n
+ CONFIG_RTE_MAX_LCORE_FREQS=64
+ 
+ #
++# Compile ip_fragmentation
++#
++CONFIG_RTE_IP_FRAG=y
++
++#
+ # Compile librte_net
+ #
+ CONFIG_RTE_LIBRTE_NET=y
+-- 
+1.9.1
+

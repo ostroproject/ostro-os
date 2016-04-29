@@ -1,4 +1,7 @@
 oeqa.runtime.wifi.comm_wifi_stability
+oeqa.runtime.wifi.comm_wifi_mnode.CommWiFiMNode.test_wifi_scp_multiple_files
+oeqa.runtime.wifi.comm_wifi_mnode.CommWiFiMNode.test_wifi_scp_big_file
+oeqa.runtime.wifi.comm_wifi_mnode.CommWiFiMNode.test_wifi_avaliable_after_longtime_idle
 oeqa.runtime.bluetooth.comm_bt_stability
 oeqa.runtime.appfw.test_appfw_stability
 oeqa.runtime.sensor.test_light_tsl2561_4_hrs

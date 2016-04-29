@@ -1,5 +1,5 @@
 """
-@file comm_bt_command.py
+@file comm_bt_6lowpan.py
 """
 
 ##
@@ -19,9 +19,9 @@ from oeqa.utils.helper import shell_cmd_timeout
 from oeqa.utils.decorators import tag
 
 @tag(TestType="FVT")
-class CommBTTest(oeRuntimeTest):
+class CommBT6LowPAN(oeRuntimeTest):
     """
-    @class CommBTTest
+    @class CommBT6LowPAN
     """
     def setUp(self):
         """

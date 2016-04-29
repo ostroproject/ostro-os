@@ -22,6 +22,7 @@ Technical Notes
    certificate-handling
    firewall-configuration
    ip-address-config
+   pull-request-guidelines
 
 Process Notes
 =============
