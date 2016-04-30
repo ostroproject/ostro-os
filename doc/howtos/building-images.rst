@@ -277,8 +277,8 @@ Alternatively, ``CORE_IMAGE_EXTRA_INSTALL`` can also be used. The
 difference is that this will also affect the initramfs images, which is
 often not intended.
 
-The example ``ostro-image-swupd`` is defined such that its default
-content corresponds to ``ostro-image-noswupd``. It is possible to
+The example ``ostro-image-noswupd`` is defined such that its default
+content corresponds to ``ostro-image-swupd``. It is possible to
 reconfigure it so that it matches ``ostro-image-swupd-dev``::
 
     OSTRO_IMAGE_NOSWUPD_EXTRA_FEATURES_append = "${OSTRO_IMAGE_FEATURES_DEV}"
