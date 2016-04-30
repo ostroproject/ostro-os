@@ -60,6 +60,16 @@ BUNDLE_CONTENTS[world] = " \
     ${BUNDLE_CONTENTS_WORLD} \
 "
 
+# meta-swupd will switch from mapping "world-dev" to "world" +
+# ptest-pkgs. Instead it will expect us to provide the following
+# two variables. Already do that now to ease the transition:
+BUNDLE_CONTENTS[world-dev] = " \
+    ${BUNDLE_CONTENTS_WORLD} \
+"
+BUNDLE_FEATURES[world-dev] = " \
+    dev-pkgs \
+"
+
 # When swupd bundles are enabled, choose explicitly which images
 # are created. The base image will only have the core-os bundle.
 #

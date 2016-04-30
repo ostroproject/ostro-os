@@ -1,7 +1,7 @@
 .. _howtos:
 
-Ostro |trade| OS Project Notes
-################################
+Ostro |trade| OS Project How-Tos
+#################################
 
 Our technical documentation for the Ostro OS is being developed right along with the OS features.  
 Here are some how-to technical notes that help explain how you can use Ostro OS capabilities and 
@@ -23,6 +23,7 @@ Technical Notes
    firewall-configuration
    ip-address-config
    pull-request-guidelines
+   software-update-server
 
 Process Notes
 =============
