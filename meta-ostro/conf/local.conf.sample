@@ -122,7 +122,7 @@ PACKAGE_CLASSES ?= "package_ipk"
 #
 # Extra image configuration defaults
 #
-# The OSTRO_EXTRA_IMAGE_FEATURES variable allows extra packages to be added to the
+# The OSTRO_IMAGE_EXTRA_FEATURES variable allows extra packages to be added to the
 # generated images. The variable can contain the following options:
 #  "dbg-pkgs"       - add -dbg packages for all installed packages
 #                     (adds symbol information for debugging/profiling)
@@ -145,7 +145,7 @@ PACKAGE_CLASSES ?= "package_ipk"
 # to the ostro-initramfs image which is most likely not the desired outcome.
 #
 # To use this variable, uncomment the following line and set it to what you want:
-#OSTRO_EXTRA_IMAGE_FEATURES = "dev-pkgs tools-sdk debug-tweaks"
+#OSTRO_IMAGE_EXTRA_FEATURES = "dev-pkgs tools-sdk debug-tweaks"
 
 # By default, the root account has no password set and thus cannot
 # be logged into from outside. Local root access can be enabled
