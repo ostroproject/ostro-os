@@ -10,6 +10,7 @@ SRC_URI = " \
     git://git@github.com/ostroproject/iot-app-fw.git;protocol=https;branch=kli/devel/1.x-fixes \
     file://80-container-host0.network \
     file://80-container-ve.network \
+    file://appfw-packet-forward.conf \
   "
 
 SRCREV = "7610344d05199a35103e04a2f08cee50397db7da"
@@ -28,6 +29,7 @@ FILES_${PN} = "${base_libdir}/systemd/system-generators/iot-service-generator \
                ${libexecdir}/iot-app-fw \
                ${libdir}/systemd/network/80-container-host0.network \
                ${libdir}/systemd/network/80-container-ve.network \
+               ${libdir}/sysctl.d/appfw-packet-forward.conf \
 "
 
 FILES_${PN}-dbg =+ "${base_libdir}/systemd/system-generators/.debug"
@@ -40,4 +42,7 @@ do_install_append () {
     mkdir -p ${D}${libdir}/systemd/network
     cp ../80-container-host0.network ${D}${libdir}/systemd/network
     cp ../80-container-ve.network ${D}${libdir}/systemd/network
+    install -m 0755 -o root -g root -d ${D}${libdir}/sysctl.d && \
+    install -m 0644 -o root -g root -t ${D}${libdir}/sysctl.d \
+        ../appfw-packet-forward.conf
 }
