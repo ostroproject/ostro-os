@@ -243,15 +243,20 @@ The following instructions assume that swupd is not used.
 
 .. _`ostro-image.bbclass`: https://github.com/ostroproject/meta-ostro/blob/master/meta-ostro/classes/ostro-image.bbclass
 
-Installing Additional Packages (without swupd)
-----------------------------------------------
+Installing Additional Packages
+------------------------------
 
 An image derived from ``ostro-image.bbclass`` without additional
 configuration is minimal and establishes a core OS with components
 that must always be present on a device. All additional components beyond
 this minimal configuration must be added explicitly by setting
 ``OSTRO_IMAGE_EXTRA_FEATURES`` and/or ``OSTRO_IMAGE_EXTRA_INSTALL`` adding them
-to the image when building without swupd.  
+to the image. In the case you build an Ostro image with ``swupd`` enabled
+(e.g.:``ostro-image-swupd``) these additional packages get added by default to the
+``os-core`` bundle. For more information on how to define, add and modify bundles,
+please refer to these documents:
+- :ref:`software-update`
+- :ref:`software-update-server`
 
 The ``ostro-os`` repo contains many layers and recipes that are not enabled
 but are available for your use. You can see these by using the commands::
