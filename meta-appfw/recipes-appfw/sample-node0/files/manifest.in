@@ -1,21 +1,31 @@
 {
-    "application": "node0",
-    "description": "node0 - A dummy NodeJS application, running without a container.",
-    "provider": "test",
-    "groups": "test-node0",
-    "environment": {
-        "NODE0_FOO": "node0-foo",
-        "NODE0_BAR": "node0-bar",
+    'application': {
+        'origin':      'test',
+        'name':        'node0',
+        'description': 'node0 - dummy app running without containers.',
+        'install':     'echo "Nothing to be done for installing node0..."',
+        'remove':      'echo "Nothing to be done for removing node0..."',
     },
-    "command": [
-        "/usr/bin/node",
-        "@OSTRO_APP_ROOT@/lib/node_modules/node0/sample.js",
-        "2001",
-        "'test-node0 NodeJS sample application'",
-    ],
-    "autostart": "yes",
-    "container": {
-        "type":    "none",
-        "portmap": [ { "proto": "tcp", "host": 2001 } ],
+
+    'service': {
+        'groups': [ 'audio', 'cdrom', 'video' ],
+        'environment': {
+            'NODE0_FOO': 'node0-foo',
+            'NODE0_BAR': 'node0-bar',
+        },
+
+        'start': [
+            '/usr/bin/node @OSTRO_APP_ROOT@/lib/node_modules/node0/sample.js 2001 "test-node0 NodeJS dummy application"'
+        ],
+        'stop': '',
+
+        'autostart': true,
+    },
+
+    'container': {
+        'type': 'none',
+        'network': {
+            'ports': [ { 'proto': 'tcp', 'port': 2001 } ],
+        },
     },
 }

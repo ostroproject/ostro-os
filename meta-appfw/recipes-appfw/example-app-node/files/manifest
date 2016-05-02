@@ -1,17 +1,32 @@
 {
-    "application": "nodetest",
-    "description": "test node application to see if the infra worked",
-    "provider": "iodine",
-    "groups": "iodine-nodetest",
-    "environment": {
-        "FROB": "nicate",
-        "FOOBAR": "xyzzy"
+    'application': {
+        'origin':      'iodine',
+        'name':        'nodetest',
+        'description': 'nodetest - NodeJS dummy test applcation.',
+        'install':     'echo "Nothing to be done for installing..."',
+        'remove':      'echo "Nothing to be done for removing..."'
     },
-    "command": [  "/usr/bin/node", "/lib/node_modules/nodetest/example.js" ],
-    "autostart": "yes",
-    "container": {
-        "type": "nspawn",
-        "network": "VirtualEthernet",
-        "portmap": [ { "proto": "tcp", "host": 2000, "container": 12345 } ]
+
+    'service': {
+        'groups': [ 'iodine-nodetest' ],
+        'environment': {
+            'FROB': 'nicate',
+            'FOOBAR': 'xyzzy'
+        },
+
+        'start': [
+            '/usr/bin/node /lib/node_modules/nodetest/example.js'
+         ],
+        'stop': '',
+
+        'autostart': true
+    },
+
+    'container': {
+        'type': 'nspawn-app',
+        'network': {
+            'type': 'VirtualEthernet',
+            'ports': [ { 'proto': 'tcp', 'port': 12345, 'map': 2000 } ]
+        }
     }
 }

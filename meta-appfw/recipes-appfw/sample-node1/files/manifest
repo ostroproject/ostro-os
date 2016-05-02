@@ -1,22 +1,31 @@
 {
-    "application": "node1",
-    "description": "node1 - A dummy NodeJS application, running in a shared-system single-app container.",
-    "provider": "test",
-    "groups": "test-node1",
-    "environment": {
-        "NODE1_FOO": "node1-foo",
-        "NODE1_BAR": "node1-bar",
+    'application': {
+        'origin':      'test',
+        'name':        'node1',
+        'description': 'node1 - dummy app running in a shared container.',
+        'install':     'echo "Nothing to be done for installing node1..."',
+        'remove':      'echo "Nothing to be done for removing node1..."',
     },
-    "command": [
-        "/usr/bin/node",
-        "/lib/node_modules/node1/sample.js",
-        "23456",
-        "'test-node1 NodeJS sample application'",
-    ],
-    "autostart": "yes",
-    "container": {
-        "type":    "nspawn-shared",
-        "network": "VirtualEthernet",
-        "portmap": [ { "proto": "tcp", "host": 2002, "container": 23456 }, ],
+
+    'service': {
+        'groups': [ 'audio', 'cdrom', 'video' ],
+        'environment': {
+            'NODE1_FOO': 'node1-foo',
+            'NODE1_BAR': 'node1-bar',
+        },
+
+        'start': [
+            '/usr/bin/node /lib/node_modules/node1/sample.js 23457 "test-node1 NodeJS dummy application"' ],
+        'stop': '',
+
+        'autostart': true,
+    },
+
+    'container': {
+        'type': 'nspawn-shared',
+        'network': {
+            'type': 'VirtualEthernet',
+            'ports': [ { 'proto': 'tcp', 'port': 23457, 'map': 2002 } ],
+        },
     },
 }

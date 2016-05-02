@@ -1,22 +1,32 @@
 {
-    "application": "node2",
-    "description": "node2 - A dummy NodeJS application, running in a single-app container.",
-    "provider": "test",
-    "groups": "test-node2",
-    "environment": {
-        "NODE2_FOO": "node2-foo",
-        "NODE2_BAR": "node2-bar",
+    'application': {
+        'origin':      'test',
+        'name':        'node2',
+        'description': 'node2 - dummy app running in an app container.',
+        'install':     'echo "Nothing to be done for installing node2..."',
+        'remove':      'echo "Nothing to be done for removing node2..."',
     },
-    "command": [
-        "/usr/bin/node",
-        "/lib/node_modules/node2/sample.js",
-        "23456",
-        "'test-node2 NodeJS sample application'",
-        ],
-    "autostart": "yes",
-    "container": {
-        "type":    "nspawn",
-        "network": "VirtualEthernet",
-        "portmap": [ { "proto": "tcp", "host": 2003, "container": 23456 }, ],
+
+    'service': {
+        'groups': [ 'audio', 'cdrom', 'video' ],
+        'environment': {
+            'NODE2_FOO': 'node2-foo',
+            'NODE2_BAR': 'node2-bar',
+        },
+
+        'start': [
+            '/usr/bin/node /lib/node_modules/node2/sample.js 23458 "test-node2 NodeJS dummy application"',
+         ],
+        'stop': '',
+
+        'autostart': true,
+    },
+
+    'container': {
+        'type': 'nspawn-app',
+        'network': {
+            'type': 'VirtualEthernet',
+            'ports': [ { 'proto': 'tcp', 'port': 23458, 'map': 2003 } ],
+        },
     },
 }
