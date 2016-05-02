@@ -17,7 +17,7 @@ Preparing the Kernel Source Code
 ================================
 
 Assuming the repository where you have cloned the Ostro source code is called ``ostro-os`` 
-generate the initial image using these commands:::
+generate the initial image using these commands::
 
    cd ostro-os
    source oe-init-build-env
@@ -32,11 +32,11 @@ The source code is located in the Yocto `${WORKDIR}`_ which
 is: ``tmp-glibc/work/corei7-64-intel-common-iotos-linux/linux-yocto/<kernel-version>/linux-corei7-64-intel-common-standard-build/source``. 
 Make all the changes that you need, source code modifications including ``Kconfig`` and ``Makefile`` files if relevant.
 
-* If needed, modify the kernel configuration to enable your changes:::
+* If needed, modify the kernel configuration to enable your changes::
 
     bitbake linux-yocto -c menuconfig
 
-* Recompile the (modified) kernel::: 
+* Recompile the (modified) kernel:: 
 
     bitbake -f linux-yocto -c compile
 
@@ -44,14 +44,14 @@ Make all the changes that you need, source code modifications including ``Kconfi
   * Using the ``-f`` option forces the rebuild because :command:`bitbake` will not detect 
     changes you made in the Yocto `${WORKDIR}`_ and will think it has already successfully built the kernel.
 
-* Compile all drivers (modules)::: 
+* Compile all drivers (modules):: 
   
     bitbake -f linux-yocto -c compile_kernelmodules
 
 Generating an Image with all the Changes
 ========================================
 
-* To build a full image with this new kernel:::
+* To build a full image with this new kernel::
   
     bitbake ostro-image
 

@@ -249,7 +249,7 @@ Prepare your patch
 
 #. Create a repository on your local computer to your fork.  If you have ssh keys generated you can register your 
    public key on your GitHub account (SSH and GPG keys in your Personal Settings on Git Hub) to be authorized.  
-   Otherwise, you can clone with "https" and specify your GitHub username and password:::
+   Otherwise, you can clone with "https" and specify your GitHub username and password::
  
       $ git clone github.com:<your-username>/meta-ostro                # if you've registered your ssh key
       $ git clone https://github.com/<your-username>/meta-ostro.git    # if not use this (and your GitHub username/password)
@@ -261,7 +261,7 @@ Prepare your patch
 
       $ git remote -v        # verify origin (your fork) and remote (Ostro OS master) are defined as expected
 
-#. Create a new branch to work on your patch:::
+#. Create a new branch to work on your patch::
 
       $ git fetch upstream
       $ git checkout -b my-patched-branch upstream/master
@@ -277,19 +277,19 @@ Prepare your patch
 
    See the `Yocto Project Managing Layers`_ documentation for more usage details.
 
-   When ready, run bitbake to start the build:::
+   When ready, run bitbake to start the build::
 
       $ bitbake -k ostro-image-noswupd        # for example, other target images are available too
 
 #. Commit your changes and rebase onto master
    After you’ve tested and verified your change does what was intended, you can commit your change locally. 
-   Make sure that you follow the `Code Review Process Guidelines`_ described earlier in this document:::
+   Make sure that you follow the `Code Review Process Guidelines`_ described earlier in this document::
 
       $ git commit -a -s                    # follow guidelines for the commit message
       $ git push origin my-patch-branch     # push your local branch up to your forked GitHub repo
 
    Depending on how long you have worked on your patch, it may be that the master branch has evolved since you branched 
-   it off. If that is the case, you should rebase your working branch onto master before sending the Pull Request (PR):::
+   it off. If that is the case, you should rebase your working branch onto master before sending the Pull Request (PR)::
 
 
       $ git rebase upstream/master
@@ -297,17 +297,17 @@ Prepare your patch
 #. Create a Pull Request (PR)
    Once your change is in your forked version (up on GitHub), use your web browser to submit your PR:
 
-     * Navigate to your branch: https://github.com/<username>/meta-ostro/tree/my-patched-branch (the branch name you
-       created earlier).
-     * Click on "Compare & pull request" button From there you can see your changes and create a Pull Request (PR) to the 
-       master branch for that component.
+   * Navigate to your branch: https://github.com/<username>/meta-ostro/tree/my-patched-branch (the branch name you
+     created earlier).
+   * Click on "Compare & pull request" button From there you can see your changes and create a Pull Request (PR) to the 
+     master branch for that component.
 
 
 7. Respond to Pull Request (PR) Comments
    You may be asked to update or re-work your patch as part of the review process. 
    The easiest way to keep the discussion going in the same Pull Request is to force-push a revised commit to your 
    forked repository. GitHub will automatically update the Pull Request with the latest changes.  Using amended
-   commits is preferred over a PR with multiple commits and helps make reviewing the cumulative changes much easier:::
+   commits is preferred over a PR with multiple commits and helps make reviewing the cumulative changes much easier::
 
 
       $ git commit --amend

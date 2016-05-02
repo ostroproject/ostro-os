@@ -18,7 +18,7 @@ Generating a Private/Public Key Pair
 ====================================
 
 On Linux systems (or Windows systems with `Git Bash`_ installed) use the ``ssh-keygen`` utility to generate
-an ssh key pair by following its instructions ::
+an ssh key pair by following its instructions::
 
    $ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 
@@ -60,7 +60,7 @@ Build-Time Configuration of Authorized Keys
 The recommended approach for enabling remote ``ssh`` access is to install authorized public ssh keys by 
 setting OSTRO_ROOT_AUTHORIZED_KEYS in your ``local.conf`` configuration file and building them into your image.
 
-#. Look in your ``local.conf`` file and find the line:::
+#. Look in your ``local.conf`` file and find the line::
 
    # OSTRO_ROOT_AUTHORIZED_KEYS = "ssh-rsa AAA...== john@example.com\nssh-dss AA...FPaQ== joan@example.com"
 
@@ -71,7 +71,7 @@ setting OSTRO_ROOT_AUTHORIZED_KEYS in your ``local.conf`` configuration file and
 
 #. Make note of your devices IP address using ``ifconfig`` for example, if you've got a local console or serial port connection.
 
-#. Login from your host using ``ssh`` with your private key (from host) and the IP address of your device, for example: ::
+#. Login from your host using ``ssh`` with your private key (from host) and the IP address of your device, for example::
 
     $ ssh root@192.168.2.2 -i $HOME/.ssh/id_rsa
 
@@ -106,7 +106,7 @@ private key.
           # cat key/id_rsa.pub >> ~root/.ssh/authorized_keys
   
 #. Make note of your devices IP address (using ``ifconfig`` for example) and reboot the device.
-#. Login from your host using ``ssh`` with your private key (from host) and the IP address of your device, for example: ::
+#. Login from your host using ``ssh`` with your private key (from host) and the IP address of your device, for example::
 
     $ ssh root@192.168.2.2 -i $HOME/.ssh/id_rsa
 

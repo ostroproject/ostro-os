@@ -116,7 +116,7 @@ Step 1: Review and optionally modify the list of bundles
 --------------------------------------------------------
 Ostro already defines some bundles, and users can define additional ones.
 
-Example:::
+Example::
 
   SWUPD_BUNDLES += "sudo_bundle"
   BUNDLE_CONTENTS[sudo_bundle] = "sudo"
