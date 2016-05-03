@@ -28,10 +28,18 @@ python buildhistory_extra_emit_pkghistory() {
 
     import codecs
 
-    relpath = os.path.dirname(d.getVar('TOPDIR', True))
     pkghistdir = d.getVar('BUILDHISTORY_DIR_PACKAGE', True)
     if not os.path.exists(pkghistdir):
         bb.utils.mkdirhier(pkghistdir)
+
+    # Make the recorded information independent of varying paths.
+    # Some recipes use destsuffix=${S}/... to fetch components
+    # into their main source tree. The other variable do not show
+    # up (yet), but might eventually.
+    d = d.createCopy()
+    for var in ('S', 'WORKDIR', 'BASE_WORKDIR', 'TMPDIR'):
+        d.delVar(var)
+    relpath = os.path.dirname(d.getVar('TOPDIR', True))
 
     # Record PV in the "latest" file. This duplicates work in
     # buildhistory_emit_pkghistory(), but we do not know whether
