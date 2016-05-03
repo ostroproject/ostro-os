@@ -75,13 +75,32 @@ Here are guidelines for the review process that you and the maintainers will fol
 #. The general commit message format is::
 
      <component>: <summary>
+
      <description>
-     [Fixes|Related-to] OP-<number>
+
+     [Fixes|Related-to]: OP-<number>
      Signed-off-by: <name> <email>
 
    Variations of the tags are also acceptable, such as Fix/Fixes/Fixed.
 
-#. For each pull request (PR), the submitter and maintainer verify the patch does not cause a Continuous Integration (CI) build to break.
+   Here is a full example, see ``git log`` of the modified components for real commit messages::
+
+     calendar-app.bb: bump version to 11
+
+     The new upstream version contains a critical bug fix: in the current
+     version, dancing pixies shout "all your gold belongs to us" every full
+     moon and delete random appointments.
+
+     Fixes: OP-404
+     Signed-off-by: John Doe <john.doe@example.com>
+
+#. Each pull request (PR) combines one or more commits and requests to
+   have them pulled into the repository. The PR description briefly
+   summarizes the commit(s) and provides additional information to
+   reviewers, for example dependencies on other PRs or information on
+   testing of the commits.
+
+#. For each PR, the submitter and maintainer verify the patch does not cause a Continuous Integration (CI) build to break.
    Every PR by an authorized user triggers a CI test build that shows whether this is true and the PR can be merged safely (after
    a full code review is complete).  If you're not one of the recognized contributors, your PR will get an automated comment from the 
    CI system saying "Can one of the admins verify this patch?". This means one of layer maintainers should review the code change 
@@ -89,11 +108,19 @@ Here are guidelines for the review process that you and the maintainers will fol
    automated CI test build.  These are messages directing the CI system and are not asking you, the contributor, to act.
 
 #. Some PRs do not require a CI build to verify, in particular documentation-only changes. We can save CI machine cycles for such
-   changes by including a special tag anywhere in the Pull Request description:::
+   changes by including a special tag anywhere in the *PR description*::
+
+     doc: fix spelling mistakes in foobar.rst
+
+     A minor update, merge whenever it is convenient.
+
+     @johndoe: please review
 
      [skip ci]
 
-   This advises the CI system to not do its normal CI test build for this Pull Request.  
+   This advises the CI system to not do its normal CI test build for this PR. The example also shows how to notify specific
+   reviewers using their GitHub handle. Note that this PR description is the text entered when creating the pull request; it
+   is not the commit message that was created earlier, where ``[skip ci]`` has no effect.
 
 #. For each pull request, allow enough time for feedback and questions to be provided:
      * If the change is considered trivial or review expertise is available in the same time-zone, a same-day merge might be possible,
