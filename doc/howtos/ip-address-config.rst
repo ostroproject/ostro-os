@@ -26,7 +26,7 @@ Enabling Network Technologies
 =============================
 
 Before a network transport (such as WiFi) can be used, it must be enabled in ConnMan. You can check to see what technologies
-have already been enabled with the command :: 
+have already been enabled with the command:: 
 
    $ connmanctl technologies
 
@@ -45,7 +45,7 @@ ConnMan refers to network devices as services. To configure a static IP address 
 you first find the name of the service assigned by ConnMan and then provide the IP address information, as 
 shown in these steps: 
 
-#. List the services available on your device ::
+#. List the services available on your device::
 
      $ connmanctl services
 
@@ -65,7 +65,7 @@ shown in these steps:
 
      $ connmanctl config <service> –ipv4 manual <ip address> <netmask> <gateway> 
 
-   For example, using the service name discovered above: ::
+   For example, using the service name discovered above::
 
      $ connmanctl config ethernet_0008a209b525_cable –ipv4 manual 192.168.1.4 255.255.255.0 192.168.1.1
 
@@ -81,7 +81,8 @@ for the following example.
 
 Here are the steps to connect to a wireless network using DHCP:
 
-#. Open connmanctl in interactive mode, enable WiFi (if you haven't already), and scan for new WiFi services (available SSIDs)::
+#. Open connmanctl in interactive mode, enable WiFi (if you haven't already), and scan for new 
+   WiFi services (available SSIDs)::
 
      $ connmanctl
      $ connmanctl> enable wifi 
@@ -91,11 +92,11 @@ Here are the steps to connect to a wireless network using DHCP:
 #. To connect to a secure
    WiFi network, we need to register the agent to handle user requests. This agent is used by the daemon to 
    call back an application when attention or input is needed. If you're connecting to an (unsecured) open access point you 
-   can skip this step ::
+   can skip this step. ::
 
      $ connmanctl> agent on
 
-#. Use the wireless network name and the service name displayed by the ``services`` command to connect to that network ::  
+#. Use the wireless network name and the service name displayed by the ``services`` command to connect to that network. ::  
 
      $ connmanctl> connect wifi_<MAC_ADDR>_<SSID_HEX>_managed_psk
 
@@ -104,7 +105,7 @@ Here are the steps to connect to a wireless network using DHCP:
 
    An open unsecured access point would be displayed by the ``services`` command with an ``_managed_none`` suffix.
 
-   For example ::
+   For example::
 
      $ connmanctl> scan wifi
      $ connmanctl> services

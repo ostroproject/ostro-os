@@ -248,7 +248,7 @@ In our setup steps below, we're using an 8GB microSD card in an SD adapter that'
 
 2. Now we're ready to prepare the microSD card.  Make sure the microSD card isn't already mounted
    and verify it is using MBR partitions. (Remember, your
-   device name maybe different than what we're using in our examples.) Run ::
+   device name maybe different than what we're using in our examples.) Run::
 
    $ sudo umount /dev/mmcblk0*
    $ sudo fdisk /dev/mmcblk0
@@ -310,7 +310,7 @@ In our setup steps below, we're using an 8GB microSD card in an SD adapter that'
 
 #.  Before unmounting the device, we also need to add the device tree blob file (``zImage-am335x-boneblack.dtb``)
     that you downloaded (or from your own build).
-    Note that this step renames the file (without the ``zImage-`` prefix) to match what's expected by the kernel ::
+    Note that this step renames the file (without the ``zImage-`` prefix) to match what's expected by the kernel. ::
 
      $ sudo cp zImage-am335x-boneblack.dtb rootfs/boot/am335x-boneblack.dtb
      $ sudo umount rootfs
@@ -322,7 +322,7 @@ Note:  The normal boot sequence is to use the on-board flash first (eMMC), then 
 then the USB port, and finally the serial port. You may need to use the **S2** alternate boot button,
 by holding it down at power up, to change the boot order to use the microSD card first instead of eMMC first.
 
-Once booted from the microSD card, you can prevent boot from eMMC by using (on the BeagleBone Black) ::
+Once booted from the microSD card, you can prevent boot from eMMC by using (on the BeagleBone Black)::
 
    $ dd if=/dev/zero of=/dev/mmcblk1 bs=4M count=1
 
@@ -330,7 +330,7 @@ Once booted from the microSD card, you can prevent boot from eMMC by using (on t
 Converting from GPT to MBR Partitions
 -------------------------------------
 
-On a linux system run the ``gdisk`` utility *(Note: your microSD card device name may be different than in this example)* ::
+On a linux system run the ``gdisk`` utility *(Note: your microSD card device name may be different than in this example)*::
 
    $ sudo umount /dev/mmcblk0*
    $ sudo gdisk /dev/mmcblk0
