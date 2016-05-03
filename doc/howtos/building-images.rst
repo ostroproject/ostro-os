@@ -243,18 +243,23 @@ The following instructions assume that swupd is not used.
 
 .. _`ostro-image.bbclass`: https://github.com/ostroproject/meta-ostro/blob/master/meta-ostro/classes/ostro-image.bbclass
 
-Installing Additional Packages (without swupd)
-----------------------------------------------
+Installing Additional Packages
+------------------------------
 
 An image derived from ``ostro-image.bbclass`` without additional
 configuration is minimal and establishes a core OS with components
 that must always be present on a device. All additional components beyond
 this minimal configuration must be added explicitly by setting
 ``OSTRO_IMAGE_EXTRA_FEATURES`` and/or ``OSTRO_IMAGE_EXTRA_INSTALL`` adding them
-to the image when building without swupd.  
+to the image. In the case you build an Ostro image with ``swupd`` enabled
+(e.g.:``ostro-image-swupd``) these additional packages get added by default to the
+``os-core`` bundle. For more information on how to define, add and modify bundles,
+please refer to these documents:
+- :ref:`software-update`
+- :ref:`software-update-server`
 
 The ``ostro-os`` repo contains many layers and recipes that are not enabled
-but are available for your use. You can see these by using the commands:::
+but are available for your use. You can see these by using the commands::
 
    $ bitbake-layers show-recipes
    $ bitbake-layers show-layers
@@ -277,8 +282,8 @@ Alternatively, ``CORE_IMAGE_EXTRA_INSTALL`` can also be used. The
 difference is that this will also affect the initramfs images, which is
 often not intended.
 
-The example ``ostro-image-swupd`` is defined such that its default
-content corresponds to ``ostro-image-noswupd``. It is possible to
+The example ``ostro-image-noswupd`` is defined such that its default
+content corresponds to ``ostro-image-swupd``. It is possible to
 reconfigure it so that it matches ``ostro-image-swupd-dev``::
 
     OSTRO_IMAGE_NOSWUPD_EXTRA_FEATURES_append = "${OSTRO_IMAGE_FEATURES_DEV}"
@@ -294,17 +299,17 @@ Adding a Custom Layer in Ostro OS
 The Yocto Project documentation explains the steps you'd follow for `Creating Your Own Layer`_. 
 
 #. Within your
-   cloned copy of ``ostro-os``, here's how you can easily add a custom layer into your Ostro OS build:::
+   cloned copy of ``ostro-os``, here's how you can easily add a custom layer into your Ostro OS build::
 
       $ git clone <meta-custom-layer-name>     # clone the git repo for your custom layer 
       $ source oe-init-build-env               # initialize the build environment 
 
-#. Use the ``bitbake-layers`` command to manipulate the ``bblayers.conf`` file for you:::
+#. Use the ``bitbake-layers`` command to manipulate the ``bblayers.conf`` file for you::
 
      $ bitbake-layers add-layer meta-custom-layer-name 
      $ bitbake-layers show-layers                        # verify bitbake sees the layer
 
-   or alternatively, you can manually edit your ``conf/bblayers.conf`` file and add a line to add the layer:::
+   or alternatively, you can manually edit your ``conf/bblayers.conf`` file and add a line to add the layer::
 
       BBLAYERS += "/PATH/TO/LAYERS/meta-custom-layer-name"
 
@@ -312,11 +317,11 @@ The Yocto Project documentation explains the steps you'd follow for `Creating Yo
    need to add additional ``BBLAYERS += "..."`` lines (either manually or by using
    the ``bitbake-layers add-layer`` command)
 
-#. Add this to the end of your ``conf/local.conf`` file:::
+#. Add this to the end of your ``conf/local.conf`` file::
 
       OSTRO_IMAGE_EXTRA_INSTALL += "one or more recipes from custom-layer-name"
 
-#. And with that, we're ready to do a build:::
+#. And with that, we're ready to do a build::
 
    $ bitbake -k ostro-image-noswupd       # for example
 
@@ -327,13 +332,13 @@ Whitelisting a Recipe
 ---------------------
 
 The `Open Embedded Layers Index`_ is a database that's searchable by layer and recipe name.  For example
-if you wanted to add `opencv` (open computer vision layer) you can find the recipe there and also a list 
+if you wanted to add ``opencv`` (open computer vision layer) you can find the recipe there and also a list
 of other layers it depends on.
 
 Only specific recipes from the layers in meta-openembedded are
 supported in combination with Ostro OS, even though all of
 meta-openembedded gets imported into the ``ostro-os`` combined repository. 
-Ostro OS maintains a list of approved (white-listed) and unapproved (black-listed) recipies.
+Ostro OS maintains a list of approved (white-listed) and unapproved (black-listed) recipes.
 
 To use recipes from meta-openembedded, they must be added to the
 respective ``PNWHITELIST`` variables, in ``meta-ostro/conf/ostro/ostro.conf`` for officially supported ones
@@ -341,7 +346,7 @@ or in a ``local.conf`` for unofficial ones in a personal build.
 You can refer to ``meta-ostro/conf/ostro/ostro.conf`` for more information about white- and black-listing.
 
 For example, you can add the ``tcpdump`` recipe to your default image (from the ``meta-networking`` layer) 
-by adding these lines to your ``local.conf`` file:::
+by adding these lines to your ``local.conf`` file::
 
    PNWHITELIST += "tcpdump"
    OSTRO_IMAGE_EXTRA_INSTALL += "tcpdump"
@@ -358,7 +363,7 @@ of prebuilt data cache objects configured with the ``SSTATE_MIRRORS`` setting.
 
 By default, this ``SSTATE_MIRRORS`` configuration is enabled in :file:`conf/local.conf`
 but can be disabled (if desired) by commenting the ``SSTATE_MIRRORS`` line
-in your :file:`conf/local.conf` file, as shown here:::
+in your :file:`conf/local.conf` file, as shown here::
 
    # Example for Ostro OS setup, recommended to use it:
    #SSTATE_MIRRORS ?= "file://.* http://download.ostroproject.org/sstate/ostro-os/PATH"

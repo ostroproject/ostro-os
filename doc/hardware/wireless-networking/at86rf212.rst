@@ -71,6 +71,10 @@ Connections for Galileo Gen 2
    :width: 350px
    :alt: AT86RF212 board with Galileo Gen2
 
+.. image:: _static/at86rf212-galileo-pins.png
+   :width: 350px
+   :alt: AT86RF212 board with Galileo Gen2
+
 |
 
 .. table:: Connect at86rf212 board to Galileo Gen 2 board:
