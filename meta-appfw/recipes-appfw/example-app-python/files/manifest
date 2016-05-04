@@ -5,14 +5,13 @@
     "groups": "foodine-pythontest",
     "environment": {
         "FROB": "nicate",
-        "FOOBAR": "xyzzy",
+        "FOOBAR": "xyzzy"
     },
     "command": [  "/usr/bin/python", "/lib/python/pythontest/example.py" ],
-    "autostart": "yes",
+    "autostart": "false",
      "container": {
         "type": "nspawn",
         "network": "VirtualEthernet",
-        "sharedsystem": false,
-        "portmap": 27279
-    },
+        "portmap": [ { "proto": "tcp", "host": 2010, "container": 27279} ]
+    }
 }
