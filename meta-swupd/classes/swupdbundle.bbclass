@@ -62,7 +62,7 @@ python swupdbundle_virtclass_handler () {
         # to enable that for the mega image.
         features = set()
         for bndl in bundles:
-            newfeatures = (d.getVarFlag("BUNDLE_FEATURES", bundle, True) or "").split()
+            newfeatures = (d.getVarFlag("BUNDLE_FEATURES", bndl, True) or "").split()
             curr_install += get_bundle_contents(bndl)
             features.update(newfeatures)
         if features:
