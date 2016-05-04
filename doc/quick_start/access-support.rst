@@ -19,7 +19,7 @@ documentation, and support systems:
    In there you’ll find folders for each of
    the supported hardware platforms. In the platform folder, you’ll find an
    :file:`.dsk` file that can be written directly onto a hard disk or
-   USB thumb drive and booted.  There’s also a :file:`.vdi` file for use with VirtualBox.
+   USB thumb drive and booted.  There’s also a :file:`.ova` file for use with VirtualBox.
 
 * Software Updates
    The Ostro OS uses a rolling updates development and release process using "bundle"  
