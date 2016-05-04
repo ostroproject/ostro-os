@@ -1,6 +1,6 @@
 .. _modifying-ostro-kernel:
 
-Modifying the Ostro |trade| Kernel
+Modifying the Ostro |trade| OS Kernel
 ######################################
 
 Pre-requisites
@@ -19,9 +19,9 @@ Preparing the Kernel Source Code
 Assuming the repository where you have cloned the Ostro source code is called ``ostro-os`` 
 generate the initial image using these commands::
 
-   cd ostro-os
-   source oe-init-build-env
-   bitbake linux-yocto
+   $ cd ostro-os
+   $ source oe-init-build-env
+   $ bitbake linux-yocto
 
 These steps will ensure you have built the kernel once by retrieving the sources and generating a Yocto Project ``.config`` file.
 
@@ -34,11 +34,11 @@ Make all the changes that you need, source code modifications including ``Kconfi
 
 * If needed, modify the kernel configuration to enable your changes::
 
-    bitbake linux-yocto -c menuconfig
+    $ bitbake linux-yocto -c menuconfig
 
 * Recompile the (modified) kernel:: 
 
-    bitbake -f linux-yocto -c compile
+    $ bitbake -f linux-yocto -c compile
 
   * Using ``-c compile`` ensures that :command:`bitbake` will **not** re-fetch the sources and wipe all changes you've just made.
   * Using the ``-f`` option forces the rebuild because :command:`bitbake` will not detect 
@@ -46,14 +46,14 @@ Make all the changes that you need, source code modifications including ``Kconfi
 
 * Compile all drivers (modules):: 
   
-    bitbake -f linux-yocto -c compile_kernelmodules
+    $ bitbake -f linux-yocto -c compile_kernelmodules
 
 Generating an Image with all the Changes
 ========================================
 
 * To build a full image with this new kernel::
   
-    bitbake ostro-image
+    $ bitbake ostro-image-noswupd           # or use the ostro-image-swupd target
 
 This will generate a complete image and reuse the kernel that you've just modified and successfully compiled.
 
