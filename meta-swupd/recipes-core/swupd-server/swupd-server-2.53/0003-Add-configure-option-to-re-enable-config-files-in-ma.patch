@@ -5,7 +5,7 @@ Subject: [PATCH] Add configure option to re-enable config files in manifests
 
 Signed-off-by: Joshua Lock <joshua.g.lock@intel.com>
 
-Upstream-Status: Accepted (v3.0+)
+Upstream-Status: Backport [v3.0+]
 
 ---
  configure.ac    | 6 ++++++
@@ -27,7 +27,7 @@ index 0cb074f..47256b6 100644
 +    AC_DEFINE(SWUPD_WITH_STATELESS,0,[OS is not stateless]),
 +		AC_DEFINE(SWUPD_WITH_STATELESS,1,[OS is stateless])
 +)
- 
+
  AS_IF([test "$enable_lzma" = "check"],
  	[PKG_CHECK_MODULES([lzma],
 diff --git a/include/swupd.h b/include/swupd.h
@@ -37,7 +37,7 @@ index ad4b967..d45ca9c 100644
 @@ -23,6 +23,12 @@
  #define TAR_PERM_ATTR_ARGS "--preserve-permissions --xattrs --xattrs-include='*'"
  #endif
- 
+
 +#if SWUPD_WITH_STATELESS
 +#define OS_IS_STATELESS 1
 +#else
@@ -54,12 +54,11 @@ index 251c884..24403e3 100644
 @@ -825,7 +825,7 @@ int prune_manifest(struct manifest *manifest)
  		next = g_list_next(list);
  		file = list->data;
- 
+
 -		if ((!file->is_deleted) && (file->is_config)) {
 +		if (OS_IS_STATELESS && (!file->is_deleted) && (file->is_config)) {
  			// toward being a stateless OS
  			LOG(file, "Skipping config file in manifest write", "component %s", manifest->component);
  			manifest->files = g_list_delete_link(manifest->files, list);
--- 
+--
 2.5.0
-

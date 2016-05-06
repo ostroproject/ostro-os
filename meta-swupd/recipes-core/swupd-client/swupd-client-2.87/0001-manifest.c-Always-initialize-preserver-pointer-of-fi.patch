@@ -9,7 +9,7 @@ pointer inside deduplicate_files_from_manifest() isn't
 initialized which leads to NULL as output of the function.
 As result no files of the deleted bundle get deleted at all.
 
-Upstream-Status: Backported [v3.0.0+]
+Upstream-Status: Backport [v3.0.0+]
 
 Signed-off-by: Dmitry Rozhkov <dmitry.rozhkov@linux.intel.com>
 ---
@@ -22,13 +22,12 @@ index 7c356d7..10b7daa 100644
 +++ b/src/manifest.c
 @@ -1326,7 +1326,7 @@ void deduplicate_files_from_manifest(struct manifest **m1, struct manifest *m2)
  	int count = 0;
- 
+
  	bmanifest = *m1;
 -	iter1 = list_head(bmanifest->files);
 +	iter1 = preserver = list_head(bmanifest->files);
  	iter2 = list_head(m2->files);
- 
- 	while (iter1 && iter2) {
--- 
-2.5.0
 
+ 	while (iter1 && iter2) {
+--
+2.5.0

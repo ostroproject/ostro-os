@@ -6,7 +6,7 @@ Subject: [PATCH] Fix build failure on Yocto
 On install phase certificate files are being installed twice as included in
 _DATA twice. We can use EXTRA_DIST than dist_.
 
-Upstream-Status: Backported (v3.0.0+)
+Upstream-Status: Backport [v3.0.0+]
 
 Signed-off-by: Amarnath Valluri <amarnath.valluri@intel.com>
 ---
@@ -22,15 +22,14 @@ index 1e65d3d..4d15c55 100644
  	certs/d6325660.1
  swupdcerts_DATA = $(SWUPD_CERTS)
 -dist_swupdcerts_DATA = $(SWUPD_CERTS)
- 
+
  EXTRA_DIST += \
  	data/check-update.service \
 -	data/check-update.timer
 +	data/check-update.timer \
 +	$(SWUPD_CERTS)
- 
+
  DISTCHECK_CONFIGURE_FLAGS = \
          --with-systemdsystemunitdir=$$dc_install_base/$(systemdunitdir)
--- 
+--
 2.1.4
-

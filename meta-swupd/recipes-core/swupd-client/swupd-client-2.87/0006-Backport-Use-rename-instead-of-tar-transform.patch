@@ -20,7 +20,7 @@ always encapsulating variable use within the do_staging function.
 Note: the SWUPD_LINUX_ROOTFS checks have been removed entirely, since
 they are not used anywhere in the code at present.
 
-Upstream-Status: Backported [v2.88]
+Upstream-Status: Backported [v2.88+]
 
 Signed-off-by: Dmitry Rozhkov <dmitry.rozhkov@linux.intel.com>
 ---
@@ -34,7 +34,7 @@ index b8545c1..16dafbb 100644
 @@ -36,6 +36,31 @@
  #include "swupd-build-variant.h"
  #include <swupd.h>
- 
+
 +/* clean then recreate temporary folder for tar renames */
 +static int create_staging_renamedir(char *rename_tmpdir)
 +{
@@ -65,7 +65,7 @@ index b8545c1..16dafbb 100644
  {
 @@ -269,6 +294,9 @@ int prepare(bool UNUSED_PARAM *is_corrupted, int UNUSED_PARAM current_version, i
  #endif
- 
+
  /* Do the staging of new files into the filesystem */
 +#warning do_staging is currently not able to be run in parallel
 +/* Consider adding a remove_leftovers() that runs in verify/fix in order to
@@ -81,7 +81,7 @@ index b8545c1..16dafbb 100644
 +	char *rename_tmpdir = NULL;
  	int ret;
  	struct stat s;
- 
+
 @@ -360,12 +390,28 @@ int do_staging(struct file *file)
  		 * attributes and it includes internal logic that does the
  		 * right thing to overlay a directory onto something
@@ -151,7 +151,6 @@ index b8545c1..16dafbb 100644
 +	free(rename_tmpdir);
  	free(tmp);
  	free(tmp2);
- 
--- 
-2.5.0
 
+--
+2.5.0

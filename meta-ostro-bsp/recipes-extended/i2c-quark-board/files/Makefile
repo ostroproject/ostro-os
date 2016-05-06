@@ -1,4 +1,4 @@
-obj-m := i2c-quark-mpu6050.o
+obj-m := i2c-quark-mpu6050.o i2c-quark-apds9960.o
 SRC := $(shell pwd)
 
 all:

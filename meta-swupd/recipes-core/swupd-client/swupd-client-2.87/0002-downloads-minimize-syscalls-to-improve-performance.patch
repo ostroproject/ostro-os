@@ -24,7 +24,7 @@ As an additional improvement, failures during close() are checked when
 downloading single files. However, perform_curl_io_and_complete()
 still ignores the error.
 
-Upstream-Status: Submitted [https://github.com/clearlinux/swupd-client/issues/37]
+Upstream-Status: Submitted [https://github.com/clearlinux/swupd-client/issues/41]
 
 Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
 ---
@@ -40,18 +40,18 @@ index 554e795..fbaa5ae 100644
 @@ -82,6 +82,7 @@ struct file {
  	int  last_change;
  	struct update_stat stat;
- 
+
 +	unsigned int fd_valid           : 1;
  	unsigned int is_dir		: 1;
  	unsigned int is_file		: 1;
  	unsigned int is_link		: 1;
 @@ -101,6 +102,7 @@ struct file {
- 
+
  	char *staging;		/* output name used during download & staging */
  	CURL *curl;		/* curl handle if downloading */
 +	int fd;                 /* file written into during downloading, unset when fd_valid is false */
  };
- 
+
  extern bool download_only;
 @@ -183,6 +185,7 @@ extern void swupd_curl_cleanup(void);
  extern void swupd_curl_set_current_version(int v);
@@ -71,7 +71,7 @@ index c989426..c4e1398 100644
  	FILE *f;
 -	size_t written;
 +	size_t written, remaining;
- 
+
  	outfile = file->staging;
 +        if (file->fd_valid) {
 +		fd = file->fd;
@@ -95,7 +95,7 @@ index c989426..c4e1398 100644
 +			return -1;
 +		}
 +        }
- 
+
 -	fd = open(outfile, O_CREAT | O_RDWR , 00600);
 -	if (fd < 0) {
 -		LOG_ERROR(file, "Cannot open file for write", class_file_io,
@@ -106,7 +106,7 @@ index c989426..c4e1398 100644
  		return -1;
 -	}
 +        }
- 
+
 -	f = fdopen(fd, "a");
 -	if (!f) {
 -		LOG_ERROR(file, "Cannot fdopen file for write", class_file_io,
@@ -121,7 +121,7 @@ index c989426..c4e1398 100644
 -	fclose(f);
 +	return size*nmemb;
 +}
- 
+
 -	if (written != 1) {
 -		LOG_ERROR(file, "short write", class_file_io,
 -			"\\*outfile=\"%s\",strerror=\"%s\"*\\", outfile, strerror(errno));
@@ -142,7 +142,7 @@ index c989426..c4e1398 100644
 -	return size*nmemb;
 +	return curl_ret;
  }
- 
+
  /* Download a single file SYNCHRONOUSLY
 @@ -193,7 +210,6 @@ int swupd_curl_get_file(const char *url, char *filename, struct file *file,
  			}
@@ -154,7 +154,7 @@ index c989426..c4e1398 100644
  				curl_ret = curl_easy_setopt(curl, CURLOPT_RESUME_FROM_LARGE, (curl_off_t) stat.st_size);
 @@ -263,6 +279,9 @@ int swupd_curl_get_file(const char *url, char *filename, struct file *file,
  	}
- 
+
  exit:
 +	if (local) {
 +		curl_ret = swupd_download_file_complete(curl_ret, local);
@@ -169,7 +169,7 @@ index 211ee24..2f88fb1 100644
 @@ -165,6 +165,7 @@ static void free_curl_list_data(void *data)
  	struct file *file = (struct file*)data;
  	CURL *curl = file->curl;
- 
+
 +	swupd_download_file_complete(CURLE_OK, file);
  	curl_multi_remove_handle(mcurl, curl);
  	curl_easy_cleanup(curl);
@@ -177,7 +177,7 @@ index 211ee24..2f88fb1 100644
 @@ -379,6 +380,12 @@ static int perform_curl_io_and_complete(int *left)
  			continue;
  		}
- 
+
 +		curl_ret = swupd_download_file_complete(curl_ret, file);
 +		/*
 +		 * Any error as logged already. Let's continue and
@@ -187,6 +187,5 @@ index 211ee24..2f88fb1 100644
  		if (ret == 200) {
  			untar_full_download(file);
  		} else {
--- 
+--
 2.1.4
-

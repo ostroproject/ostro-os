@@ -43,7 +43,7 @@ class TestMagnetHMC5883(oeRuntimeTest):
         if "Galileo" in output:
            (status, output) = self.target.run(
                          "cd /sys/bus/i2c/devices; \
-                          echo 0x1e >i2c-1/delete_device")
+                          echo 0x1e >i2c-0/delete_device")
         if "BODEGA" in output:
            (status, output) = self.target.run(
                          "cd /sys/bus/i2c/devices; \

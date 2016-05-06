@@ -5,13 +5,13 @@
     "groups": "iodine-nodetest",
     "environment": {
         "FROB": "nicate",
-        "FOOBAR": "xyzzy",
+        "FOOBAR": "xyzzy"
     },
     "command": [  "/usr/bin/node", "/lib/node_modules/nodetest/example.js" ],
     "autostart": "yes",
     "container": {
         "type": "nspawn",
         "network": "VirtualEthernet",
-        "portmap": [ { "proto": "tcp", "host": 2000, "container": 12345 } ],
-    },
+        "portmap": [ { "proto": "tcp", "host": 2000, "container": 12345 } ]
+    }
 }
