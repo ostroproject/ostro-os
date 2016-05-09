@@ -1,2 +1,2 @@
 inherit deploy-files
-DEPLOY_FILES_FROM[target] = "${WORKDIR}/bluez-${PV}/attrib/gatttool"
+DEPLOY_FILES_FROM[target] = "${B}/attrib/gatttool"
