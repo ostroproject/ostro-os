@@ -23,7 +23,12 @@ SSTATEPOSTINSTFUNCS[vardepvalueexclude] .= "| buildhistory_extra_emit_pkghistory
 
 python buildhistory_extra_emit_pkghistory() {
     bb.note('buildhistory_extra_emit_pkghistory %s' % d.getVar('BB_CURRENTTASK', True))
-    if not d.getVar('BB_CURRENTTASK', True) in ['populate_sysroot', 'populate_sysroot_setscene']:
+    # Some recipes only get installed in a sysroot (native), others
+    # only get packaged (target, when nothing depends on them being installed in the sysroot),
+    # and some get installed and packaged (target, when something depends on them in the sysroot).
+    # We hook into all of these tasks to ensure that we don't miss recipes, even though
+    # that means that we'll do the work twice in some cases.
+    if not d.getVar('BB_CURRENTTASK', True) in ['populate_sysroot', 'populate_sysroot_setscene', 'packagedata', 'packagedata_setscene']:
         return 0
 
     import codecs
