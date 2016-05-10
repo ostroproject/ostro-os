@@ -5,13 +5,13 @@
     "groups": "appfwtest-commonapp",
     "environment": {
         "KEY1": "value1",
-        "KEY2": "value2",
+        "KEY2": "value2"
     },
     "command": [ "/bin/wrapperapp" ],
     "autostart": "false",
      "container": {
         "type": "nspawn",
         "network": "VirtualEthernet",
-        "sharedsystem": false,
-    },
+        "portmap": [ { "proto": "tcp", "host": 2012, "container": 12233 } ]
+    }
 }
