@@ -14,11 +14,8 @@ from optparse import make_option
 from baserunner.baserunner import  TestRunnerBase
 from oeqa.oetest import oeTest
 from baserunner.util.tag import *
-
-class FakeTestContext(object):
-    def __init__(self):
-        self.target = None
-oeTest.tc = FakeTestContext()
+from runtest import *
+import glob
 
 def filter_test(func, testsuite):
     caselist = []
@@ -49,6 +46,15 @@ class NameMeta(type):
             attrs["name"] = name
         return super(NameMeta, cls). __new__(cls, name, parents, attrs)
 
+def getComponent(testcase):
+    caseid = testcase.id()
+    names = caseid.split(".")
+    if len(names)>=3:
+        return names[2]
+    else:
+        print "Do you in an iottest suite folder?"
+        return names[-3]
+
 class Platform(object):
     name = None
     __metaclass__ = NameMeta
@@ -72,11 +78,46 @@ class ManifestGener(TestRunnerBase):
         self.option_list.extend([
             make_option("-o", "--output-dir", dest="output", default = "manifest_output",
                     help="the output folder, default is manifest_output"),
-             make_option("-p", "--platform", dest="platforms", default = [], action="append",
-                    help="Platform: Galileo, Minnow..")])
+            make_option("-p", "--platform", dest="platforms", default = [], action="append",
+                    help="Platform: Galileo, Minnow.."),
+            make_option("--list", dest="list", action="store_true",
+                    help="list all components"),
+            make_option("-s", "--component", dest="components", default = [], action="append",
+                    help="Whick components shold be generate.")])
+
+    def init_context(self):
+        builddata_files = glob.glob(os.path.join(BASEDIR, "deploy", "files", "*", "builddata.json"))
+        if builddata_files:
+            with open(builddata_files[0], "r") as f:
+                loaded = json.load(f)
+        else:
+            loaded = {"pkgmanifest":[]}
+        #inject build datastore
+        d = MyDataDict()
+        if loaded.has_key("d"):
+            for key in loaded["d"].keys():
+                d[key] = loaded["d"][key]
+        d["DEPLOY_DIR"], d["MACHINE"] = "" , ""
+        tc = TestContext()
+        setattr(tc, "d", d)
+
+        pkgs = [pname.strip() for pname in loaded["pkgmanifest"]]
+        setattr(tc, "pkgmanifest", "\n".join(pkgs))
+
+        setattr(tc, "targets", [])
+        setattr(tc, "target", None)
+        setattr(oeRuntimeTest, "targets", [])
+    
+        #inject others
+        for key in loaded.keys():
+            if key not in ["testslist", "d", "target", "pkgmanifest"]:
+                setattr(tc, key, loaded[key])
+        self.context = tc
+        oeTest.tc = tc
 
     def configure(self, options):
         options.tests = ["oeqa.runtime"] if not options.tests else options.tests
+        self.init_context()
         super(ManifestGener, self).configure(options)
         self.output = options.output
         self.tagexp = options.tag
@@ -94,13 +135,33 @@ class ManifestGener(TestRunnerBase):
                     self.platforms.append(type(platform, (Platform,), {})())
         else:
             self.platforms = platforms
+        self.components = options.components
+
+    def list_components(self):
+        runtime_path = os.path.join(os.path.dirname(__file__), "oeqa", "runtime")
+        print "%-20s    %s"%("Compont","description")
+        for name in os.listdir(runtime_path):
+            p = os.path.join(runtime_path, name)
+            if os.path.isdir(p) or (not name.startswith("_") and name.endswith(".py")):
+                if os.path.isfile(p):
+                    name = name[:-3]
+                try:
+                    testsuite = self.loadtest(["oeqa.runtime."+name])
+                    if testsuite.countTestCases()>0:
+                        m = __import__("oeqa.runtime."+name)
+                        component = name
+                        doc = m.__doc__
+                        print "%-20s    %s" % (component, doc.splitlines()[0] if doc else "This is %s component"%component)
+                except:
+                    pass
 
     def gen_manifest(self, testsuite):
         if os.path.lexists(self.output):
             shutil.rmtree(self.output)
         os.mkdir(self.output)
-        testsuite = self.filter_error(testsuite)
+        testsuite = self.filter_test_by_components(testsuite)
         testsuite = self.filtertest(testsuite)
+        testsuite = self.filter_error(testsuite)
         print "Detect %s test cases." % testsuite.countTestCases()
         print "%-50s %s" % ("Manifest file", "Test cases number")
         for platform in self.platforms:
@@ -110,7 +171,7 @@ class ManifestGener(TestRunnerBase):
     def sort_by_compont(self, testsuite):
         ret = collections.OrderedDict()
         for case in testset(testsuite):
-            key = gettag(case, "Component", "")
+            key = getComponent(case)
             ret.setdefault(key, []).append(case)
         return ret
 
@@ -149,12 +210,18 @@ class ManifestGener(TestRunnerBase):
         '''filter test set'''
         return filter_tagexp(testsuite, tagexp)
 
-    def filter_test_by_arch(self, testsuite, arch):
+    def filter_test_by_components(self, testsuite, components=None):
         '''filter test set'''
-        pass
+        components = self.components if not components else components
+        def _filter_components(testcase):
+            return getComponent(testcase) in components
+        return filter_test(_filter_components, testsuite)
 
 if __name__ == '__main__':
     gener = ManifestGener()
     opts = gener.get_options()
     gener.configure(opts)
-    gener.gen_manifest(gener.loadtest())
+    if opts.list:
+        gener.list_components()
+    else:
+        gener.gen_manifest(gener.loadtest())

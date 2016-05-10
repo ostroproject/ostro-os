@@ -77,6 +77,8 @@ CONFIGUREOPTS = " --build=${BUILD_SYS} \
 		  ${@append_libtool_sysroot(d)}"
 CONFIGUREOPT_DEPTRACK ?= "--disable-dependency-tracking"
 
+CACHED_CONFIGUREVARS ?= ""
+
 AUTOTOOLS_SCRIPT_PATH ?= "${S}"
 CONFIGURE_SCRIPT ?= "${AUTOTOOLS_SCRIPT_PATH}/configure"
 
@@ -293,6 +295,9 @@ autotools_do_configure() {
 		fi
 		mkdir -p m4
 		if grep "^[[:space:]]*[AI][CT]_PROG_INTLTOOL" $CONFIGURE_AC >/dev/null; then
+			if ! echo "${DEPENDS}" | grep -q intltool-native; then
+				bbwarn "Missing DEPENDS on intltool-native"
+			fi
 			bbnote Executing intltoolize --copy --force --automake
 			intltoolize --copy --force --automake
 		fi

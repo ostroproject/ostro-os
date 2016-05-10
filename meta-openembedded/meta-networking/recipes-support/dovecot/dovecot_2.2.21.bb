@@ -17,8 +17,8 @@ DEPENDS = "openssl xz zlib bzip2 libcap icu"
 inherit autotools pkgconfig systemd useradd
 
 PACKAGECONFIG ??= " \
-                   ${@base_contains('DISTRO_FEATURES', 'ldap', 'ldap', '', d)} \
-                   ${@base_contains('DISTRO_FEATURES', 'pam', 'pam', '', d)} \
+                   ${@bb.utils.contains('DISTRO_FEATURES', 'ldap', 'ldap', '', d)} \
+                   ${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)} \
                   "
 
 PACKAGECONFIG[pam] = "--with-pam,--without-pam,libpam,"
@@ -59,9 +59,9 @@ USERADD_PARAM_${PN} = "-r -d ${libexecdir} -M -s ${base_sbindir}/nologin -g dove
                       -r -d ${libexecdir} -M -s ${base_sbindir}/nologin -g dovenull dovenull"
 GROUPADD_PARAM_${PN} = "-f -r dovecot;-f -r dovenull"
 
+FILES_${PN} += "${libdir}/dovecot/*plugin.so \
+                ${libdir}/dovecot/libfs_compress.so \
+                ${libdir}/dovecot/libssl_iostream_openssl.so"
 FILES_${PN}-staticdev += "${libdir}/dovecot/*/*.a"
-FILES_${PN}-dev += "${libdir}/dovecot/*.so"
+FILES_${PN}-dev += "${libdir}/dovecot/libdovecot*.so"
 FILES_${PN}-dbg += "${libdir}/dovecot/*/.debug"
-
-# http://errors.yoctoproject.org/Errors/Details/35133/
-PNBLACKLIST[dovecot] ?= "BROKEN: QA Issue: -dev package contains non-symlink .so"

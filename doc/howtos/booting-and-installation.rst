@@ -14,8 +14,13 @@ Two images are of interest for this process (depending if you're using real hard
     and at least one ext4 partition (rootfs).  For details on disk layout
     see the associated :file:`.json` file in the same directory as the image file.
 
+:file:`.dsk.ova`
+    A pre-packaged VirtualBox\* Virtual Machine appliance file that can be directly imported
+    to VirtualBox\*
+
 :file:`.vdi`
-    A :file:`.dsk` image converted to VirtualBox\* format (with no other differences).
+    A :file:`.dsk` image converted to VirtualBox\* virtual hard drive format (with no other 
+    differences).
 
 
 Ostro OS Images
@@ -351,14 +356,23 @@ the partition tables are wiped out.
 Running Ostro OS in a VirtualBox\* VM
 ======================================
 
-You can run an Ostro OS image within a VirtualBox virtual machine by using the pre-built ``.vdi`` file found
+You can run an Ostro OS image within a VirtualBox virtual machine by using the pre-built ``.ova`` file found
 in the binary release directory (on https://download.ostroproject.org), or as the result of doing your
 own build from source.  As with the other examples above, we recommend you start with the "dev" image.
 
 #. If you have not already done so, download and install VirtualBox (version 5.0.2 or later)
-   on your development system from https://www.virtualbox.org/wiki/Downloads. VirtualBox uses
-   VDI as its native disk image format so you’ll be using that file instead of the .dsk file used
-   with real hardware platforms.
+   on your development system from https://www.virtualbox.org/wiki/Downloads.
+#. Open the VirtualBox program and select "File > Import appliance..."
+#. Click the folder icon in "Import virtual appliance" window, select the ``.ova`` file that you
+   downloaded or created and select "Open". Click next.
+#. A window opens that lists the details of the appliance that you are about to import. Click import.
+#. VirtualBox will now import the virtual machine. After the import is finished, the Ostro OS virtual
+   machine is available in the VM list
+#. Finally, click on the "Start" arrow button and your new virtual machine will start
+   booting the Ostro OS reference image and auto-login as root, no password is required.
+
+Alternatively, you can create the Virtual Machine yourself and use the ``.vdi`` file format.
+
 #. Open the VirtualBox program and start by creating a new machine, give it a name
    (such as "Ostro OS build#"), select "Linux" for the VM type, and
    "Fedora (64-bit)" for the version.  Click next.
@@ -368,8 +382,7 @@ own build from source.  As with the other examples above, we recommend you start
 #. Click on the System options and remove all the boot order options other than the "Hard Disk", and check "Enable EFI (special OSes only)".
    While still on the system configuration, click on the "Acceleration" tab and verify that
    "Enable VT-x/AMX-V" (HW virtualization support) is checked. Click OK.
-#. Finally, click on the "Start" arrow button and your new virtual machine will start
-   booting the Ostro OS reference image and auto-login as root, no password is required.
+#. Finally, you can start the new virtual machine as described above.
 
 If booting fails with a kernel panic, verify you’re using VirtualBox version 5.0.2 or later.  You can shut the machine down
 by either using the :command:`shutdown now` within the running Ostro OS image, or by using the VirtualBox menu

@@ -1,28 +1,36 @@
 #meta-soletta
 
-This is the soletta yocto meta-layer. Soletta Project is a framework for making
-IoT devices. With Soletta Project's libraries developers can easily write
-software for devices that control actuators/sensors and communicate using
-standard technologies. It enables adding smartness even on the smallest edge
-devices.
+The meta-soletta project is a meta-layer for [Yocto](https://www.yoctoproject.org/) that contains the needed recipes to cross-compile Soletta and generate images for a target board.
 
-If you have any question or want to propose any a change contact the soletta
-project on github: https://github.com/solettaproject/.
+The meta-soletta is being supported by [Ostro OS](https://ostroproject.org/), an open source Yocto-based operating system for IoT devices, and it is the recommended method of using the meta-layer.
+ 
+The generated images are snapshots of the operating system ready to be booted. Being Ostro-based they contain all the needed software for an easier IoT development.
 
-##SmallOS
+In this page we include two ways of generating system images: one covers [how to build them with Ostro](#generating-the-images-with-ostro-os) (highly recommended) and the other one covers [how to build them with pure Yocto](#generating-the-images-with-yocto).
 
-SmallOS is a distribution based on poky adding what seems to be required for
-soletta framework + IoT (i.e systemd, udev, and all needed to produce a minimal
-linux system).
+# Generating the images with Ostro OS
 
-##Dependencies
+Ostro supports the following boards:
+  - Intel Edison
+  - MinnowBoard MAX
+  - Intel Galileo Gen2
+  - BeagleBone Black
+  - GigaByte GB-BXBT-3825
 
-The dependencies to build the images are:
-  - Yocto poky or later
-  - meta-intel (If building for intel based-hardware is required)
+To generate the image follow this Ostro documentation: [Ostro Project - Building Images] (https://ostroproject.org/documentation/howtos/building-images.html)
 
-##Build image for Intel Edison
-Go to [Soletta wiki - Edison Instructions](https://github.com/solettaproject/soletta/wiki/Edison-Instructions#yocto)
+## Installing the images
 
-##Build image for Minnowboard Max
-Go to [Soletta wiki - MinnowBoard-MAX-Instructions](https://github.com/solettaproject/soletta/wiki/MinnowBoard-MAX-Instructions)
+To install the generated image follow this tutorial from Ostro: [Ostro Project - Booting and Installation] (https://ostroproject.org/documentation/howtos/booting-and-installation.html)
+
+# Generating the images with Yocto
+
+Only use this option if you are an advanced user of Yocto and you're sure of what you're looking for. Otherwise the [Ostro method](#generating-the-images-with-ostro-os) is highly recommended.
+
+With pure Yocto we support the following boards:
+  - Intel Edison
+  - MinnowBoard MAX
+
+To generate image with Yocto for MinnowBoard MAX: [Building for MinnowBoard MAX](https://github.com/solettaproject/soletta/wiki/MinnowBoard-MAX-Instructions)
+
+To generate image with Yocto for Intel Edison: [Building for Intel Edison] (https://github.com/solettaproject/soletta/wiki/Creating-an-Edison-Image-with-Yocto)

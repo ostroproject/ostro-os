@@ -1,0 +1,68 @@
+Configure: Modify configurations
+
+Several libraries were not found, as the configure script was looking them
+from the system directories instead of Yocto sysroot. Additionally, disable the
+static libstdc++ check, as the component that depends on the libstdc++ will be
+disabled by another patch.
+
+Signed-off-by: Erkka Kääriä <erkka.kaaria@intel.com>
+---
+ configure | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/configure b/configure
+index 237a86f..1be7be6 100755
+--- a/configure
++++ b/configure
+@@ -113,10 +113,10 @@ IASL="iasl"
+ XSLTPROC="xsltproc"
+ GENISOIMAGE="genisoimage"
+ MKISOFS="mkisofs"
+-INCCRYPTO=""
+-LIBCRYPTO="-lssl -lcrypto"
++INCCRYPTO="`pkg-config openssl --cflags`"
++LIBCRYPTO="`pkg-config openssl --libs` -Wl,-rpath=${libdir}"
+ LIBPTHREAD="-lpthread"
+-LIBCAP="-lcap"
++LIBCAP="`pkg-config libcap --cflags --libs` -Wl,-rpath=${libdir}"
+ GSOAP=""
+ GSOAP_IMPORT=""
+ INCX11="/usr/local/include"
+@@ -127,8 +127,8 @@ LIBXINERAMA="-lXinerama"
+ LIBXRANDR="-lXrandr"
+ MAKESELF="makeself"
+ MESA="-lGL"
+-INCZ=""
+-LIBZ="-lz"
++INCZ="`pkg-config zlib --cflags`"
++LIBZ="`pkg-config zlib --libs` -Wl,-rpath=${libdir}"
+ INCVNCSERVER=""
+ LIBVNCSERVER="-lvncserver"
+ INCDEVMAPPER=""
+@@ -142,10 +142,10 @@ if [ "$OS" = "freebsd" ]; then
+   INCPNG="-I/usr/local/include"
+   LIBPNG="-L/usr/local/lib -lpng"
+ else
+-  INCCURL=""
+-  LIBCURL="-lcurl"
+-  INCPNG=""
+-  LIBPNG="-lpng"
++  INCCURL="`pkg-config libcurl --cflags`"
++  LIBCURL="`pkg-config libcurl  --libs` -Wl,-rpath=${libdir}"
++  INCPNG="`pkg-config libpng --cflags`"
++  LIBPNG="`pkg-config libpng --libs` -Wl,-rpath=${libdir}"
+ fi
+ INCVPX=""
+ LIBVPX="-lvpx"
+@@ -2757,7 +2757,7 @@ fi
+ if [ "$OS" = "linux" ]; then
+   # don't check for the static libstdc++ in the PUEL version as we build the
+   # additions at a dedicated box
+-  [ $OSE -ge 1 ] && check_staticlibstdcxx
++  # [ $OSE -ge 1 ] && check_staticlibstdcxx
+   if [ $WITH_KMODS -eq 1 ]; then
+     check_linux
+   else
+--
+2.5.5
+

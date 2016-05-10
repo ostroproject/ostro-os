@@ -125,7 +125,6 @@ class TestRunnerBase(object):
         '''load test suite'''
         if not names:
             names = self.tclist
-        print "tclist: %s" % names
         testloader = unittest.TestLoader()
         tclist = []
         for name in names:

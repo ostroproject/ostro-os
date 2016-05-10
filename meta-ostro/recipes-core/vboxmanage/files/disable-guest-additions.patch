@@ -1,0 +1,45 @@
+src/Vbox/Makefile.kmk: Disable Guest additions
+
+Guest additions requires libstdc++.a to compile, which isn't provided by
+Yocto libraries (no native gcc components available). As guest additions are
+not required for VBoxManage, just disable them.
+
+Signed-off-by: Erkka Kääriä <erkka.kaaria@intel.com>
+---
+ src/VBox/Makefile.kmk | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/VBox/Makefile.kmk b/src/VBox/Makefile.kmk
+index 7f86b7a..52f14f5 100644
+--- a/src/VBox/Makefile.kmk
++++ b/src/VBox/Makefile.kmk
+@@ -26,7 +26,7 @@ ifdef VBOX_ONLY_ADDITIONS
+    include $(PATH_SUB_CURRENT)/GuestHost/Makefile.kmk
+   endif
+  endif
+- include $(PATH_SUB_CURRENT)/Additions/Makefile.kmk
++ # include $(PATH_SUB_CURRENT)/Additions/Makefile.kmk
+
+ else ifdef VBOX_ONLY_DOCS
+  include $(PATH_SUB_CURRENT)/Runtime/Makefile.kmk
+@@ -58,7 +58,7 @@ else ifdef VBOX_ONLY_SDK
+ else ifdef VBOX_ONLY_VALIDATIONKIT
+  include $(PATH_SUB_CURRENT)/Runtime/Makefile.kmk
+  include $(PATH_SUB_CURRENT)/HostDrivers/Makefile.kmk
+- include $(PATH_SUB_CURRENT)/Additions/Makefile.kmk
++ # include $(PATH_SUB_CURRENT)/Additions/Makefile.kmk
+  include $(PATH_SUB_CURRENT)/Disassembler/Makefile.kmk
+  include $(PATH_SUB_CURRENT)/ValidationKit/Makefile.kmk
+
+@@ -88,7 +88,7 @@ else
+   include $(PATH_SUB_CURRENT)/GuestHost/Makefile.kmk
+  endif
+  ifdef VBOX_WITH_ADDITIONS
+-  include $(PATH_SUB_CURRENT)/Additions/Makefile.kmk
++ # include $(PATH_SUB_CURRENT)/Additions/Makefile.kmk
+  endif
+  ifdef VBOX_WITH_VALIDATIONKIT
+   include $(PATH_SUB_CURRENT)/ValidationKit/Makefile.kmk
+--
+2.5.5
+

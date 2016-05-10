@@ -90,7 +90,7 @@ the actual application would be added to ``os-core`` like this.
 For example, you can add the content of the ``sudo`` recipe to the 
 ``os-core`` bundle by adding this line to your ``local.conf`` file::
 
-  ``OSTRO_IMAGE_INSTALL_REFERENCE += "sudo"``
+  OSTRO_IMAGE_INSTALL_REFERENCE += "sudo"
 
 Adding recipes this way works only for adding components to ``os-core``
 and is the typical case when customizing Ostro OS, because the
@@ -103,9 +103,9 @@ content of ``os-core``.
 
 These are the variable that must be modified::
 
-- OSTRO_IMAGE_FEATURES_REFERENCE
-- OSTRO_IMAGE_INSTALL_REFERENCE
-- IMAGE_INSTALL
+* OSTRO_IMAGE_FEATURES_REFERENCE
+* OSTRO_IMAGE_INSTALL_REFERENCE
+* IMAGE_INSTALL
 
 We recommend you modify a copy of the original recipe
 ``ostro-image-swupd.bb`` and refer to ``ostro-image.bbclass``
@@ -165,8 +165,9 @@ contains the
 else might have been added.
 
 If you have ``sudo`` as part of ``os-core``, then you:
-- remove it from the bundle and publish the update, *all* the devices will have sudo removed.
-- add it to the bundle and publish the update, *all* the devices will have sudo installed.
+
+* remove it from the bundle and publish the update, *all* the devices will have sudo removed.
+* add it to the bundle and publish the update, *all* the devices will have sudo installed.
 
 If you have ``sudo`` as ``sudo_bundle``, then you do not automatically install or remove 
 that in any device. You make it available and have an option to be installed or not on each device.
@@ -197,7 +198,7 @@ explicitly listed again.
 
 Example::
 
-   ``SWUPD_BUNDLES = "sudo_bundle"``
+   SWUPD_BUNDLES = "sudo_bundle"
 
 
 

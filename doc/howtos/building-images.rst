@@ -152,7 +152,7 @@ For currently :ref:`platforms`, the appropriate ``MACHINE`` selections are:
     BeagleBone Black            beaglebone
     ==========================  ====================================
 
-Virtual machine images (a :file:`.vdi` file) are created for the ``intel-corei7-64``  hardware platforms as part 
+Virtual machine images (a :file:`.ova` file) are created for the ``intel-corei7-64``  hardware platforms as part 
 of the build process (and included in the prebuilt image folder too).
 
 
@@ -164,13 +164,22 @@ For EFI platforms, you can produce different types of images:
 .dsk:
     The basic format, written to a block device to create a bootable image.
 
+.dsk.ova:
+    Pre-packaged VirtualBox* virtual machine, for running Ostro OS inside
+    a Virtual Machine
+
 .dsk.vdi:
-    VirtualBox* format, for running Ostro OS inside a Virtual Machine.
+    VirtualBox* hard drive format, for running Ostro OS inside a Virtual 
+    Machine. Requires manually creating the Virtual Machine through the
+    VirtualBox* user interface. The ``.dsk.ova`` format is recommended over
+    this.
+
 
 compressed formats:
     Same as above, only compressed, to reduce (final) space occupation
     and speed up the transfer between systems of the Ostro OS image.
-    Notice that the creation of compressed images will require additional
+    Notice that ``.dsk.ova`` files are already compressed.
+    Also notice that the creation of compressed images will require additional
     temporary space, because the creation of the compressed image depends
     on the presence of the uncompressed one.  (To save download time and
     server disk space, we only provide compressed images

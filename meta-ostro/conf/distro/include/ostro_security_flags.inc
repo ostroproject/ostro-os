@@ -12,12 +12,11 @@ SECURITY_CFLAGS_pn-iot-app-fw = "${SECURITY_NO_PIE_CFLAGS} ${SECURITY_PIC_CFLAGS
 SECURITY_CFLAGS_pn-iotivity = "${SECURITY_NO_PIE_CFLAGS} ${SECURITY_PIC_CFLAGS}"
 SECURITY_CFLAGS_pn-krb5 = "${SECURITY_NO_PIE_CFLAGS} ${SECURITY_PIC_CFLAGS}"
 
-# Add format string-specific flags
-SECURITY_CFLAGS += "-Wformat -Wformat-security"
-SECURITY_NO_PIE_CFLAGS += "-Wformat -Wformat-security"
-
-# these packages do not compile with Wformat and Wformat-security
-SECURITY_CFLAGS_remove_pn-openjdk-8 = "-Wformat -Wformat-security"
-SECURITY_CFLAGS_remove_pn-openjre-8 = "-Wformat -Wformat-security"
-SECURITY_CFLAGS_remove_pn-gsignond = "-Wformat -Wformat-security"
-SECURITY_CFLAGS_remove_pn-soletta-dev-app = "-Wformat -Wformat-security"
+# Additional exceptions for packages in Ostro OS which do not
+# compile with -Wformat-security as error (sorted alphabetically).
+SECURITY_STRINGFORMAT_pn-dash = ""
+SECURITY_STRINGFORMAT_pn-giflib = ""
+SECURITY_STRINGFORMAT_pn-gsignond = ""
+SECURITY_STRINGFORMAT_pn-openjdk-8 = ""
+SECURITY_STRINGFORMAT_pn-openjdk-8 = ""
+SECURITY_STRINGFORMAT_pn-openjre-8 = ""

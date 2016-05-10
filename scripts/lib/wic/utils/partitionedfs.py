@@ -22,6 +22,7 @@ import os
 from wic import msger
 from wic.utils.errors import ImageError
 from wic.utils.oe.misc import exec_cmd, exec_native_cmd
+from wic.filemap import sparse_copy
 
 # Overhead of the MBR partitioning scheme (just one sector)
 MBR_OVERHEAD = 1
@@ -87,7 +88,7 @@ class Image(object):
 
     def add_partition(self, size, disk_name, mountpoint, source_file=None, fstype=None,
                       label=None, fsopts=None, boot=False, align=None, no_table=False,
-                      part_type=None, uuid=None):
+                      part_type=None, uuid=None, system_id=None):
         """ Add the next partition. Prtitions have to be added in the
         first-to-last order. """
 
@@ -110,7 +111,8 @@ class Image(object):
                 'align': align, # Partition alignment
                 'no_table' : no_table, # Partition does not appear in partition table
                 'part_type' : part_type, # Partition type
-                'uuid': uuid} # Partition UUID
+                'uuid': uuid, # Partition UUID
+                'system_id': system_id} # Partition system id
 
         self.__add_partition(part)
 
@@ -310,6 +312,10 @@ class Image(object):
                 exec_native_cmd("parted -s %s set %d %s on" % \
                                 (disk['disk'].device, part['num'], flag_name),
                                 self.native_sysroot)
+            if part['system_id']:
+                exec_native_cmd("sfdisk --part-type %s %s %s" % \
+                                (disk['disk'].device, part['num'], part['system_id']),
+                                self.native_sysroot)
 
             # Parted defaults to enabling the lba flag for fat16 partitions,
             # which causes compatibility issues with some firmware (and really
@@ -338,10 +344,7 @@ class Image(object):
             source = part['source_file']
             if source:
                 # install source_file contents into a partition
-                cmd = "dd if=%s of=%s bs=%d seek=%d count=%d conv=notrunc" % \
-                      (source, image_file, self.sector_size,
-                       part['start'], part['size'])
-                exec_cmd(cmd)
+                sparse_copy(source, image_file, part['start'] * self.sector_size)
 
                 msger.debug("Installed %s in partition %d, sectors %d-%d, "
                             "size %d sectors" % \

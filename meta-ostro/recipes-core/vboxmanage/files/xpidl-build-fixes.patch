@@ -1,0 +1,27 @@
+Makefile.kmk: Modify makefile so it builds with yocto
+
+Signed-off-by: Erkka Kääriä <erkka.kaaria@intel.com>
+---
+ VirtualBox-5.0.16/src/libs/xpcom18a4/Makefile.kmk | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/libs/xpcom18a4/Makefile.kmk b/src/libs/xpcom18a4/Makefile.kmk
+index a560b1a..e1a8a58 100644
+--- a/src/libs/xpcom18a4/Makefile.kmk
++++ b/src/libs/xpcom18a4/Makefile.kmk
+@@ -470,10 +470,10 @@ else
+  libIDL_config_cflags := $(shell $(VBOX_LIBIDL_CONFIG) --cflags)
+  libIDL_config_libs   := $(shell $(VBOX_LIBIDL_CONFIG) --libs)
+  xpidl_CFLAGS = \
+-	$(libIDL_config_cflags)
++	$(libIDL_config_cflags) `pkg-config glib-2.0 --cflags`
+  ifeq ($(BUILD_PLATFORM),linux)
+  xpidl_LDFLAGS = \
+-	$(filter-out -l%,$(libIDL_config_libs))
++	$(filter-out -l%,$(libIDL_config_libs)) -Wl,-rpath="${VIRTUALBOX_YOCTO_LIBDIR}"
+  else
+  xpidl_LDFLAGS = \
+ 	$(libIDL_config_libs)
+--
+2.7.0
+

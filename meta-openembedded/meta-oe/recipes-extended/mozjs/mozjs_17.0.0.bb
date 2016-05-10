@@ -14,6 +14,7 @@ SRC_URI = " \
     file://fix-the-compile-error-of-powerpc64.patch;patchdir=../../ \
     file://fix_milestone_compile_issue.patch \
     file://0010-fix-cross-compilation-on-i586-targets.patch;patchdir=../../ \
+    file://0001-add-support-for-big-endian-32bit-ARM.patch;patchdir=../../ \
   "
 
 SRC_URI[md5sum] = "20b6f8f1140ef6e47daa3b16965c9202"
@@ -21,7 +22,7 @@ SRC_URI[sha256sum] = "321e964fe9386785d3bf80870640f2fa1c683e32fe988eeb201b04471c
 
 S = "${WORKDIR}/${BPN}${PV}/js/src"
 
-inherit autotools pkgconfig perlnative
+inherit autotools pkgconfig perlnative pythonnative
 
 DEPENDS += "nspr zlib"
 
@@ -52,17 +53,11 @@ do_configure() {
 }
 
 # patch.bbclass will try to apply the patches already present and fail, so clean them out
-do_sourceclean() {
-    (
-    cd ${WORKDIR}/${BPN}${PV}/patches
-    for i in $(cat series | awk '{print $1}') ; do
-        rm -f $i
-    done
-    rm -f series
-    )
+do_unpack() {
+    tar -xvf ${DL_DIR}/mozjs17.0.0.tar.gz -C ${WORKDIR}/
+    rm -rf ${WORKDIR}/${BPN}${PV}/patches
 }
 
-addtask sourceclean before do_patch after do_unpack
 
 PACKAGES =+ "lib${PN}"
 FILES_lib${PN} += "${libdir}/lib*.so"

@@ -36,7 +36,7 @@ require conf/distro/include/ostro-os-development.inc
 
 # XXX Drop the VM hack after taking care also of the non UEFI devices
 # (those using U-Boot: edison and beaglebone)
-OSTRO_VM_IMAGE_TYPES = "dsk.xz dsk.zip dsk.vdi.zip dsk.bmap dsk.xz.sha256sum dsk.vdi.zip.sha256sum"
+OSTRO_VM_IMAGE_TYPES = "dsk.xz dsk.zip dsk.ova dsk.bmap dsk.xz.sha256sum"
 
 #
 # Automated build targets

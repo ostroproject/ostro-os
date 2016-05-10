@@ -29,7 +29,7 @@ export STAGING_LIBDIR
 export STAGING_DIR_HOST
 export B
 
-DEPENDS_append = " libffi zlib glib-2.0 python"
+DEPENDS_append = " libffi zlib glib-2.0 python flex-native bison-native"
 
 # target build needs qemu to run temporary introspection binaries created
 # on the fly by g-ir-scanner and a native version of itself to run
@@ -108,6 +108,8 @@ EXTRA_OECONF_class-target += "--enable-host-gi \
                               ${@bb.utils.contains('GI_DATA_ENABLED', 'True', '--enable-introspection-data', '--disable-introspection-data', d)} \
                              "
 
+PACKAGECONFIG ?= ""
+PACKAGECONFIG[doctool] = "--enable-doctool,--disable-doctool,python-mako,"
 
 do_compile_prepend_class-target() {
         # This prevents g-ir-scanner from writing cache data to $HOME

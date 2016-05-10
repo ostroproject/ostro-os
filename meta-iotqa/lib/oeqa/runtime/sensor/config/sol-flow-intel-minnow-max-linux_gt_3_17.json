@@ -92,7 +92,7 @@
   {
      "name": "MyAccelBma180",
      "options": {
-           "iio_device": "bma180 create,i2c,i2c,platform/80860F41:05,0x40,bma180 0",
+           "iio_device": "bma180 create,i2c,platform/80860F41:05,0x40,bma180 0",
            "buffer_size": "20"
      },
      "type": "iio/accelerate"

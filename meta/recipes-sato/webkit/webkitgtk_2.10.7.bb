@@ -29,13 +29,13 @@ REQUIRED_DISTRO_FEATURES = "x11"
 
 DEPENDS = "zlib libsoup-2.4 curl libxml2 cairo libxslt libxt libidn gnutls \
            gtk+3 gstreamer1.0 gstreamer1.0-plugins-base flex-native gperf-native sqlite3 \
-	   pango icu bison-native gnome-common gawk intltool-native libwebp \
+	   pango icu bison-native gawk intltool-native libwebp \
 	   atk udev harfbuzz jpeg libpng pulseaudio librsvg libtheora libvorbis libxcomposite libxtst \
 	   ruby-native libnotify gstreamer1.0-plugins-bad \
           "
 
-PACKAGECONFIG ??= "${@base_contains('DISTRO_FEATURES', 'x11', 'x11', 'wayland' ,d)} \
-                   ${@base_contains('DISTRO_FEATURES', 'opengl', 'webgl', '' ,d)} \
+PACKAGECONFIG ??= "${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'x11', 'wayland' ,d)} \
+                   ${@bb.utils.contains('DISTRO_FEATURES', 'opengl', 'webgl', '' ,d)} \
                    enchant \
                    gtk2 \
                    libsecret \
@@ -85,4 +85,3 @@ ARM_INSTRUCTION_SET = "arm"
 # qemu: uncaught target signal 11 (Segmentation fault) - core dumped
 # Segmentation fault
 EXTRA_OECMAKE_append_powerpc = " -DENABLE_INTROSPECTION=OFF "
-

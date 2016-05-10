@@ -109,9 +109,9 @@ SRC_URI_append_intel-quark = " file://bluetooth.cfg"
 SRC_URI_append_intel-quark = " file://galileo2.cfg"
 SRC_URI_append_intel-quark = " file://iio.cfg"
 
-# Disable GFX console and support
-SRC_URI_append_intel-core2-32 = " file://no-gfx.cfg"
-SRC_URI_append_intel-corei7-64 = " file://no-gfx.cfg"
+# Enable/disable GFX console and support as necessary
+SRC_URI_append_intel-core2-32 = "${@bb.utils.contains('DISTRO_FEATURES', 'x11', ' file://gfx.cfg', ' file://no-gfx.cfg', d)}"
+SRC_URI_append_intel-corei7-64 = "${@bb.utils.contains('DISTRO_FEATURES', 'x11', ' file://gfx.cfg', ' file://no-gfx.cfg', d)}"
 
 # enable usb gadget
 SRC_URI_append_intel-quark = " file://usb-gadget.cfg"

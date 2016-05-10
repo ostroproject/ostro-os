@@ -32,6 +32,7 @@ SRC_URI = "http://web.mit.edu/kerberos/dist/${BPN}/${SHRT_VER}/${BP}-signed.tar 
            file://etc/init.d/krb5-admin-server \
            file://etc/default/krb5-kdc \
            file://etc/default/krb5-admin-server \
+           file://krb5-CVE-2016-3119.patch;striplevel=2 \
 "
 SRC_URI[md5sum] = "f7ebfa6c99c10b16979ebf9a98343189"
 SRC_URI[sha256sum] = "e528c30b0209c741f6f320cb83122ded92f291802b6a1a1dc1a01dcdb3ff6de1"
@@ -85,7 +86,7 @@ do_install_append() {
     mkdir -p ${D}/${sysconfdir}/default/volatiles
     echo "d root root 0755 ${localstatedir}/run/krb5kdc none" \
            > ${D}${sysconfdir}/default/volatiles/87_krb5
-    if ${@base_contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
+    if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -d ${D}${sysconfdir}/tmpfiles.d
         echo "d /run/krb5kdc - - - -" \
               > ${D}${sysconfdir}/tmpfiles.d/krb5.conf

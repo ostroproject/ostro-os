@@ -1,0 +1,49 @@
+Virtualbox: Remove X11 dependencies
+
+Signed-off-by: Erkka Kääriä <erkka.kaaria@intel.com>
+---
+ src/VBox/Additions/Makefile.kmk | 3 ---
+ src/VBox/GuestHost/Makefile.kmk | 9 ---------
+ 2 files changed, 12 deletions(-)
+
+diff --git a/src/VBox/Additions/Makefile.kmk b/src/VBox/Additions/Makefile.kmk
+index 3e45e65..ab08ab0 100644
+--- a/src/VBox/Additions/Makefile.kmk
++++ b/src/VBox/Additions/Makefile.kmk
+@@ -48,9 +48,6 @@ VBOX_WITH_ADDITIONS_ISO.$(KBUILD_TARGET).$(KBUILD_TARGET_ARCH) = 1
+ include $(PATH_SUB_CURRENT)/common/Makefile.kmk
+
+ ifndef VBOX_ONLY_VALIDATIONKIT
+- ifdef VBOX_WITH_X11_ADDITIONS
+-  include $(PATH_SUB_CURRENT)/x11/Makefile.kmk
+- endif
+
+  ifeq ($(KBUILD_TARGET),freebsd)
+   include $(PATH_SUB_CURRENT)/freebsd/Makefile.kmk
+diff --git a/src/VBox/GuestHost/Makefile.kmk b/src/VBox/GuestHost/Makefile.kmk
+index 8fb8a48..bb1c07e 100644
+--- a/src/VBox/GuestHost/Makefile.kmk
++++ b/src/VBox/GuestHost/Makefile.kmk
+@@ -18,19 +18,10 @@
+ SUB_DEPTH = ../../..
+ include $(KBUILD_PATH)/subheader.kmk
+
+-# Include sub-makefile(s).
+-ifdef VBOX_WITH_CROGL
+- include $(PATH_SUB_CURRENT)/OpenGL/Makefile.kmk
+-endif
+-
+ ifdef VBOX_WITH_HGSMI
+  include $(PATH_SUB_CURRENT)/HGSMI/Makefile.kmk
+ endif
+
+-ifdef VBOX_WITH_HGCM
+- include $(PATH_SUB_CURRENT)/SharedClipboard/Makefile.kmk
+-endif
+-
+ ifdef VBOX_WITH_DRAG_AND_DROP
+  include $(PATH_SUB_CURRENT)/DragAndDrop/Makefile.kmk
+ endif
+--
+1.9.1
+

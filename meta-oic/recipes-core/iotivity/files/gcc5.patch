@@ -1,0 +1,13 @@
+diff --git a/service/resource-container/src/BundleInfoInternal.cpp b/service/resource-container/src/BundleInfoInternal.cpp
+index a15ae9c..ddd1579 100644
+--- a/service/resource-container/src/BundleInfoInternal.cpp
++++ b/service/resource-container/src/BundleInfoInternal.cpp
+@@ -32,7 +32,7 @@ namespace OIC
+             m_resourceCreator = nullptr;
+             m_resourceDestroyer = nullptr;
+             m_bundleHandle = nullptr;
+-            m_so_bundle = nullptr;
++            m_so_bundle = false;
+
+             m_loaded = false;
+             m_activated = false;

@@ -71,12 +71,16 @@ by installing the "security-manager-policy" package.
 II. Misc
 ========
 
-Conceptually, the components in this layer are optional in a
+Conceptually, several components in this layer (in particular, Cynara,
+security-manager, and the Cynara-aware D-Bus) are optional in a
 Smack-based security architecture and thus sit on top of the
-security-smack layer. This layer here is meant for Cynara,
-security-manager and the Cynara-aware D-Bus.
+security-smack layer.
 
-In practice, Cynara itself is independent of Smack and only needs to
-be installed properly when using Smack. The components using Cynara
+In practice, Cynara itself is independent of Smack and only its installation
+needs to be done slightly differently when using Smack. The components using Cynara
 then use Smack labels as identifiers for the entity trying to get a
 certain permission.
+
+Other components in this layer (like e2fsprogs or keyutils) are
+general-purpose tools or extensions which are needed when using Smack
+or integrity protection.

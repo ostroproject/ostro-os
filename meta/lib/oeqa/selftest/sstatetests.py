@@ -411,9 +411,11 @@ PARALLEL_MAKE = "-j 1"
 DL_DIR = "${TOPDIR}/download1"
 TIME = "111111"
 DATE = "20161111"
-INHERIT_remove = "buildstats-summary buildhistory"
+INHERIT_remove = "buildstats-summary buildhistory uninative"
+http_proxy = ""
 """)
         self.track_for_cleanup(topdir + "/tmp-sstatesamehash")
+        self.track_for_cleanup(topdir + "/download1")
         bitbake("world meta-toolchain -S none")
         self.write_config("""
 TMPDIR = "${TOPDIR}/tmp-sstatesamehash2"
@@ -422,9 +424,13 @@ PARALLEL_MAKE = "-j 2"
 DL_DIR = "${TOPDIR}/download2"
 TIME = "222222"
 DATE = "20161212"
+# Always remove uninative as we're changing proxies
+INHERIT_remove = "uninative"
 INHERIT += "buildstats-summary buildhistory"
+http_proxy = "http://example.com/"
 """)
         self.track_for_cleanup(topdir + "/tmp-sstatesamehash2")
+        self.track_for_cleanup(topdir + "/download2")
         bitbake("world meta-toolchain -S none")
 
         def get_files(d):

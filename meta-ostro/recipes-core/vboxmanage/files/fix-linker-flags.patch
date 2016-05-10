@@ -1,0 +1,354 @@
+Compilers: Fix linker flags
+
+Signed-off-by: Erkka Kääriä <erkka.kaaria@intel.com>
+---
+ kBuild/tools/GCC.kmk        | 4 ++--
+ kBuild/tools/GCC3.kmk       | 4 ++--
+ kBuild/tools/GCC32.kmk      | 4 ++--
+ kBuild/tools/GCC3PLAIN.kmk  | 4 ++--
+ kBuild/tools/GCC42MACHO.kmk | 4 ++--
+ kBuild/tools/GCC4MACHO.kmk  | 4 ++--
+ kBuild/tools/GCC64.kmk      | 4 ++--
+ kBuild/tools/GXX.kmk        | 4 ++--
+ kBuild/tools/GXX3.kmk       | 4 ++--
+ kBuild/tools/GXX32.kmk      | 4 ++--
+ kBuild/tools/GXX3OMF.kmk    | 4 ++--
+ kBuild/tools/GXX3PLAIN.kmk  | 4 ++--
+ kBuild/tools/GXX42MACHO.kmk | 4 ++--
+ kBuild/tools/GXX4MACHO.kmk  | 4 ++--
+ kBuild/tools/GXX64.kmk      | 4 ++--
+ 15 files changed, 30 insertions(+), 30 deletions(-)
+
+diff --git a/kBuild/tools/GCC.kmk b/kBuild/tools/GCC.kmk
+index 428f444..f597bf6 100644
+--- a/kBuild/tools/GCC.kmk
++++ b/kBuild/tools/GCC.kmk
+@@ -203,7 +203,7 @@ TOOL_GCC_LINK_PROGRAM_OUTPUT =
+ TOOL_GCC_LINK_PROGRAM_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),$(subst /,x,$(lib))),, $(lib)))
+ TOOL_GCC_LINK_PROGRAM_DEPORD =
+ define TOOL_GCC_LINK_PROGRAM_CMDS
+-	$(QUIET)$(TOOL_GCC_LD) $(flags) -o $(out) $(objs) \
++	$(QUIET)$(TOOL_GCC_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(flags) -o $(out) $(objs) \
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))
+ endef
+
+@@ -225,7 +225,7 @@ TOOL_GCC_LINK_DLL_OUTPUT =
+ TOOL_GCC_LINK_DLL_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),$(subst /,x,$(lib))),, $(lib)))
+ TOOL_GCC_LINK_DLL_DEPORD =
+ define TOOL_GCC_LINK_DLL_CMDS
+-	$(QUIET)$(TOOL_GCC_LD) $(TOOL_GCC_LDFLAGS.dll) $(flags) -o $(out) $(objs) \
++	$(QUIET)$(TOOL_GCC_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(TOOL_GCC_LDFLAGS.dll) $(flags) -o $(out) $(objs) \
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))
+ endef
+
+diff --git a/kBuild/tools/GCC3.kmk b/kBuild/tools/GCC3.kmk
+index c9a16f0..cd9ae38 100644
+--- a/kBuild/tools/GCC3.kmk
++++ b/kBuild/tools/GCC3.kmk
+@@ -268,7 +268,7 @@ TOOL_GCC3_LINK_PROGRAM_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),$
+ 		$(filter %.def, $(othersrc))
+ TOOL_GCC3_LINK_PROGRAM_DEPORD =
+ define TOOL_GCC3_LINK_PROGRAM_CMDS
+-	$(QUIET)$(TOOL_GCC3_LD) $(flags) -o $(out) $(objs)\
++	$(QUIET)$(TOOL_GCC3_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(flags) -o $(out) $(objs)\
+ 		$(filter %.def, $(othersrc))\
+ 		$(foreach p,$(libpath), -L$(p))\
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))\
+@@ -302,7 +302,7 @@ TOOL_GCC3_LINK_DLL_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),$(sub
+ 		$(filter %.def, $(othersrc))
+ TOOL_GCC3_LINK_DLL_DEPORD =
+ define TOOL_GCC3_LINK_DLL_CMDS
+-	$(QUIET)$(TOOL_GCC3_LD) $(TOOL_GCC3_LDFLAGS.dll) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GCC3_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(TOOL_GCC3_LDFLAGS.dll) $(flags) -o $(out)\
+ 		$(if $(filter-out win os2, $(KBUILD_TARGET)),$(call TOOL_GCC3_LD_SONAME,$(target),$(out)))\
+ 		$(objs)\
+ 		$(filter %.def, $(othersrc))\
+diff --git a/kBuild/tools/GCC32.kmk b/kBuild/tools/GCC32.kmk
+index fc2b1fc..4a5dc87 100644
+--- a/kBuild/tools/GCC32.kmk
++++ b/kBuild/tools/GCC32.kmk
+@@ -263,7 +263,7 @@ TOOL_GCC32_LINK_PROGRAM_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),
+ 		$(filter %.def, $(othersrc))
+ TOOL_GCC32_LINK_PROGRAM_DEPORD =
+ define TOOL_GCC32_LINK_PROGRAM_CMDS
+-	$(QUIET)$(TOOL_GCC32_LD) $(flags) -o $(out) $(objs)\
++	$(QUIET)$(TOOL_GCC32_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(flags) -o $(out) $(objs)\
+ 		$(foreach p,$(libpath), -L$(p))\
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))\
+ 		$(call TOOL_GCC32_LD_MAP,$(outbase).map)
+@@ -296,7 +296,7 @@ TOOL_GCC32_LINK_DLL_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),$(su
+ 		$(filter %.def, $(othersrc))
+ TOOL_GCC32_LINK_DLL_DEPORD =
+ define TOOL_GCC32_LINK_DLL_CMDS
+-	$(QUIET)$(TOOL_GCC32_LD) $(TOOL_GCC32_LDFLAGS.dll) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GCC32_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(TOOL_GCC32_LDFLAGS.dll) $(flags) -o $(out)\
+ 		$(if $(filter-out win os2, $(KBUILD_TARGET)),$(call TOOL_GCC32_LD_SONAME,$(target),$(out)))\
+ 		$(objs)\
+ 		$(foreach p,$(libpath), -L$(p))\
+diff --git a/kBuild/tools/GCC3PLAIN.kmk b/kBuild/tools/GCC3PLAIN.kmk
+index cad9324..aedc901 100644
+--- a/kBuild/tools/GCC3PLAIN.kmk
++++ b/kBuild/tools/GCC3PLAIN.kmk
+@@ -253,7 +253,7 @@ TOOL_GCC3PLAIN_LINK_PROGRAM_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(l
+ 		$(filter %.def, $(othersrc))
+ TOOL_GCC3PLAIN_LINK_PROGRAM_DEPORD =
+ define TOOL_GCC3PLAIN_LINK_PROGRAM_CMDS
+-	$(QUIET)$(TOOL_GCC3PLAIN_LD) $(flags) -o $(out) $(objs)\
++	$(QUIET)$(TOOL_GCC3PLAIN_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(flags) -o $(out) $(objs)\
+ 		$(filter %.def, $(othersrc))\
+ 		$(foreach p,$(libpath), -L$(p))\
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))
+@@ -279,7 +279,7 @@ TOOL_GCC3PLAIN_LINK_DLL_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),
+ 		$(filter %.def, $(othersrc))
+ TOOL_GCC3PLAIN_LINK_DLL_DEPORD =
+ define TOOL_GCC3PLAIN_LINK_DLL_CMDS
+-	$(QUIET)$(TOOL_GCC3PLAIN_LD) $(TOOL_GCC3PLAIN_LDFLAGS.dll) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GCC3PLAIN_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(TOOL_GCC3PLAIN_LDFLAGS.dll) $(flags) -o $(out)\
+ 		$(if $(filter-out win32 os2, $(KBUILD_TARGET)),$(call TOOL_GCC3PLAIN_LD_SONAME,$(target),$(out)))\
+ 		$(objs)\
+ 		$(filter %.def, $(othersrc))\
+diff --git a/kBuild/tools/GCC42MACHO.kmk b/kBuild/tools/GCC42MACHO.kmk
+index 618ac75..ae7c60b 100644
+--- a/kBuild/tools/GCC42MACHO.kmk
++++ b/kBuild/tools/GCC42MACHO.kmk
+@@ -389,7 +389,7 @@ TOOL_GCC42MACHO_LINK_PROGRAM_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(
+ TOOL_GCC42MACHO_LINK_PROGRAM_DEPORD =
+ define TOOL_GCC42MACHO_LINK_PROGRAM_CMDS
+ 	$(QUIET)$(APPEND) -n $(outbase).rsp $(objs)
+-	$(QUIET)$(TOOL_GCC42MACHO_LD) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GCC42MACHO_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(flags) -o $(out)\
+ 		-filelist $(outbase).rsp\
+ 		$(foreach p,$(libpath), -L$(p))\
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))
+@@ -421,7 +421,7 @@ TOOL_GCC42MACHO_LINK_DLL_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib)
+ TOOL_GCC42MACHO_LINK_DLL_DEPORD =
+ define TOOL_GCC42MACHO_LINK_DLL_CMDS
+ 	$(QUIET)$(APPEND) -n $(outbase).rsp $(objs)
+-	$(QUIET)$(TOOL_GCC42MACHO_LD) $(TOOL_GCC42MACHO_LDFLAGS.dll) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GCC42MACHO_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(TOOL_GCC42MACHO_LDFLAGS.dll) $(flags) -o $(out)\
+ 		$(call TOOL_GCC42MACHO_LD_SONAME,$(target),$(out))\
+ 		-filelist $(outbase).rsp\
+ 		$(foreach p,$(libpath), -L$(p))\
+diff --git a/kBuild/tools/GCC4MACHO.kmk b/kBuild/tools/GCC4MACHO.kmk
+index 2a0c91f..2ea43e1 100644
+--- a/kBuild/tools/GCC4MACHO.kmk
++++ b/kBuild/tools/GCC4MACHO.kmk
+@@ -389,7 +389,7 @@ TOOL_GCC4MACHO_LINK_PROGRAM_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(l
+ TOOL_GCC4MACHO_LINK_PROGRAM_DEPORD =
+ define TOOL_GCC4MACHO_LINK_PROGRAM_CMDS
+ 	$(QUIET)$(APPEND) -n $(outbase).rsp $(objs)
+-	$(QUIET)$(TOOL_GCC4MACHO_LD) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GCC4MACHO_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(flags) -o $(out)\
+ 		-filelist $(outbase).rsp\
+ 		$(foreach p,$(libpath), -L$(p))\
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))
+@@ -421,7 +421,7 @@ TOOL_GCC4MACHO_LINK_DLL_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),
+ TOOL_GCC4MACHO_LINK_DLL_DEPORD =
+ define TOOL_GCC4MACHO_LINK_DLL_CMDS
+ 	$(QUIET)$(APPEND) -n $(outbase).rsp $(objs)
+-	$(QUIET)$(TOOL_GCC4MACHO_LD) $(TOOL_GCC4MACHO_LDFLAGS.dll) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GCC4MACHO_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(TOOL_GCC4MACHO_LDFLAGS.dll) $(flags) -o $(out)\
+ 		$(call TOOL_GCC4MACHO_LD_SONAME,$(target),$(out))\
+ 		-filelist $(outbase).rsp\
+ 		$(foreach p,$(libpath), -L$(p))\
+diff --git a/kBuild/tools/GCC64.kmk b/kBuild/tools/GCC64.kmk
+index 586f737..07d0ebd 100644
+--- a/kBuild/tools/GCC64.kmk
++++ b/kBuild/tools/GCC64.kmk
+@@ -258,7 +258,7 @@ TOOL_GCC64_LINK_PROGRAM_DEBUG_INSTALL_FN = $(2).debug=>$(basename $(3)).debug
+ TOOL_GCC64_LINK_PROGRAM_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),$(subst /,x,$(lib))),, $(lib)))
+ TOOL_GCC64_LINK_PROGRAM_DEPORD =
+ define TOOL_GCC64_LINK_PROGRAM_CMDS
+-	$(QUIET)$(TOOL_GCC64_LD) $(flags) -o $(out) $(objs)\
++	$(QUIET)$(TOOL_GCC64_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(flags) -o $(out) $(objs)\
+ 		$(foreach p,$(libpath), -L$(p))\
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))\
+ 		$(call TOOL_GCC64_LD_MAP,$(outbase).map)
+@@ -290,7 +290,7 @@ TOOL_GCC64_LINK_DLL_DEBUG_INSTALL_FN = $(2).debug=>$(basename $(3)).debug
+ TOOL_GCC64_LINK_DLL_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),$(subst /,x,$(lib))),, $(lib)))
+ TOOL_GCC64_LINK_DLL_DEPORD =
+ define TOOL_GCC64_LINK_DLL_CMDS
+-	$(QUIET)$(TOOL_GCC64_LD) $(TOOL_GCC64_LDFLAGS.dll) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GCC64_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(TOOL_GCC64_LDFLAGS.dll) $(flags) -o $(out)\
+ 		$(if $(filter-out win os2, $(KBUILD_TARGET)),$(call TOOL_GCC64_LD_SONAME,$(target),$(out)))\
+ 		$(objs)\
+ 		$(foreach p,$(libpath), -L$(p))\
+diff --git a/kBuild/tools/GXX.kmk b/kBuild/tools/GXX.kmk
+index 3f7c396..f40290d 100644
+--- a/kBuild/tools/GXX.kmk
++++ b/kBuild/tools/GXX.kmk
+@@ -203,7 +203,7 @@ TOOL_GXX_LINK_PROGRAM_OUTPUT =
+ TOOL_GXX_LINK_PROGRAM_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),$(subst /,x,$(lib))),, $(lib)))
+ TOOL_GXX_LINK_PROGRAM_DEPORD =
+ define TOOL_GXX_LINK_PROGRAM_CMDS
+-	$(QUIET)$(TOOL_GXX_LD) $(flags) -o $(out) $(objs) \
++	$(QUIET)$(TOOL_GXX_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(flags) -o $(out) $(objs) \
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))
+ endef
+
+@@ -225,7 +225,7 @@ TOOL_GXX_LINK_DLL_OUTPUT =
+ TOOL_GXX_LINK_DLL_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),$(subst /,x,$(lib))),, $(lib)))
+ TOOL_GXX_LINK_DLL_DEPORD =
+ define TOOL_GXX_LINK_DLL_CMDS
+-	$(QUIET)$(TOOL_GXX_LD) $(TOOL_GXX_LDFLAGS.dll) $(flags) -o $(out) $(objs) \
++	$(QUIET)$(TOOL_GXX_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(TOOL_GXX_LDFLAGS.dll) $(flags) -o $(out) $(objs) \
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))
+ endef
+
+diff --git a/kBuild/tools/GXX3.kmk b/kBuild/tools/GXX3.kmk
+index 8664c8a..c6a92a0 100644
+--- a/kBuild/tools/GXX3.kmk
++++ b/kBuild/tools/GXX3.kmk
+@@ -268,7 +268,7 @@ TOOL_GXX3_LINK_PROGRAM_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),$
+ 		$(filter %.def, $(othersrc))
+ TOOL_GXX3_LINK_PROGRAM_DEPORD =
+ define TOOL_GXX3_LINK_PROGRAM_CMDS
+-	$(QUIET)$(TOOL_GXX3_LD) $(flags) -o $(out) $(objs)\
++	$(QUIET)$(TOOL_GXX3_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(flags) -o $(out) $(objs)\
+ 		$(filter %.def, $(othersrc))\
+ 		$(foreach p,$(libpath), -L$(p))\
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))\
+@@ -302,7 +302,7 @@ TOOL_GXX3_LINK_DLL_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),$(sub
+ 		$(filter %.def, $(othersrc))
+ TOOL_GXX3_LINK_DLL_DEPORD =
+ define TOOL_GXX3_LINK_DLL_CMDS
+-	$(QUIET)$(TOOL_GXX3_LD) $(TOOL_GXX3_LDFLAGS.dll) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GXX3_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(TOOL_GXX3_LDFLAGS.dll) $(flags) -o $(out)\
+ 		$(if $(filter-out win os2, $(KBUILD_TARGET)),$(call TOOL_GXX3_LD_SONAME,$(target),$(out)))\
+ 		$(objs)\
+ 		$(filter %.def, $(othersrc))\
+diff --git a/kBuild/tools/GXX32.kmk b/kBuild/tools/GXX32.kmk
+index 8e4b225..9638bd7 100644
+--- a/kBuild/tools/GXX32.kmk
++++ b/kBuild/tools/GXX32.kmk
+@@ -262,7 +262,7 @@ TOOL_GXX32_LINK_PROGRAM_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),
+ 		$(filter %.def, $(othersrc))
+ TOOL_GXX32_LINK_PROGRAM_DEPORD =
+ define TOOL_GXX32_LINK_PROGRAM_CMDS
+-	$(QUIET)$(TOOL_GXX32_LD) $(flags) -o $(out) $(objs)\
++	$(QUIET)$(TOOL_GXX32_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(flags) -o $(out) $(objs)\
+ 		$(foreach p,$(libpath), -L$(p))\
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))\
+ 		$(call TOOL_GXX32_LD_MAP,$(outbase).map)
+@@ -295,7 +295,7 @@ TOOL_GXX32_LINK_DLL_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),$(su
+ 		$(filter %.def, $(othersrc))
+ TOOL_GXX32_LINK_DLL_DEPORD =
+ define TOOL_GXX32_LINK_DLL_CMDS
+-	$(QUIET)$(TOOL_GXX32_LD) $(TOOL_GXX32_LDFLAGS.dll) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GXX32_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(TOOL_GXX32_LDFLAGS.dll) $(flags) -o $(out)\
+ 		$(if $(filter-out win os2, $(KBUILD_TARGET)),$(call TOOL_GXX32_LD_SONAME,$(target),$(out)))\
+ 		$(objs)\
+ 		$(foreach p,$(libpath), -L$(p))\
+diff --git a/kBuild/tools/GXX3OMF.kmk b/kBuild/tools/GXX3OMF.kmk
+index b71f5e3..0c8214d 100644
+--- a/kBuild/tools/GXX3OMF.kmk
++++ b/kBuild/tools/GXX3OMF.kmk
+@@ -281,7 +281,7 @@ define TOOL_GXX3OMF_LINK_PROGRAM_CMDS
+ 		$(othersrc)\
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))\
+ 		-Zmap=$(outbase).map
+-	$(QUIET)$(TOOL_GXX3OMF_LD) @$(outbase).rsp
++	$(QUIET)$(TOOL_GXX3OMF_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} @$(outbase).rsp
+ endef
+
+
+@@ -312,7 +312,7 @@ define TOOL_GXX3OMF_LINK_DLL_CMDS
+ 		$(othersrc)\
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))\
+ 		-Zmap=$(outbase).map
+-	$(QUIET)$(TOOL_GXX3OMF_LD) @$(outbase).rsp
++	$(QUIET)$(TOOL_GXX3OMF_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} @$(outbase).rsp
+ endef
+
+
+diff --git a/kBuild/tools/GXX3PLAIN.kmk b/kBuild/tools/GXX3PLAIN.kmk
+index fd3d7f5..382de73 100644
+--- a/kBuild/tools/GXX3PLAIN.kmk
++++ b/kBuild/tools/GXX3PLAIN.kmk
+@@ -253,7 +253,7 @@ TOOL_GXX3PLAIN_LINK_PROGRAM_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(l
+ 		$(filter %.def, $(othersrc))
+ TOOL_GXX3PLAIN_LINK_PROGRAM_DEPORD =
+ define TOOL_GXX3PLAIN_LINK_PROGRAM_CMDS
+-	$(QUIET)$(TOOL_GXX3PLAIN_LD) $(flags) -o $(out) $(objs)\
++	$(QUIET)$(TOOL_GXX3PLAIN_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(flags) -o $(out) $(objs)\
+ 		$(filter %.def, $(othersrc))\
+ 		$(foreach p,$(libpath), -L$(p))\
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))
+@@ -279,7 +279,7 @@ TOOL_GXX3PLAIN_LINK_DLL_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),
+ 		$(filter %.def, $(othersrc))
+ TOOL_GXX3PLAIN_LINK_DLL_DEPORD =
+ define TOOL_GXX3PLAIN_LINK_DLL_CMDS
+-	$(QUIET)$(TOOL_GXX3PLAIN_LD) $(TOOL_GXX3PLAIN_LDFLAGS.dll) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GXX3PLAIN_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(TOOL_GXX3PLAIN_LDFLAGS.dll) $(flags) -o $(out)\
+ 		$(if $(filter-out win32 os2, $(KBUILD_TARGET)),$(call TOOL_GXX3PLAIN_LD_SONAME,$(target),$(out)))\
+ 		$(objs)\
+ 		$(filter %.def, $(othersrc))\
+diff --git a/kBuild/tools/GXX42MACHO.kmk b/kBuild/tools/GXX42MACHO.kmk
+index 79a273f..ca34017 100644
+--- a/kBuild/tools/GXX42MACHO.kmk
++++ b/kBuild/tools/GXX42MACHO.kmk
+@@ -389,7 +389,7 @@ TOOL_GXX42MACHO_LINK_PROGRAM_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(
+ TOOL_GXX42MACHO_LINK_PROGRAM_DEPORD =
+ define TOOL_GXX42MACHO_LINK_PROGRAM_CMDS
+ 	$(QUIET)$(APPEND) -n $(outbase).rsp $(objs)
+-	$(QUIET)$(TOOL_GXX42MACHO_LD) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GXX42MACHO_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(flags) -o $(out)\
+ 		-filelist $(outbase).rsp\
+ 		$(foreach p,$(libpath), -L$(p))\
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))
+@@ -420,7 +420,7 @@ TOOL_GXX42MACHO_LINK_DLL_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib)
+ TOOL_GXX42MACHO_LINK_DLL_DEPORD =
+ define TOOL_GXX42MACHO_LINK_DLL_CMDS
+ 	$(QUIET)$(APPEND) -n $(outbase).rsp $(objs)
+-	$(QUIET)$(TOOL_GXX42MACHO_LD) $(TOOL_GXX42MACHO_LDFLAGS.dll) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GXX42MACHO_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(TOOL_GXX42MACHO_LDFLAGS.dll) $(flags) -o $(out)\
+ 		$(call TOOL_GXX42MACHO_LD_SONAME,$(target),$(out))\
+ 		-filelist $(outbase).rsp\
+ 		$(foreach p,$(libpath), -L$(p))\
+diff --git a/kBuild/tools/GXX4MACHO.kmk b/kBuild/tools/GXX4MACHO.kmk
+index a455d56..6533876 100644
+--- a/kBuild/tools/GXX4MACHO.kmk
++++ b/kBuild/tools/GXX4MACHO.kmk
+@@ -389,7 +389,7 @@ TOOL_GXX4MACHO_LINK_PROGRAM_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(l
+ TOOL_GXX4MACHO_LINK_PROGRAM_DEPORD =
+ define TOOL_GXX4MACHO_LINK_PROGRAM_CMDS
+ 	$(QUIET)$(APPEND) -n $(outbase).rsp $(objs)
+-	$(QUIET)$(TOOL_GXX4MACHO_LD) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GXX4MACHO_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(flags) -o $(out)\
+ 		-filelist $(outbase).rsp\
+ 		$(foreach p,$(libpath), -L$(p))\
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))
+@@ -420,7 +420,7 @@ TOOL_GXX4MACHO_LINK_DLL_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),
+ TOOL_GXX4MACHO_LINK_DLL_DEPORD =
+ define TOOL_GXX4MACHO_LINK_DLL_CMDS
+ 	$(QUIET)$(APPEND) -n $(outbase).rsp $(objs)
+-	$(QUIET)$(TOOL_GXX4MACHO_LD) $(TOOL_GXX4MACHO_LDFLAGS.dll) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GXX4MACHO_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(TOOL_GXX4MACHO_LDFLAGS.dll) $(flags) -o $(out)\
+ 		$(call TOOL_GXX4MACHO_LD_SONAME,$(target),$(out))\
+ 		-filelist $(outbase).rsp\
+ 		$(foreach p,$(libpath), -L$(p))\
+diff --git a/kBuild/tools/GXX64.kmk b/kBuild/tools/GXX64.kmk
+index b1abc3f..f82df6b 100644
+--- a/kBuild/tools/GXX64.kmk
++++ b/kBuild/tools/GXX64.kmk
+@@ -258,7 +258,7 @@ TOOL_GXX64_LINK_PROGRAM_DEBUG_INSTALL_FN = $(2).debug=>$(basename $(3)).debug
+ TOOL_GXX64_LINK_PROGRAM_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),$(subst /,x,$(lib))),, $(lib)))
+ TOOL_GXX64_LINK_PROGRAM_DEPORD =
+ define TOOL_GXX64_LINK_PROGRAM_CMDS
+-	$(QUIET)$(TOOL_GXX64_LD) $(flags) -o $(out) $(objs)\
++	$(QUIET)$(TOOL_GXX64_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(flags) -o $(out) $(objs)\
+ 		$(foreach p,$(libpath), -L$(p))\
+ 		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))\
+ 		$(call TOOL_GXX64_LD_MAP,$(outbase).map)
+@@ -290,7 +290,7 @@ TOOL_GXX64_LINK_DLL_DEBUG_INSTALL_FN = $(2).debug=>$(basename $(3)).debug
+ TOOL_GXX64_LINK_DLL_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),$(subst /,x,$(lib))),, $(lib)))
+ TOOL_GXX64_LINK_DLL_DEPORD =
+ define TOOL_GXX64_LINK_DLL_CMDS
+-	$(QUIET)$(TOOL_GXX64_LD) $(TOOL_GXX64_LDFLAGS.dll) $(flags) -o $(out)\
++	$(QUIET)$(TOOL_GXX64_LD) ${VIRTUALBOX_YOCTO_LDFLAGS} $(TOOL_GXX64_LDFLAGS.dll) $(flags) -o $(out)\
+ 		$(if $(filter-out win os2, $(KBUILD_TARGET)),$(call TOOL_GXX64_LD_SONAME,$(target),$(out)))\
+ 		$(objs)\
+ 		$(foreach p,$(libpath), -L$(p))\
+--
+1.9.1
+

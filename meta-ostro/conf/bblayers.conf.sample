@@ -34,7 +34,7 @@ OSTRO_LAYERS = " \
 
 # OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-efl"
 # OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-filesystems"
-# OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-gnome"
+OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-gnome"
 # OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-gpe"
 # OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-initramfs"
 # OSTRO_LAYERS += "##OEROOT##/meta-openembedded/meta-multimedia"
