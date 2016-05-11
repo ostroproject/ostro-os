@@ -67,7 +67,7 @@ create_ova() {
   STORAGE_DEVICE="0"
   STORAGE_DEVICE_TYPE="hdd"
 
-  
+
   RAW_IMAGE="${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.dsk"
   VIRTUALBOX_IMAGE="${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.vmdk"
   VIRTUALBOX_EXECUTABLE="${STAGING_BINDIR_NATIVE}/VBoxManage"
@@ -79,9 +79,8 @@ create_ova() {
 
   mkdir -p ${WORK_FOLDER}
 
-  # erase any temp files from previous builds, as these can cause issues
-  # notably NS_ERROR_FACTORY_NOT_REGISTERED (0x80040154)
-  rm -rf /tmp/.vbox-root-ipc
+  # Ensure we have unique directory for IPC under /tmp
+  export VBOX_IPC_SOCKETID="ostro-appliance-creation-$$"
 
   # create vm
   ${VIRTUALBOX_EXECUTABLE} createvm --name ${VM_NAME} --ostype ${OS_TYPE} --basefolder ${WORK_FOLDER} --register
@@ -91,22 +90,25 @@ create_ova() {
 
   # add bus for hard drives
   ${VIRTUALBOX_EXECUTABLE} storagectl ${VM_NAME} --name ${STORAGE_NAME} --add ${STORAGE_BUS_TYPE}
-  
+
   # create virtual hard drive from the raw .dsk image
   ${VIRTUALBOX_EXECUTABLE} internalcommands createrawvmdk -filename ${VIRTUALBOX_IMAGE} -rawdisk ${RAW_IMAGE}
-  
+
   # attach the .vmdk image as hard drive
   ${VIRTUALBOX_EXECUTABLE} storageattach ${VM_NAME} --storagectl ${STORAGE_NAME} --medium ${VIRTUALBOX_IMAGE} --port ${STORAGE_PORT} --device ${STORAGE_DEVICE} --type ${STORAGE_DEVICE_TYPE}
 
   # export the image
   ${VIRTUALBOX_EXECUTABLE} export ${VM_NAME} --output ${DEPLOY_DIR_IMAGE}/${APPLIANCE_NAME} --ovf20
 
-  # unregister the VM from virtualbox - 
+  # unregister the VM from virtualbox -
   ${VIRTUALBOX_EXECUTABLE} unregistervm  ${VM_NAME}
 
   # chmod the outputs so that they can be accessed by non-owners as well
   chmod +r ${APPLIANCE_NAME}
   chmod +r ${VIRTUALBOX_IMAGE}
+
+  # erase temp files created during appliance generation
+  rm -rf "/tmp/.vbox-${VBOX_IPC_SOCKETID}-ipc"
 }
 
 COMPRESS_CMD_ova = "create_ova"
