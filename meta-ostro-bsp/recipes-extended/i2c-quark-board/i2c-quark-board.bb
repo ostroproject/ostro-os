@@ -9,6 +9,7 @@ inherit module
 FILESEXTRAPATHS_prepend := "${THISDIR}/files/:"
 
 SRC_URI = "file://i2c-quark-mpu6050.c \
+           file://i2c-quark-apds9960.c \
            file://Makefile \
            "
 
