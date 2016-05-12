@@ -22,6 +22,10 @@ SRC_URI_append_edison = " file://edison-iptables.cfg"
 
 ### Hardware support fragments
 
+# additional security hardware support
+SRC_URI_append_intel-core2-32 = " file://security-tpm.cfg"
+SRC_URI_append_intel-corei7-64 = " file://security-tpm.cfg"
+
 # generic support for Broxton platform
 SRC_URI_append_intel-corei7-64 = " file://broxton.cfg"
 
