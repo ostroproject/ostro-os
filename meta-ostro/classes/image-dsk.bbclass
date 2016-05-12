@@ -109,6 +109,7 @@ create_ova() {
 
   # erase temp files created during appliance generation
   rm -rf "/tmp/.vbox-${VBOX_IPC_SOCKETID}-ipc"
+  rm -rf ${WORK_FOLDER}
 }
 
 COMPRESS_CMD_ova = "create_ova"
