@@ -824,7 +824,7 @@ class RunQueueData:
                     msg += "\n%s has unique rprovides:\n  %s" % (provfn, "\n  ".join(rprovide_results[provfn] - commonrprovs))
 
                 if self.warn_multi_bb:
-                    logger.warn(msg)
+                    logger.warning(msg)
                 else:
                     logger.error(msg)
 
@@ -852,7 +852,7 @@ class RunQueueData:
             taskdep = self.dataCache.task_deps[fn]
             fnid = self.taskData.getfn_id(fn)
             if taskname not in taskData.tasks_lookup[fnid]:
-                logger.warn("Task %s does not exist, invalidating this task will have no effect" % taskname)
+                logger.warning("Task %s does not exist, invalidating this task will have no effect" % taskname)
             if 'nostamp' in taskdep and taskname in taskdep['nostamp']:
                 if error_nostamp:
                     bb.fatal("Task %s is marked nostamp, cannot invalidate this task" % taskname)
@@ -2069,7 +2069,7 @@ class RunQueueExecuteScenequeue(RunQueueExecute):
             bb.event.fire(startevent, self.cfgData)
 
             taskdep = self.rqdata.dataCache.task_deps[fn]
-            if 'fakeroot' in taskdep and taskname in taskdep['fakeroot']:
+            if 'fakeroot' in taskdep and taskname in taskdep['fakeroot'] and not self.cooker.configuration.dry_run:
                 if not self.rq.fakeworker:
                     self.rq.start_fakeworker(self)
                 self.rq.fakeworker.stdin.write("<runtask>" + pickle.dumps((fn, realtask, taskname, True, self.cooker.collection.get_file_appends(fn), None)) + "</runtask>")
