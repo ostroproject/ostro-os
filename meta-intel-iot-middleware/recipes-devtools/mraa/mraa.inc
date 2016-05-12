@@ -35,7 +35,7 @@ FILES_${PN}-java = "${libdir}/libmraajava.so \
                     ${libdir}/.debug/libmraajava.so \
                    "
 
-RDEPENDS_${PN}-java += "java-runtime"
+RDEPENDS_${PN}-java += "java2-runtime"
 INSANE_SKIP_${PN}-java = "debug-files"
 
 
