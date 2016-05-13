@@ -29,7 +29,6 @@
 
 import subprocess
 import os
-import re
 
 LicenseChecker = None
 
@@ -38,28 +37,30 @@ fapproved_non_osi = "/configs/la/approved-non-osi"
 fexceptions = "/configs/la/exceptions"
 funwanted = "/configs/la/violations"
 
-class ISA_LicenseChecker():    
+
+class ISA_LicenseChecker():
     initialized = False
 
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
         self.logfile = ISA_config.logdir + "/isafw_lalog"
         self.unwanted = []
-        self.report_name = ISA_config.reportdir + "/la_problems_report_"  + ISA_config.machine + "_"+ ISA_config.timestamp
+        self.report_name = ISA_config.reportdir + "/la_problems_report_" + \
+            ISA_config.machine + "_" + ISA_config.timestamp
         # check that rpm is installed (supporting only rpm packages for now)
         DEVNULL = open(os.devnull, 'wb')
         rc = subprocess.call(["which", "rpm"], stdout=DEVNULL, stderr=DEVNULL)
         DEVNULL.close()
         if rc == 0:
-                self.initialized = True
-                with open(self.logfile, 'a') as flog:
-                    flog.write("\nPlugin ISA_LA initialized!\n")
+            self.initialized = True
+            with open(self.logfile, 'a') as flog:
+                flog.write("\nPlugin ISA_LA initialized!\n")
         else:
             with open(self.logfile, 'a') as flog:
                 flog.write("rpm tool is missing!\n")
 
     def process_package(self, ISA_pkg):
-        if (self.initialized == True):
+        if (self.initialized):
             if ISA_pkg.name:
                 if (not ISA_pkg.licenses):
                     # need to determine licenses first
@@ -67,46 +68,56 @@ class ISA_LicenseChecker():
                         if (not ISA_pkg.path_to_sources):
                             self.initialized = False
                             with open(self.logfile, 'a') as flog:
-                                flog.write("No path to sources or source file list is provided!")
-                                flog.write("\nNot able to determine licenses for package: " + ISA_pkg.name)
-                            return 
+                                flog.write(
+                                    "No path to sources or source file list is provided!")
+                                flog.write(
+                                    "\nNot able to determine licenses for package: " + ISA_pkg.name)
+                            return
                         # need to build list of source files
-                        ISA_pkg.source_files = self.find_files(ISA_pkg.path_to_sources)
+                        ISA_pkg.source_files = self.find_files(
+                            ISA_pkg.path_to_sources)
                     for i in ISA_pkg.source_files:
-                        if (i.endswith(".spec")): # supporting rpm only for now
-                            args = ("rpm", "-q", "--queryformat","%{LICENSE} ", "--specfile", i)
+                        if (i.endswith(".spec")):  # supporting rpm only for now
+                            args = ("rpm", "-q", "--queryformat",
+                                    "%{LICENSE} ", "--specfile", i)
                             try:
-                                popen = subprocess.Popen(args, stdout=subprocess.PIPE)
+                                popen = subprocess.Popen(
+                                    args, stdout=subprocess.PIPE)
                                 popen.wait()
                                 ISA_pkg.licenses = popen.stdout.read().split()
                             except:
                                 self.initialized = False
                                 with open(self.logfile, 'a') as flog:
-                                    flog.write("Error in executing rpm query: " + sys.exc_info())
-                                    flog.write("\nNot able to process package: " + ISA_pkg.name)
-                                return 
-                for l in ISA_pkg.licenses:                                               
-                    if (not self.check_license(l, flicenses) 
-                    and not self.check_license(l, fapproved_non_osi)
-                    and not self.check_exceptions(ISA_pkg.name, l, fexceptions)):
+                                    flog.write(
+                                        "Error in executing rpm query: " + sys.exc_info())
+                                    flog.write(
+                                        "\nNot able to process package: " + ISA_pkg.name)
+                                return
+                for l in ISA_pkg.licenses:
+                    if (not self.check_license(l, flicenses) and
+                            not self.check_license(l, fapproved_non_osi) and
+                            not self.check_exceptions(ISA_pkg.name, l, fexceptions)):
                         # log the package as not following correct license
                         with open(self.report_name, 'a') as freport:
                             freport.write(ISA_pkg.name + ": " + l + "\n")
                     if (self.check_license(l, funwanted)):
-                        # log the package as having license that should not be used
+                        # log the package as having license that should not be
+                        # used
                         with open(self.report_name + "_unwanted", 'a') as freport:
                             freport.write(ISA_pkg.name + ": " + l + "\n")
             else:
                 self.initialized = False
                 with open(self.logfile, 'a') as flog:
-                    flog.write("Mandatory argument package name is not provided!\n")
+                    flog.write(
+                        "Mandatory argument package name is not provided!\n")
                     flog.write("Not performing the call.\n")
         else:
             with open(self.logfile, 'a') as flog:
-                flog.write("Plugin hasn't initialized! Not performing the call.")
+                flog.write(
+                    "Plugin hasn't initialized! Not performing the call.")
 
     def process_report(self):
-        if (self.initialized == True):
+        if (self.initialized):
             with open(self.logfile, 'a') as flog:
                 flog.write("Creating report in XML format.\n")
             self.write_report_xml()
@@ -122,31 +133,36 @@ class ISA_LicenseChecker():
                 import xml.etree.cElementTree as etree
             except ImportError:
                 import xml.etree.ElementTree as etree
-        numTests = 0
+        num_tests = 0
         root = etree.Element('testsuite', name='LA_Plugin', tests='1')
-        if os.path.isfile (self.report_name):
+        if os.path.isfile(self.report_name):
             with open(self.report_name, 'r') as f:
                 for line in f:
-                    numTests += 1
+                    num_tests += 1
                     line = line.strip()
-                    tcase1 = etree.SubElement(root, 'testcase', classname='ISA_LAChecker', name=line.split(':',1)[0])
-                    failrs1 = etree.SubElement(tcase1, 'failure', message=line, type='violation')
+                    tcase1 = etree.SubElement(
+                        root, 'testcase', classname='ISA_LAChecker', name=line.split(':', 1)[0])
+                    etree.SubElement(
+                        tcase1, 'failure', message=line, type='violation')
         else:
-            tcase1 = etree.SubElement(root, 'testcase', classname='ISA_LAChecker', name='none')
-            numTests = 1
-        root.set('tests', str(numTests))
+            tcase1 = etree.SubElement(
+                root, 'testcase', classname='ISA_LAChecker', name='none')
+            num_tests = 1
+        root.set('tests', str(num_tests))
         tree = etree.ElementTree(root)
         output = self.report_name + '.xml'
         try:
-            tree.write(output, encoding='UTF-8', pretty_print=True, xml_declaration=True)
+            tree.write(output, encoding='UTF-8',
+                       pretty_print=True, xml_declaration=True)
         except TypeError:
             tree.write(output, encoding='UTF-8', xml_declaration=True)
 
     def write_report_unwanted(self):
-        if os.path.isfile (self.report_name + "_unwanted"):
+        if os.path.isfile(self.report_name + "_unwanted"):
             with open(self.report_name, 'a') as fout:
                 with open(self.report_name + "_unwanted", 'r') as f:
-                    fout.write("\n\nPackages that violate mandatory license requirements:\n")
+                    fout.write(
+                        "\n\nPackages that violate mandatory license requirements:\n")
                     for line in f:
                         fout.write(line)
             os.remove(self.report_name + "_unwanted")
@@ -155,38 +171,44 @@ class ISA_LicenseChecker():
         list_of_files = []
         for (dirpath, dirnames, filenames) in os.walk(init_path):
             for f in filenames:
-                list_of_files.append(str(dirpath+"/"+f)[:])
+                list_of_files.append(str(dirpath + "/" + f)[:])
         return list_of_files
 
     def check_license(self, license, file_path):
-            with open(os.path.dirname(__file__) + file_path, 'r') as f:
-                for line in f:
-                    s = line.rstrip()
-                    if s == license:
-                        return True
-            return False
+        with open(os.path.dirname(__file__) + file_path, 'r') as f:
+            for line in f:
+                s = line.rstrip()
+                if s == license:
+                    return True
+        return False
 
     def check_exceptions(self, pkg_name, license, file_path):
-            with open(os.path.dirname(__file__) + file_path, 'r') as f:
-                for line in f:
-                    s = line.rstrip()
-                    if s == pkg_name + " " + license:
-                        return True
-            return False
+        with open(os.path.dirname(__file__) + file_path, 'r') as f:
+            for line in f:
+                s = line.rstrip()
+                if s == pkg_name + " " + license:
+                    return True
+        return False
 
 
-#======== supported callbacks from ISA =============#
+# ======== supported callbacks from ISA ============= #
 
 def init(ISA_config):
-    global LicenseChecker 
+    global LicenseChecker
     LicenseChecker = ISA_LicenseChecker(ISA_config)
+
+
 def getPluginName():
     return "ISA_LicenseChecker"
+
+
 def process_package(ISA_pkg):
-    global LicenseChecker 
+    global LicenseChecker
     return LicenseChecker.process_package(ISA_pkg)
+
+
 def process_report():
-    global LicenseChecker 
+    global LicenseChecker
     return LicenseChecker.process_report()
 
-#====================================================#
+# ==================================================== #

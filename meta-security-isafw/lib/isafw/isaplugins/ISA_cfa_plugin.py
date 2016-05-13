@@ -29,7 +29,6 @@
 
 import subprocess
 import os
-import stat
 from re import compile
 from re import sub
 try:
@@ -43,7 +42,8 @@ except ImportError:
 
 CFChecker = None
 
-class ISA_CFChecker():    
+
+class ISA_CFChecker():
     initialized = False
     no_relro = []
     partial_relro = []
@@ -57,8 +57,10 @@ class ISA_CFChecker():
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
         self.logfile = ISA_config.logdir + "/isafw_cfalog"
-        self.full_report_name = ISA_config.reportdir + "/cfa_full_report_" + ISA_config.machine + "_" + ISA_config.timestamp
-        self.problems_report_name = ISA_config.reportdir + "/cfa_problems_report_" + ISA_config.machine + "_" + ISA_config.timestamp
+        self.full_report_name = ISA_config.reportdir + "/cfa_full_report_" + \
+            ISA_config.machine + "_" + ISA_config.timestamp
+        self.problems_report_name = ISA_config.reportdir + \
+            "/cfa_problems_report_" + ISA_config.machine + "_" + ISA_config.timestamp
         self.full_reports = ISA_config.full_reports
         # check that checksec is installed
         DEVNULL = open(os.devnull, 'wb')
@@ -82,14 +84,16 @@ class ISA_CFChecker():
         DEVNULL.close()
 
     def process_filesystem(self, ISA_filesystem):
-        if (self.initialized == True):
+        if (self.initialized):
             if (ISA_filesystem.img_name and ISA_filesystem.path_to_fs):
                 with open(self.logfile, 'a') as flog:
                     flog.write("\n\nFilesystem path is: " + ISA_filesystem.path_to_fs)
-                if self.full_reports :
+                if self.full_reports:
                     with open(self.full_report_name + "_" + ISA_filesystem.img_name, 'w') as ffull_report:
-                        ffull_report.write("Security-relevant flags for executables for image: " + ISA_filesystem.img_name + '\n')
-                        ffull_report.write("With rootfs location at " +  ISA_filesystem.path_to_fs + "\n\n")
+                        ffull_report.write(
+                            "Security-relevant flags for executables for image: " + ISA_filesystem.img_name + '\n')
+                        ffull_report.write("With rootfs location at " +
+                                           ISA_filesystem.path_to_fs + "\n\n")
                 self.files = self.find_files(ISA_filesystem.path_to_fs)
                 with open(self.logfile, 'a') as flog:
                     flog.write("\n\nFile list is: " + str(self.files))
@@ -98,7 +102,8 @@ class ISA_CFChecker():
                 self.write_report_xml(ISA_filesystem)
             else:
                 with open(self.logfile, 'a') as flog:
-                    flog.write("Mandatory arguments such as image name and path to the filesystem are not provided!\n")
+                    flog.write(
+                        "Mandatory arguments such as image name and path to the filesystem are not provided!\n")
                     flog.write("Not performing the call.\n")
         else:
             with open(self.logfile, 'a') as flog:
@@ -110,7 +115,8 @@ class ISA_CFChecker():
             fproblems_report.write("With rootfs location at " + ISA_filesystem.path_to_fs + "\n\n")
             fproblems_report.write("Relocation Read-Only\n")
             fproblems_report.write("More information about RELRO and how to enable it:")
-            fproblems_report.write(" http://tk-blog.blogspot.de/2009/02/relro-not-so-well-known-memory.html\n")
+            fproblems_report.write(
+                " http://tk-blog.blogspot.de/2009/02/relro-not-so-well-known-memory.html\n")
             fproblems_report.write("Files with no RELRO:\n")
             for item in self.no_relro:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
@@ -120,7 +126,8 @@ class ISA_CFChecker():
                 item = item.replace(ISA_filesystem.path_to_fs, "")
                 fproblems_report.write(item + '\n')
             fproblems_report.write("\n\nStack protection\n")
-            fproblems_report.write("More information about canary stack protection and how to enable it:")
+            fproblems_report.write(
+                "More information about canary stack protection and how to enable it:")
             fproblems_report.write("https://lwn.net/Articles/584225/ \n")
             fproblems_report.write("Files with no canary:\n")
             for item in self.no_canary:
@@ -128,7 +135,8 @@ class ISA_CFChecker():
                 fproblems_report.write(item + '\n')
             fproblems_report.write("\n\nPosition Independent Executable\n")
             fproblems_report.write("More information about PIE protection and how to enable it:")
-            fproblems_report.write("https://securityblog.redhat.com/2012/11/28/position-independent-executables-pie/\n")
+            fproblems_report.write(
+                "https://securityblog.redhat.com/2012/11/28/position-independent-executables-pie/\n")
             fproblems_report.write("Files with no PIE:\n")
             for item in self.no_pie:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
@@ -143,64 +151,77 @@ class ISA_CFChecker():
                 item = item.replace(ISA_filesystem.path_to_fs, "")
                 fproblems_report.write(item + '\n')
             fproblems_report.write("\n\nGrop initialization:\n")
-            fproblems_report.write("If using setuid/setgid calls in code, one must call initgroups or setgroups\n")
-            fproblems_report.write("Files that don't initialize groups while using setuid/setgid:\n")
+            fproblems_report.write(
+                "If using setuid/setgid calls in code, one must call initgroups or setgroups\n")
+            fproblems_report.write(
+                "Files that don't initialize groups while using setuid/setgid:\n")
             for item in self.nodrop_groups:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
                 fproblems_report.write(item + '\n')
             fproblems_report.write("\n\nMemory Protection Extensions\n")
             fproblems_report.write("More information about MPX protection and how to enable it:")
-            fproblems_report.write("https://software.intel.com/sites/default/files/managed/9d/f6/Intel_MPX_EnablingGuide.pdf\n")
+            fproblems_report.write(
+                "https://software.intel.com/sites/default/files/managed/9d/f6/Intel_MPX_EnablingGuide.pdf\n")
             fproblems_report.write("Files that don't have MPX protection enabled:\n")
             for item in self.no_mpx:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
                 fproblems_report.write(item + '\n')
 
     def write_report_xml(self, ISA_filesystem):
-        numTests = len(self.no_relro) + len(self.partial_relro) + len(self.no_canary) + len(self.no_pie) + len(self.execstack) + len(self.execstack_not_defined) + len(self.nodrop_groups) + len(self.no_mpx) 
+        numTests = len(self.no_relro) + len(self.partial_relro) + len(self.no_canary) + len(self.no_pie) + \
+            len(self.execstack) + len(self.execstack_not_defined) + \
+            len(self.nodrop_groups) + len(self.no_mpx)
         root = etree.Element('testsuite', name='ISA_CFChecker', tests=str(numTests))
         if self.no_relro:
             for item in self.no_relro:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
-                tcase1 = etree.SubElement(root, 'testcase', classname='files_with_no_RELRO', name=item)
+                tcase1 = etree.SubElement(
+                    root, 'testcase', classname='files_with_no_RELRO', name=item)
                 etree.SubElement(tcase1, 'failure', message=item, type='violation')
         if self.partial_relro:
             for item in self.partial_relro:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
-                tcase1 = etree.SubElement(root, 'testcase', classname='files_with_partial_RELRO', name=item)
+                tcase1 = etree.SubElement(
+                    root, 'testcase', classname='files_with_partial_RELRO', name=item)
                 etree.SubElement(tcase1, 'failure', message=item, type='violation')
-        if self.no_canary: 
+        if self.no_canary:
             for item in self.no_canary:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
-                tcase2 = etree.SubElement(root, 'testcase', classname='files_with_no_canary', name=item)
+                tcase2 = etree.SubElement(
+                    root, 'testcase', classname='files_with_no_canary', name=item)
                 etree.SubElement(tcase2, 'failure', message=item, type='violation')
-        if self.no_pie: 
+        if self.no_pie:
             for item in self.no_pie:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
-                tcase3 = etree.SubElement(root, 'testcase', classname='files_with_no_PIE', name=item)
+                tcase3 = etree.SubElement(
+                    root, 'testcase', classname='files_with_no_PIE', name=item)
                 etree.SubElement(tcase3, 'failure', message=item, type='violation')
-        if self.execstack: 
+        if self.execstack:
             for item in self.execstack:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
-                tcase5 = etree.SubElement(root, 'testcase', classname='files_with_execstack', name=item)
+                tcase5 = etree.SubElement(
+                    root, 'testcase', classname='files_with_execstack', name=item)
                 etree.SubElement(tcase5, 'failure', message=item, type='violation')
-        if self.execstack_not_defined: 
+        if self.execstack_not_defined:
             for item in self.execstack_not_defined:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
-                tcase6 = etree.SubElement(root, 'testcase', classname='files_with_execstack_not_defined', name=item)
+                tcase6 = etree.SubElement(
+                    root, 'testcase', classname='files_with_execstack_not_defined', name=item)
                 etree.SubElement(tcase6, 'failure', message=item, type='violation')
-        if self.nodrop_groups: 
+        if self.nodrop_groups:
             for item in self.nodrop_groups:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
-                tcase7 = etree.SubElement(root, 'testcase', classname='files_with_nodrop_groups', name=item)
+                tcase7 = etree.SubElement(
+                    root, 'testcase', classname='files_with_nodrop_groups', name=item)
                 etree.SubElement(tcase7, 'failure', message=item, type='violation')
-        if self.no_mpx: 
+        if self.no_mpx:
             for item in self.no_mpx:
                 item = item.replace(ISA_filesystem.path_to_fs, "")
-                tcase8 = etree.SubElement(root, 'testcase', classname='files_with_no_mpx', name=item)
+                tcase8 = etree.SubElement(
+                    root, 'testcase', classname='files_with_no_mpx', name=item)
                 etree.SubElement(tcase8, 'failure', message=item, type='violation')
         tree = etree.ElementTree(root)
-        output = self.problems_report_name + "_" + ISA_filesystem.img_name + '.xml' 
+        output = self.problems_report_name + "_" + ISA_filesystem.img_name + '.xml'
         try:
             tree.write(output, encoding='UTF-8', pretty_print=True, xml_declaration=True)
         except TypeError:
@@ -210,7 +231,7 @@ class ISA_CFChecker():
         list_of_files = []
         for (dirpath, dirnames, filenames) in os.walk(init_path):
             for f in filenames:
-                list_of_files.append(str(dirpath+"/"+f)[:])
+                list_of_files.append(str(dirpath + "/" + f)[:])
         return list_of_files
 
     def get_execstack(self, file_name):
@@ -226,7 +247,7 @@ class ISA_CFChecker():
                 self.execstack.append(file_name[:])
             if result.startswith("? "):
                 self.execstack_not_defined.append(file_name[:])
-            DEVNULL.close()             
+            DEVNULL.close()
             return result
 
     def get_nodrop_groups(self, file_name):
@@ -235,14 +256,14 @@ class ISA_CFChecker():
         try:
             result = subprocess.check_output(cmd, stderr=DEVNULL).decode("utf-8")
         except:
-            DEVNULL.close()             
+            DEVNULL.close()
             return "Not able to fetch nodrop groups status"
         else:
             if ("setgid@GLIBC" in result) or ("setegid@GLIBC" in result) or ("setresgid@GLIBC" in result):
                 if ("setuid@GLIBC" in result) or ("seteuid@GLIBC" in result) or ("setresuid@GLIBC" in result):
                     if ("setgroups@GLIBC" not in result) and ("initgroups@GLIBC" not in result):
-                        self.nodrop_groups.append(file_name[:])  
-            DEVNULL.close()                  
+                        self.nodrop_groups.append(file_name[:])
+            DEVNULL.close()
             return result
 
     def get_mpx(self, file_name):
@@ -251,31 +272,31 @@ class ISA_CFChecker():
         try:
             result = subprocess.check_output(cmd, stderr=DEVNULL).decode("utf-8")
         except:
-            DEVNULL.close()             
+            DEVNULL.close()
             return "Not able to fetch mpx status"
         else:
             if ("bndcu" not in result) and ("bndcl" not in result) and ("bndmov" not in result):
                 self.no_mpx.append(file_name[:])
-            DEVNULL.close()                 
+            DEVNULL.close()
             return result
 
     def get_security_flags(self, file_name):
         SF = {
-	        'No RELRO'        : 0,
-	        'Full RELRO'      : 2,
-	        'Partial RELRO'   : 1,
-	        'Canary found'    : 1,
-	        'No canary found' : 0,
-	        'NX disabled'     : 0,
-	        'NX enabled'      : 1,
-	        'No PIE'          : 0,
-	        'PIE enabled'     : 3,
-	        'DSO'             : 2,
-	        'RPATH'           : 0,
-	        'Not an ELF file' : 1,
-	        'No RPATH'        : 1,
-	        'RUNPATH'         : 0,
-	        'No RUNPATH'      : 1
+            'No RELRO': 0,
+            'Full RELRO': 2,
+            'Partial RELRO': 1,
+            'Canary found': 1,
+            'No canary found': 0,
+            'NX disabled': 0,
+            'NX enabled': 1,
+            'No PIE': 0,
+            'PIE enabled': 3,
+            'DSO': 2,
+            'RPATH': 0,
+            'Not an ELF file': 1,
+            'No RPATH': 1,
+            'RUNPATH': 0,
+            'No RUNPATH': 1
         }
         cmd = ['checksec.sh', '--file', file_name]
         try:
@@ -292,11 +313,11 @@ class ISA_CFChecker():
                     self.no_relro.append(file_name[:])
                 if t2 == "Partial RELRO":
                     self.partial_relro.append(file_name[:])
-                elif t2 == "No canary found" :
+                elif t2 == "No canary found":
                     self.no_canary.append(file_name[:])
-                elif t2 == "No PIE" :
+                elif t2 == "No PIE":
                     self.no_pie.append(file_name[:])
-                text.append((t2, SF[t2]))               
+                text.append((t2, SF[t2]))
             return text
 
     def process_files(self, img_name, path_to_fs):
@@ -346,30 +367,34 @@ class ISA_CFChecker():
                         execstack = self.get_execstack(real_file)
                         nodrop_groups = self.get_nodrop_groups(real_file)
                         no_mpx = self.get_mpx(real_file)
-                        if self.full_reports :
+                        if self.full_reports:
                             with open(self.full_report_name + "_" + img_name, 'a') as ffull_report:
                                 real_file = real_file.replace(path_to_fs, "")
                                 ffull_report.write(real_file + ": ")
                                 for s in sec_field:
                                     line = ' '.join(str(x) for x in s)
                                     ffull_report.write(line + ' ')
-                                ffull_report.write('\nexecstack: ' + execstack +' ')
-                                ffull_report.write('\nnodrop_groups: ' + nodrop_groups +' ')
-                                ffull_report.write('\nno mpx: ' + no_mpx +' ')
-                                ffull_report.write('\n')                            
+                                ffull_report.write('\nexecstack: ' + execstack + ' ')
+                                ffull_report.write('\nnodrop_groups: ' + nodrop_groups + ' ')
+                                ffull_report.write('\nno mpx: ' + no_mpx + ' ')
+                                ffull_report.write('\n')
                 else:
                     continue
 
-#======== supported callbacks from ISA =============#
+# ======== supported callbacks from ISA ============ #
+
 
 def init(ISA_config):
-    global CFChecker 
+    global CFChecker
     CFChecker = ISA_CFChecker(ISA_config)
+
+
 def getPluginName():
     return "ISA_CFChecker"
+
+
 def process_filesystem(ISA_filesystem):
-    global CFChecker 
+    global CFChecker
     return CFChecker.process_filesystem(ISA_filesystem)
 
-#====================================================#
-
+# =================================================== #

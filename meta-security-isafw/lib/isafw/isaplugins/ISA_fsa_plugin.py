@@ -38,13 +38,17 @@ except ImportError:
 
 FSAnalyzer = None
 
-class ISA_FSChecker():    
+
+class ISA_FSChecker():
     initialized = False
+
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
         self.logfile = ISA_config.logdir + "/isafw_fsalog"
-        self.full_report_name = ISA_config.reportdir + "/fsa_full_report_" + ISA_config.machine + "_" + ISA_config.timestamp
-        self.problems_report_name = ISA_config.reportdir + "/fsa_problems_report_" + ISA_config.machine + "_" + ISA_config.timestamp
+        self.full_report_name = ISA_config.reportdir + "/fsa_full_report_" + \
+            ISA_config.machine + "_" + ISA_config.timestamp
+        self.problems_report_name = ISA_config.reportdir + \
+            "/fsa_problems_report_" + ISA_config.machine + "_" + ISA_config.timestamp
         self.full_reports = ISA_config.full_reports
         self.initialized = True
         self.setuid_files = []
@@ -55,7 +59,7 @@ class ISA_FSChecker():
             flog.write("\nPlugin ISA_FSChecker initialized!\n")
 
     def process_filesystem(self, ISA_filesystem):
-        if (self.initialized == True):
+        if (self.initialized):
             if (ISA_filesystem.img_name and ISA_filesystem.path_to_fs):
                 with open(self.logfile, 'a') as flog:
                     flog.write("Analyzing filesystem at: " + ISA_filesystem.path_to_fs +
@@ -63,40 +67,46 @@ class ISA_FSChecker():
                 self.files = self.find_fsobjects(ISA_filesystem.path_to_fs)
                 with open(self.logfile, 'a') as flog:
                     flog.write("\nFilelist is: " + str(self.files))
-                if self.full_reports :
+                if self.full_reports:
                     with open(self.full_report_name + "_" + ISA_filesystem.img_name, 'w') as ffull_report:
-                        ffull_report.write("Report for image: " + ISA_filesystem.img_name + '\n')
-                        ffull_report.write("With rootfs location at " + ISA_filesystem.path_to_fs + "\n\n")
+                        ffull_report.write(
+                            "Report for image: " + ISA_filesystem.img_name + '\n')
+                        ffull_report.write(
+                            "With rootfs location at " + ISA_filesystem.path_to_fs + "\n\n")
                 for f in self.files:
                     st = os.lstat(f)
                     i = f.replace(ISA_filesystem.path_to_fs, "")
-                    if self.full_reports :
+                    if self.full_reports:
                         with open(self.full_report_name + "_" + ISA_filesystem.img_name, 'a') as ffull_report:
-                            ffull_report.write("File: " + i + ' mode: ' + str(oct(st.st_mode)) + 
-                                       " uid: " + str(st.st_uid) + " gid: " + str(st.st_gid) + '\n')
-                    if ((st.st_mode&S_ISUID) == S_ISUID):
+                            ffull_report.write("File: " + i + ' mode: ' + str(oct(st.st_mode)) +
+                                               " uid: " + str(st.st_uid) + " gid: " + str(st.st_gid) + '\n')
+                    if ((st.st_mode & S_ISUID) == S_ISUID):
                         self.setuid_files.append(i)
-                    if ((st.st_mode&S_ISGID) == S_ISGID):
+                    if ((st.st_mode & S_ISGID) == S_ISGID):
                         self.setgid_files.append(i)
-                    if ((st.st_mode&S_IWOTH) == S_IWOTH):
-                        if (((st.st_mode&S_IFDIR) == S_IFDIR) and ((st.st_mode&S_ISVTX) != S_ISVTX)):
+                    if ((st.st_mode & S_IWOTH) == S_IWOTH):
+                        if (((st.st_mode & S_IFDIR) == S_IFDIR) and ((st.st_mode & S_ISVTX) != S_ISVTX)):
                             self.no_sticky_bit_ww_dirs.append(i)
-                        if (((st.st_mode&S_IFREG) == S_IFREG) and ((st.st_mode&S_IFLNK) != S_IFLNK)):        
+                        if (((st.st_mode & S_IFREG) == S_IFREG) and ((st.st_mode & S_IFLNK) != S_IFLNK)):
                             self.ww_files.append(i)
                 self.write_problems_report(ISA_filesystem)
                 self.write_problems_report_xml(ISA_filesystem)
             else:
                 with open(self.logfile, 'a') as flog:
-                    flog.write("Mandatory arguments such as image name and path to the filesystem are not provided!\n")
+                    flog.write(
+                        "Mandatory arguments such as image name and path to the filesystem are not provided!\n")
                     flog.write("Not performing the call.\n")
         else:
             with open(self.logfile, 'a') as flog:
-                flog.write("Plugin hasn't initialized! Not performing the call.\n")
+                flog.write(
+                    "Plugin hasn't initialized! Not performing the call.\n")
 
     def write_problems_report(self, ISA_filesystem):
         with open(self.problems_report_name + "_" + ISA_filesystem.img_name, 'w') as fproblems_report:
-            fproblems_report.write("Report for image: " + ISA_filesystem.img_name + '\n')
-            fproblems_report.write("With rootfs location at " + ISA_filesystem.path_to_fs + "\n\n")
+            fproblems_report.write(
+                "Report for image: " + ISA_filesystem.img_name + '\n')
+            fproblems_report.write(
+                "With rootfs location at " + ISA_filesystem.path_to_fs + "\n\n")
             fproblems_report.write("Files with SETUID bit set:\n")
             for item in self.setuid_files:
                 fproblems_report.write(item + '\n')
@@ -106,33 +116,45 @@ class ISA_FSChecker():
             fproblems_report.write("\n\nWorld-writable files:\n")
             for item in self.ww_files:
                 fproblems_report.write(item + '\n')
-            fproblems_report.write("\n\nWorld-writable dirs with no sticky bit:\n")
+            fproblems_report.write(
+                "\n\nWorld-writable dirs with no sticky bit:\n")
             for item in self.no_sticky_bit_ww_dirs:
                 fproblems_report.write(item + '\n')
 
     def write_problems_report_xml(self, ISA_filesystem):
-        numTests = len(self.setuid_files) + len(self.setgid_files) + len(self.ww_files) + len(self.no_sticky_bit_ww_dirs)
-        root = etree.Element('testsuite', name = 'FSA_Plugin', tests = str(numTests))
+        num_tests = len(self.setuid_files) + len(self.setgid_files) + \
+            len(self.ww_files) + len(self.no_sticky_bit_ww_dirs)
+        root = etree.Element(
+            'testsuite', name='FSA_Plugin', tests=str(num_tests))
         if self.setuid_files:
             for item in self.setuid_files:
-                tcase1 = etree.SubElement(root, 'testcase', classname = 'Files_with_SETUID_bit_set', name = item)
-                failrs1 = etree.SubElement(tcase1, 'failure', message = item, type = 'violation')                    
+                tcase1 = etree.SubElement(
+                    root, 'testcase', classname='Files_with_SETUID_bit_set', name=item)
+                etree.SubElement(
+                    tcase1, 'failure', message=item, type='violation')
         if self.setgid_files:
             for item in self.setgid_files:
-                tcase2 = etree.SubElement(root, 'testacase', classname = 'Files_with_SETGID_bit_set', name = item)
-                failrs2 = etree.SubElement(tcase2, 'failure', message = item, type = 'violation')                    
+                tcase2 = etree.SubElement(
+                    root, 'testacase', classname='Files_with_SETGID_bit_set', name=item)
+                etree.SubElement(
+                    tcase2, 'failure', message=item, type='violation')
         if self.ww_files:
             for item in self.ww_files:
-                tcase3 = etree.SubElement(root, 'testase', classname = 'World-writable_files', name = item)
-                failrs3 = etree.SubElement(tcase3, 'failure', message = item, type = 'violation')
+                tcase3 = etree.SubElement(
+                    root, 'testase', classname='World-writable_files', name=item)
+                etree.SubElement(
+                    tcase3, 'failure', message=item, type='violation')
         if self.no_sticky_bit_ww_dirs:
             for item in self.no_sticky_bit_ww_dirs:
-                tcase4 = etree.SubElement(root, 'testcase', classname = 'World-writable_dirs_with_no_sticky_bit', name = item)
-                failrs4 = etree.SubElement(tcase4, 'failure', message = item, type = 'violation')            
+                tcase4 = etree.SubElement(
+                    root, 'testcase', classname='World-writable_dirs_with_no_sticky_bit', name=item)
+                etree.SubElement(
+                    tcase4, 'failure', message=item, type='violation')
         tree = etree.ElementTree(root)
-        output = self.problems_report_name + "_" + ISA_filesystem.img_name + '.xml' 
+        output = self.problems_report_name + "_" + ISA_filesystem.img_name + '.xml'
         try:
-            tree.write(output, encoding='UTF-8', pretty_print=True, xml_declaration=True)
+            tree.write(output, encoding='UTF-8',
+                       pretty_print=True, xml_declaration=True)
         except TypeError:
             tree.write(output, encoding='UTF-8', xml_declaration=True)
 
@@ -142,19 +164,23 @@ class ISA_FSChecker():
             if (dirpath != init_path):
                 list_of_files.append(str(dirpath)[:])
             for f in filenames:
-                list_of_files.append(str(dirpath+"/"+f)[:])
+                list_of_files.append(str(dirpath + "/" + f)[:])
         return list_of_files
 
-#======== supported callbacks from ISA =============#
+# ======== supported callbacks from ISA ============= #
+
 
 def init(ISA_config):
-    global FSAnalyzer 
+    global FSAnalyzer
     FSAnalyzer = ISA_FSChecker(ISA_config)
+
+
 def getPluginName():
     return "ISA_FSChecker"
+
+
 def process_filesystem(ISA_filesystem):
-    global FSAnalyzer 
+    global FSAnalyzer
     return FSAnalyzer.process_filesystem(ISA_filesystem)
 
-#====================================================#
-
+# ==================================================== #

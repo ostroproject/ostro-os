@@ -37,4 +37,4 @@ Current Contents:
 
 __all__ = [
     'isafw',
-    ]
+]

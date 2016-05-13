@@ -27,7 +27,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-import os
 import sys
 import isaplugins
 
@@ -38,40 +37,59 @@ __all__ = [
     'ISA_kernel',
     'ISA_filesystem',
     'ISA',
-    ]
+]
 
 # classes for representing objects for ISA plugins
 
 # source package
+
+
 class ISA_package:
-    name = ""                     # pkg name                            (mandatory argument)
-    version = ""                  # full version                        (mandatory argument)
+    # pkg name                            (mandatory argument)
+    name = ""
+    # full version                        (mandatory argument)
+    version = ""
     licenses = []                 # list of licences for all subpackages
     aliases = []                  # list of alias names for packages if exist
-    source_files = []             # list of strings of source files 
+    source_files = []             # list of strings of source files
     patch_files = []              # list of patch files to be applied
     path_to_sources = ""          # path to the source files
 
 # package list
+
+
 class ISA_pkg_list:
-    img_name = ""                 # image name                            (mandatory argument)
-    path_to_list = ""             # path to the pkg list file             (mandatory argument)
+    # image name                            (mandatory argument)
+    img_name = ""
+    # path to the pkg list file             (mandatory argument)
+    path_to_list = ""
 
 # kernel
+
+
 class ISA_kernel:
-    img_name = ""                 # image name                          (mandatory argument)
-    path_to_config = ""           # path to the kernel config file      (mandatory argument)
+    # image name                          (mandatory argument)
+    img_name = ""
+    # path to the kernel config file      (mandatory argument)
+    path_to_config = ""
 
 # filesystem
+
+
 class ISA_filesystem:
-    img_name = ""                 # image name                          (mandatory argument)
+    # image name                          (mandatory argument)
+    img_name = ""
     type = ""                     # filesystem type
-    path_to_fs = ""               # path to the fs location             (mandatory argument)
+    # path to the fs location             (mandatory argument)
+    path_to_fs = ""
 
 # configuration of ISAFW
 # if both whitelist and blacklist is empty, all avaliable plugins will be used
 # if whitelist has entries, then only whitelisted plugins will be used from a set of avaliable plugins
-# if blacklist has entries, then the specified plugins won't be used even if avaliable and even if specified in whitelist
+# if blacklist has entries, then the specified plugins won't be used even
+# if avaliable and even if specified in whitelist
+
+
 class ISA_config:
     plugin_whitelist = ""         # comma separated list of plugins to whitelist
     plugin_blacklist = ""         # comma separated list of plugins to blacklist
@@ -84,6 +102,7 @@ class ISA_config:
 
 
 class ISA:
+
     def __init__(self, ISA_config):
         self.ISA_config = ISA_config
         for name in isaplugins.__all__:
@@ -92,10 +111,11 @@ class ISA:
                 # see if the plugin has a 'init' attribute
                 register_plugin = plugin.init
             except:
-                print("Error in calling init() for plugin " + plugin.getPluginName())
+                print("Error in calling init() for plugin " +
+                      plugin.getPluginName())
                 print("Error info: ", sys.exc_info())
                 print("Skipping this plugin")
-                continue           
+                continue
             else:
                 if self.ISA_config.plugin_whitelist and plugin.getPluginName() not in self.ISA_config.plugin_whitelist:
                     continue
@@ -200,6 +220,3 @@ class ISA:
                     process_report()
                 except:
                     print("Exception in plugin: ", sys.exc_info())
-
-
-
