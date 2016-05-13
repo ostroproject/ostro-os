@@ -2,5 +2,7 @@
 while true
 do  
     echo 'Hello Ostro!'
+    echo "KEY1=$KEY1"
+    echo "KEY2=$KEY2"
     sleep 10
 done
