@@ -26,6 +26,11 @@ OSTRO_IMAGE_EXTRA_FEATURES += "swupd"
 #
 # Keeping the number of bundles as low as possible is good for build
 # performance, too.
+#
+# Beware that removing bundles (and thus renaming) is currently
+# not supported by swupd client. When the need arises, the old
+# bundle has to be kept with some minimal content (see also
+# https://bugzilla.yoctoproject.org/show_bug.cgi?id=9493).
 SWUPD_BUNDLES ?= " \
     world-dev \
 "
