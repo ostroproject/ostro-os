@@ -61,13 +61,6 @@ BUNDLE_CONTENTS_WORLD ?= " \
     ${OSTRO_IMAGE_INSTALL_DEV} \
 "
 
-BUNDLE_CONTENTS[world] = " \
-    ${BUNDLE_CONTENTS_WORLD} \
-"
-
-# meta-swupd will switch from mapping "world-dev" to "world" +
-# ptest-pkgs. Instead it will expect us to provide the following
-# two variables. Already do that now to ease the transition:
 BUNDLE_CONTENTS[world-dev] = " \
     ${BUNDLE_CONTENTS_WORLD} \
 "
