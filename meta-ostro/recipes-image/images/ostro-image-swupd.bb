@@ -61,11 +61,20 @@ BUNDLE_CONTENTS_WORLD ?= " \
     ${OSTRO_IMAGE_INSTALL_DEV} \
 "
 
+# The additional features automatically add development and
+# ptest packages for everything that gets installed in the
+# bundle.
+#
+# It would be useful to also add debug packages (via dbg-pkgs),
+# but that increases the size too much (ostro-image-swupd-dev content
+# no longer fits for Edison and has very little free space left
+# in the 4GB images used elsewhere).
 BUNDLE_CONTENTS[world-dev] = " \
     ${BUNDLE_CONTENTS_WORLD} \
 "
 BUNDLE_FEATURES[world-dev] = " \
     dev-pkgs \
+    ptest-pkgs \
 "
 
 # When swupd bundles are enabled, choose explicitly which images
