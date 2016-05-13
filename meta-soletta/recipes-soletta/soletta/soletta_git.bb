@@ -98,7 +98,7 @@ do_compile() {
    npm set strict-ssl false
    npm config set registry http://registry.npmjs.org/
 
-   # configure http proxy if neccessary
+   # configure http proxy if necessary
    if [ -n "${http_proxy}" ]; then
        npm config set proxy ${http_proxy}
        NODE_GYP_PROXY="--proxy=${http_proxy}"
