@@ -1,6 +1,6 @@
 #  avahi_%.bbappend
 #
-# Configure to autostart avahi deamon on system boot
+# Configure to autostart avahi daemon on system boot
 
 SYSTEMD_PATH = "${systemd_unitdir}/system/"
 AUTOSTART_SYSTEMD_PATH = "/etc/systemd/system/multi-user.target.wants/"

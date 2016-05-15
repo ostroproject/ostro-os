@@ -10,7 +10,7 @@ it's better to include xattrs to hashes for all files.
 
 Signed-off-by: Dmitry Rozhkov <dmitry.rozhkov@linux.intel.com>
 
-Upstream-Status: Accepted (v3.1.0+)
+Upstream-Status: Backport [v3.1.0+]
 
 ---
  src/manifest.c | 3 ++-
@@ -23,10 +23,10 @@ index 38d386b..dcda18d 100644
 @@ -788,7 +788,8 @@ bool compute_hash_with_xattrs(const char *filename)
  		return true;
  	}
- 
+
 -	return false;
 +	/* Currently swupd-client includes xattrs to hash sums of all files */
 +	return true;
  }
- 
+
  /* Returns 0 == success, -1 == failure */

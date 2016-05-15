@@ -10,7 +10,7 @@ Patch adds an stat() check to ensure that:
 Follow-on patch will add correct corrective behavior once
 verify_fix_path() is implemented
 
-Upstream-Status: Accepted
+Upstream-Status: Backport [v3.0.0+]
 
 Signed-off-by: Brad T. Peters <brad.t.peters@intel.com>
 ---
@@ -31,12 +31,12 @@ index 3a847e2..b8545c1 100644
  	int ret;
 -	struct stat stat;
 +	struct stat s;
- 
+
  	tmp = strdup(file->filename);
  	tmp2 = strdup(file->filename);
 @@ -294,6 +296,29 @@ int do_staging(struct file *file)
  	string_or_die(&original, "%s/staged/%s", STATE_DIR, file->hash);
- 
+
  #if SWUPD_LINUX_ROOTFS
 +	string_or_die(&targetpath, "%s%s", path_prefix, rel_dir);
 +	ret = stat(targetpath, &s);
@@ -67,7 +67,7 @@ index 3a847e2..b8545c1 100644
 @@ -306,12 +331,12 @@ int do_staging(struct file *file)
  	string_or_die(&statfile, "%s/%s/%s", STAGING_SUBVOL, rel_dir, base);
  #endif
- 
+
 -	memset(&stat, 0, sizeof(struct stat));
 -	ret = lstat(statfile, &stat);
 +	memset(&s, 0, sizeof(struct stat));
@@ -84,13 +84,12 @@ index 3a847e2..b8545c1 100644
  			ret = swupd_rm(statfile);
 @@ -325,7 +350,7 @@ int do_staging(struct file *file)
  	free(statfile);
- 
+
  #if SWUPD_LINUX_ROOTFS
 -	if (file->is_dir || S_ISDIR(stat.st_mode)) {
 +	if (file->is_dir || S_ISDIR(s.st_mode)) {
  		/* In the btrfs only scenario there is an implicit
  		 * "create_or_update_dir()" via un-tar-ing a directory.tar after
  		 * download and the untar happens in the staging subvolume which
--- 
+--
 2.5.0
-

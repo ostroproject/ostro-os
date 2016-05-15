@@ -8,7 +8,7 @@ swupd-server should use instead of the default /var/lib/update.
 
 Signed-off-by: Joshua Lock <joshua.g.lock@intel.com>
 
-Upstream-Status: Accepted (v3.0+)
+Upstream-Status: Backport [v3.0+]
 
 ---
  include/swupd.h      | 11 ++++++---
@@ -29,18 +29,18 @@ index 00b88d4..522ac2e 100644
 +++ b/include/swupd.h
 @@ -16,9 +16,6 @@
  #define SWUPD_DEFAULT_FORMAT	3
- 
+
  #define SWUPD_SERVER_STATE_DIR "/var/lib/update"
 -#define PACKSTAGE_DIR SWUPD_SERVER_STATE_DIR "/packstage"
 -#define IMAGE_DIR SWUPD_SERVER_STATE_DIR "/image"
 -#define STAGING_DIR SWUPD_SERVER_STATE_DIR "/www"
- 
+
  #if SWUPD_WITH_SELINUX
  #define TAR_PERM_ATTR_ARGS "--preserve-permissions --xattrs --xattrs-include='*' --selinux"
 @@ -123,9 +120,17 @@ extern int newversion;
  extern int minversion;
  extern char *format_string;
- 
+
 +extern char *state_dir;
 +extern char *packstage_dir;
 +extern char *image_dir;
@@ -52,7 +52,7 @@ index 00b88d4..522ac2e 100644
 +extern bool set_state_dir(char *);
 +extern bool init_state_globals(void);
 +extern void free_state_globals(void);
- 
+
  extern int file_sort_hash(gconstpointer a, gconstpointer b);
  extern int file_sort_filename(gconstpointer a, gconstpointer b);
 diff --git a/src/analyze_fs.c b/src/analyze_fs.c
@@ -60,23 +60,23 @@ index 4d01ccf..f6cfa13 100644
 --- a/src/analyze_fs.c
 +++ b/src/analyze_fs.c
 @@ -389,7 +389,7 @@ struct manifest *full_manifest_from_directory(int version)
- 
+
  	manifest = alloc_manifest(version, "full");
- 
+
 -	string_or_die(&dir, "%s/%i/full", IMAGE_DIR, version);
 +	string_or_die(&dir, "%s/%i/full", image_dir, version);
- 
+
  	threadpool = g_thread_pool_new(get_hash, dir, 12, FALSE, NULL);
- 
+
 @@ -413,7 +413,7 @@ struct manifest *sub_manifest_from_directory(char *component, int version)
- 
+
  	manifest = alloc_manifest(version, component);
- 
+
 -	string_or_die(&dir, "%s/%i/%s", IMAGE_DIR, version, component);
 +	string_or_die(&dir, "%s/%i/%s", image_dir, version, component);
- 
+
  	iterate_directory(manifest, dir, "", false);
- 
+
 diff --git a/src/chroot.c b/src/chroot.c
 index d85b5f7..cb6a04a 100644
 --- a/src/chroot.c
@@ -84,13 +84,13 @@ index d85b5f7..cb6a04a 100644
 @@ -41,14 +41,15 @@ void chroot_create_full(int newversion)
  	struct stat buf;
  	char *full_dir;
- 
+
 -	string_or_die(&full_dir, "%s/%i/full/", IMAGE_DIR, newversion);
 +	string_or_die(&full_dir, "%s/%i/full/ ", image_dir, newversion);
- 
+
  	g_mkdir_with_parents(full_dir, S_IRWXU);
- 
- 
+
+
  	/* start with base */
  	LOG(NULL, "Copying chroot os-core to full", "");
 -	string_or_die(&command, "rsync -aAX " IMAGE_DIR "/%i/os-core/ %s", newversion, full_dir);
@@ -101,7 +101,7 @@ index d85b5f7..cb6a04a 100644
  	free(command);
 @@ -61,8 +62,8 @@ void chroot_create_full(int newversion)
  		}
- 
+
  		LOG(NULL, "Overlaying bundle chroot onto full", "%s", group);
 -		string_or_die(&command, "rsync -aAX --ignore-existing " IMAGE_DIR "/%i/%s/ %s",
 -		             newversion, group, full_dir);
@@ -112,7 +112,7 @@ index d85b5f7..cb6a04a 100644
  		free(command);
 @@ -81,8 +82,8 @@ void chroot_create_full(int newversion)
  		}
- 
+
  		LOG(NULL, "Recopy bundle chroot out of full", "%s", group);
 -		string_or_die(&command, "rsync -aAX --existing %s " IMAGE_DIR "/%i/%s",
 -		             full_dir, newversion, group);
@@ -128,7 +128,7 @@ index 32dc793..ff6a3fa 100644
 @@ -34,6 +34,11 @@ int newversion = -1;
  int minversion = 0;
  char *format_string = NULL;
- 
+
 +char *state_dir = NULL;
 +char *packstage_dir = NULL;
 +char *image_dir = NULL;
@@ -140,7 +140,7 @@ index 32dc793..ff6a3fa 100644
 @@ -52,12 +57,36 @@ bool set_format_string(char *userinput)
  	return true;
  }
- 
+
 +bool set_state_dir(char *dir)
 +{
 +	if (dir == NULL || dir[0] == '\0') {
@@ -166,7 +166,7 @@ index 32dc793..ff6a3fa 100644
  	if (format_string == NULL) {
  		string_or_die(&format_string, "%d", SWUPD_DEFAULT_FORMAT);
  	}
- 
+
 +	if (!init_state_globals()) {
 +		return false;
 +	}
@@ -214,7 +214,7 @@ index ccfedfd..9366cd9 100644
 +	{"statedir", required_argument, 0, 'S'},
  	{0, 0, 0, 0}
  };
- 
+
 @@ -70,6 +71,7 @@ static void print_help(const char *name) {
  	printf("   -m, --minversion        Optional minimum file version to write into manifests per file\n");
  	printf("   -F, --format            Optional format string [ default:=%d ]\n", SWUPD_DEFAULT_FORMAT);
@@ -222,11 +222,11 @@ index ccfedfd..9366cd9 100644
 +	printf("   -S, --statedir          Optional directory to use for state [ default:=%s ]\n", SWUPD_SERVER_STATE_DIR);
  	printf("\n");
  }
- 
+
 @@ -77,7 +79,7 @@ static bool parse_options(int argc, char **argv)
  {
  	int opt;
- 
+
 -	while ((opt = getopt_long(argc, argv, "hvo:m:F:g", prog_opts, NULL)) != -1) {
 +	while ((opt = getopt_long(argc, argv, "hvo:m:F:g:S:", prog_opts, NULL)) != -1) {
  		switch (opt) {
@@ -252,7 +252,7 @@ index ccfedfd..9366cd9 100644
 -	string_or_die(&newversiondir, "%s/%d", IMAGE_DIR, version);
 +
 +	string_or_die(&newversiondir, "%s/%d", image_dir, version);
- 
+
  	if ((access(newversiondir, F_OK | R_OK) != 0) && (version == 0)) {
 +		char *latestpath = NULL;
 +
@@ -263,7 +263,7 @@ index ccfedfd..9366cd9 100644
  			printf("Failed to create directory\n");
 @@ -151,14 +164,17 @@ static void populate_dirs(int version)
  		}
- 
+
  		FILE *latestver;
 -		latestver = fopen_exclusive(IMAGE_DIR "/latest.version");
 +		latestver = fopen_exclusive(latestpath);
@@ -284,14 +284,14 @@ index ccfedfd..9366cd9 100644
 @@ -170,7 +186,7 @@ static void populate_dirs(int version)
  				break;
  			}
- 
+
 -			string_or_die(&newversiondir, "%s/%d/%s", IMAGE_DIR, version, group);
 +			string_or_die(&newversiondir, "%s/%d/%s", image_dir, version, group);
- 
+
  			/* Create the bundle directory(s) as needed */
  			if (access(newversiondir, F_OK | R_OK) != 0) {
 @@ -186,13 +202,18 @@ static void populate_dirs(int version)
- 
+
  static int check_build_env(void)
  {
 -	if (access(SWUPD_SERVER_STATE_DIR "/temp", F_OK | R_OK) != 0) {
@@ -309,22 +309,22 @@ index ccfedfd..9366cd9 100644
  		}
  	}
 +	free(temp_dir);
- 
+
  	return 0;
  }
 @@ -217,6 +238,8 @@ int main(int argc, char **argv)
  	int exit_status = EXIT_FAILURE;
  	int ret;
- 
+
 +	char *file_path = NULL;
 +
  	/* keep valgrind working well */
  	setenv("G_SLICE", "always-malloc", 0);
- 
+
 @@ -240,12 +263,17 @@ int main(int argc, char **argv)
  	}
- 
- 
+
+
 -	if (!read_configuration_file(SWUPD_SERVER_STATE_DIR "/server.ini")) {
 -		printf("Failed to read " SWUPD_SERVER_STATE_DIR "/server.ini configuration file!\n");
 +	string_or_die(&file_path, "%s/server.ini", state_dir);
@@ -334,12 +334,12 @@ index ccfedfd..9366cd9 100644
  		goto exit;
  	}
 +	free(file_path);
- 
+
 -	read_group_file(SWUPD_SERVER_STATE_DIR "/groups.ini");
 +	string_or_die(&file_path, "%s/groups.ini", state_dir);
 +	read_group_file(file_path);
 +	free(file_path);
- 
+
  	read_current_version("latest.version");
  	printf("Last processed version is %i\n", current_version);
 diff --git a/src/make_fullfiles.c b/src/make_fullfiles.c
@@ -349,11 +349,11 @@ index e755a33..bf97a1c 100644
 @@ -27,8 +27,52 @@
  #include <string.h>
  #include <assert.h>
- 
+
 +#include <getopt.h>
 +
  #include <swupd.h>
- 
+
 +static const struct option prog_opts[] = {
 +	{"help", no_argument, 0, 'h'},
 +	{"statedir", required_argument, 0, 'S'},
@@ -404,22 +404,22 @@ index e755a33..bf97a1c 100644
  	struct manifest *manifest;
  	int version;
 +	char *file_path = NULL;
- 
+
  	/* keep valgrind working well */
  	setenv("G_SLICE", "always-malloc", 0);
- 
+
 +	if (!parse_options(argc, argv)) {
 +		free_state_globals();
 +		return EXIT_FAILURE;
 +	}
  	banner();
  	check_root();
- 
+
 -	read_configuration_file(SWUPD_SERVER_STATE_DIR "/server.ini");
 +	string_or_die(&file_path, "%s/server.ini", state_dir);
 +	read_configuration_file(file_path);
 +	free(file_path);
- 
+
 -	if (argc < 1) {
 -		printf("Usage:\n\tswupd_make_fullfiles <version>\n\n");
 +	if (argc - optind < 1) {
@@ -436,7 +436,7 @@ index e755a33..bf97a1c 100644
 @@ -73,5 +126,7 @@ int main(int argc, char **argv)
  	manifest = manifest_from_file(version, "full");
  	create_fullfiles(manifest);
- 
+
 +	free_state_globals();
 +
  	return EXIT_SUCCESS;
@@ -446,18 +446,18 @@ index 20fbd67..2b62b8a 100644
 --- a/src/make_packs.c
 +++ b/src/make_packs.c
 @@ -33,6 +33,8 @@
- 
+
  #include <glib.h>
- 
+
 +#include <getopt.h>
 +
  #include <swupd.h>
- 
+
  static void banner(void)
 @@ -43,12 +45,47 @@ static void banner(void)
  	printf("\n");
  }
- 
+
 -static void usage(void)
 +static const struct option prog_opts[] = {
 +	{"help", no_argument, 0, 'h'},
@@ -503,45 +503,45 @@ index 20fbd67..2b62b8a 100644
 +
 +	return true;
  }
- 
+
  int main(int argc, char **argv)
 @@ -59,11 +96,17 @@ int main(int argc, char **argv)
  	char *module;
  	struct packdata *pack;
  	int exit_status = EXIT_FAILURE;
 +	char *file_path = NULL;
- 
+
 +	if (!parse_options(argc, argv)) {
 +		free_state_globals();
 +		return EXIT_FAILURE;
 +	}
  	banner();
- 
+
 -	if (argc != 4) {
 -		usage();
 +	if (argc - optind != 3) {
 +		usage(argv[0]);
 +		exit(EXIT_FAILURE);
  	}
- 
+
  	/* FIXME: should use "end_version" not "0" and a unique filename
 @@ -76,12 +119,13 @@ int main(int argc, char **argv)
  		return exit_status;
  	}
- 
+
 -	read_configuration_file(SWUPD_SERVER_STATE_DIR "/server.ini");
 -
 +	string_or_die(&file_path, "%s/server.ini", state_dir);
 +	read_configuration_file(file_path);
 +	free(file_path);
- 
+
 -	start_version = strtoull(argv[1], NULL, 10);
 -	end_version = strtoull(argv[2], NULL, 10);
 -	module = argv[3];
 +	start_version = strtoull(argv[optind++], NULL, 10);
 +	end_version = strtoull(argv[optind++], NULL, 10);
 +	module = argv[optind++];
- 
+
  	if ((start_version < 0) ||
  	    (end_version == 0) ||
 @@ -108,5 +152,7 @@ int main(int argc, char **argv)
@@ -558,7 +558,7 @@ index f021af9..5bb99b8 100644
 +++ b/src/pack.c
 @@ -46,21 +46,21 @@ static void empty_pack_stage(int full, int version, char *module)
  	int ret;
- 
+
  	// clean any stale data (eg: re-run after a failure)
 -	string_or_die(&cmd, "rm -rf " PACKSTAGE_DIR "/%s/%i/", module, version);
 +	string_or_die(&cmd, "rm -rf %s/%s/%i/", packstage_dir, module, version);
@@ -571,7 +571,7 @@ index f021af9..5bb99b8 100644
  		exit(EXIT_FAILURE);
  	}
  	free(cmd);
- 
+
  	if (!full) {
  		// (re)create module/version/{delta,staged}
 -		string_or_die(&path, PACKSTAGE_DIR "/%s/%i/delta", module, version);
@@ -586,7 +586,7 @@ index f021af9..5bb99b8 100644
 @@ -76,7 +76,7 @@ static void explode_pack_stage(int version, char *module)
  	struct stat buf;
  	char *path;
- 
+
 -	string_or_die(&path, PACKSTAGE_DIR "/%s/%i/staged", module, version);
 +	string_or_die(&path, "%s/%s/%i/staged", packstage_dir, module, version);
  	g_mkdir_with_parents(path, S_IRWXU | S_IRWXG);
@@ -595,7 +595,7 @@ index f021af9..5bb99b8 100644
 @@ -99,7 +99,8 @@ static void explode_pack_stage(int version, char *module)
  			continue;
  		}
- 
+
 -		string_or_die(&path, PACKSTAGE_DIR "/%s/%i/staged/%s", module, version, entry->d_name);
 +		string_or_die(&path, "%s/%s/%i/staged/%s",
 +		              packstage_dir, module, version, entry->d_name);
@@ -627,18 +627,18 @@ index f021af9..5bb99b8 100644
 @@ -228,8 +229,8 @@ static GList *consolidate_packs_delta_files(GList *files, struct packdata *pack)
  			continue;
  		}
- 
+
 -		string_or_die(&from, STAGING_DIR "/%i/delta/%i-%i-%s", file->last_change,
 -				file->peer->last_change, file->last_change, file->hash);
 +		string_or_die(&from, "%s/%i/delta/%i-%i-%s", staging_dir, file->last_change,
 +		              file->peer->last_change, file->last_change, file->hash);
- 
+
  		ret = stat(from, &stat_delta);
  		if (ret && !find_file_in_list(files, file)) {
 @@ -284,8 +285,8 @@ static int write_pack_signature(struct packdata *pack)
  	char *filename = NULL;
  	int ret = -1;
- 
+
 -	string_or_die(&filename, STAGING_DIR "/%i/pack-%s-from-%i.tar",
 -			pack->to, pack->module, pack->from);
 +	string_or_die(&filename, "%s/%i/pack-%s-from-%i.tar",
@@ -647,7 +647,7 @@ index f021af9..5bb99b8 100644
  		fprintf(stderr, "Creating signature for '%s' failed\n", filename);
  		goto exit;
 @@ -324,12 +325,14 @@ static int make_final_pack(struct packdata *pack)
- 
+
  		/* for each file changed since <X> */
  		/* locate delta, check if the diff it's from is >= <X> */
 -		string_or_die(&from, STAGING_DIR "/%i/delta/%i-%i-%s", file->last_change,
@@ -663,35 +663,35 @@ index f021af9..5bb99b8 100644
 +				file->last_change, file->hash);
 +		string_or_die(&tarto, "%s/%s/%i/staged/%s.tar", packstage_dir, pack->module,
 +				pack->from, file->hash);
- 
+
  		ret = stat(from, &stat_delta);
  		if (ret) {
 @@ -388,8 +391,8 @@ static int make_final_pack(struct packdata *pack)
  		char *from, *to;
  		struct stat st;
- 
+
 -		string_or_die(&from, STAGING_DIR "/%i/Manifest-%s-delta-from-%i",
 -				pack->to, pack->module, pack->from);
 +		string_or_die(&from, "%s/%i/Manifest-%s-delta-from-%i",
 +				staging_dir, pack->to, pack->module, pack->from);
- 
+
  		ret = stat(from, &st);
  		if (ret) {
 @@ -398,8 +401,8 @@ static int make_final_pack(struct packdata *pack)
  		}
- 
- 
+
+
 -		string_or_die(&to, PACKSTAGE_DIR "/%s/%i/Manifest-%s-delta-from-%i",
 -				pack->module, pack->from, pack->module, pack->from);
 +		string_or_die(&to, "%s/%s/%i/Manifest-%s-delta-from-%i",
 +				packstage_dir, pack->module, pack->from, pack->module, pack->from);
- 
+
  		ret = link(from, to);
  		if (ret) {
 @@ -416,16 +419,16 @@ static int make_final_pack(struct packdata *pack)
  		char *from, *to;
  		struct stat st;
- 
+
 -		string_or_die(&from, STAGING_DIR "/%i/Manifest-%s-delta-from-%i",
 -				pack->to, "MoM", pack->from);
 +		string_or_die(&from, "%s/%i/Manifest-%s-delta-from-%i",
@@ -701,16 +701,16 @@ index f021af9..5bb99b8 100644
  			LOG(NULL, "Making extra manifest delta", "MoM: %i->%i", pack->from, pack->to);
  			create_manifest_delta(pack->from, pack->to, "MoM");
  		}
- 
+
 -		string_or_die(&to, PACKSTAGE_DIR "/%s/%i/Manifest-%s-delta-from-%i",
 -				pack->module, pack->from, "MoM", pack->from);
 +		string_or_die(&to, "%s/%s/%i/Manifest-%s-delta-from-%i",
 +				packstage_dir, pack->module, pack->from, "MoM", pack->from);
- 
+
  		ret = link(from, to);
  		if (ret) {
 @@ -439,9 +442,9 @@ static int make_final_pack(struct packdata *pack)
- 
+
  	/* tar the staging directory up */
  	LOG(NULL, "starting tar for pack", "%s: %i to %i", pack->module, pack->from, pack->to);
 -	string_or_die(&tar, "tar " TAR_PERM_ATTR_ARGS " --directory=" PACKSTAGE_DIR "/%s/%i/ "
@@ -728,7 +728,7 @@ index 70f9006..5ea979c 100644
 +++ b/src/rename.c
 @@ -153,7 +153,7 @@ static void precompute_file_data(struct manifest *manifest, struct file *file, i
  	}
- 
+
  	if (manifest)  {
 -		string_or_die(&filename, "%s/%i/%s/%s", IMAGE_DIR, manifest->version, manifest->component, file->filename);
 +		string_or_die(&filename, "%s/%i/%s/%s", image_dir, manifest->version, manifest->component, file->filename);
@@ -737,7 +737,7 @@ index 70f9006..5ea979c 100644
  		while (item) {
 @@ -161,13 +161,13 @@ static void precompute_file_data(struct manifest *manifest, struct file *file, i
  			item = g_list_next(item);
- 
+
  			free(filename);
 -			string_or_die(&filename, "%s/%i/full/%s", IMAGE_DIR, last_change, file->filename);
 +			string_or_die(&filename, "%s/%i/full/%s", image_dir, last_change, file->filename);
@@ -749,7 +749,7 @@ index 70f9006..5ea979c 100644
 -		string_or_die(&filename, "%s/%i/full/%s", IMAGE_DIR, file->last_change, file->filename);
 +		string_or_die(&filename, "%s/%i/full/%s", image_dir, file->last_change, file->filename);
  	}
- 
+
  	/* make sure file->stat.st_size is valid */
 diff --git a/src/versions.c b/src/versions.c
 index eb38acc..3dd1e63 100644
@@ -758,7 +758,7 @@ index eb38acc..3dd1e63 100644
 @@ -213,10 +213,10 @@ GList *get_last_versions_list(int next_version, int max_versions)
  	int idx, build_num, build_type, jump_point;
  	int jump_point_found;
- 
+
 -	dir = opendir(STAGING_DIR);
 +	dir = opendir(staging_dir);
  	if (dir == NULL) {
@@ -767,16 +767,15 @@ index eb38acc..3dd1e63 100644
 +				staging_dir, strerror(errno));
  		return NULL;
  	}
- 
+
 @@ -226,7 +226,7 @@ GList *get_last_versions_list(int next_version, int max_versions)
  		}
- 
+
  		free(filename);
 -		string_or_die(&filename, STAGING_DIR "/%s", entry.d_name);
 +		string_or_die(&filename, "%s/%s", staging_dir, entry.d_name);
- 
+
  		if (lstat(filename, &stat)) {
  			LOG(NULL, "lstat failed", "path= %s, strerror= %s",
--- 
+--
 2.5.0
-

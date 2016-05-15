@@ -154,9 +154,9 @@
      "type": "iio/color"
   },
   {
-     "name": "MyHumidity",
+     "name": "MyHumiditySi7021",
      "options": {
-           "iio_device": "si7021 create,i2c,platform/80860F41:05,0x40,si7021 0",
+           "iio_device": "si7020 create,i2c,platform/80860F41:05,0x40,si7020 0",
            "buffer_size": "-1"
      },
      "type": "iio/humidity"
@@ -264,14 +264,6 @@
            "buffer_size": "-1"
      },
      "type": "iio/temperature"
-  },
-  {
-     "name": "MyHumiditySi7021",
-     "options": {
-           "iio_device": "si7021 create,i2c,platform/80860F41:05,0x40,si7021 0",
-           "buffer_size": "-1"
-     },
-     "type": "iio/humidity"
   }
  ]
 }

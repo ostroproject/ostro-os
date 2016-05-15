@@ -12,7 +12,7 @@ in its format.
 This patch adds one compile-time options --enable-bsdtar that is used
 to enable/disable GNU tar specific options.
 
-Upstream-Status: Accepted
+Upstream-Status: Backport [3.1.0+]
 
 Signed-off-by: Dmitry Rozhkov <dmitry.rozhkov@linux.intel.com>
 ---
@@ -32,7 +32,7 @@ index b11ef0a..930f64c 100644
 @@ -29,6 +29,15 @@ AS_IF([test "x$enable_bzip2" = "xyes" ],
    [AC_DEFINE(SWUPD_WITHOUT_BZIP2,1,[Do not use bzip2 compression])]
  )
- 
+
 +AC_ARG_ENABLE(
 +	[bsdtar],
 +	AS_HELP_STRING([--enable-bsdtar], [Use alternative bsdtar command (uses tar by default)])
@@ -52,7 +52,7 @@ index f2103a2..0c15dca 100644
 @@ -13,10 +13,18 @@
  #define VERIFY_FAILED_MAX_VERSIONS_COUNT 20
  #endif
- 
+
 +#ifdef SWUPD_WITH_BSDTAR
 +#define TAR_COMMAND "bsdtar"
 +#define TAR_XATTR_ARGS ""
@@ -68,7 +68,7 @@ index f2103a2..0c15dca 100644
 -#define TAR_PERM_ATTR_ARGS "--preserve-permissions --xattrs --xattrs-include='*'"
 +#define TAR_PERM_ATTR_ARGS "--preserve-permissions " TAR_XATTR_ARGS
  #endif
- 
+
  #ifdef SWUPD_WITH_REPAIR
 diff --git a/src/download.c b/src/download.c
 index cb6d1a2..211ee24 100644
@@ -76,36 +76,36 @@ index cb6d1a2..211ee24 100644
 +++ b/src/download.c
 @@ -194,7 +194,7 @@ static int check_tarfile_content(struct file *file, const char *tarfilename)
  	int count = 0;
- 
+
  	/* we're using -a because the server side has a choice between different compression methods */
 -	string_or_die(&tarcommand, "tar -tf %s/download/%s.tar 2> /dev/null", STATE_DIR, file->hash);
 +	string_or_die(&tarcommand, TAR_COMMAND " -tf %s/download/%s.tar 2> /dev/null", STATE_DIR, file->hash);
- 
+
  	err = access(tarfilename, R_OK);
  	if (err) {
 @@ -300,7 +300,7 @@ static void untar_full_download(void *data)
  	}
- 
+
  	/* modern tar will automatically determine the compression type used */
 -	string_or_die(&tarcommand, "tar -C %s/staged/ " TAR_PERM_ATTR_ARGS " -xf %s 2> /dev/null",
 +	string_or_die(&tarcommand, TAR_COMMAND " -C %s/staged/ " TAR_PERM_ATTR_ARGS " -xf %s 2> /dev/null",
  			STATE_DIR, tarfile);
- 
+
  	LOG_DEBUG(file, "Doing tar operation", class_file_compression, "%s", tarcommand);
 diff --git a/src/esp.c b/src/esp.c
 index e2b2ae9..3483f55 100644
 --- a/src/esp.c
 +++ b/src/esp.c
 @@ -231,8 +231,8 @@ int copy_files_to_esp(int target_version)
- 
+
  	progress_step(PROGRESS_MSG_UPDATE_ESP);
- 
+
 -	string_or_die(&tarcommand, "tar -C %s/%d/system/vendor/intel/ -cf - esp 2> /dev/null | "
 -				  "tar -C %s/ -xf - --no-same-permissions --no-same-owner --transform=\"s/esp//\" 2> /dev/null",
 +	string_or_die(&tarcommand, TAR_COMMAND " -C %s/%d/system/vendor/intel/ -cf - esp 2> /dev/null | "
 +				  TAR_COMMAND " -C %s/ -xf - --no-same-permissions --no-same-owner --transform=\"s/esp//\" 2> /dev/null",
  				  MOUNT_POINT, target_version, ESP_MOUNT);
- 
+
  	ret = system(tarcommand);
 diff --git a/src/manifest.c b/src/manifest.c
 index 5757e9f..7c356d7 100644
@@ -113,7 +113,7 @@ index 5757e9f..7c356d7 100644
 +++ b/src/manifest.c
 @@ -34,6 +34,7 @@
  #include <fcntl.h>
- 
+
  #include "config.h"
 +#include "swupd-build-variant.h"
  #include <swupd.h>
@@ -122,11 +122,11 @@ index 5757e9f..7c356d7 100644
 @@ -519,7 +520,7 @@ static int retrieve_manifests(int current, int version, char *component, struct
  		goto out;
  	}
- 
+
 -	string_or_die(&tar, "tar -C %s/%i -xf %s/%i/Manifest.%s.tar 2> /dev/null",
 +	string_or_die(&tar, TAR_COMMAND " -C %s/%i -xf %s/%i/Manifest.%s.tar 2> /dev/null",
  			STATE_DIR, version, STATE_DIR, version, component);
- 
+
  	LOG_DEBUG(NULL, "tar", class_file_compression, "running %s", tar);
 diff --git a/src/packs.c b/src/packs.c
 index b176b74..91a83c5 100644
@@ -134,12 +134,12 @@ index b176b74..91a83c5 100644
 +++ b/src/packs.c
 @@ -83,7 +83,7 @@ static int download_pack(int oldversion, int newversion, char *module)
  	free(url);
- 
+
  	progress_step(PROGRESS_MSG_EXTRACTING_PACK);
 -	string_or_die(&tar, "tar -C %s " TAR_PERM_ATTR_ARGS " -xf %s/pack-%s-from-%i-to-%i.tar 2> /dev/null",
 +	string_or_die(&tar, TAR_COMMAND " -C %s " TAR_PERM_ATTR_ARGS " -xf %s/pack-%s-from-%i-to-%i.tar 2> /dev/null",
  			STATE_DIR, STATE_DIR, module, oldversion, newversion);
- 
+
  	LOG_INFO(NULL, "Untar of delta pack", class_file_compression, "%s", tar);
 diff --git a/src/staging.c b/src/staging.c
 index 16dafbb..742e8a2 100644
@@ -178,6 +178,5 @@ index 16dafbb..742e8a2 100644
  		STATE_DIR, file->hash, STAGING_SUBVOL, rel_dir, file->hash, base);
  	ret = system(tarcommand);
  	free(tarcommand);
--- 
+--
 2.5.0
-

@@ -12,7 +12,7 @@ Also a target file may have a name with '@' as its first symbol.
 Since the symbol has a special meaning in case of bsdtar the
 name needs to escaped in tar commands with the prefix './'.
 
-Upstream-Status: Submitted [https://github.com/clearlinux/swupd-client/pull/43]
+Upstream-Status: Backport [v3.5.2+]
 
 Signed-off-by: Dmitry Rozhkov <dmitry.rozhkov@linux.intel.com>
 ---
@@ -54,6 +54,5 @@ index 742e8a2..6f7eafb 100644
  		TAR_COMMAND " -C %s/%s " TAR_PERM_ATTR_ARGS " -xf - --transform=\"s/%s/%s/\" 2> /dev/null",
  		STATE_DIR, file->hash, STAGING_SUBVOL, rel_dir, file->hash, base);
  	ret = system(tarcommand);
--- 
+--
 2.5.0
-

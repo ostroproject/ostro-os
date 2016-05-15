@@ -3,7 +3,7 @@ From: Amarnath Valluri <amarnath.valluri@intel.com>
 Date: Wed, 13 Jan 2016 15:46:19 +0200
 Subject: [PATCH] Right usage of AC_ARG_ENABLE on bzip2
 
-Upstream-Status: Pending[Not submitted]
+Upstream-Status: Pending
 
 Signed-off-by: Amarnath Valluri <amarnath.valluri@intel.com>
 ---
@@ -31,8 +31,7 @@ index f94a17d..b11ef0a 100644
 +	 AC_CHECK_LIB([bz2], [BZ2_bzBuffToBuffCompress], [], [AC_MSG_ERROR([the libbz2 library is missing])])],
 +  [AC_DEFINE(SWUPD_WITHOUT_BZIP2,1,[Do not use bzip2 compression])]
  )
- 
- AC_ARG_WITH([systemdsystemunitdir], AS_HELP_STRING([--with-systemdsystemunitdir=DIR],
--- 
-2.1.4
 
+ AC_ARG_WITH([systemdsystemunitdir], AS_HELP_STRING([--with-systemdsystemunitdir=DIR],
+--
+2.1.4

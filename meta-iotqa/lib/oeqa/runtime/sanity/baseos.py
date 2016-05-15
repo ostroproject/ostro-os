@@ -17,6 +17,7 @@
 
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.decorators import tag
+import re
 
 @tag(TestType="FVT", FeatureID="IOTOS-638")
 class BaseOsTest(oeRuntimeTest):
@@ -102,7 +103,35 @@ class BaseOsTest(oeRuntimeTest):
             status=1
         self.assertEqual(status, 0, msg="Error messages: %s" % output)
 
+    def test_baseos_systemd_boot_error(self):
+        ''' check systemd boot journal error''' 
+        known_issues_list = [
+            "GPT: Use GNU Parted to correct GPT errors",
+            # IOTOS-1575 [Edison] wpa_supplicant error during system booting
+            "Failed to open config file '/etc/wpa_supplicant/wpa_supplicant-wlan0.conf'",
+            "^\w{3,} \d{,2} \d{2}:\d{2}:\d{2} \S+ kernel:",
+            ]
+        self.longMessage = True
+        cmd = "journalctl -ab"
+        (status, output) = self.target.run("journalctl -ab")
+        self.assertEqual(status, 0, "Fail to run %s,status is %s, output is: %s\n" 
+                                              % (cmd,status,output))
 
+        self.assertTrue(output.strip(), "No systemd journal log")
+        journal = output
+        errors = []
+        for line in output.split('\n'):
+            if 'error' in line.lower():
+                flag = 0
+                for issue in known_issues_list:
+                    if re.search(issue, line.strip()) :
+                        flag = 1
+                        break
+                if flag == 0 :
+                    errors.append(line)
+
+        self.assertEqual(0, len(errors), "Errors in boot log:\n %s, \nFull log:\n %s" 
+                                 % ("\n".join(errors), journal))
 ##
 # @}
 # @}

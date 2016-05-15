@@ -41,6 +41,9 @@ class TestGyroMPU6050(oeRuntimeTest):
         if "Galileo" in output:
            (status, output) = self.target.run(
                          "rmmod i2c-quark-mpu6050")
+        if "BODEGA" in output:
+           (status, output) = self.target.run(
+                         "rmmod i2c-edison-mpu6050")
         
     def test_Gyro_MPU6050(self):
         '''Execute the test app and verify sensor data
