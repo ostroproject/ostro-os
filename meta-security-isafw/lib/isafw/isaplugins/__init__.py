@@ -38,7 +38,7 @@ for name in glob.glob(os.path.join(basedir, '*.py')):
     module = os.path.splitext(os.path.split(name)[-1])[0]
     if not module.startswith('_') and not keyword.iskeyword(module):
         try:
-            __import__(__name__+'.'+module)
+            __import__(__name__ + '.' + module)
         except:
             e = sys.exc_info()
             print e
