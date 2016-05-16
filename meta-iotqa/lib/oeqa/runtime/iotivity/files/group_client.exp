@@ -5,7 +5,7 @@ spawn ssh root@$ip -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -
  expect {
  "FOUND Resource"
    {
-    send "1\n"; exp_continue
+    sleep 10; send "1\n"; exp_continue
    }
  "ActionSet :: allbulboff"
    {
