@@ -115,12 +115,6 @@ def write_log(output):
     @fn write_log
     @param self
     '''
-    os.chdir(
-        ''.join([
-            os.path.dirname(os.path.realpath(__file__)),
-            '/../../../'
-            ])
-        )
     log_file = 'results-iotivity-node-upstream.log'
     if os.path.exists(log_file):
         os.remove(log_file)
