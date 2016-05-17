@@ -26,6 +26,11 @@ OSTRO_IMAGE_EXTRA_FEATURES += "swupd"
 #
 # Keeping the number of bundles as low as possible is good for build
 # performance, too.
+#
+# Beware that removing bundles (and thus renaming) is currently
+# not supported by swupd client. When the need arises, the old
+# bundle has to be kept with some minimal content (see also
+# https://bugzilla.yoctoproject.org/show_bug.cgi?id=9493).
 SWUPD_BUNDLES ?= " \
     world-dev \
 "
@@ -56,18 +61,20 @@ BUNDLE_CONTENTS_WORLD ?= " \
     ${OSTRO_IMAGE_INSTALL_DEV} \
 "
 
-BUNDLE_CONTENTS[world] = " \
-    ${BUNDLE_CONTENTS_WORLD} \
-"
-
-# meta-swupd will switch from mapping "world-dev" to "world" +
-# ptest-pkgs. Instead it will expect us to provide the following
-# two variables. Already do that now to ease the transition:
+# The additional features automatically add development and
+# ptest packages for everything that gets installed in the
+# bundle.
+#
+# It would be useful to also add debug packages (via dbg-pkgs),
+# but that increases the size too much (ostro-image-swupd-dev content
+# no longer fits for Edison and has very little free space left
+# in the 4GB images used elsewhere).
 BUNDLE_CONTENTS[world-dev] = " \
     ${BUNDLE_CONTENTS_WORLD} \
 "
 BUNDLE_FEATURES[world-dev] = " \
     dev-pkgs \
+    ptest-pkgs \
 "
 
 # When swupd bundles are enabled, choose explicitly which images
