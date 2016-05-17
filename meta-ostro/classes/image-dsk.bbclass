@@ -67,9 +67,6 @@ create_ova() {
   STORAGE_DEVICE="0"
   STORAGE_DEVICE_TYPE="hdd"
 
-  # Network adapter mode
-  NIC_MODE="bridged"
-
   RAW_IMAGE="${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.dsk"
   VIRTUALBOX_IMAGE="${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.vmdk"
   VIRTUALBOX_EXECUTABLE="${STAGING_BINDIR_NATIVE}/VBoxManage"
@@ -98,9 +95,6 @@ create_ova() {
 
   # attach the .vmdk image as hard drive
   ${VIRTUALBOX_EXECUTABLE} storageattach ${VM_NAME} --storagectl ${STORAGE_NAME} --medium ${VIRTUALBOX_IMAGE} --port ${STORAGE_PORT} --device ${STORAGE_DEVICE} --type ${STORAGE_DEVICE_TYPE}
-
-  # Set the network adapter mode
-  ${VIRTUALBOX_EXECUTABLE} modifyvm ${VM_NAME} --nic1 ${NIC_MODE}
 
   # export the image
   ${VIRTUALBOX_EXECUTABLE} export ${VM_NAME} --output ${DEPLOY_DIR_IMAGE}/${APPLIANCE_NAME} --ovf20
