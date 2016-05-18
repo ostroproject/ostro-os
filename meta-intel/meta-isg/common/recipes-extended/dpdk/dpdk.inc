@@ -21,9 +21,9 @@ PACKAGECONFIG[dpdk_qat] = ",,virtual/qat"
 PACKAGECONFIG[vhost] = ",,fuse"
 PACKAGECONFIG[libvirt] = ",,libvirt"
 
-export CONFIG_EXAMPLE_DPDK_QAT = "${@base_contains('PACKAGECONFIG', 'dpdk_qat', 'y', 'n', d)}"
-export CONFIG_EXAMPLE_VM_POWER_MANAGER = "${@base_contains('PACKAGECONFIG', 'libvirt', 'y', 'n', d)}"
-export CONFIG_VHOST_ENABLED = "${@base_contains('PACKAGECONFIG', 'vhost', 'y', 'n', d)}"
+export CONFIG_EXAMPLE_DPDK_QAT = "${@bb.utils.contains('PACKAGECONFIG', 'dpdk_qat', 'y', 'n', d)}"
+export CONFIG_EXAMPLE_VM_POWER_MANAGER = "${@bb.utils.contains('PACKAGECONFIG', 'libvirt', 'y', 'n', d)}"
+export CONFIG_VHOST_ENABLED = "${@bb.utils.contains('PACKAGECONFIG', 'vhost', 'y', 'n', d)}"
 
 RDEPENDS_${PN} += "python-subprocess"
 DEPENDS = "virtual/kernel"

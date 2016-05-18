@@ -105,9 +105,10 @@ IMAGE_CMD_toflash () {
 	install ${DEPLOY_DIR_IMAGE}/flashall/helper/helper.html	${WORKDIR}/toFlash/helper/
 	install ${DEPLOY_DIR_IMAGE}/flashall/helper/images/*.png ${WORKDIR}/toFlash/helper/images/
 
-	# update image name inside flashall.sh
+	# update image names inside flashing tools
 	sed -e "s/^IMAGE_NAME=.\+$/IMAGE_NAME=\"${IMAGE_BASENAME}\"/" -i ${WORKDIR}/toFlash/flashall.sh
 	sed -e "s/^set IMAGE_NAME=.\+$/set IMAGE_NAME=${IMAGE_BASENAME}/" -i ${WORKDIR}/toFlash/flashall.bat
+	sed -e "s/\"edison-image-edison\./\"${IMAGE_BASENAME}-edison./" -i ${WORKDIR}/toFlash/FlashEdison.json
 
 	# generate a formatted list of all packages included in the image
 	awk '{print $1 " " $3}' ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.manifest > ${WORKDIR}/toFlash/package-list.txt
