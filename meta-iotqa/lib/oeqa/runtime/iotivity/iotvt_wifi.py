@@ -72,13 +72,22 @@ class IOtvtWiFi(oeRuntimeTest):
         run_as("root", "/usr/sbin/iptables -w -A INPUT -p udp --dport 5683 -j ACCEPT", target=cls.tc.targets[1])
         run_as("root", "/usr/sbin/iptables -w -A INPUT -p udp --dport 5684 -j ACCEPT", target=cls.tc.targets[1])
 
-        # Do simpleclient test
-        server_cmd = "/opt/iotivity/examples/resource/cpp/simpleserver > /tmp/srv_output &"
-        run_as("iotivity-tester", server_cmd, target=cls.tc.targets[1])
-        client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclient > /tmp/output &"
-        run_as("iotivity-tester", client_cmd, target=cls.tc.targets[0])
-        print "\npatient... simpleclient needs long time for its observation"
-        time.sleep(70)
+        for i in range(3):
+            # Do simpleclient test
+            server_cmd = "/opt/iotivity/examples/resource/cpp/simpleserver > /tmp/srv_output &"
+            run_as("iotivity-tester", server_cmd, target=cls.tc.targets[1])
+            client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclient > /tmp/output &"
+            run_as("iotivity-tester", client_cmd, target=cls.tc.targets[0])
+            print "\npatient... simpleclient needs long time for its observation"
+            time.sleep(70)
+            (status, output) = run_as("iotivity-tester", 'cat /tmp/output', target=cls.tc.targets[0])
+            if "Observe is used." in output:
+                break 
+            # if not pass, will retry. Clean the app
+            run_as("root", "killall simpleserver simpleclient", target=cls.tc.targets[0])
+            time.sleep(1)
+            run_as("root", "killall simpleserver simpleclient", target=cls.tc.targets[1])
+            time.sleep(1)
 
     @classmethod
     def tearDownClass(cls):
@@ -93,7 +102,9 @@ class IOtvtWiFi(oeRuntimeTest):
         server_wifi.disable_wifi()
        
         run_as("root", "killall simpleserver simpleclient", target=cls.tc.targets[0])
+        time.sleep(1)
         run_as("root", "killall simpleserver simpleclient", target=cls.tc.targets[1])
+        time.sleep(1)
 
     def test_mnode_iotvt_wifi_findresource(self):
         '''Target finds resource, registered by Host

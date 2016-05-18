@@ -33,7 +33,7 @@ GPT_OVERHEAD = 34
 # Size of a sector in bytes
 SECTOR_SIZE = 512
 
-class Image(object):
+class Image():
     """
     Generic base object for an image.
 
@@ -95,7 +95,7 @@ class Image(object):
         ks_pnum = len(self.partitions)
 
         # Converting kB to sectors for parted
-        size = size * 1024 / self.sector_size
+        size = size * 1024 // self.sector_size
 
         part = {'ks_pnum': ks_pnum, # Partition number in the KS file
                 'size': size, # In sectors
@@ -132,7 +132,7 @@ class Image(object):
         for num in range(len(self.partitions)):
             part = self.partitions[num]
 
-            if not self.disks.has_key(part['disk_name']):
+            if part['disk_name'] not in self.disks:
                 raise ImageError("No disk %s for partition %s" \
                                  % (part['disk_name'], part['mountpoint']))
 
@@ -173,12 +173,12 @@ class Image(object):
                 # gaps we could enlargea the previous partition?
 
                 # Calc how much the alignment is off.
-                align_sectors = disk['offset'] % (part['align'] * 1024 / self.sector_size)
+                align_sectors = disk['offset'] % (part['align'] * 1024 // self.sector_size)
 
                 if align_sectors:
                     # If partition is not aligned as required, we need
                     # to move forward to the next alignment point
-                    align_sectors = (part['align'] * 1024 / self.sector_size) - align_sectors
+                    align_sectors = (part['align'] * 1024 // self.sector_size) - align_sectors
 
                     msger.debug("Realignment for %s%s with %s sectors, original"
                                 " offset %s, target alignment is %sK." %
@@ -236,7 +236,7 @@ class Image(object):
     def __format_disks(self):
         self.layout_partitions()
 
-        for dev in self.disks.keys():
+        for dev in self.disks:
             disk = self.disks[dev]
             msger.debug("Initializing partition table for %s" % \
                         (disk['disk'].device))
@@ -354,7 +354,7 @@ class Image(object):
                 os.rename(source, image_file + '.p%d' % part['num'])
 
     def create(self):
-        for dev in self.disks.keys():
+        for dev in self.disks:
             disk = self.disks[dev]
             disk['disk'].create()
 

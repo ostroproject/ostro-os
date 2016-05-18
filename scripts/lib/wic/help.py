@@ -55,7 +55,7 @@ def wic_help(args, usage_str, subcommands):
     Subcommand help dispatcher.
     """
     if len(args) == 1 or not display_help(args[1], subcommands):
-        print usage_str
+        print(usage_str)
 
 
 def get_wic_plugins_help():
@@ -66,7 +66,7 @@ def get_wic_plugins_help():
     result = wic_plugins_help
     for plugin_type in PLUGIN_TYPES:
         result += '\n\n%s PLUGINS\n\n' % plugin_type.upper()
-        for name, plugin in pluginmgr.get_plugins(plugin_type).iteritems():
+        for name, plugin in pluginmgr.get_plugins(plugin_type).items():
             result += "\n %s plugin:\n" % name
             if plugin.__doc__:
                 result += plugin.__doc__

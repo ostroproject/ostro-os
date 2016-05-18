@@ -20,8 +20,8 @@ SRC_URI[sha256sum] = "9d19d6c789a9a4fbce23c4f0eaf993ba776b512bec4c87982ab17ac841
 
 inherit autotools pkgconfig
 
-PACKAGECONFIG ??= "${@base_contains("DISTRO_FEATURES", "x11", "x11", "", d)} \
-                   ${@base_contains("DISTRO_FEATURES", "opengl wayland", "wayland", "", d)}"
+PACKAGECONFIG ??= "${@bb.utils.contains("DISTRO_FEATURES", "x11", "x11", "", d)} \
+                   ${@bb.utils.contains("DISTRO_FEATURES", "opengl wayland", "wayland", "", d)}"
 PACKAGECONFIG[x11] = "--enable-x11,--disable-x11"
 PACKAGECONFIG[wayland] = "--enable-wayland,--disable-wayland,wayland virtual/egl"
 

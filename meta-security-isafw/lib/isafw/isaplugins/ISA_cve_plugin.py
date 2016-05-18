@@ -29,23 +29,26 @@
 import subprocess
 import os
 import re
-import tempfile
 
 CVEChecker = None
 pkglist = "/cve_check_tool_pkglist"
 
-class ISA_CVEChecker:    
+
+class ISA_CVEChecker:
     initialized = False
+
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
         self.reportdir = ISA_config.reportdir
         self.timestamp = ISA_config.timestamp
         self.logfile = ISA_config.logdir + "/isafw_cvelog"
-        self.report_name = ISA_config.reportdir + "/cve_report_" + ISA_config.machine + "_" + ISA_config.timestamp  
+        self.report_name = ISA_config.reportdir + "/cve_report_" + \
+            ISA_config.machine + "_" + ISA_config.timestamp
         output = ""
         # check that cve-check-tool is installed
         try:
-            popen = subprocess.Popen("which cve-check-tool", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            popen = subprocess.Popen(
+                "which cve-check-tool", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             popen.wait()
             output = popen.stdout.read()
         except:
@@ -59,10 +62,11 @@ class ISA_CVEChecker:
             else:
                 with open(self.logfile, 'a') as flog:
                     flog.write("cve-check-tool is missing!\n")
-                    flog.write("Please install it from https://github.com/ikeydoherty/cve-check-tool.\n")
+                    flog.write(
+                        "Please install it from https://github.com/ikeydoherty/cve-check-tool.\n")
 
     def process_package(self, ISA_pkg):
-        if (self.initialized == True):
+        if (self.initialized):
             if (ISA_pkg.name and ISA_pkg.version and ISA_pkg.patch_files):
                 alias_pkgs_faux = []
                 # need to compose faux format line for cve-check-tool
@@ -70,7 +74,8 @@ class ISA_CVEChecker:
                 pkgline_faux = ISA_pkg.name + "," + ISA_pkg.version + "," + cve_patch_info + ",\n"
                 if ISA_pkg.aliases:
                     for a in ISA_pkg.aliases:
-                        alias_pkgs_faux.append(a + "," + ISA_pkg.version + "," + cve_patch_info + ",\n")
+                        alias_pkgs_faux.append(
+                            a + "," + ISA_pkg.version + "," + cve_patch_info + ",\n")
                 pkglist_faux = pkglist + "_" + self.timestamp + ".faux"
                 with open(self.reportdir + pkglist_faux, 'a') as fauxfile:
                     fauxfile.write(pkgline_faux)
@@ -82,16 +87,18 @@ class ISA_CVEChecker:
             else:
                 self.initialized = False
                 with open(self.logfile, 'a') as flog:
-                    flog.write("Mandatory arguments such as pkg name, version and list of patches are not provided!\n")
+                    flog.write(
+                        "Mandatory arguments such as pkg name, version and list of patches are not provided!\n")
                     flog.write("Not performing the call.\n")
         else:
             with open(self.logfile, 'a') as flog:
-                flog.write("Plugin hasn't initialized! Not performing the call.\n")
+                flog.write(
+                    "Plugin hasn't initialized! Not performing the call.\n")
 
     def process_report(self):
-        if not os.path.isfile(self.reportdir + pkglist + "_" + self.timestamp + ".faux"): 
+        if not os.path.isfile(self.reportdir + pkglist + "_" + self.timestamp + ".faux"):
             return
-        if (self.initialized == True):
+        if (self.initialized):
             with open(self.logfile, 'a') as flog:
                 flog.write("Creating report in HTML format.\n")
             self.process_report_type("html")
@@ -115,26 +122,29 @@ class ISA_CVEChecker:
                 import xml.etree.cElementTree as etree
             except ImportError:
                 import xml.etree.ElementTree as etree
-        numTests = 0
+        num_tests = 0
         root = etree.Element('testsuite', name='CVE_Plugin', tests='1')
         with open(self.report_name + ".csv", 'r') as f:
             for line in f:
-                numTests += 1
+                num_tests += 1
                 line = line.strip()
                 line_sp = line.split(',', 2)
                 if (len(line_sp) >= 3) and (line_sp[2].startswith('CVE')):
-                    tcase = etree.SubElement(root, 'testcase', classname='ISA_CVEChecker', name=line.split(',',1)[0])
-                    failrs1 = etree.SubElement(tcase, 'failure', message=line, type='violation')
+                    tcase = etree.SubElement(
+                        root, 'testcase', classname='ISA_CVEChecker', name=line.split(',', 1)[0])
+                    etree.SubElement(
+                        tcase, 'failure', message=line, type='violation')
                 else:
-                    tcase = etree.SubElement(root, 'testcase', classname='ISA_CVEChecker', name=line.split(',',1)[0])
-        root.set('tests', str(numTests))
+                    tcase = etree.SubElement(
+                        root, 'testcase', classname='ISA_CVEChecker', name=line.split(',', 1)[0])
+        root.set('tests', str(num_tests))
         tree = etree.ElementTree(root)
-        output = self.report_name + '.xml' 
+        output = self.report_name + '.xml'
         try:
-            tree.write(output, encoding='UTF-8', pretty_print=True, xml_declaration=True)
+            tree.write(output, encoding='UTF-8',
+                       pretty_print=True, xml_declaration=True)
         except TypeError:
             tree.write(output, encoding='UTF-8', xml_declaration=True)
-
 
     def process_report_type(self, rtype):
         # now faux file is ready and we can process it
@@ -146,16 +156,18 @@ class ISA_CVEChecker:
             args += "-c "
             rtype = "csv"
         pkglist_faux = pkglist + "_" + self.timestamp + ".faux"
-        args += "-a -t faux '" + self.reportdir + pkglist_faux  + "'"
+        args += "-a -t faux '" + self.reportdir + pkglist_faux + "'"
         with open(self.logfile, 'a') as flog:
             flog.write("Args: " + args)
         try:
-            popen = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            popen = subprocess.Popen(
+                args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             stdout_value = popen.communicate()[0]
         except:
             stdout_value = "Error in executing cve-check-tool"
             with open(self.logfile, 'a') as flog:
-                flog.write("Error in executing cve-check-tool: " + sys.exc_info())
+                flog.write("Error in executing cve-check-tool: " +
+                           sys.exc_info())
         else:
             report = self.report_name + "." + rtype
             with open(report, 'w') as freport:
@@ -171,22 +183,29 @@ class ISA_CVEChecker:
                 if (patch1[0] == patch):
                     continue
             patchstripped = patch1[2].split('-')
-            patch_info += " CVE-"+ patchstripped[1]+"-"+re.findall('\d+', patchstripped[2])[0]
+            patch_info += " CVE-" + \
+                patchstripped[1] + "-" + re.findall('\d+', patchstripped[2])[0]
         return patch_info
 
-#======== supported callbacks from ISA =============#
+# ======== supported callbacks from ISA ============= #
+
 
 def init(ISA_config):
-    global CVEChecker 
+    global CVEChecker
     CVEChecker = ISA_CVEChecker(ISA_config)
+
+
 def getPluginName():
     return "ISA_CVEChecker"
+
+
 def process_package(ISA_pkg):
-    global CVEChecker 
+    global CVEChecker
     return CVEChecker.process_package(ISA_pkg)
+
+
 def process_report():
     global CVEChecker
     return CVEChecker.process_report()
 
-#====================================================#
-
+# ==================================================== #

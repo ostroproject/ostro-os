@@ -7,7 +7,7 @@ PR = "r1"
 
 def map_valibs(d):
     # The intel implementation requires the libva-intel-driver package
-    if base_contains('MACHINE_FEATURES', 'va-impl-intel', "1", "0", d) == "1":
+    if bb.utils.contains('MACHINE_FEATURES', 'va-impl-intel', "1", "0", d) == "1":
        return "libva libva-intel-driver"
     # All meta-intel video acceleration requires libva
     return "libva"
