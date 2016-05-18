@@ -2,7 +2,7 @@
 # Corresponds to manifest file from default-access-domains in Tizen:
 # https://review.tizen.org/git?p=platform/core/security/default-ac-domains.git;a=blob;f=packaging/default-ac-domains.manifest
 do_install_append_smack () {
-    mkdir -p ${D}/${sysconfdir}/smack/accesses.d/
+    install -d ${D}/${sysconfdir}/smack/accesses.d
     cat >${D}/${sysconfdir}/smack/accesses.d/default-access-domains <<EOF
 System _ -----l
 System System::Log rwxa--
@@ -15,6 +15,24 @@ _ System -wx---
 ^ System::Run rwxat-
 ^ System rwxa--
 EOF
+    chmod 0644 ${D}/${sysconfdir}/smack/accesses.d/default-access-domains
+
+    install -d ${D}/${libdir}/tmpfiles.d
+    cat >${D}/${libdir}/tmpfiles.d/packet-forwarding.conf <<EOF
+t /proc/sys/net/ipv4/conf/all/forwarding - - - - security.SMACK64=*
+t /proc/sys/net/ipv6/conf/all/forwarding - - - - security.SMACK64=*
+t /proc/sys/net/ipv4/conf/default/forwarding - - - - security.SMACK64=*
+t /proc/sys/net/ipv6/conf/default/forwarding - - - - security.SMACK64=*
+EOF
+    chmod 0644 ${D}/${libdir}/tmpfiles.d/packet-forwarding.conf
+
+    install -d ${D}/${base_libdir}/udev/rules.d
+    cat >${D}/${base_libdir}/udev/rules.d/85-netdev-ipconf-smacklabel.rules <<EOF
+SUBSYSTEM=="net", ENV{ID_NET_NAME}=="", RUN+="/bin/sh -c '/usr/bin/chsmack -a \* /proc/sys/net/ipv4/conf/%k/*'", RUN+="/bin/sh -c '/usr/bin/chsmack -a \* /proc/sys/net/ipv6/conf/%k/*'"
+
+SUBSYSTEM=="net", ENV{ID_NET_NAME}!="", RUN+="/bin/sh -c '/usr/bin/chsmack -a \* /proc/sys/net/ipv4/conf/\$env{ID_NET_NAME}/*'", RUN+="/bin/sh -c '/usr/bin/chsmack -a \* /proc/sys/net/ipv6/conf/\$env{ID_NET_NAME}/*'"
+EOF
+    chmod 0644 ${D}/${base_libdir}/udev/rules.d/85-netdev-ipconf-smacklabel.rules
 }
 
 # Do not rely on an rpm with manifest support. Apparently that approach
