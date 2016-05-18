@@ -18,6 +18,9 @@ ISAFW_LOGDIR ?= "${LOG_DIR}/isafw-logs"
 ISAFW_PLUGINS_WHITELIST ?= ""
 ISAFW_PLUGINS_BLACKLIST ?= ""
 
+ISAFW_LA_PLUGIN_IMAGE_WHITELIST ?= ""
+ISAFW_LA_PLUGIN_IMAGE_BLACKLIST ?= ""
+
 # First, code to handle scanning each recipe that goes into the build
 
 do_analysesource[depends] += "cve-check-tool-native:do_populate_sysroot"
@@ -25,8 +28,6 @@ do_analysesource[depends] += "rpm-native:do_populate_sysroot"
 do_analysesource[depends] += "python-lxml-native:do_populate_sysroot"
 do_analysesource[nostamp] = "1"
 do_analysesource[cleandirs] = "${ISAFW_WORKDIR}"
-
-isafw_init[vardepsexclude] = "DATETIME"
 
 python do_analysesource() {
 
@@ -43,19 +44,19 @@ python do_analysesource() {
     recipe.version = d.getVar('PV', True)
     recipe.version = recipe.version.split('+git', 1)[0]
 
-    licenses = d.getVar('LICENSE', True)
-    licenses = licenses.replace("(", "")
-    licenses = licenses.replace(")", "")
-    recipe.licenses = licenses.split()
-    while '|' in recipe.licenses:
-        recipe.licenses.remove('|')
-    while '&' in recipe.licenses:
-        recipe.licenses.remove('&')
-    # translate to proper format
-    spdlicense = []
-    for l in recipe.licenses:
-        spdlicense.append(canonical_license(d, l))
-    recipe.licenses = spdlicense
+    for p in d.getVar('PACKAGES', True).split():
+        license = str(d.getVar('LICENSE_' + p, True))
+        if license == "None":
+            license = d.getVar('LICENSE', True)
+        license = license.replace("(", "")
+        license = license.replace(")", "")
+        licenses = license.split()
+        while '|' in licenses:
+            licenses.remove('|')
+        while '&' in licenses:
+            licenses.remove('&')
+        for l in licenses:
+            recipe.licenses.append(p + ":" + canonical_license(d, l))
 
     aliases = d.getVar('DISTRO_PN_ALIAS', True)
     if aliases:
@@ -97,6 +98,7 @@ python process_reports_handler() {
     os.environ["PATH"] = d.getVar("PATH", True)
 
     imageSecurityAnalyser = isafw_init(isafw, d)
+
     bb.debug(1, 'isafw: process reports')
     imageSecurityAnalyser.process_report()
 
@@ -145,8 +147,6 @@ python analyse_image() {
 
     imagebasename = d.getVar('IMAGE_BASENAME', True)
 
-    pkglist = manifest2pkglist(d)
-
     kernelconf = d.getVar('STAGING_KERNEL_BUILDDIR', True) + "/.config"
 
     kernel = isafw.ISA_kernel()
@@ -155,6 +155,9 @@ python analyse_image() {
 
     bb.debug(1, 'do kernel conf analysis on %s' % kernelconf)
     imageSecurityAnalyser.process_kernel(kernel)
+
+    pkglist = manifest2pkglist(d)
+    imagebasename = d.getVar('IMAGE_BASENAME', True)
 
     pkg_list = isafw.ISA_pkg_list()
     pkg_list.img_name = imagebasename
@@ -176,6 +179,7 @@ do_rootfs[depends] += "prelink-native:do_populate_sysroot"
 do_rootfs[depends] += "python-lxml-native:do_populate_sysroot"
 analyse_image[fakeroot] = "1"
 
+isafw_init[vardepsexclude] = "DATETIME"
 def isafw_init(isafw, d):
     import re, errno
 
@@ -204,17 +208,26 @@ def isafw_init(isafw, d):
     if blacklist:
         isafw_config.plugin_blacklist = re.split(r'[,\s]*', blacklist)
 
+    la_image_whitelist = d.getVar('ISAFW_LA_PLUGIN_IMAGE_WHITELIST', True)
+    la_image_blacklist = d.getVar('ISAFW_LA_PLUGIN_IMAGE_BLACKLIST', True)
+    if la_image_whitelist:
+        isafw_config.la_plugin_image_whitelist = re.split(r'[,\s]*', la_image_whitelist)
+    if la_image_blacklist:
+        isafw_config.la_plugin_image_blacklist = re.split(r'[,\s]*', la_image_blacklist)
+
     return isafw.ISA(isafw_config)
 
+manifest2pkglist[vardepsexclude] = "DATETIME"
 def manifest2pkglist(d):
 
     manifest_file = d.getVar('IMAGE_MANIFEST', True)
     imagebasename = d.getVar('IMAGE_BASENAME', True)
-    logdir = d.getVar('ISAFW_LOGDIR', True)
+    reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + d.getVar('DATETIME', True)
 
-    pkglist = logdir + "/pkglist_" + imagebasename
+    pkglist = reportdir + "/pkglist"
 
-    with open(pkglist, 'w') as foutput:
+    with open(pkglist, 'a') as foutput:
+        foutput.write("Packages for image " + imagebasename + "\n")
         with open(manifest_file, 'r') as finput:
             for line in finput:
                 items = line.split()
