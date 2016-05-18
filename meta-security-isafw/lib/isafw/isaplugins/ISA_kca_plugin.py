@@ -1,7 +1,7 @@
 #
-# ISA_kca_plugin.py -  Kernel config options analyzer plugin, part of ISA FW
+# ISA_kca_plugin.py - Kernel config options analyzer plugin, part of ISA FW
 #
-# Copyright (c) 2015, Intel Corporation
+# Copyright (c) 2015 - 2016, Intel Corporation
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -64,7 +64,7 @@ class ISA_KernelChecker():
                      }
 
     hardening_kco_ref = {'CONFIG_CC_STACKPROTECTOR': 'y',
-                         'CONFIG_DEFAULT_MMAP_MIN_ADDR': '65536',  # x86 specific
+                         'CONFIG_DEFAULT_MMAP_MIN_ADDR': '65536', # x86 specific
                          'CONFIG_KEXEC': 'not set',
                          'CONFIG_PROC_KCORE': 'not set',
                          'CONFIG_SECURITY_DMESG_RESTRICT': 'y',
@@ -73,7 +73,7 @@ class ISA_KernelChecker():
                          'CONFIG_ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS': 'y',
                          'CONFIG_IKCONFIG_PROC': 'not set',
                          'CONFIG_RANDOMIZE_BASE': 'y',
-                         'CONFIG_RANDOMIZE_BASE_MAX_OFFSET': '0x20000000,0x40000000',  # x86 specific
+                         'CONFIG_RANDOMIZE_BASE_MAX_OFFSET': '0x20000000,0x40000000', # x86 specific
                          'CONFIG_DEBUG_RODATA': 'y',
                          'CONFIG_STRICT_DEVMEM': 'y',
                          'CONFIG_DEVKMEM': 'not set',
@@ -82,7 +82,7 @@ class ISA_KernelChecker():
                          'CONFIG_DEBUG_KERNEL': 'not set',
                          'CONFIG_DEBUG_FS': 'not set',
                          'CONFIG_MODULE_SIG_FORCE': 'y',
-                         'CONFIG_X86_INTEL_MPX': 'y'   # x86 and certain HW variants specific
+                         'CONFIG_X86_INTEL_MPX': 'y' # x86 and certain HW variants specific
                          }
 
     keys_kco = {'CONFIG_KEYS': 'not set',
@@ -120,7 +120,7 @@ class ISA_KernelChecker():
                         'CONFIG_SECURITY_APPARMOR': 'y',
                         'CONFIG_SECURITY_YAMA': 'y',
                         'CONFIG_SECURITY_YAMA_STACKED': 'y',
-                        'CONFIG_LSM_MMAP_MIN_ADDR': '65536',  # x86 specific
+                        'CONFIG_LSM_MMAP_MIN_ADDR': '65536', # x86 specific
                         'CONFIG_INTEL_TXT': 'y'
                         }
 
