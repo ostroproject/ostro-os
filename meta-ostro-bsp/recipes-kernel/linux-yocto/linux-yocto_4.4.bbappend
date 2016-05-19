@@ -121,3 +121,11 @@ SRC_URI_append = " file://ecryptfs.cfg"
 # Backport ambient capabilities support
 SRC_URI_append_edison = " file://0001-edison-capabilities-ambient-capabilities.patch"
 SRC_URI_append_edison = " file://0002-edison-capabilities-add-a-securebit-to-disable-PR_CAP_AMBIE.patch"
+
+# Enable the necessary options for systemd-nspawn'd containers.
+SRC_URI_append = " \
+    file://nspawn-fs.cfg \
+    file://nspawn-netdev.cfg \
+    file://nspawn-firewall.cfg \
+    file://nspawn-devpts.cfg \
+"
