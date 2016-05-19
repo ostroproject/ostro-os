@@ -22,19 +22,33 @@ def get_test_module_repo(url, module):
         else:
             shutil.rmtree(repo_path)
     os.chdir(repo_target_path)
-    git_cmd = ''.join([
-              'git ',
-              'clone ',
-              url
-        ])
+    if module == 'iotivity-node':
+        git_cmd = ''.join([
+                  'wget ',
+                  url
+            ])
+    else:
+        git_cmd = ''.join([
+                  'git ',
+                  'clone ',
+                  url
+            ])
 
     git_status = commands.getstatusoutput(git_cmd)
     if git_status[0] != 0:
         print '\nClone into %s failed! %s' % (module, git_status[1])
         sys.exit(1)
-    inst_node_modules(module)
+    inst_node_modules(url, module)
 
-def inst_node_modules(module):
+def inst_node_modules(url, module):
+    if module == 'iotivity-node':
+        sub_str = url.split('/')
+        for child_str in sub_str:
+            if child_str.endswith('zip'):
+                os.system('unzip %s >/dev/null 2>&1' % child_str)
+                os.system('mv iotivity-node-%s iotivity-node' % \
+                    child_str.strip('.zip'))
+                os.system('rm %s*' % child_str)
     os.chdir('/tmp/%s' % module)
     inst_node_cmd = 'npm install'
     inst_node_status = commands.getstatusoutput(inst_node_cmd)

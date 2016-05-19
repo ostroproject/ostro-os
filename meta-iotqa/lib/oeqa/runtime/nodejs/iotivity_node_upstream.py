@@ -122,6 +122,17 @@ def write_log(output):
     f.write(output)
     f.close()
 
+def get_version(self):
+    (status, output) = self.target.run('npm view iotivity-node version')
+    if status == 0 and 'error' not in output:
+        self.branch_version = output
+        sys.stdout.write('\nGet iotivity-node version ' + output)
+        sys.stdout.flush()
+    else:
+        sys.stdout.write('\nFailed to get iotivity-node version!\n' + output)
+        sys.stdout.flush()
+
+
 @tag(TestType='EFT', FeatureID='IOTOS-764')
 class IotivitynodeRuntimeTest(oeRuntimeTest):
     '''
@@ -135,10 +146,17 @@ class IotivitynodeRuntimeTest(oeRuntimeTest):
         @fn set_up
         @param self
         '''
+        # Get iotivity-node version
+        get_version(self)
+
         # Download the repository of soletta
         sys.stdout.write('\nDownloading the repository of iotivity-node...')
         sys.stdout.flush()
-        iotivity_url = 'https://github.com/otcshare/iotivity-node.git'
+        iotivity_url = ''.join([
+            'https://github.com/otcshare/iotivity-node/archive/',
+            self.branch_version,
+            '.zip'
+            ])
         get_test_module_repo(iotivity_url, 'iotivity-node')
 
         sys.stdout.write('\nCopying necessary node modules to target device...')
