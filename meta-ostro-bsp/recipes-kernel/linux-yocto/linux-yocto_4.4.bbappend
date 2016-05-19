@@ -129,3 +129,20 @@ SRC_URI_append = " \
     file://nspawn-firewall.cfg \
     file://nspawn-devpts.cfg \
 "
+
+# Workaround for IMA/overlayfs deadlock.
+SRC_URI_append_intel-quark = " \
+    file://0001-ovl-setxattr-don-t-deadlock-when-called-from-ima_fix.patch \
+"
+
+SRC_URI_append_intel-core2-32 = " \
+    file://0001-ovl-setxattr-don-t-deadlock-when-called-from-ima_fix.patch \
+"
+
+SRC_URI_append_intel-corei7-64 = " \
+    file://0001-ovl-setxattr-don-t-deadlock-when-called-from-ima_fix.patch \
+"
+
+SRC_URI_append_beaglebone = " \
+    file://0001-ovl-setxattr-don-t-deadlock-when-called-from-ima_fix.patch \
+"

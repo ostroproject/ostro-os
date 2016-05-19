@@ -1,0 +1,125 @@
+From e6cac82bbdfc889f279c68323d3bea3e439f923b Mon Sep 17 00:00:00 2001
+From: Krisztian Litkey <kli@iki.fi>
+Date: Sun, 15 May 2016 10:39:09 -0400
+Subject: [PATCH 1/1] ovl: setxattr: don't deadlock when called from
+ ima_fix_xattr.
+
+IMA tracks the integrity of files by hashing the file content
+and storing the hash in an IMA-specific extended attribute
+(security.ima). When a file opened for writing is closed by
+the last writer, IMA recalculates the hash and updates the
+extended attribute. Updating the attribute happens by locking
+the inode mutex and calling  __vfs_setxattr_noperm.
+
+For a file on an overlayfs mount, this causes ovl_setxattr
+being eventually called (from __vfs_setxattr_noperm via
+inode->i_op->setxattr) with the inode already locked. In this
+case we cannot do the xattr setting by calling vfs_setxattr
+since that will try to lock the inode mutex again. To avoid
+a deadlock, we check if the XATTR_IMA_UPDATE flag is set and
+call __vfs_setxattr_noperm or vfs_setxattr accordingly.
+
+Upstream-Status: inappropriate [other]
+
+With this patch in place, a deadlock is still possible in
+principle as on the offending code path (ima_fix_xattr ->
+__ovl_setxattr_noperm -> inode->i_op->setxattr ->
+ovl_setxattr) the sb_writer and i_mutex locks are taken in
+the wrong order (i_mutex first, then sb_writers). I *think*,
+the only way to try and trigger the deadlock would be to modify
+an IMA protected file on an overlayfs using a regular write
+while at the same time trying to sign the same file with
+evmctl ima_sign. It is entirely possible that there other
+safeguards present in the code protecting against this corner-
+case that I simply missed.
+
+The real fix would be to change IMA, overlayfs, potentially
+touching the related parts in VFS as well to eliminate the
+the reversed locking. I don't attempt rolling such a patch
+myself. I think this needs eyeballing by someone who is already
+familiar with VFS, and preferably also with overlayfs.
+
+This bug has been reported upstream to IMA, overlayfs and
+linux-fs.
+
+Signed-off-by: Krisztian Litkey <krisztian.litkey@intel.com>
+---
+ fs/overlayfs/inode.c                  | 26 +++++++++++++++-----------
+ include/linux/xattr.h                 |  2 ++
+ security/integrity/ima/ima_appraise.c |  2 +-
+ 3 files changed, 18 insertions(+), 12 deletions(-)
+
+diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
+index 05ac9a9..bdc1cf6 100644
+--- a/fs/overlayfs/inode.c
++++ b/fs/overlayfs/inode.c
+@@ -225,25 +225,29 @@ int ovl_setxattr(struct dentry *dentry, const char *name,
+ 		 const void *value, size_t size, int flags)
+ {
+ 	int err;
+-	struct dentry *upperdentry;
++	struct dentry *upper;
++
++	if (ovl_is_private_xattr(name))
++		return -EPERM;
+ 
+ 	err = ovl_want_write(dentry);
+ 	if (err)
+ 		goto out;
+ 
+-	err = -EPERM;
+-	if (ovl_is_private_xattr(name))
+-		goto out_drop_write;
+-
+ 	err = ovl_copy_up(dentry);
+-	if (err)
+-		goto out_drop_write;
++	if (!err)
++		upper = ovl_dentry_upper(dentry);
+ 
+-	upperdentry = ovl_dentry_upper(dentry);
+-	err = vfs_setxattr(upperdentry, name, value, size, flags);
+-
+-out_drop_write:
+ 	ovl_drop_write(dentry);
++
++	if (err)
++		goto out;
++
++	if (flags & XATTR_IMA_UPDATE)
++		err = __vfs_setxattr_noperm(upper, name, value, size,
++					    flags & ~XATTR_IMA_UPDATE);
++	else
++		err = vfs_setxattr(upper, name, value, size, flags);
+ out:
+ 	return err;
+ }
+diff --git a/include/linux/xattr.h b/include/linux/xattr.h
+index 89474b9..cf180ed 100644
+--- a/include/linux/xattr.h
++++ b/include/linux/xattr.h
+@@ -16,6 +16,8 @@
+ #include <linux/spinlock.h>
+ #include <uapi/linux/xattr.h>
+ 
++#define XATTR_IMA_UPDATE (XATTR_REPLACE << 1) /* inode mutex locked by IMA */
++
+ struct inode;
+ struct dentry;
+ 
+diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+index 1873b55..8fad831 100644
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -62,7 +62,7 @@ static int ima_fix_xattr(struct dentry *dentry,
+ 	rc = __vfs_setxattr_noperm(dentry, XATTR_NAME_IMA,
+ 				   &iint->ima_hash->xattr.data[offset],
+ 				   (sizeof(iint->ima_hash->xattr) - offset) +
+-				   iint->ima_hash->length, 0);
++				   iint->ima_hash->length, XATTR_IMA_UPDATE);
+ 	return rc;
+ }
+ 
+-- 
+2.5.5
+
