@@ -146,3 +146,6 @@ SRC_URI_append_intel-corei7-64 = " \
 SRC_URI_append_beaglebone = " \
     file://0001-ovl-setxattr-don-t-deadlock-when-called-from-ima_fix.patch \
 "
+
+# lockdep and kernel debugging
+# SRC_URI_append = "  file://lockdep.cfg file://debug-kernel.cfg"
