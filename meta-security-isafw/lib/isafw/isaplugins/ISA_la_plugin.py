@@ -141,9 +141,10 @@ class ISA_LicenseChecker():
                         with open(self.logfile, 'a') as flog:
                             flog.write("img_name: " + img_name + "\n")
                         continue
-                    pkg_name = line.split(' ',1)[0]
+                    pkg_name = line.split()[0]
+                    orig_pkg_name = line.split()[2]
                     if (not self.image_pkgs) or ((pkg_name + " from " + img_name) not in self.image_pkgs):
-                        self.image_pkgs.append(pkg_name + " from " + img_name)
+                        self.image_pkgs.append(pkg_name + " from " + img_name + " " + orig_pkg_name)
 
     def write_report_xml(self):
         try:
@@ -197,15 +198,22 @@ class ISA_LicenseChecker():
                         line = line.strip()
                         pkg_name = line.split(':',1)[0]
                         if (not self.image_pkgs):
-                            fout.write(line + " from image name not avaliable \n")
+                            fout.write(line + " from image name not available \n")
                             continue
                         for pkg_info in self.image_pkgs:
-                            if (pkg_info.split()[0] == pkg_name):
-                                if self.la_plugin_image_whitelist and (pkg_info.split()[2] not in self.la_plugin_image_whitelist):
+                            image_pkg_name = pkg_info.split()[0]
+                            image_name = pkg_info.split()[2]
+                            image_orig_pkg_name = pkg_info.split()[3]
+                            if ((image_pkg_name == pkg_name) or (image_orig_pkg_name == pkg_name)):
+                                if self.la_plugin_image_whitelist and (image_name not in self.la_plugin_image_whitelist):
                                     continue
-                                if self.la_plugin_image_blacklist and (pkg_info.split()[2] in self.la_plugin_image_blacklist):
+                                if self.la_plugin_image_blacklist and (image_name in self.la_plugin_image_blacklist):
                                     continue
-                                fout.write(line + " from image " + pkg_info.split()[2] + "\n")
+                                fout.write(line + " from image " + image_name)
+                                if (image_pkg_name != image_orig_pkg_name):
+                                    fout.write(" binary_pkg_name " + image_pkg_name + "\n")
+                                    continue
+                                fout.write("\n")
             os.remove(self.report_name + "_unwanted")
 
     def find_files(self, init_path):
