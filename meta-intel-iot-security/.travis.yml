@@ -7,7 +7,6 @@ env:
   - OE_CORE=master BITBAKE=master
   - OE_CORE=jethro BITBAKE=1.28
   - OE_CORE=fido BITBAKE=1.26
-  - OE_CORE=dizzy BITBAKE=1.24
 addons:
   apt:
     packages:
