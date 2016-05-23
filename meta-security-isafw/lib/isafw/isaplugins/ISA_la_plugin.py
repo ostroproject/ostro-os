@@ -1,8 +1,8 @@
 #
-# ISA_la_plugin.py -  License analyzer plugin, part of ISA FW
+# ISA_la_plugin.py - License analyzer plugin, part of ISA FW
 # Functionality is based on similar scripts from Clear linux project
 #
-# Copyright (c) 2015, Intel Corporation
+# Copyright (c) 2015 - 2016, Intel Corporation
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -48,7 +48,7 @@ class ISA_LicenseChecker():
         self.report_name = ISA_config.reportdir + "/la_problems_report_" + \
             ISA_config.machine + "_" + ISA_config.timestamp
         self.image_pkg_list = ISA_config.reportdir + "/pkglist"
-        self.image_pkgs = [] 
+        self.image_pkgs = []
         self.la_plugin_image_whitelist = ISA_config.la_plugin_image_whitelist
         self.la_plugin_image_blacklist = ISA_config.la_plugin_image_blacklist
         # check that rpm is installed (supporting only rpm packages for now)
@@ -81,7 +81,7 @@ class ISA_LicenseChecker():
                         ISA_pkg.source_files = self.find_files(
                             ISA_pkg.path_to_sources)
                     for i in ISA_pkg.source_files:
-                        if (i.endswith(".spec")):  # supporting rpm only for now
+                        if (i.endswith(".spec")):# supporting rpm only for now
                             args = ("rpm", "-q", "--queryformat",
                                     "%{LICENSE} ", "--specfile", i)
                             try:
@@ -200,7 +200,7 @@ class ISA_LicenseChecker():
                             fout.write(line + " from image name not avaliable \n")
                             continue
                         for pkg_info in self.image_pkgs:
-                            if (pkg_info.split()[0] == pkg_name): 
+                            if (pkg_info.split()[0] == pkg_name):
                                 if self.la_plugin_image_whitelist and (pkg_info.split()[2] not in self.la_plugin_image_whitelist):
                                     continue
                                 if self.la_plugin_image_blacklist and (pkg_info.split()[2] in self.la_plugin_image_blacklist):
