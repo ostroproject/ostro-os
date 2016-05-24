@@ -34,14 +34,26 @@ INSANE_SKIP_${PN}-java = "dev-so debug-files"
 
 export JAVA_HOME="${STAGING_DIR}/${BUILD_SYS}/usr/lib/jvm/openjdk-8-native"
 export JAVA_HOME_target="${STAGING_LIBDIR}/jvm/openjdk-8"
+JAVA_HOME_target = "${STAGING_LIBDIR}/jvm/openjdk-8"
+
+def get_java_arch(arch):
+    java_arch = {}
+    java_arch['i686'] = "i386"
+    java_arch['i586'] = "i386"
+    java_arch['x86_64'] = "amd64"
+    java_arch['arm'] = "arm"
+
+    return java_arch[arch]
+
+java_arch = "${@get_java_arch('${TARGET_ARCH}')}"
 
 cmake_do_generate_toolchain_file_append() {
   echo "
 set (JAVA_AWT_INCLUDE_PATH ${JAVA_HOME_target}/include CACHE PATH \"AWT include path\" FORCE)
-set (JAVA_AWT_LIBRARY ${JAVA_HOME_target}/jre/lib/amd64/libjawt.so CACHE FILEPATH \"AWT Library\" FORCE)
+set (JAVA_AWT_LIBRARY ${JAVA_HOME_target}/jre/lib/${java_arch}/libjawt.so CACHE FILEPATH \"AWT Library\" FORCE)
 set (JAVA_INCLUDE_PATH ${JAVA_HOME_target}/include CACHE PATH \"java include path\" FORCE)
 set (JAVA_INCLUDE_PATH2 ${JAVA_HOME_target}/include/linux CACHE PATH \"java include path\" FORCE)
-set (JAVA_JVM_LIBRARY ${JAVA_HOME_target}/jre/lib/amd64/server/libjvm.so CACHE FILEPATH \"path to JVM\" FORCE)
+set (JAVA_JVM_LIBRARY ${JAVA_HOME_target}/jre/lib/${java_arch}/server/libjvm.so CACHE FILEPATH \"path to JVM\" FORCE)
 " >> ${WORKDIR}/toolchain.cmake
 }
 
