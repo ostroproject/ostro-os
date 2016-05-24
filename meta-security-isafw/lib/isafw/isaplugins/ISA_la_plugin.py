@@ -1,8 +1,8 @@
 #
-# ISA_la_plugin.py -  License analyzer plugin, part of ISA FW
+# ISA_la_plugin.py - License analyzer plugin, part of ISA FW
 # Functionality is based on similar scripts from Clear linux project
 #
-# Copyright (c) 2015, Intel Corporation
+# Copyright (c) 2015 - 2016, Intel Corporation
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -48,7 +48,7 @@ class ISA_LicenseChecker():
         self.report_name = ISA_config.reportdir + "/la_problems_report_" + \
             ISA_config.machine + "_" + ISA_config.timestamp
         self.image_pkg_list = ISA_config.reportdir + "/pkglist"
-        self.image_pkgs = [] 
+        self.image_pkgs = []
         self.la_plugin_image_whitelist = ISA_config.la_plugin_image_whitelist
         self.la_plugin_image_blacklist = ISA_config.la_plugin_image_blacklist
         # check that rpm is installed (supporting only rpm packages for now)
@@ -81,7 +81,7 @@ class ISA_LicenseChecker():
                         ISA_pkg.source_files = self.find_files(
                             ISA_pkg.path_to_sources)
                     for i in ISA_pkg.source_files:
-                        if (i.endswith(".spec")):  # supporting rpm only for now
+                        if (i.endswith(".spec")):# supporting rpm only for now
                             args = ("rpm", "-q", "--queryformat",
                                     "%{LICENSE} ", "--specfile", i)
                             try:
@@ -141,9 +141,10 @@ class ISA_LicenseChecker():
                         with open(self.logfile, 'a') as flog:
                             flog.write("img_name: " + img_name + "\n")
                         continue
-                    pkg_name = line.split(' ',1)[0]
+                    pkg_name = line.split()[0]
+                    orig_pkg_name = line.split()[2]
                     if (not self.image_pkgs) or ((pkg_name + " from " + img_name) not in self.image_pkgs):
-                        self.image_pkgs.append(pkg_name + " from " + img_name)
+                        self.image_pkgs.append(pkg_name + " from " + img_name + " " + orig_pkg_name)
 
     def write_report_xml(self):
         try:
@@ -197,15 +198,22 @@ class ISA_LicenseChecker():
                         line = line.strip()
                         pkg_name = line.split(':',1)[0]
                         if (not self.image_pkgs):
-                            fout.write(line + " from image name not avaliable \n")
+                            fout.write(line + " from image name not available \n")
                             continue
                         for pkg_info in self.image_pkgs:
-                            if (pkg_info.split()[0] == pkg_name): 
-                                if self.la_plugin_image_whitelist and (pkg_info.split()[2] not in self.la_plugin_image_whitelist):
+                            image_pkg_name = pkg_info.split()[0]
+                            image_name = pkg_info.split()[2]
+                            image_orig_pkg_name = pkg_info.split()[3]
+                            if ((image_pkg_name == pkg_name) or (image_orig_pkg_name == pkg_name)):
+                                if self.la_plugin_image_whitelist and (image_name not in self.la_plugin_image_whitelist):
                                     continue
-                                if self.la_plugin_image_blacklist and (pkg_info.split()[2] in self.la_plugin_image_blacklist):
+                                if self.la_plugin_image_blacklist and (image_name in self.la_plugin_image_blacklist):
                                     continue
-                                fout.write(line + " from image " + pkg_info.split()[2] + "\n")
+                                fout.write(line + " from image " + image_name)
+                                if (image_pkg_name != image_orig_pkg_name):
+                                    fout.write(" binary_pkg_name " + image_pkg_name + "\n")
+                                    continue
+                                fout.write("\n")
             os.remove(self.report_name + "_unwanted")
 
     def find_files(self, init_path):
