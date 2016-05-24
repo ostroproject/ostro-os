@@ -21,9 +21,13 @@ S = "${WORKDIR}/git"
 
 inherit cml1 python3native
 
+PACKAGECONFIG ??= "${@bb.utils.contains('DISTRO_FEATURES','x11', 'x11', '', d)}"
+PACKAGECONFIG[x11] = ",,cairo atk gtk+3 gdk-pixbuf pango,"
+
 PACKAGES = " \
          ${PN}-staticdev \
          ${PN}-nodejs \
+         ${PN}-flow-gtk \
          ${PN}-dev \
          ${PN}-dbg \
          ${PN} \
@@ -47,6 +51,12 @@ FILES_${PN}-dev = " \
                 ${libdir}/soletta/modules/linux-micro/* \
                 ${libdir}/soletta/modules/flow-metatype/* \
                 ${sysconfdir}/modules-load.d/* \
+"
+
+ALLOW_EMPTY_${PN}-flow-gtk = "1"
+FILES_${PN}-flow-gtk = " \
+                ${libdir}/soletta/modules/flow/gtk.so \
+                ${datadir}/soletta/flow/descriptions/gtk.json \
 "
 
 FILES_${PN} = " \
@@ -94,6 +104,11 @@ do_configure_append() {
    # becoming invalid
    # Also, yocto has a toolchain that will treat RPATH for Soletta
    sed -i "s/^RPATH=y/# RPATH is not set/g" ${S}/.config
+
+   if ${@bb.utils.contains('PACKAGECONFIG', 'x11', 'false', 'true', d)}; then
+       sed -i -e 's/^ *FLOW_NODE_TYPE_GTK=.*/# FLOW_NODE_TYPE_GTK is not set/g' ${S}/.config
+   fi
+
 }
 
 do_compile() {
