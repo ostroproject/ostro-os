@@ -1,5 +1,10 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/linux-yocto:"
 
+### linux-stable/linux-4.4.y backports
+SRC_URI_append_intel-quark = " file://0001-USB-usbip-fix-potential-out-of-bounds-write.patch"
+SRC_URI_append_intel-core2-32 = " file://0001-USB-usbip-fix-potential-out-of-bounds-write.patch"
+SRC_URI_append_intel-corei7-64 = " file://0001-USB-usbip-fix-potential-out-of-bounds-write.patch"
+
 ### Config "fix" fragments
 
 # security fixes
@@ -11,6 +16,10 @@ SRC_URI_append_intel-corei7-64 = " file://security-x64.cfg"
 SRC_URI_append_edison = " file://edison-iptables.cfg"
 
 ### Hardware support fragments
+
+# additional security hardware support
+SRC_URI_append_intel-core2-32 = " file://security-tpm.cfg"
+SRC_URI_append_intel-corei7-64 = " file://security-tpm.cfg"
 
 # I2C sensors
 SRC_URI_append_intel-quark = " file://sensors.cfg"
@@ -90,6 +99,24 @@ SRC_URI_append_intel-corei7-64 = " file://no-gfx.cfg"
 
 # enable usb gadget
 SRC_URI_append_intel-quark = " file://usb-gadget.cfg"
+
+# backport MMA7455 Accel sensor driver
+SRC_URI_append_intel-corei7-64 = " file://0001-iio-accel-add-Freescale-MMA7455L-MMA7456L-3-axis-acc.patch"
+SRC_URI_append_intel-core2-32 = " file://0001-iio-accel-add-Freescale-MMA7455L-MMA7456L-3-axis-acc.patch"
+SRC_URI_append_intel-quark = " file://0001-iio-accel-add-Freescale-MMA7455L-MMA7456L-3-axis-acc.patch"
+
+# Add patch to fix incorrect device name of IIO device TMP006
+SRC_URI_append_intel-corei7-64 = " file://0001-iio-tmp006-Set-correct-iio-name.patch"
+SRC_URI_append_intel-core2-32 = " file://0001-iio-tmp006-Set-correct-iio-name.patch"
+SRC_URI_append_intel-quark = " file://0001-iio-tmp006-Set-correct-iio-name.patch"
+
+# Add patch to fix incorrect device name of IIO device SI7020
+SRC_URI_append_intel-corei7-64 = " file://0001-iio-si7020-Set-correct-iio-name.patch"
+SRC_URI_append_intel-core2-32 = " file://0001-iio-si7020-Set-correct-iio-name.patch"
+SRC_URI_append_intel-quark = " file://0001-iio-si7020-Set-correct-iio-name.patch"
+
+# Backport AK8975 iio device name support
+SRC_URI_append_edison = " file://0001-iio-ak8975-Add-device-name.patch"
 
 KERNEL_MODULE_AUTOLOAD_append_intel-quark = " g_acm_ms"
 KERNEL_MODULE_PROBECONF_append_intel-quark = " g_acm_ms"

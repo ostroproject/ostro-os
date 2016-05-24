@@ -1,8 +1,8 @@
 #
-# ISA_cfa_plugin.py -  Compile flag analyzer plugin, part of ISA FW
+# ISA_cfa_plugin.py - Compile flag analyzer plugin, part of ISA FW
 # Main functionality is based on build_comp script from Clear linux project
 #
-# Copyright (c) 2015, Intel Corporation
+# Copyright (c) 2015 - 2016, Intel Corporation
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:

@@ -217,13 +217,28 @@ def isafw_init(isafw, d):
 
     return isafw.ISA(isafw_config)
 
+# based on toaster.bbclass _toaster_load_pkgdatafile function
+def binary2source(dirpath, filepath):
+    import re
+    originPkg = ""
+    with open(os.path.join(dirpath, filepath), "r") as fin:
+        for line in fin:
+            try:
+                kn, kv = line.strip().split(": ", 1)
+                m = re.match(r"^PKG_([^A-Z:]*)", kn)
+                if m:
+                    originPkg = str(m.group(1))
+            except ValueError:
+                pass    # ignore lines without valid key: value pairs
+    return originPkg
+
 manifest2pkglist[vardepsexclude] = "DATETIME"
 def manifest2pkglist(d):
 
     manifest_file = d.getVar('IMAGE_MANIFEST', True)
     imagebasename = d.getVar('IMAGE_BASENAME', True)
     reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + d.getVar('DATETIME', True)
-
+    pkgdata_dir = d.getVar("PKGDATA_DIR", True)
     pkglist = reportdir + "/pkglist"
 
     with open(pkglist, 'a') as foutput:
@@ -232,7 +247,8 @@ def manifest2pkglist(d):
             for line in finput:
                 items = line.split()
                 if items and (len(items) >= 3):
-                    foutput.write(items[0] + " " + items[2] + "\n")
+                    originPkg = binary2source("%s/runtime-reverse/" % pkgdata_dir, items[0])
+                    foutput.write(items[0] + " " + items[2] + " " + originPkg + "\n")
 
     return pkglist
 
