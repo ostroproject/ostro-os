@@ -4,7 +4,7 @@
 
 DESCRIPTION = "Soletta library and modules"
 SECTION = "examples"
-DEPENDS = "glib-2.0 libpcre pkgconfig python3-jsonschema-native icu curl libmicrohttpd mosquitto nodejs"
+DEPENDS = "glib-2.0 libpcre pkgconfig python3-jsonschema-native icu curl libmicrohttpd mosquitto nodejs nodejs-native"
 DEPENDS += " ${@bb.utils.contains('DISTRO_FEATURES','systemd','systemd','',d)}"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=93888867ace35ffec2c845ea90b2e16b"
