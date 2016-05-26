@@ -20,7 +20,7 @@ See the individual layer README's for further instructions.
 
 Build and unit testing under [TravisCI][] is configured against
 different OpenEmbedded core branches in .travis.yml. Currently master,
-jethro, fido and dizzy are covered.
+jethro, and fido are covered.
 
 Two different [TravisCI environments][] are used:
 
