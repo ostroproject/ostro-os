@@ -86,6 +86,7 @@ B = "${WORKDIR}/git"
 do_configure_prepend() {
    export TARGETCC="${CC}"
    export TARGETAR="${AR}"
+   export LIBDIR="${libdir}/"
 }
 
 do_configure_append() {
@@ -98,6 +99,7 @@ do_configure_append() {
 do_compile() {
    # changing the home directory to the working directory, the .npmrc will be created in this directory
    export HOME=${WORKDIR}
+   export LIBDIR="${libdir}/"
 
    # does not build dev packages
    npm config set dev false
@@ -147,15 +149,16 @@ do_compile() {
 }
 
 do_install() {
+   export LIBDIR="${libdir}/"
    oe_runmake DESTDIR=${WORKDIR}/image install CFLAGS="--sysroot=${STAGING_DIR_TARGET}" TARGETCC="${CC}" TARGETAR="${AR}"
-   unlink ${WORKDIR}/image/usr/lib/libsoletta.so
-   mv ${WORKDIR}/image/usr/lib/libsoletta.so.0.0.1 ${WORKDIR}/image/usr/lib/libsoletta.so
-   ln -sf libsoletta.so ${WORKDIR}/image/usr/lib/libsoletta.so.0.0.1
+   unlink ${WORKDIR}/image/${libdir}/libsoletta.so
+   mv ${WORKDIR}/image/${libdir}/libsoletta.so.0.0.1 ${WORKDIR}/image/${libdir}/libsoletta.so
+   ln -sf libsoletta.so ${WORKDIR}/image/${libdir}/libsoletta.so.0.0.1
    COMMIT_ID=`git --git-dir=${WORKDIR}/git/.git rev-parse --verify HEAD`
-   echo "Soletta: $COMMIT_ID" > ${D}/usr/lib/soletta/soletta-image-hash
+   echo "Soletta: $COMMIT_ID" > ${D}/${libdir}/soletta/soletta-image-hash
 
    # Remove nan module as it is not needed.
-   rm -rf ${WORKDIR}/image/usr/lib/node_modules/soletta/node_modules/nan
+   rm -rf ${WORKDIR}/image/${libdir}/node_modules/soletta/node_modules/nan
 }
 
 do_install_append() {
@@ -167,6 +170,7 @@ do_install_append() {
 inherit ptest
 
 do_compile_ptest() {
+        export LIBDIR="${libdir}/"
         oe_runmake TARGETCC="${CC}" TARGETAR="${AR}" "tests"
 }
 
