@@ -270,8 +270,14 @@ python supported_recipes_eventhandler() {
             collections = supported_recipes.find_collections(pn)
             return ' (would be supported in %s)' % ' '.join(collections) if collections else ''
 
+        def re_escape(str):
+            # In contrast to re.escape(), we only escape + (as in gtk+3).
+            # Escaping all non-alphanumerics makes many entries (like linux-yocto)
+            # unnecessarily less readable (linux\-yocto).
+            return ''.join(['\\+' if x == '+' else x for x in str])
+
         logger('The following unsupported recipes are required for the build:\n  ',
-               '\n  '.join(sorted(['%s@%s%s' % (pn, collection, collection_hint(pn)) for pn, collection in unsupported.iteritems()])),
+               '\n  '.join(sorted(['%s@%s%s' % (re_escape(pn), re_escape(collection), collection_hint(pn)) for pn, collection in unsupported.iteritems()])),
                '''
 
 Each unsupported recipe is identified by the recipe name and the collection
