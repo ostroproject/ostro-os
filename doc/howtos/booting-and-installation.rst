@@ -15,12 +15,8 @@ Two images are of interest for this process (depending if you're using real hard
     see the associated :file:`.json` file in the same directory as the image file.
 
 :file:`.dsk.ova`
-    A pre-packaged VirtualBox\* Virtual Machine appliance file that can be directly imported
-    to VirtualBox\*
-
-:file:`.vdi`
-    A :file:`.dsk` image converted to VirtualBox\* virtual hard drive format (with no other 
-    differences).
+    A pre-packaged Open Virtualization Archive (OVA file) containing a compressed, "installable" version of a 
+    virtual machine appropriate for virtualization applications such as Oracle VirtualBox* 
 
 
 Ostro OS Images
@@ -32,6 +28,11 @@ additional configuration changes that wouldn't typically be included in a produc
 reference image will auto-login as ``root`` at the console, something that normally would not be available
 in a production device image but is quite useful during development.
 
+.. note::
+   Both the ``bmaptool`` and ``dd`` methods for creating bootable media described next, work only for EFI platforms 
+   using the ``.dsk`` image format 
+   (``intel-corei7-64`` and ``intel-quark`` MACHINEs).  The non-EFI platforms ``edison`` and ``beaglebone`` MACHINEs use
+   different image formats and flashing processes, as described later in this tech note.  
 
 Using bmaptool to Create Bootable Media
 =======================================
@@ -44,7 +45,9 @@ The recommended way to do this is with the :command:`bmaptool` command from `bma
 A copy of this utility is available in the :file:`deploy/tools` folder after a Yocto Project build
 for your image is finished.
 
-The ``bmaptool`` program automatically handles copying either compressed and uncompressed images to
+
+
+The ``bmaptool`` program automatically handles copying either compressed or uncompressed ``dsk`` images to
 your removable media.  It also also uses a generated ``image.bmap`` file containing a checksum for
 itself and for all mapped data regions in the image file, making it possible to verify data integrity
 of the downloaded image. Be sure to download this ``.bmap`` file along with the image for your device.
@@ -371,21 +374,8 @@ own build from source.  As with the other examples above, we recommend you start
 #. Finally, click on the "Start" arrow button and your new virtual machine will start
    booting the Ostro OS reference image and auto-login as root, no password is required.
 
-Alternatively, you can create the Virtual Machine yourself and use the ``.vdi`` file format.
-
-#. Open the VirtualBox program and start by creating a new machine, give it a name
-   (such as "Ostro OS build#"), select "Linux" for the VM type, and
-   "Fedora (64-bit)" for the version.  Click next.
-#. Use a minimum of 256MB RAM for the memory configuration. You can increase this if your application needs more. Click next.
-#. Select "Use an existing virtual hard disk file", click on the folder icon and select the ``.vdi`` file you downloaded
-   or created, and select "Create" to create the hard drive.
-#. Click on the System options and remove all the boot order options other than the "Hard Disk", and check "Enable EFI (special OSes only)".
-   While still on the system configuration, click on the "Acceleration" tab and verify that
-   "Enable VT-x/AMX-V" (HW virtualization support) is checked. Click OK.
-#. Finally, you can start the new virtual machine as described above.
-
 If booting fails with a kernel panic, verify you’re using VirtualBox version 5.0.2 or later.  You can shut the machine down
-by either using the :command:`shutdown now` within the running Ostro OS image, or by using the VirtualBox menu
+by either using the :command:`shutdown now` command within the running Ostro OS image, or by using the VirtualBox menu
 Machine/ACPI-shutdown.
 
 
