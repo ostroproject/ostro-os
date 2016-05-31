@@ -1,12 +1,10 @@
-var device = require('iotivity-node');
-
-var OicServer = device.prototype;
+var OicServer = require('iotivity-node')('server');
 
 module.exports = {
 
 	setUp: function(callback) {
 		callback();
-	},	
+	},
 	tearDown: function(callback) {
 		callback();
 	},
@@ -35,5 +33,29 @@ module.exports = {
 		test.ok('notify' in OicServer);
 		test.strictEqual(typeof(OicServer.notify), 'function');
 		test.done();
-	}								
+	},
+	testOicServerHasOnobserverequestEvent: function(test) {
+		test.ok('onobserverequest' in OicServer);
+		test.done();
+	},
+	testOicServerHasOnunobserverequestEvent: function(test) {
+		test.ok('onunobserverequest' in OicServer);
+		test.done();
+	},
+	testOicServerHasOnretrieverequestEvent: function(test) {
+		test.ok('onretrieverequest' in OicServer);
+		test.done();
+	},
+	testOicServerHasOndeleterequestEvent: function(test) {
+		test.ok('ondeleterequest' in OicServer);
+		test.done();
+	},
+	testOicServerHasOnupdaterequestEvent: function(test) {
+		test.ok('onupdaterequest' in OicServer);
+		test.done();
+	},
+	testOicServerHasOncreaterequestEvent: function(test) {
+		test.ok('oncreaterequest' in OicServer);
+		test.done();
+	}
 }

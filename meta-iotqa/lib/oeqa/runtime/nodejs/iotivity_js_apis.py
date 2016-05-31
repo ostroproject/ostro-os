@@ -38,8 +38,11 @@ class IotivityJSAPITest(oeRuntimeTest):
         'oic_client': 'test_oic_client.js',
         'oic_server': 'test_oic_server.js',
         'oic_resource': 'test_oic_resource.js',
-        'storage_handler': 'test_storage_handler.js'
+        'storage_handler': 'test_storage_handler.js',
+        'oic_discovery': 'test_oic_discovery.js',
+        'oic_platform': 'test_oic_platform.js'
     }
+    timeout = 10
 
 
     @classmethod
@@ -116,469 +119,181 @@ class IotivityJSAPITest(oeRuntimeTest):
                            )
 
 
-    def test_oic_device_has_settings_attr(self):
+    def test_oic_device_attr_uuid(self):
         '''
-        Test if OicDevice object has settings attribute.
-        @fn test_oic_device_has_settings_attr
+        Test if OicDevice object has uuid attribute.
+        @fn test_oic_device_attr_uuid
         @param self
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testHasOicDeviceSettingsAttr' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceAttrUuid' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
-                   )
+                   ), self.timeout
         )
         ##
-        # TESTPOINT: #1, test_oic_device_has_settings_attr
+        # TESTPOINT: #1, test_oic_device_attr_uuid
         #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
 
 
-    def test_oic_device_settings_has_member_url(self):
+    def test_oic_device_attr_url(self):
         '''
         Test if OicDevice.settings has url member.
-        @fn test_oic_device_settings_has_member_url
+        @fn test_oic_device_attr_url
         @param self
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceSettingsMemberUrl' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceAttrUrl' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
-                   )
+                   ), self.timeout
         )
         ##
-        # TESTPOINT: #1, test_oic_device_settings_has_member_url
+        # TESTPOINT: #1, test_oic_device_attr_url
         #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
 
 
-    def test_oic_device_settings_has_member_info(self):
+    def test_oic_device_attr_name(self):
         '''
         Test if OicDevice.settings has info member.
-        @fn test_oic_device_settings_has_member_info
+        @fn test_oic_device_attr_name
         @param self
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceSettingsMemberInfo' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceAttrName' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
-                   )
+                   ), self.timeout
         )
         ##
-        # TESTPOINT: #1, test_oic_device_settings_has_member_info
+        # TESTPOINT: #1, test_oic_device_attr_name
         #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
 
 
-    def test_oic_device_settings_has_member_role(self):
+    def test_oic_device_attr_dataModels(self):
         '''
         Test if OicDevice.settings has role member.
-        @fn test_oic_device_settings_has_member_role
+        @fn test_oic_device_attr_dataModels
         @param self
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceSettingsMemberRole' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceAttrDataModels' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
-                   )
+                   ), self.timeout
         )
         ##
-        # TESTPOINT: #1, test_oic_device_settings_has_member_role
+        # TESTPOINT: #1, test_oic_device_attr_dataModels
         #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
 
 
-    def test_oic_device_settings_has_member_connectionMode(self):
+    def test_oic_device_attr_coreSpecVersion(self):
         '''
         Test if OicDevice.settings has connectionMode member.
-        @fn test_oic_device_settings_has_member_connectionMode
+        @fn test_oic_device_attr_coreSpecVersion
         @param self
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceSettingsMemberConnectionMode' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceAttrCoreSpecVersion' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
-                   )
+                   ), self.timeout
         )
         ##
-        # TESTPOINT: #1, test_oic_device_settings_has_member_connectionMode
+        # TESTPOINT: #1, test_oic_device_attr_coreSpecVersion
         #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
 
 
-    def test_oic_device_settings_info_has_member_uuid(self):
+    def test_oic_device_attr_role(self):
         '''
         Test if OicDevice.settings.info has uuid member.
-        @fn test_oic_device_settings_info_has_member_uuid
+        @fn test_oic_device_attr_role
         @param self
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberUuid' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceAttrRole' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_device']
-                   )
+                   ), self.timeout
         )
         ##
-        # TESTPOINT: #1, test_oic_device_settings_info_has_member_uuid
+        # TESTPOINT: #1, test_oic_device_attr_role
         #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_device_settings_info_has_member_name(self):
-        '''
-        Test if OicDevice.settings.info has name member.
-        @fn test_oic_device_settings_info_has_member_name
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberName' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_device']
-                   )
-        )
-        ##
-        # TESTPOINT: #1, test_oic_device_settings_info_has_member_name
-        #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_device_settings_info_has_member_dataModels(self):
-        '''
-        Test if OicDevice.settings.info has dataModels member.
-        @fn test_oic_device_settings_info_has_member_dataModels
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberDataModels' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_device']
-                   )
-        )
-        ##
-        # TESTPOINT: #1, test_oic_device_settings_info_has_member_dataModels
-        #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_device_settings_info_has_member_coreSpecVersion(self):
-        '''
-        Test if OicDevice.settings.info has coreSpecVersion member.
-        @fn test_oic_device_settings_info_has_member_coreSpecVersion
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberOsVersion' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_device']
-                   )
-        )
-        ##
-        # TESTPOINT: #1, test_oic_device_settings_info_has_member_coreSpecVersion
-        #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_device_settings_info_has_member_osVersion(self):
-        '''
-        Test if OicDevice.settings.info has osVersion member.
-        @fn test_oic_device_settings_info_has_member_osVersion
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberCoreSpecVersion' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_device']
-                   )
-        )
-        ##
-        # TESTPOINT: #1, test_oic_device_settings_info_has_member_osVersion
-        #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_device_settings_info_has_member_model(self):
-        '''
-        Test if OicDevice.settings.info has model member.
-        @fn test_oic_device_settings_info_has_member_model
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberModel' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_device']
-                   )
-        )
-        ##
-        # TESTPOINT: #1, test_oic_device_settings_info_has_member_model
-        #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_device_settings_info_has_member_manufacturerName(self):
-        '''
-        Test if OicDevice.settings.info has manufacturerName member.
-        @fn test_oic_device_settings_info_has_member_manufacturerName
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberManufacturerName' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_device']
-                   )
-        )
-        ##
-        # TESTPOINT: #1, test_oic_device_settings_info_has_member_manufacturerName
-        #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_device_settings_info_has_member_manufacturerUrl(self):
-        '''
-        Test if OicDevice.settings.info has manufacturerUrl member.
-        @fn test_oic_device_settings_info_has_member_manufacturerUrl
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberManufacturerUrl' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_device']
-                   )
-        )
-        ##
-        # TESTPOINT: #1, test_oic_device_settings_info_has_member_manufacturerUrl
-        #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_device_settings_info_has_member_manufacturerDate(self):
-        '''
-        Test if OicDevice.settings.info has manufacturerDate member.
-        @fn test_oic_device_settings_info_has_member_manufacturerDate
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberManufacturerDate' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_device']
-                   )
-        )
-        ##
-        # TESTPOINT: #1, test_oic_device_settings_info_has_member_manufacturerDate
-        #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_device_settings_info_has_member_platformVersion(self):
-        '''
-        Test if OicDevice.settings.info has platformVersion member.
-        @fn test_oic_device_settings_info_has_member_platformVersion
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberPlatformVersion' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_device']
-                   )
-        )
-        ##
-        # TESTPOINT: #1, test_oic_device_settings_info_has_member_platformVersion
-        #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_device_settings_info_has_member_firmwareVersion(self):
-        '''
-        Test if OicDevice.settings.info has firmwareVersion member.
-        @fn test_oic_device_settings_info_has_member_firmwareVersion
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberFirmwareVersion' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_device']
-                   )
-        )
-        ##
-        # TESTPOINT: #1, test_oic_device_settings_info_has_member_firmwareVersion
-        #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_device_settings_info_has_member_supportUrl(self):
-        '''
-        Test if OicDevice.settings.info has supportUrl member.
-        @fn test_oic_device_settings_info_has_member_supportUrl
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceInfoMemberFirmwareVersion' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_device']
-                   )
-        )
-        ##
-        # TESTPOINT: #1, test_oic_device_settings_info_has_member_supportUrl
-        #
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_device_has_addEventListener(self):
-        '''
-        Test if OicDevice has addEventListener member.
-        @fn test_oic_device_has_addEventListener
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceHasaddEventListener' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_device']
-                   )
-        )
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_device_has_configure_promise(self):
-        '''
-        Test if OicDevice has configure promise function.
-        @fn test_oic_device_has_configure_promise
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceHasConfigurePromise' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_device']
-                   )
-        )
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_device_has_removeEventListener(self):
-        '''
-        Test if OicDevice has removeEventListener member.
-        @fn test_oic_device_has_removeEventListener
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceHasremoveEventListener' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_device']
-                   )
-        )
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_device_has_dispatchEvent(self):
-        '''
-        Test if OicDevice has dispatchEvent member.
-        @fn test_oic_device_has_dispatchEvent
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDeviceHasdispatchEvent' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_device']
-                   )
-        )
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
 
 # OicClient
-    def test_oic_client_has_findResources_promise(self):
+    def test_oic_client_attr_create(self):
         '''
-        Test if OicClient has findResources promise function.
-        @fn test_oic_client_has_findResources_promise
+        Test if OicClient has create promise function.
+        @fn test_oic_client_attr_create
         @param self
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasFindResourcesPromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientRetrievePromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_client']
-                   )
+                   ), self.timeout
         )
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
 
 
-    def test_oic_client_has_findDevices_promise(self):
+    def test_oic_client_attr_retrieve(self):
         '''
-        Test if OicClient has findDevices promise function.
-        @fn test_oic_client_has_findDevices_promise
+        Test if OicClient has retrieve promise function.
+        @fn test_oic_client_attr_retrieve
         @param self
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasFindDevicesPromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientUpdatePromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_client']
-                   )
+                   ), self.timeout
         )
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
 
 
-    def test_oic_client_has_createResource_promise(self):
+    def test_oic_client_attr_update(self):
         '''
-        Test if OicClient has createResource promise function.
-        @fn test_oic_client_has_createResource_promise
+        Test if OicClient has update promise function.
+        @fn test_oic_client_attr_update
         @param self
         @return
         '''
         (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasCreateResourcePromise' % (
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientDeletePromise' % (
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_client']
-                   )
+                   ), self.timeout
         )
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
 
 
-    def test_oic_client_has_retrieveResource_promise(self):
+    def test_oic_client_attr_delete(self):
         '''
-        Test if OicClient has retrieveResource promise function.
-        @fn test_oic_client_has_retrieveResource_promise
+        Test if OicClient has delete promise function.
+        @fn test_oic_client_attr_delete
         @param self
         @return
         '''
@@ -587,43 +302,10 @@ class IotivityJSAPITest(oeRuntimeTest):
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_client']
-                   )
+                   ), self.timeout
         )
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
 
-
-    def test_oic_client_has_updateResource_promise(self):
-        '''
-        Test if OicClient has updateResource promise function.
-        @fn test_oic_client_has_updateResource_promise
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasUpdateResourcePromise' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_client']
-                   )
-        )
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
-
-
-    def test_oic_client_has_deleteResource_promise(self):
-        '''
-        Test if OicClient has deleteResource promise function.
-        @fn test_oic_client_has_deleteResource_promise
-        @param self
-        @return
-        '''
-        (api_status, api_output) = self.target.run(
-                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicClientHasDeleteResourcePromise' % (
-                    self.target_iotivity_js_apis_dir,
-                    self.target_iotivity_js_apis_dir,
-                    self.iotivity_js_apis_files['oic_client']
-                   )
-        )
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
 
 # OicServer
     def test_oic_server_has_registerResource_promise(self):
@@ -638,9 +320,9 @@ class IotivityJSAPITest(oeRuntimeTest):
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_server']
-                   )
+                   ), self.timeout
         )
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
 
 
     def test_oic_server_has_unregisterResource_promise(self):
@@ -655,9 +337,9 @@ class IotivityJSAPITest(oeRuntimeTest):
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_server']
-                   )
+                   ), self.timeout
         )
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
 
 
     def test_oic_server_has_enablePresence_promise(self):
@@ -672,9 +354,9 @@ class IotivityJSAPITest(oeRuntimeTest):
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_server']
-                   )
+                   ), self.timeout
         )
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
 
 
     def test_oic_server_has_disablePresence_promise(self):
@@ -689,9 +371,9 @@ class IotivityJSAPITest(oeRuntimeTest):
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_server']
-                   )
+                   ), self.timeout
         )
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
 
 
     def test_oic_server_has_notify_promise(self):
@@ -706,9 +388,112 @@ class IotivityJSAPITest(oeRuntimeTest):
                     self.target_iotivity_js_apis_dir,
                     self.target_iotivity_js_apis_dir,
                     self.iotivity_js_apis_files['oic_server']
-                   )
+                   ), self.timeout
         )
-        self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+
+    def test_oic_server_has_onobserverequest_promise(self):
+        '''
+        Test if OicClient has onobserverequest event.
+        @fn test_oic_server_has_onobserverequest_promise
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasOnobserverequestEvent' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_server']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+
+    def test_oic_server_has_onunobserverequest_promise(self):
+        '''
+        Test if OicClient has onunobserverequest event.
+        @fn test_oic_server_has_onunobserverequest_promise
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasOnunobserverequestEvent' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_server']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+
+    def test_oic_server_has_onretrieverequest_promise(self):
+        '''
+        Test if OicClient has onretrieverequest event.
+        @fn test_oic_server_has_onretrieverequest_promise
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasOnretrieverequestEvent' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_server']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+
+    def test_oic_server_has_ondeleterequest_promise(self):
+        '''
+        Test if OicClient has ondeleterequest event.
+        @fn test_oic_server_has_ondeleterequest_promise
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasOndeleterequestEvent' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_server']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+
+    def test_oic_server_has_onupdaterequest_promise(self):
+        '''
+        Test if OicClient has onupdaterequest event.
+        @fn test_oic_server_has_onupdaterequest_promise
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasOnupdaterequestEvent' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_server']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+
+    def test_oic_server_has_oncreaterequest_promise(self):
+        '''
+        Test if OicClient has oncreaterequest event.
+        @fn test_oic_server_has_oncreaterequest_promise
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicServerHasOncreaterequestEvent' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_server']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
 
 # OicResource
     def test_oic_resource_has_addEventListener(self):
@@ -845,6 +630,265 @@ class IotivityJSAPITest(oeRuntimeTest):
         )
         self.assertTrue('OK:' in api_output.strip().splitlines()[-1])
 
+
+#oicDiscovery
+    def test_oic_discovery_findResources(self):
+        '''
+        Test if oicDiscovery has findResources member.
+        @fn test_oic_discovery_findResources
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDiscoveryAttrFindResources' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_discovery']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+    def test_oic_discovery_getDeviceInfo(self):
+        '''
+        Test if oicDiscovery has getDeviceInfo member.
+        @fn test_oic_discovery_getDeviceInfo
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDiscoveryAttrGetDeviceInfo' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_discovery']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+    def test_oic_discovery_getPlatformInfo(self):
+        '''
+        Test if oicDiscovery has getPlatformInfo member.
+        @fn test_oic_discovery_getPlatformInfo
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDiscoveryAttrGetPlatformInfo' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_discovery']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+    def test_oic_discovery_findDevices(self):
+        '''
+        Test if oicDiscovery has findDevices member.
+        @fn test_oic_discovery_findDevices
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDiscoveryAttrFindDevices' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_discovery']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+    def test_oic_discovery_onresourcefound(self):
+        '''
+        Test if oicDiscovery has onresourcefound member.
+        @fn test_oic_discovery_onresourcefound
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDiscoveryAttrOnresourcefound' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_discovery']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+    def test_oic_discovery_ondevicefound(self):
+        '''
+        Test if oicDiscovery has ondevicefound member.
+        @fn test_oic_discovery_ondevicefound
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDiscoveryAttrOndevicefound' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_discovery']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+    def test_oic_discovery_ondiscoveryerror(self):
+        '''
+        Test if oicDiscovery has ondiscoveryerror member.
+        @fn test_oic_discovery_ondiscoveryerror
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicDiscoveryAttrOndiscoveryerror' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_discovery']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+#OicPlatform
+
+    def test_oic_platform_id(self):
+        '''
+        Test if oicPlatform has id member.
+        @fn test_oic_platform_id
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicPlatformAttrId' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_platform']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+    def test_oic_platform_osVersion(self):
+        '''
+        Test if oicPlatform has osVersion member.
+        @fn test_oic_platform_osVersion
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicPlatformAttrOsVersion' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_platform']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+    def test_oic_platform_model(self):
+        '''
+        Test if oicPlatform has model member.
+        @fn test_oic_platform_model
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicPlatformAttrModel' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_platform']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+    def test_oic_platform_manufacturerName(self):
+        '''
+        Test if oicPlatform has manufacturerName member.
+        @fn test_oic_platform_manufacturerName
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicPlatformAttrManufacturerName' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_platform']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+    def test_oic_platform_manufacturerUrl(self):
+        '''
+        Test if oicPlatform has manufacturerUrl member.
+        @fn test_oic_platform_manufacturerUrl
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicPlatformAttrManufacturerUrl' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_platform']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+    def test_oic_platform_manufactureDate(self):
+        '''
+        Test if oicPlatform has manufactureDate member.
+        @fn test_oic_platform_manufactureDate
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicPlatformAttrManufactureDate' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_platform']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+    def test_oic_platform_platformVersion(self):
+        '''
+        Test if oicPlatform has platformVersion member.
+        @fn test_oic_platform_platformVersion
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicPlatformAttrPlatformVersion' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_platform']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+    def test_oic_platform_firmwareVersion(self):
+        '''
+        Test if oicPlatform has firmwareVersion member.
+        @fn test_oic_platform_firmwareVersion
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicPlatformAttrFirmwareVersion' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_platform']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+    def test_oic_platform_supportUrl(self):
+        '''
+        Test if oicPlatform has supportUrl member.
+        @fn test_oic_platform_supportUrl
+        @param self
+        @return
+        '''
+        (api_status, api_output) = self.target.run(
+                'export NODE_PATH="/usr/lib/node_modules/"; cd %s/; /tmp/nodeunit-master/bin/nodeunit %s/%s -t testOicPlatformAttrSupportUrl' % (
+                    self.target_iotivity_js_apis_dir,
+                    self.target_iotivity_js_apis_dir,
+                    self.iotivity_js_apis_files['oic_platform']
+                   ), self.timeout
+        )
+        self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
 
     @classmethod
     def tearDownClass(cls):

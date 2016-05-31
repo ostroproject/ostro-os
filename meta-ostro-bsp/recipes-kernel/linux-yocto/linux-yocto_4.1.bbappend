@@ -86,9 +86,6 @@ SRC_URI_append_intel-quark = " file://debug-fs.cfg"
 # Bluetooth and Bluetooth LE support on Galileo Gen 2
 SRC_URI_append_intel-quark = " file://bluetooth.cfg"
 
-# Fix panic on USB fuzzing (Edison kernel is too old)
-SRC_URI_append_beaglebone = " file://fix-usb-fuzzing-panic.patch"
-
 # Galileo 2 GPIO
 SRC_URI_append_intel-quark = " file://galileo2.cfg"
 SRC_URI_append_intel-quark = " file://iio.cfg"
