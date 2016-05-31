@@ -46,6 +46,35 @@ SUPPORTED_RECIPES_NATIVE_BASECLASSES ??= " \
     populate_sdk.bbclass \
 "
 
+# Show information about all external sources without having to build
+# anything. This works also for recipes which do not build (i.e. where
+# buildhistory would not work) and it is faster than invoking bitbake -g
+# for each recipe (because the meta data only gets loaded once).
+#
+# Use this by setting the variable to the name of a file and then start a dry run, like this:
+# BB_ENV_EXTRAWHITE="$BB_ENV_EXTRAWHITE SUPPORTED_RECIPES_SOURCES" SUPPORTED_RECIPES_SOURCES=/tmp/sources.csv bitbake --dry-run my-build-targets
+#
+# One can abort after the "NOTE: Created SUPPORTED_RECIPES_SOURCES = <filename>" message.
+#
+# The output is a comma-separated list of fields:
+# - recipe name
+# - collection
+# - PV
+# - HOMEPAGE
+# - source
+# - SUMMARY
+#
+# Local files in SRC_URI are ignored. If there is no remaining external source,
+# the recipe is not reported. If there is more than one remaining source,
+# the first one is considered the "main" source and shown for the original recipe
+# name. The remaining ones are show as "recipe name/<name>" where <name> is
+# from the "name" parameter in the source URL, or "recipe name/<number>" where
+# number counts the non-patch sources.
+SUPPORTED_RECIPES_SOURCES ??= ""
+
+# Temporary directory for use with SUPPORTED_RECIPES_SOURCES.
+SUPPORTED_RECIPES_SOURCES_DIR ??= "${TMPDIR}/supported-recipe-sources"
+
 # However, not all recipes use these special base classes, so there
 # is also this list of space-separated regular expressions which identify
 # additional recipes which do not need to be checked.
@@ -147,6 +176,47 @@ def load_supported_recipes(d):
 
     return (supported_recipes, files)
 
+# Collects information about one recipe during parsing for SUPPORTED_RECIPES_SOURCES.
+# The dumped information cannot be removed because it might be needed in future
+# bitbake invocations, so the default location is inside the tmp directory.
+def dump_sources(d):
+    import urlparse
+    import os
+
+    pn = d.getVar('PN', True)
+    filename = d.getVar('FILE', True)
+    collection = bb.utils.get_file_layer(filename, d)
+    pv = d.getVar('PV', True)
+    summary = d.getVar('SUMMARY', True) or ''
+    homepage = d.getVar('HOMEPAGE', True) or ''
+    src = d.getVar('SRC_URI', True).split()
+    sources = []
+    for url in src:
+        scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
+        if scheme != 'file':
+            parts = path.split(';')
+            if len(parts) > 1:
+                path = parts[0]
+                params = dict([x.split('=') if '=' in x else (x, '') for x in parts[1:]])
+            else:
+                params = {}
+            name = params.get('name', None)
+            sources.append((name, '%s://%s%s' % (scheme, netloc, path)))
+    dumpfile = d.getVar('SUPPORTED_RECIPES_SOURCES_DIR', True) + '/' + pn + filename
+    bb.utils.mkdirhier(os.path.dirname(dumpfile))
+    with open(dumpfile, 'w') as f:
+        import csv
+        writer = csv.writer(f)
+        for idx, val in enumerate(sources):
+            name, url = val
+            if name and not len(sources) == 1:
+                fullname = '%s/%s' % (pn, name)
+            elif idx > 0:
+                fullname = '%s/%d' % (pn, idx)
+            else:
+                fullname = pn
+            writer.writerow((fullname, collection, pv, homepage, url, summary))
+
 python () {
     supported_recipes, files = load_supported_recipes(d)
     # The bitbake cache must be told explicitly that changes in these
@@ -156,6 +226,8 @@ python () {
         bb.parse.mark_dependency(d, file)
     if not supported_recipes.current_recipe_supported(d):
         d.setVar('EXCLUDE_FROM_WORLD', '1')
+    if d.getVar('SUPPORTED_RECIPES_SOURCES', True):
+        dump_sources(d)
 }
 
 python supported_recipes_eventhandler() {
@@ -165,6 +237,8 @@ python supported_recipes_eventhandler() {
         return
 
     import re
+    import csv
+
     # Always add a trailing $ to ensure a full match.
     isnative_exception = re.compile('(' + '|'.join(d.getVar('SUPPORTED_RECIPES_NATIVE_RECIPES', True).split()) + ')$')
     isnative_baseclasses = d.getVar('SUPPORTED_RECIPES_NATIVE_BASECLASSES', True).split()
@@ -179,7 +253,11 @@ python supported_recipes_eventhandler() {
     # import pprint
     # bb.note('depgraph: %s' % pprint.pformat(depgraph))
 
+    dir = d.getVar('SUPPORTED_RECIPES_SOURCES_DIR', True)
+    report_sources = d.getVar('SUPPORTED_RECIPES_SOURCES', True)
+
     unsupported = {}
+    sources = []
     for pn, pndata in depgraph['pn'].iteritems():
         # We only care about recipes compiled for the target.
         # Most native ones can be detected reliably because they inherit native.bbclass,
@@ -198,8 +276,24 @@ python supported_recipes_eventhandler() {
             filename = pndata['filename']
             collection = bb.utils.get_file_layer(filename, d)
             recipe = '%s@%s' % (pn, collection)
-            if not supported_recipes.recipe_supported(pn, collection):
+            supported = supported_recipes.recipe_supported(pn, collection)
+            if not supported:
                 unsupported[pn] = collection
+            if report_sources:
+                dumpfile = dir + '/' + pn + filename
+                with open(dumpfile) as f:
+                    reader = csv.reader(f)
+                    for row in reader:
+                        row.insert(2, 'yes' if supported else 'no')
+                        sources.append(row)
+
+    if report_sources:
+        with open(report_sources, 'w') as f:
+            writer = csv.writer(f)
+            writer.writerow('component,collection,supported,version,homepage,source,summary'.split(','))
+            for row in sorted(sources):
+                writer.writerow(row)
+        bb.note('Created SUPPORTED_RECIPES_SOURCES = %s file.' % report_sources)
 
     if unsupported:
         # Walk the recipe dependency tree and add one line for each path that ends in
