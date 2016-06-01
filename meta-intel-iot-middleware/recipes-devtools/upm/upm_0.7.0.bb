@@ -5,7 +5,7 @@ AUTHOR = "Brendan Le Foll, Tom Ingleby, Yevgeniy Kiveisha"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=d1cc191275d6a8c5ce039c75b2b3dc29"
 
-DEPENDS = "nodejs swig-native mraa"
+DEPENDS = "nodejs libjpeg-turbo swig-native mraa"
 
 SRC_URI = "git://github.com/intel-iot-devkit/upm.git;protocol=git;tag=v${PV}"
 
@@ -18,12 +18,20 @@ CFLAGS_append_edison = " -msse3 -mfpmath=sse"
 FILES_${PN}-doc += " ${datadir}/upm/examples/"
 RDEPENDS_${PN} += " mraa"
 
-PACKAGECONFIG ??= "python nodejs java"
+# override this in local.conf to get a subset of bindings.
+# BINDINGS_pn-upm="python"
+# will result in only the python bindings being built/packaged.
 
-#These two lines disable the python package generation until we can get it building consistently on all platforms/architectures.
-#PACKAGECONFIG[python] = "-DBUILDSWIGPYTHON=ON, -DBUILDSWIGPYTHON=OFF, swig-native ${PYTHON_PN},"
-PACKAGECONFIG[python] = "-DBUILDSWIGPYTHON=OFF, -DBUILDSWIGPYTHON=OFF, swig-native ${PYTHON_PN},"
+#Disable the python package generation until we can get it building consistently on all platforms/architectures.
+# note, we can rely on BINDINGS_${PN}-mraa if we want these controlled by 1 variable
+#BINDINGS ?= "python nodejs java"
+BINDINGS ?= "nodejs java"
 
+PACKAGECONFIG ??= "${@bb.utils.contains('PACKAGES', 'node-${PN}', 'nodejs', '', d)} \
+ ${@bb.utils.contains('PACKAGES', 'python-${PN}', 'python', '', d)} \
+ ${@bb.utils.contains('PACKAGES', '${PN}-java', 'java', '', d)}"
+
+PACKAGECONFIG[python] = "-DBUILDSWIGPYTHON=ON, -DBUILDSWIGPYTHON=OFF, swig-native ${PYTHON_PN},"
 PACKAGECONFIG[nodejs] = "-DBUILDSWIGNODE=ON, -DBUILDSWIGNODE=OFF, swig-native nodejs,"
 PACKAGECONFIG[java] = "-DBUILDSWIGJAVA=ON, -DBUILDSWIGJAVA=OFF, swig-native openjdk-8-native,"
 
@@ -61,7 +69,8 @@ FILES_${PN}-java = "${libdir}/libjava*.so \
                     ${prefix}/src/debug/${BPN}/${PV}-${PR}/build/src/*/*javaupm_* \
                     ${libdir}/.debug/libjava*.so \
                    "
-RDEPENDS_${PN}-java += "java2-runtime mraa-java"
+
+RDEPENDS_${PN}-java += "${@bb.utils.contains('PACKAGES', '${PN}-java', 'java2-runtime mraa-java', '', d)}"
 INSANE_SKIP_${PN}-java = "debug-files"
 
 export JAVA_HOME="${STAGING_DIR}/${BUILD_SYS}/usr/lib/jvm/openjdk-8-native"
@@ -77,7 +86,8 @@ set (JAVA_JVM_LIBRARY ${JAVA_HOME}/jre/lib/amd64/libjvm.so CACHE FILEPATH \"path
 }
 
 
-### Include language bindings ###
 
-PACKAGES =+ "${PYTHON_PN}-${PN} node-${PN} ${PN}-java"
-
+### Include desired language bindings ###
+PACKAGES =+ "${@bb.utils.contains('BINDINGS', 'java', '${PN}-java', '', d)}"
+PACKAGES =+ "${@bb.utils.contains('BINDINGS', 'nodejs', 'node-${PN}', '', d)}"
+PACKAGES =+ "${@bb.utils.contains('BINDINGS', 'python', 'python-${PN}', '', d)}"
