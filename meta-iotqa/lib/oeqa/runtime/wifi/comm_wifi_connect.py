@@ -46,7 +46,7 @@ class CommWiFiConect(oeRuntimeTest):
         # disable wifi
         self.wifi.disable_wifi()
 
-    @tag(FeatureID="IOTOS-457")
+    @tag(FeatureID="IOTOS-457,IOTOS-1610")
     def test_connect_80211b(self):
         '''connmanctl to connect 802.11b AP
         @fn test_connect_80211b
@@ -59,7 +59,7 @@ class CommWiFiConect(oeRuntimeTest):
 
         self.wifi.execute_connection(ap_type, ssid, pwd)
 
-    @tag(FeatureID="IOTOS-457")
+    @tag(FeatureID="IOTOS-457,IOTOS-1610")
     def test_connect_80211g(self):
         '''connmanctl to connect 802.11g AP
         @fn test_connect_80211g
@@ -72,7 +72,7 @@ class CommWiFiConect(oeRuntimeTest):
 
         self.wifi.execute_connection(ap_type, ssid, pwd)
 
-    @tag(FeatureID="IOTOS-457")
+    @tag(FeatureID="IOTOS-457,IOTOS-1610")
     def test_connect_80211n(self):
         '''connmanctl to connect 802.11n AP
         @fn test_connect_80211n
@@ -85,7 +85,7 @@ class CommWiFiConect(oeRuntimeTest):
 
         self.wifi.execute_connection(ap_type, ssid, pwd)
 
-    @tag(FeatureID="IOTOS-458")
+    @tag(FeatureID="IOTOS-458,IOTOS-1610")
     def test_connect_wpapsk(self):
         '''connmanctl to connect WPA-PSK AP (set by ssid_80211b AP)
         @fn test_connect_wpapsk
@@ -98,7 +98,7 @@ class CommWiFiConect(oeRuntimeTest):
 
         self.wifi.execute_connection(ap_type, ssid, pwd)
 
-    @tag(FeatureID="IOTOS-458")
+    @tag(FeatureID="IOTOS-458,IOTOS-1610")
     def test_connect_wpa2psk(self):
         '''connmanctl to connect WPA2-PSK AP (set by ssid_80211g AP)
         @fn test_connect_wpa2psk

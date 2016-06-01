@@ -186,3 +186,9 @@ TestStep,,,,3,"Run the test script on device",Print 'HELLO' on Grove LCD,,,,,,,
 TestScript,pwm_led,Application Runtime / Node.js,Check the method open and setDutyCycle can work well,1,Download the source code from https://github.com/solettaproject/soletta/blob/master/src/samples/nodejs/pwm_led.js to device,,FVT,ready,IOTOS-1156,Edison specific,,,
 TestStep,,,,2,"According to the description in the test setup the device",Setup the test environment,,,,,,,
 TestStep,,,,3,"Run below command on device: $:node pwm_led.js",The brightness of an LED form weak to strong in a loop,,,,,,,
+TestScript,iotvt_findresource_over_ble,COMMS/Iotivity,Do iotivity resource finding over BLE,1,Follow wiki to build iotivity simpleclient with BLE mode and bitbake it. ,,FVT,ready,IOTOS-534,,,,
+TestStep,,,,2,Copy the built simpleclient and simpleserver to two IoT devices.,,,,,,,,
+TestStep,,,,3,"Do BLE connection between two IoT devices:
+One IoT does BLE advertising: hciconfig hci0 leadv
+The other IoT does: hcitool lecc <adv device BT MAC>",hcitool lecc return pass,,,,,,,
+TestStep,,,,4,"The advertising device play simpleclient, the other plays simpleserver.",simpleclient should get resource,,,,,,,
