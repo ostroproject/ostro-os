@@ -27,7 +27,7 @@ TestScript,run_ltp,Benchmark,Try to run LTP in Ostro,1,Enter into /opt/ltp,,FVT,
 TestStep,,,,2,"run command ""./ltprun""",a> No crash or error in putput b> the tests can be executed one by one successfully,,,,,,,
 TestScript,ffmpeg_integration,Benchmark,Check ffmpeg integration,1,Boot up device ,,FVT,ready,IOTOS-1572,,,,
 TestStep,,,,2,"run command ""which ffmpeg; which ffprobe; which ffserver""",the ffmpeg utility tools integrated,,,,,,,
-TestStep,,,,3,"run command ""ls /usr/libav*; ls /usr/libsw*""",the libav relevant libraries and libswresample.so listed,,,,,,,
+TestStep,,,,3,"run command ""ls /usr/lib/libav*; ls /usr/lib/libsw*""",the libav relevant libraries and libswresample.so listed,,,,,,,
 TestScript,gstreamer_integration,Benchmark,Check gstreamer integration,1,Boot up device ,,FVT,ready,IOTOS-1573,,,,
 ,,,,2,"check gstreamder lib integration ""ls /usr/lib/gstreamder*""",There gstreamer libraries listed,,,,,,,
 TestStep,,,,3,"type command in terminal ""gst-"" <tab><tab>",There will be some gst-xxx command listed: gst-device-monitor-1.0 gst-inspect-1.0 gst-play-1.0 gst-typefind-1.0 gst-discoverer-1.0 gst-launch-1.0 gst-stats-1.0,,,,,,,
@@ -120,3 +120,6 @@ TestStep,,,,4,"Stop above steps, Modify realsense_r200_nodelet_standalone_manual
 Re-launch the realsense nodelet using the launch file: 
 roslaunch realsense_camera realsense_r200_nodelet_standalone_manual.launch","RealSense nodelet should exit with following error message:
 uvc subdevice 2 cannot provide 1280x720:RGB8@60Hz COLOR",,,,,,,
+TestScript,check_xdk-daemon_integration,GT Environment,Check XDK-daemon integration,1,check '/lib/systemd/system/xdk-daemon.service',the service file existing,FVT,ready,IOTOS-1611,,,,
+TestStep,,,,2,Run command 'ps | grep xdk-daemon',there is xdk-daemon process listed,,,,,,,
+TestStep,,,,3,Run command 'systemctl restart xdk-daemon',xdk-daemon service restarted,,,,,,,
