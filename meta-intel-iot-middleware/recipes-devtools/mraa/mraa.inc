@@ -13,7 +13,15 @@ EXTRA_OECMAKE_append = "-DINSTALLGPIOTOOL=ON -DPYTHON_SITE_DIR:FILEPATH=${PYTHON
 
 FILES_${PN}-doc += "${datadir}/mraa/examples/"
 
-PACKAGECONFIG ??= "python nodejs java"
+# override this in local.conf to get a subset of bindings.
+# BINDINGS_pn-mraa="python"
+# will result in only the python bindings being built/packaged.
+BINDINGS ?= "python nodejs java"
+
+PACKAGECONFIG ??= "${@bb.utils.contains('PACKAGES', 'node-${PN}', 'nodejs', '', d)} \
+ ${@bb.utils.contains('PACKAGES', 'python-${PN}', 'python', '', d)} \
+ ${@bb.utils.contains('PACKAGES', '${PN}-java', 'java', '', d)}"
+
 PACKAGECONFIG[python] = "-DBUILDSWIGPYTHON=ON, -DBUILDSWIGPYTHON=OFF, swig-native python,"
 PACKAGECONFIG[nodejs] = "-DBUILDSWIGNODE=ON, -DBUILDSWIGNODE=OFF, swig-native nodejs,"
 PACKAGECONFIG[java] = "-DBUILDSWIGJAVA=ON, -DBUILDSWIGJAVA=OFF, swig-native openjdk-8-native,"
@@ -58,7 +66,7 @@ FILES_${PN}-java = "${libdir}/libmraajava.so \
                     ${libdir}/.debug/libmraajava.so \
                    "
 
-RDEPENDS_${PN}-java += "java2-runtime"
+RDEPENDS_${PN}-java += "${@bb.utils.contains('PACKAGES', '${PN}-java', 'java2-runtime', '', d)}"
 INSANE_SKIP_${PN}-java = "debug-files"
 
 export JAVA_HOME="${STAGING_DIR}/${BUILD_SYS}/usr/lib/jvm/openjdk-8-native"
@@ -73,9 +81,7 @@ set (JAVA_JVM_LIBRARY ${JAVA_HOME}/jre/lib/amd64/libjvm.so CACHE FILEPATH \"path
 " >> ${WORKDIR}/toolchain.cmake
 }
 
-
-
-### Include language bindings ###
-
-PACKAGES =+ "python-${PN} node-${PN} ${PN}-java"
-
+### Include desired language bindings ###
+PACKAGES =+ "${@bb.utils.contains('BINDINGS', 'java', '${PN}-java', '', d)}"
+PACKAGES =+ "${@bb.utils.contains('BINDINGS', 'nodejs', 'node-${PN}', '', d)}"
+PACKAGES =+ "${@bb.utils.contains('BINDINGS', 'python', 'python-${PN}', '', d)}"
