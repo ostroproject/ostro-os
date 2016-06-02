@@ -112,8 +112,7 @@ SWUPD_IMAGES ?= " \
     all \
 "
 
-# In practice the same as "all" at the moment, but conceptually different
-# and thus defined separately.
+#add qa-bundle-a in swupd-dev image for QA testing.
 SWUPD_IMAGES[dev] = " \
     world-dev \
     qa-bundle-a \

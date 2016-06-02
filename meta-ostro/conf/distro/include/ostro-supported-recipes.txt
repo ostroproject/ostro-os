@@ -99,6 +99,9 @@ gobject-introspection@core
 gptfdisk@core
 grep@core
 gzip@core
+hello-bundle-a@iotqa
+hello-bundle-b@iotqa
+hello-bundle-s@iotqa
 htop@openembedded-layer
 i2c-edison-board@quark-bsp
 i2c-minnowmax-board@quark-bsp
