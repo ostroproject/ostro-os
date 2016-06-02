@@ -31,7 +31,7 @@ TestStep,,,,3,"run command ""ls /usr/lib/libav*; ls /usr/lib/libsw*""",the libav
 TestScript,gstreamer_integration,Benchmark,Check gstreamer integration,1,Boot up device ,,FVT,ready,IOTOS-1573,,,,
 ,,,,2,"check gstreamder lib integration ""ls /usr/lib/gstreamder*""",There gstreamer libraries listed,,,,,,,
 TestStep,,,,3,"type command in terminal ""gst-"" <tab><tab>",There will be some gst-xxx command listed: gst-device-monitor-1.0 gst-inspect-1.0 gst-play-1.0 gst-typefind-1.0 gst-discoverer-1.0 gst-launch-1.0 gst-stats-1.0,,,,,,,
-TestScript,gstreamer_VC-1_video_play,Benchmark,Check gstreamer integration (refer to: https://01.org/linuxgraphics/community/vaapi),1,play some vc-1 video,video can be played,EFT,ready,IOTOS-1573,,,,
+TestScript,gstreamer_VC-1_video_play,Benchmark,Check gstreamer integration (refer to: https://01.org/linuxgraphics/community/vaapi),1,play some vc-1 video,video can be played,EFT,design,IOTOS-1573,,,,
 TestScript,gstreamer_H264_video_play,Benchmark,Check gstreamer integration (refer to: https://01.org/linuxgraphics/community/vaapi),1,play some h.264 video,video can be played,EFT,ready,IOTOS-1573,,,,
 TestScript,gstreamer_MPEG2_video_play,Benchmark,Check gstreamer integration (refer to: https://01.org/linuxgraphics/community/vaapi),1,play some mpeg2 video,video can be played,EFT,ready,IOTOS-1573,,,,
 TestScript,gstreamer_MJPEG_play,Benchmark,Check gstreamer integration (refer to: https://01.org/linuxgraphics/community/vaapi),1,play some mjpeg,mjpeg can be played,EFT,ready,IOTOS-1573,,,,
