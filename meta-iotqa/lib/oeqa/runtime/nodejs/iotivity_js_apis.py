@@ -42,7 +42,7 @@ class IotivityJSAPITest(oeRuntimeTest):
         'oic_discovery': 'test_oic_discovery.js',
         'oic_platform': 'test_oic_platform.js'
     }
-    timeout = 10
+    timeout = 20
 
 
     @classmethod
@@ -61,6 +61,7 @@ class IotivityJSAPITest(oeRuntimeTest):
                                                test_file)):
                 return False
         return True
+
 
 
     @classmethod
@@ -889,6 +890,20 @@ class IotivityJSAPITest(oeRuntimeTest):
                    ), self.timeout
         )
         self.assertTrue('OK:' in api_output.strip().splitlines()[-3])
+
+    def tearDown(self):
+        '''
+        Kill the process after running test
+        @fn setUp
+        @param self
+        @return
+        '''
+        self.target.run("kill -9 `ps | grep '%s' | grep -v 'grep' | awk '{print $1}'`" %
+            "/tmp/nodeunit-master/bin/nodeunit"
+            )
+        self.target.run("kill -9 `ps | grep '%s' | grep -v 'grep' | awk '{print $1}'`" %
+            "node_modules"
+            )
 
     @classmethod
     def tearDownClass(cls):
