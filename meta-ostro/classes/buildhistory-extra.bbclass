@@ -120,21 +120,33 @@ python buildhistory_extra_emit_kernelconfig() {
 }
 
 buildhistory_get_image_installed_append() {
-	# Create a file mapping installed packages to recipes
-	printf "" > ${BUILDHISTORY_DIR_IMAGE}/installed-package-recipes.txt
-	cat ${IMAGE_MANIFEST} | while read pkg pkgarch version
-	do
-		if [ -n "$pkg" ] ; then
-			recipe=`oe-pkgdata-util -p ${PKGDATA_DIR} lookup-recipe $pkg`
-			pkge=`oe-pkgdata-util -p ${PKGDATA_DIR} read-value PKGE $pkg`
-			if [ "$pkge" != "" ] ; then
-				pkge="$pkge-"
-			fi
-			pkgr=`oe-pkgdata-util -p ${PKGDATA_DIR} read-value PKGR $pkg`
-			if [ "$pkgr" != "" ] ; then
-				pkgr="-$pkgr"
-			fi
-			echo "$pkg $version $pkge$version$pkgr $recipe" >> ${BUILDHISTORY_DIR_IMAGE}/installed-package-recipes.txt
-		fi
-	done
+    # Create a file mapping installed packages to recipes
+    printf "" > ${BUILDHISTORY_DIR_IMAGE}/installed-package-recipes.txt
+    export PSEUDO_UNLOAD=1
+    cat ${IMAGE_MANIFEST} | while read pkg pkgarch version
+    do
+        if [ -n "$pkg" ] ; then
+            pkgv=`oe-pkgdata-util -p ${PKGDATA_DIR} read-value PKGV $pkg`
+            pkge=`oe-pkgdata-util -p ${PKGDATA_DIR} read-value PKGE $pkg`
+            if [ "${pkge}" != "" ] ; then
+                pkge="${pkge}:"
+            fi
+            pkgr=`oe-pkgdata-util -p ${PKGDATA_DIR} read-value PKGR $pkg`
+            if [ "${pkgr}" != "" ] ; then
+                pkgr="-${pkgr}"
+            fi
+            recipe=`oe-pkgdata-util -p ${PKGDATA_DIR} read-value PN $pkg`
+            recipev=`oe-pkgdata-util -p ${PKGDATA_DIR} read-value PV $pkg`
+            recipee=`oe-pkgdata-util -p ${PKGDATA_DIR} read-value PE $pkg`
+            if [ "${recipee}" != "" ]; then
+                recipee="${recipee}:"
+            fi
+            reciper=`oe-pkgdata-util -p ${PKGDATA_DIR} read-value PR $pkg`
+            if [ "${reciper}" != "" ]; then
+                reciper="-${reciper}"
+            fi
+            echo "$pkg $version ${pkge}${pkgv}${pkgr} $recipe ${recipee}${recipev}${reciper}" >> ${BUILDHISTORY_DIR_IMAGE}/installed-package-recipes.txt
+        fi
+    done
+    unset PSEUDO_UNLOAD
 }
