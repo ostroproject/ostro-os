@@ -1,10 +1,14 @@
 # Python code implementing most of the logic behind
 # supported-recipes.bbclass.
 
-def load_supported_recipes(d):
-    import os
-    import re
+import bb
+import csv
+import exceptions
+import os
+import re
+import urlparse
 
+def load_supported_recipes(d):
     class SupportedRecipe:
         def __init__(self, pattern, filename, linenumber):
             self.filename = filename
@@ -12,7 +16,7 @@ def load_supported_recipes(d):
             self.linenumber = linenumber
             parts = pattern.split('@')
             if len(parts) != 2:
-                raise RuntimeException("%s.%d: entry must have format <recipe name regex>@<collection name regex>, splitting by @ found %d parts instead: %s" % (
+                raise exceptions.RuntimeError("%s.%d: entry must have format <recipe name regex>@<collection name regex>, splitting by @ found %d parts instead: %s" % (
                     filename,
                     linenumber,
                     len(parts),
@@ -58,7 +62,7 @@ def load_supported_recipes(d):
             collections = set()
             for supported_recipe in self.supported:
                 if supported_recipe.supported(pn, None):
-                   collections.add(supported_recipe.collection_re[1])
+                    collections.add(supported_recipe.collection_re[1])
             return collections
 
     files = []
@@ -66,9 +70,9 @@ def load_supported_recipes(d):
     if not supported_files:
         bb.fatal('SUPPORTED_RECIPES is not set')
     supported_recipes = SupportedRecipes()
-    for file in supported_files.split():
+    for filename in supported_files.split():
         try:
-            with open(file) as f:
+            with open(filename) as f:
                 linenumber = 1
                 for line in f.readlines():
                     if line.startswith('#'):
@@ -76,11 +80,11 @@ def load_supported_recipes(d):
                     # TODO (?): sanity check the content to catch obsolete entries or typos.
                     pn = line.strip()
                     if pn:
-                        supported_recipes.append(SupportedRecipe(line.strip(), file, linenumber))
+                        supported_recipes.append(SupportedRecipe(line.strip(), filename, linenumber))
                     linenumber += 1
-            files.append(file)
+            files.append(filename)
         except OSError, ex:
-            bb.fatal('Could not read SUPPORTED_RECIPES = %s: %s' % (supported_file, str(ex)))
+            bb.fatal('Could not read SUPPORTED_RECIPES = %s: %s' % (supported_files, str(ex)))
 
     return (supported_recipes, files)
 
@@ -88,9 +92,6 @@ def load_supported_recipes(d):
 # The dumped information cannot be removed because it might be needed in future
 # bitbake invocations, so the default location is inside the tmp directory.
 def dump_sources(d):
-    import urlparse
-    import os
-
     pn = d.getVar('PN', True)
     filename = d.getVar('FILE', True)
     collection = bb.utils.get_file_layer(filename, d)
@@ -113,7 +114,6 @@ def dump_sources(d):
     dumpfile = d.getVar('SUPPORTED_RECIPES_SOURCES_DIR', True) + '/' + pn + filename
     bb.utils.mkdirhier(os.path.dirname(dumpfile))
     with open(dumpfile, 'w') as f:
-        import csv
         writer = csv.writer(f)
         for idx, val in enumerate(sources):
             name, url = val
@@ -131,9 +131,6 @@ def check_build(d, event):
     if not supported_recipes_check:
         return
 
-    import re
-    import csv
-
     # Always add a trailing $ to ensure a full match.
     isnative_exception = re.compile('(' + '|'.join(d.getVar('SUPPORTED_RECIPES_NATIVE_RECIPES', True).split()) + ')$')
     isnative_baseclasses = d.getVar('SUPPORTED_RECIPES_NATIVE_BASECLASSES', True).split()
@@ -148,7 +145,7 @@ def check_build(d, event):
     # import pprint
     # bb.note('depgraph: %s' % pprint.pformat(depgraph))
 
-    dir = d.getVar('SUPPORTED_RECIPES_SOURCES_DIR', True)
+    dirname = d.getVar('SUPPORTED_RECIPES_SOURCES_DIR', True)
     report_sources = d.getVar('SUPPORTED_RECIPES_SOURCES', True)
 
     unsupported = {}
@@ -170,12 +167,11 @@ def check_build(d, event):
         if not isnative():
             filename = pndata['filename']
             collection = bb.utils.get_file_layer(filename, d)
-            recipe = '%s@%s' % (pn, collection)
             supported = supported_recipes.recipe_supported(pn, collection)
             if not supported:
                 unsupported[pn] = collection
             if report_sources:
-                dumpfile = dir + '/' + pn + filename
+                dumpfile = dirname + '/' + pn + filename
                 with open(dumpfile) as f:
                     reader = csv.reader(f)
                     for row in reader:
