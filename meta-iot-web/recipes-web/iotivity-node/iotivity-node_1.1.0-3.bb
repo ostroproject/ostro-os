@@ -74,6 +74,7 @@ do_install () {
     install -m 0644 ${S}/index.js ${D}${libdir}/node_modules/iotivity-node/index.js
     install -m 0644 ${S}/lowlevel.js ${D}${libdir}/node_modules/iotivity-node/lowlevel.js
     install -m 0644 ${S}/README.md ${D}${libdir}/node_modules/iotivity-node/README.md
+    install -m 0644 ${S}/package.json ${D}${libdir}/node_modules/iotivity-node/package.json
 
     cp -r ${S}/lib/ ${D}${libdir}/node_modules/iotivity-node/
     cp -r ${S}/node_modules/ ${D}${libdir}/node_modules/iotivity-node/
