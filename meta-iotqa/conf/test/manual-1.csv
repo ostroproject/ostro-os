@@ -88,7 +88,7 @@ TestScript,test_tpm,TPM,Check if TPM is enabled in kernel,1,run command 'bitbake
 TestStep,,,,2,Check in the .config file for CONFIG_TCG_TPM,configure is set to yes (y),,,,,,,
 TestStep,,,,3,Check in the .config file for CONFIG_TCG_TIS,configure is set to yes (y),,,,,,,
 TestScript,check_opencl_integration,Benchmark,Check opencl integrated in image,1,check if opencl included in image manifest file,there opencl and opencl-dev package information listed in the manifest,FVT,ready,IOTOS-1504,,,,
-TestStep,,,,2,Check opencl libraries in the image, /usr/lib/libOpenCL.so and /usr/lib/libOpenCL.la exist,,,,,,,
+TestStep,,,,2,Check opencl libraries in the image, /usr/lib/libOpenCL.so exist,,,,,,,
 TestStep,,,,3,Check Beignet libaries in the image, /usr/lib/beignet/libcl.so and /usr/lib/beignet/libgbeinterp.so exist,,,,,,,
 TestScript,check_xdk-daemon_integration,GT Environment,Check XDK-daemon integration,1,check '/lib/systemd/system/xdk-daemon.service',the service file existing,FVT,ready,IOTOS-1611,,,,
 TestStep,,,,2,Run command 'ps | grep xdk-daemon',there is xdk-daemon process listed,,,,,,,
@@ -107,3 +107,6 @@ export ROS_MASTER_URI=http://localhost:11311
 export CMAKE_PREFIX_PATH=/opt/ros/indigo
 touch /opt/ros/indigo/.catkin",,EFT,ready,IOTOS-1554,,,,
 TestStep,,,,2,"Run 'roscore', wait for 100 seconds",The terminal will output /rosversion and 'started core service',,,,,,,
+TestScript,check_opencl_app_build,Benchmark,Check opencl app build in dev image,1,download sample app from https://software.intel.com/en-us/intel-opencl-support/code-samples,,EFT,ready,IOTOS-1504,,,,
+TestStep,,,,2,"unzip the zip package and build the app ""SimpleOptimizations"" by make", the app can be built successfully,,,,,,,
+TestStep,,,,3,run the application, the app can be execution successfully,,,,,,,
