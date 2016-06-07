@@ -7,6 +7,27 @@ import exceptions
 import os
 import re
 import urlparse
+import pkgutil
+import inspect
+
+import report
+
+class Columns:
+    '''Base class for all classes which add additional columns to the SUPPORTED_RECIPES_SOURCES report.'''
+    def __init__(d, all_rows):
+        pass
+
+    def extend_header(row_headers):
+        '''Called with a list of field names, in the order in which the
+        resultig .cvs report will have them.  extend_header() then may
+        extend the list of fields. See supportedrecipes/__init__.py for
+        a list of already present fields.
+        '''
+        pass
+
+    def extend_row(row):
+        '''Called with a hash containing one line entry. Can add more fields.'''
+        pass
 
 def load_supported_recipes(d):
     class SupportedRecipe:
@@ -88,6 +109,8 @@ def load_supported_recipes(d):
 
     return (supported_recipes, files)
 
+SOURCE_FIELDS = 'component,collection,version,homepage,source,summary'.split(',')
+
 # Collects information about one recipe during parsing for SUPPORTED_RECIPES_SOURCES.
 # The dumped information cannot be removed because it might be needed in future
 # bitbake invocations, so the default location is inside the tmp directory.
@@ -114,6 +137,7 @@ def dump_sources(d):
     dumpfile = d.getVar('SUPPORTED_RECIPES_SOURCES_DIR', True) + '/' + pn + filename
     bb.utils.mkdirhier(os.path.dirname(dumpfile))
     with open(dumpfile, 'w') as f:
+        # File intentionally kept small by not writing a header line. Guaranteed to contain SOURCE_FIELDS.
         writer = csv.writer(f)
         for idx, val in enumerate(sources):
             name, url = val
@@ -175,14 +199,28 @@ def check_build(d, event):
                 with open(dumpfile) as f:
                     reader = csv.reader(f)
                     for row in reader:
-                        row.insert(2, 'yes' if supported else 'no')
-                        sources.append(row)
+                        row_hash = dict([(f, row[i]) for i, f in enumerate(SOURCE_FIELDS)])
+                        row_hash['supported'] = 'yes' if supported else 'no'
+                        sources.append(row_hash)
 
     if report_sources:
         with open(report_sources, 'w') as f:
-            writer = csv.writer(f)
-            writer.writerow('component,collection,supported,version,homepage,source,summary'.split(','))
-            for row in sorted(sources):
+            fields = SOURCE_FIELDS
+            # Insert after 'collection'.
+            fields.insert(fields.index('collection') + 1, 'supported')
+            extensions = []
+            for importer, modname, ispkg in pkgutil.iter_modules(report.__path__):
+                module = __import__('supportedrecipes.report.' + modname, fromlist="dummy")
+                for name, clazz in inspect.getmembers(module, inspect.isclass):
+                    if issubclass(clazz, Columns):
+                        extensions.append(clazz(d, sources))
+            for e in extensions:
+                e.extend_header(fields)
+            writer = csv.DictWriter(f, fields)
+            writer.writeheader()
+            for row in sources: # TODO: sort
+                for e in extensions:
+                    e.extend_row(row)
                 writer.writerow(row)
         bb.note('Created SUPPORTED_RECIPES_SOURCES = %s file.' % report_sources)
 
