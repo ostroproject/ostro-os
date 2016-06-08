@@ -3,14 +3,23 @@
 
 import bb
 import csv
-import exceptions
+try:
+    from exceptions import RuntimeError
+except ImportError:
+    pass
 import os
 import re
-import urlparse
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 import pkgutil
 import inspect
 
-import report
+try:
+    import report
+except ImportError:
+    import supportedrecipes.report as report
 
 class Columns:
     '''Base class for all classes which add additional columns to the SUPPORTED_RECIPES_SOURCES report.'''
@@ -37,7 +46,7 @@ def load_supported_recipes(d):
             self.linenumber = linenumber
             parts = pattern.split('@')
             if len(parts) != 2:
-                raise exceptions.RuntimeError("%s.%d: entry must have format <recipe name regex>@<collection name regex>, splitting by @ found %d parts instead: %s" % (
+                raise RuntimeError("%s.%d: entry must have format <recipe name regex>@<collection name regex>, splitting by @ found %d parts instead: %s" % (
                     filename,
                     linenumber,
                     len(parts),
@@ -104,7 +113,7 @@ def load_supported_recipes(d):
                         supported_recipes.append(SupportedRecipe(line.strip(), filename, linenumber))
                     linenumber += 1
             files.append(filename)
-        except OSError, ex:
+        except OSError as ex:
             bb.fatal('Could not read SUPPORTED_RECIPES = %s: %s' % (supported_files, str(ex)))
 
     return (supported_recipes, files)
