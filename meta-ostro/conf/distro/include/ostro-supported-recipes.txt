@@ -119,7 +119,6 @@ iot-rest-api-server@iotweb
 iotivity-node@iotweb
 iotivity-simple-client@oic
 iotivity@oic
-iotop@openembedded-layer
 iproute2@core
 iptables-settings-default@ostro
 iptables@core
@@ -231,5 +230,4 @@ volatile-binds@core
 wget@core
 wpa-supplicant@core
 xz@core
-zip@core
 zlib@core

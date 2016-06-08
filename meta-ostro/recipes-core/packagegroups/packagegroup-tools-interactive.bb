@@ -17,7 +17,6 @@ RDEPENDS_${PN} = " \
     gzip \
     htop \
     iftop \
-    iotop \
     iputils-arping \
     iputils-clockdiff \
     iputils-ping \
@@ -32,5 +31,4 @@ RDEPENDS_${PN} = " \
     usbutils \
     vim \
     wget \
-    zip \
 "
