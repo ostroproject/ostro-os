@@ -113,7 +113,7 @@ def load_supported_recipes(d):
                 try:
                     # must match entire string, hence the '$'
                     return (re.compile(regex + '$'), regex)
-                except Exception, ex:
+                except Exception as ex:
                     raise RuntimeError("%s.%d: parsing '%s' as regular expression failed: %s" % (
                         filename,
                         linenumber,
@@ -171,7 +171,7 @@ def load_supported_recipes(d):
                         supported_recipes.append(SupportedRecipe(line.strip(), file, linenumber))
                     linenumber += 1
             files.append(file)
-        except OSError, ex:
+        except OSError as ex:
             bb.fatal('Could not read SUPPORTED_RECIPES = %s: %s' % (supported_file, str(ex)))
 
     return (supported_recipes, files)

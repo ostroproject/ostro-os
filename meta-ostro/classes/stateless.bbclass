@@ -114,7 +114,7 @@ def stateless_mangle(d, root, docdir, stateless_mv, stateless_rm, dirwhitelist, 
         bb.note('stateless: removing dir %s' % path)
         try:
             os.rmdir(path)
-        except OSError, ex:
+        except OSError as ex:
             bb.note('stateless: removing dir failed: %s' % ex)
             if ex.errno != errno.ENOTEMPTY:
                  raise
