@@ -192,6 +192,10 @@ ptest-runner@core
 python-dbus@core
 python-pygobject@core
 python-setuptools@core
+python3-dbus@core
+python3-pygobject@core
+python3-setuptools@core
+python3@core
 python@core
 read-map@iotqa
 readline@core
