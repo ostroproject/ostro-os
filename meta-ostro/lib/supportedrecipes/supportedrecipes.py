@@ -202,7 +202,7 @@ def dump_dependencies(depgraph, max_lines, unsupported):
     # recipes that nothing depends on. They are the start points for the build.
     roots = set(depgraph['pn'])
     deps = {}
-    for task, taskdeps in depgraph['tdepends'].iteritems():
+    for task, taskdeps in depgraph['tdepends'].items():
         pn = task.split('.')[0]
         pndeps = deps.setdefault(pn, set())
         for taskdep in taskdeps:
@@ -264,7 +264,7 @@ def dump_unsupported(unsupported, supported_recipes):
     # Turns the mapping from unsupported recipe to is collection
     # into a sorted list of entries in the final report.
     lines = []
-    for pn, collection in unsupported.iteritems():
+    for pn, collection in unsupported.items():
         # Left and right side of the <recipe>@<collection> entries are
         # regular expressions. In contrast to re.escape(), we only
         # escape + (as in gtk+3). Escaping all non-alphanumerics
@@ -301,7 +301,7 @@ def check_build(d, event):
 
     unsupported = {}
     sources = []
-    for pn, pndata in depgraph['pn'].iteritems():
+    for pn, pndata in depgraph['pn'].items():
         # We only care about recipes compiled for the target.
         # Most native ones can be detected reliably because they inherit native.bbclass,
         # but some special cases have to be hard-coded.
