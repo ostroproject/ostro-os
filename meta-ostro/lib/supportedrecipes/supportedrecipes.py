@@ -336,9 +336,11 @@ def check_build(d, event):
                 e.extend_header(fields)
             writer = csv.DictWriter(f, fields)
             writer.writeheader()
-            for row in sources: # TODO: sort
+            for row in sources:
                 for e in extensions:
                     e.extend_row(row)
+            # Sort by first column, then second column, etc., after extending all rows.
+            for row in sorted(sources, key=lambda r: [r.get(f, None) for f in fields]):
                 writer.writerow(row)
         bb.note('Created SUPPORTED_RECIPES_SOURCES = %s file.' % report_sources)
 
