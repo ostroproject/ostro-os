@@ -1,10 +1,6 @@
 # Python code implementing most of the logic behind
 # supported-recipes.bbclass.
 
-# Needed for import supportedrecipes.report, which otherwise
-# would have to be done differently for Python2 and Python3.
-from __future__ import absolute_import
-
 import csv
 import os
 import re
@@ -16,7 +12,7 @@ import pkgutil
 import inspect
 
 import bb
-import supportedrecipes.report
+import supportedrecipesreport
 
 class Columns(object):
     """Base class for all classes which extend the SUPPORTED_RECIPES_SOURCES report.
@@ -26,7 +22,7 @@ class Columns(object):
     - extend_header() - add new columns
     - extend_row() - add data for new colums to each row as it is getting written
 
-    To add new classes, create a "lib/supportedrecipes/report" directory in your layer,
+    To add new classes, create a "lib/supportedrecipesreport" directory in your layer,
     with an empty "__init__.py" file and one or more classes inheriting from this base
     class defined in one or more regular .py files.
     """
@@ -43,7 +39,7 @@ class Columns(object):
 
         Called with a list of field names, in the order in which the
         resultig .cvs report will have them.  extend_header() then may
-        extend the list of fields. See supportedrecipes/__init__.py for
+        extend the list of fields. See supportedrecipes.py for
         a list of already present fields.
         """
         pass
@@ -327,8 +323,8 @@ def check_build(d, event):
             # Insert after 'collection'.
             fields.insert(fields.index('collection') + 1, 'supported')
             extensions = []
-            for importer, modname, ispkg in pkgutil.iter_modules(supportedrecipes.report.__path__):
-                module = __import__('supportedrecipes.report.' + modname, fromlist="dummy")
+            for importer, modname, ispkg in pkgutil.iter_modules(supportedrecipesreport.__path__):
+                module = __import__('supportedrecipesreport.' + modname, fromlist="dummy")
                 for name, clazz in inspect.getmembers(module, inspect.isclass):
                     if issubclass(clazz, Columns):
                         extensions.append(clazz(d, sources))
