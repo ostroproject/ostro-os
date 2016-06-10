@@ -14,7 +14,6 @@ class Test_Intel_Graphics_lib(oeRuntimeTest):
                              ],
                  "VAAPI" : [
                               "/usr/lib/libva.so",
-                              "/usr/lib/gstreamer-1.0/libgstvaapi.so"
                            ],
 
               }

@@ -33,6 +33,8 @@ OSTRO_IMAGE_EXTRA_FEATURES += "swupd"
 # https://bugzilla.yoctoproject.org/show_bug.cgi?id=9493).
 SWUPD_BUNDLES ?= " \
     world-dev \
+    qa-bundle-a \
+    qa-bundle-b \
 "
 
 # os-core defined via additional image features maintained in ostro-image.bbclass.
@@ -76,6 +78,14 @@ BUNDLE_FEATURES[world-dev] = " \
     dev-pkgs \
     ptest-pkgs \
 "
+BUNDLE_CONTENTS[qa-bundle-a] = " \
+    hello-bundle-a \
+    hello-bundle-s \
+"
+BUNDLE_CONTENTS[qa-bundle-b] = " \
+    hello-bundle-b \
+    hello-bundle-s \
+"
 
 # When swupd bundles are enabled, choose explicitly which images
 # are created. The base image will only have the core-os bundle.
@@ -102,10 +112,10 @@ SWUPD_IMAGES ?= " \
     all \
 "
 
-# In practice the same as "all" at the moment, but conceptually different
-# and thus defined separately.
+#add qa-bundle-a in swupd-dev image for QA testing.
 SWUPD_IMAGES[dev] = " \
-    ${SWUPD_BUNDLES} \
+    world-dev \
+    qa-bundle-a \
 "
 SWUPD_IMAGES[all] = " \
     ${SWUPD_BUNDLES} \

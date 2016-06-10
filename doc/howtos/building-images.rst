@@ -103,7 +103,11 @@ private keys are provided in the ``ostro-os`` repository.
 
 To do this, before building,  edit the :file:`conf/local.conf` configuration file,
 find the line
-with ``# require conf/distro/include/ostro-os-development.inc`` and
+with ::
+
+   # require conf/distro/include/ostro-os-development.inc
+
+and
 uncomment it. This will also add some recommended software to the ``ostro-image-noswupd``
 reference image, see below for details.
 
@@ -121,7 +125,11 @@ these keys or set the individual variables for each required
 key (see ``ima-evm-rootfs.bbclass``).
 
 In addition, find the line
-with ``# require conf/distro/include/ostro-os-production.inc`` and
+with ::
+
+   # require conf/distro/include/ostro-os-production.inc
+
+and
 uncomment it. This documents that the intention really is to build
 production images and disables a sanity check that would otherwise
 abort a build.
@@ -153,33 +161,27 @@ For currently :ref:`platforms`, the appropriate ``MACHINE`` selections are:
     ==========================  ====================================
 
 Virtual machine images (a :file:`.ova` file) are created for the ``intel-corei7-64``  hardware platforms as part 
-of the build process (and included in the prebuilt image folder too).
+of the build process (and included in the prebuilt image folder too). Virtual machine images are not supported
+for ``edison`` or ``beaglebone`` MACHINEs.
 
 
 Image Formats for EFI platforms
 -------------------------------
 
-For EFI platforms, you can produce different types of images:
+For EFI platforms (``intel-corei7-64`` and ``intel-quark`` MACHINEs), you can produce different types of images:
 
 .dsk:
     The basic format, written to a block device to create a bootable image.
 
 .dsk.ova:
-    Pre-packaged VirtualBox* virtual machine, for running Ostro OS inside
-    a Virtual Machine
-
-.dsk.vdi:
-    VirtualBox* hard drive format, for running Ostro OS inside a Virtual 
-    Machine. Requires manually creating the Virtual Machine through the
-    VirtualBox* user interface. The ``.dsk.ova`` format is recommended over
-    this.
-
+    Pre-packaged Open Virtualization Archive (OVA file) containing a compressed, "installable" version of a 
+    virtual machine appropriate for virtualization applications such as Oracle VirtualBox* 
 
 compressed formats:
     Same as above, only compressed, to reduce (final) space occupation
     and speed up the transfer between systems of the Ostro OS image.
     Notice that ``.dsk.ova`` files are already compressed.
-    Also notice that the creation of compressed images will require additional
+    The creation of compressed images will require additional
     temporary space, because the creation of the compressed image depends
     on the presence of the uncompressed one.  (To save download time and
     server disk space, we only provide compressed images
@@ -195,31 +197,35 @@ compressed formats:
 To customize the image format, modify ``local.conf``, adding the variable
 ``OSTRO_VM_IMAGE_TYPES``, set to any combination of the following::
 
-    dsk dsk.xz dsk.vdi dsk.vdi.xz
+    dsk dsk.xz dsk.zip dsk.ova
 
 It will also trigger the creation of corresponding symlinks.
 
 Example::
 
-    OSTRO_VM_IMAGE_TYPES = "dsk.xz dsk.vdi.xz"
+    OSTRO_VM_IMAGE_TYPES = "dsk.xz dsk.ova"
 
-will create both the raw and the VirtualBox images, both compressed.
+will create both the raw and the VirtualBox appliance images, both compressed.
+
+Non-EFI platforms (``edison`` and ``beaglebone`` MACHINEs) have their image types set
+by their corresponding BSP; use of ``OSTRO_VM_IMAGE_TYPES`` will be ignored for these platforms.
 
 
 Base Images
 -----------
 
-In your cloned ``ostro-os`` repository folder, ``./meta-ostro/classes/ostro-image.bbclass``
-contains the base definitions for building Ostro OS images. ``./meta-ostro/recipes-image/images/``
+In your cloned ``ostro-os`` repository folder, the file ``./meta-ostro/classes/ostro-image.bbclass``
+contains the base definitions for building Ostro OS images. The folder ``./meta-ostro/recipes-image/images/``
 contains some example image recipes.
 
 A Yocto Project recipe is a set of instructions for building packages, including:
+
 * where to obtain the upstream sources (``SRC_URI``) and which patches to apply (Yocto Project call this "fetching")
 * dependencies on libraries or other recipes: ``DEPENDS`` and ``RDEPENDS``.
 * configuration and compilation options: ``EXTRA_OECONF, EXTRA_OEMAKE``
 * define which files go into what output packages: ``FILES_*``
 
-Recipes can build one or more packages from source code, including the kernel as well as userspace applications.
+Recipes can build one or more packages from source code, including the kernel and userspace applications.
 Recipes can also build package groups and even full system images. Inheritance can be used for 
 common design patterns by providing a class file which is then inherited by other recipes.
 
@@ -277,7 +283,7 @@ Not all of the available recipes are supported directly by the Ostro
 Project, though, and there is a check in place that no unsupported
 recipes gets built accidentally. See :ref:`supported_recipes`.
 
-``ostro-image.bbclass`` defines several image features which can be enabled
+The file ``ostro-image.bbclass`` defines several image features which can be enabled
 to install additional sets of pre-defined components. For example, to install debugging
 tools, compilers and development files for all components in the image, add::
 
@@ -350,16 +356,16 @@ The `Open Embedded Layers Index`_ is a database that's searchable by layer and r
 if you wanted to add ``opencv`` (open computer vision layer) you can find the recipe there and also a list
 of other layers it depends on.
 
-Only specific recipes from the layers in meta-openembedded are
+Only specific recipes from the layers in ``meta-openembedded`` are
 supported in combination with Ostro OS, even though all of
-meta-openembedded gets imported into the ``ostro-os`` combined repository. 
+``meta-openembedded`` gets imported into the ``ostro-os`` combined repository. 
 Ostro OS maintains a list of these supported recipes in the
-`meta-ostro/conf/distro/include/ostro-supported-recipes.txt` file.
+``meta-ostro/conf/distro/include/ostro-supported-recipes.txt`` file.
 
-To use recipes from meta-openembedded or any other layer, they must be
+To use recipes from ``meta-openembedded`` or any other layer, they must be
 added to that file for officially supported ones or in some
 additional, personal file(s).  See the
-`meta-ostro/classes/supported-recipes.bbclass` for detailed
+``meta-ostro/classes/supported-recipes.bbclass`` for detailed
 information about this mechanism.
 
 For example, you can add the ``tcpdump`` recipe to your default image (from the ``meta-networking`` layer) 
@@ -368,22 +374,24 @@ by adding these lines to your ``local.conf`` file::
    SUPPORTED_RECIPES_append = " ${TOPDIR}/conf/my-supported-recipes.txt"
    OSTRO_IMAGE_EXTRA_INSTALL += "tcpdump"
 
-`conf/my-supported-recipes.txt` must get created such that it
-specifies the recipe and from which "collection" (collections are named
+The file ``conf/my-supported-recipes.txt`` is created to
+specify the recipe and which "collection" it is expected to come from::
+
+  $ echo tcpdump@networking-layer >> conf/my-supported-recipes.txt
+
+Collections are named
 slightly differently than layers and have to be used here because
-layer names are not available internally) it is expected to come::
+layer names are not available internally.
 
-  echo tcpdump@networking-layer >>conf/my-supported-recipes.txt
-
-Here `networking-layer` is the collection defined by the
-`meta-networking` layer. However, in practice for local, private
+Here ``networking-layer`` is the collection defined by the
+``meta-networking`` layer. However, in practice for local, private
 builds it is easier to disable the check and only create such
 additional files when working on a custom distro derived from Ostro OS
 (see below).
 
-Builds which depend on recipes that were not declared as supported in
-some file get aborted directly at the start with a message that
-assists in adding such entries, so there is no need to look up
+The build will abort with an error message if it depends on a recipe that was 
+not declared as supported in some file. The error message will assist you 
+in adding such entries, so you won't have to look up
 collection names manually.
 
 Here is the message for this example, quoted completely because it
@@ -420,7 +428,7 @@ includes the instructions for dealing with the situation::
   * Disable the check with SUPPORTED_RECIPES_CHECK = "" in local.conf.
 
 Creating a "tcpdump" recipe in the local workspace with ``devtool``
-would be okay because there is an entry in `supported-recipes.bbclass`
+would be okay because there is an entry in ``supported-recipes.bbclass``
 which already allows such recipes in a build.
 
 Accelerating Build Time Using Shared-State Files Cache
@@ -451,4 +459,6 @@ Every image built gets copied into the deploy directory. As you're developing,
 these repeated builds will start accumulating and use up more and more
 disk space. You can save disk space by removing previous images after the
 new one is successfully built by adding (or uncommenting) this line in your
-:file:`local.conf`: ``RM_OLD_IMAGE = "1"``
+:file:`local.conf`:: 
+
+   RM_OLD_IMAGE = "1"

@@ -15,12 +15,8 @@ Two images are of interest for this process (depending if you're using real hard
     see the associated :file:`.json` file in the same directory as the image file.
 
 :file:`.dsk.ova`
-    A pre-packaged VirtualBox\* Virtual Machine appliance file that can be directly imported
-    to VirtualBox\*
-
-:file:`.vdi`
-    A :file:`.dsk` image converted to VirtualBox\* virtual hard drive format (with no other 
-    differences).
+    A pre-packaged Open Virtualization Archive (OVA file) containing a compressed, "installable" version of a 
+    virtual machine appropriate for virtualization applications such as Oracle VirtualBox* 
 
 
 Ostro OS Images
@@ -32,6 +28,11 @@ additional configuration changes that wouldn't typically be included in a produc
 reference image will auto-login as ``root`` at the console, something that normally would not be available
 in a production device image but is quite useful during development.
 
+.. note::
+   Both the ``bmaptool`` and ``dd`` methods for creating bootable media described next, work only for EFI platforms 
+   using the ``.dsk`` image format 
+   (``intel-corei7-64`` and ``intel-quark`` MACHINEs).  The non-EFI platforms ``edison`` and ``beaglebone`` MACHINEs use
+   different image formats and flashing processes, as described later in this tech note.  
 
 Using bmaptool to Create Bootable Media
 =======================================
@@ -44,7 +45,9 @@ The recommended way to do this is with the :command:`bmaptool` command from `bma
 A copy of this utility is available in the :file:`deploy/tools` folder after a Yocto Project build
 for your image is finished.
 
-The ``bmaptool`` program automatically handles copying either compressed and uncompressed images to
+
+
+The ``bmaptool`` program automatically handles copying either compressed or uncompressed ``dsk`` images to
 your removable media.  It also also uses a generated ``image.bmap`` file containing a checksum for
 itself and for all mapped data regions in the image file, making it possible to verify data integrity
 of the downloaded image. Be sure to download this ``.bmap`` file along with the image for your device.
@@ -124,6 +127,73 @@ includes a checksum verification, you can also use the traditional :command:`dd`
 Unplug the removable media from your development system and you're ready to plug
 it into your target system.
 
+Installing to internal media on generic x86 EFI platforms
+=========================================================
+
+This section applies to those cases where the device is x86 compatible (ex: Gigabyte NUC).
+The simpler way is to follow these steps:
+
+#. Create a Bootable Media using both an image that is compatible with the device
+   and a supported removable media (SD card or USB stick).
+#. Boot the device with the removable media created at the previous step.
+#. Once the device is booted, identify the booted media, for example by executing::
+
+      # mount
+
+   and locating in its output which partition is mounted ``on /``.
+   This will be a partition belonging to the source block device.
+   Example::
+
+      /dev/sdb3 on / type ext4 (rw,realtime,i_version,data=ordered)
+
+   Shows that the root partition is on ``/dev/sdb3``, therefore the source block device will
+   be ``/dev/sdb``.
+#. Identify the block device representing the internal storage.
+   This part is really specific to each platfrom: typically the internal storage is
+   associated to ``/dev/sda`` for hard disks and SSD units and to ``/dev/mmcblk0`` for eMMC
+   devices, but it should be confirmed against the board manual or the BIOS, if it provides
+   such type of information.  Lacking that, one can run::
+
+      # lsblk
+
+   and try to interpret its output, to figure out which device represents the internal storage.
+#. Issue the ``dd`` command with the parameters identified in the last 2 points.
+   Example with internal storage as eMMC on ``/dev/mmcblk0`` and removable media as USB stick
+   on ``/dev/sda``::
+
+      # dd if=/dev/sda of=/dev/mmcblk0 bs=5M && sync
+
+#. When the command has terminated, poweroff the device, extract the removable media
+   and power it back on. This should be sufficient to have the unit now using the internal
+   storage.
+
+.. note::
+
+   Make sure that the device is configured to perform EFI boot and that the BIOS doesn't
+   require signed EFI applications. To speed up the process, select the internal sotrage as
+   primary boot device.
+
+
+Removing Ostro OS from internal media
+=====================================
+   Ostro OS uses GID for identifying the rootfs and the GID is kept consistent across all the
+   images produced. This means that trying to boot a system with 2 Ostro OS images available at the
+   same time will likely produce unwanted/undetermined results.
+   Before trying again to boot from a removable media, the internal media should be wiped.
+   To achieve this:
+#. Boot from the internal media.
+#. Identify the root block device containing the rootfs partition.
+#. Wipe a sufficient part of that block device to make it unbootable.
+   In practice it means wiping the primary GPT and at least the beginning of both partitions that
+   might be EFI-bootable. In an unmodified Ostro disk layout, this means the first 2 partitions,
+   which are 15MB each. 20 MB would be sufficient to cover the beginning of the disk, the first
+   partition and the beginning of the second. 30MB will wipe even the beginning of the rootfs.
+   Example with rootfs on ``/dev/sda3``::
+
+      # dd if=/dev/zero of=/dev/sda bs=5M count=6 && sync
+
+#. Poweroff the device (ignore possible ext4 error messages).
+#. Insert the removable media with the new Ostro OS image and power on.
 
 MinnowBoard Turbot - a MinnowBoard MAX Compatible
 =================================================
@@ -371,21 +441,8 @@ own build from source.  As with the other examples above, we recommend you start
 #. Finally, click on the "Start" arrow button and your new virtual machine will start
    booting the Ostro OS reference image and auto-login as root, no password is required.
 
-Alternatively, you can create the Virtual Machine yourself and use the ``.vdi`` file format.
-
-#. Open the VirtualBox program and start by creating a new machine, give it a name
-   (such as "Ostro OS build#"), select "Linux" for the VM type, and
-   "Fedora (64-bit)" for the version.  Click next.
-#. Use a minimum of 256MB RAM for the memory configuration. You can increase this if your application needs more. Click next.
-#. Select "Use an existing virtual hard disk file", click on the folder icon and select the ``.vdi`` file you downloaded
-   or created, and select "Create" to create the hard drive.
-#. Click on the System options and remove all the boot order options other than the "Hard Disk", and check "Enable EFI (special OSes only)".
-   While still on the system configuration, click on the "Acceleration" tab and verify that
-   "Enable VT-x/AMX-V" (HW virtualization support) is checked. Click OK.
-#. Finally, you can start the new virtual machine as described above.
-
 If booting fails with a kernel panic, verify you’re using VirtualBox version 5.0.2 or later.  You can shut the machine down
-by either using the :command:`shutdown now` within the running Ostro OS image, or by using the VirtualBox menu
+by either using the :command:`shutdown now` command within the running Ostro OS image, or by using the VirtualBox menu
 Machine/ACPI-shutdown.
 
 

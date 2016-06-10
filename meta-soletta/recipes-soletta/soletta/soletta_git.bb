@@ -4,7 +4,7 @@
 
 DESCRIPTION = "Soletta library and modules"
 SECTION = "examples"
-DEPENDS = "glib-2.0 libpcre pkgconfig python3-jsonschema-native icu curl libmicrohttpd mosquitto nodejs"
+DEPENDS = "glib-2.0 libpcre pkgconfig python3-jsonschema-native icu curl libmicrohttpd mosquitto nodejs nodejs-native"
 DEPENDS += " ${@bb.utils.contains('DISTRO_FEATURES','systemd','systemd','',d)}"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=93888867ace35ffec2c845ea90b2e16b"
@@ -21,9 +21,13 @@ S = "${WORKDIR}/git"
 
 inherit cml1 python3native
 
+PACKAGECONFIG ??= "${@bb.utils.contains('DISTRO_FEATURES','x11', 'x11', '', d)}"
+PACKAGECONFIG[x11] = ",,cairo atk gtk+3 gdk-pixbuf pango,"
+
 PACKAGES = " \
          ${PN}-staticdev \
          ${PN}-nodejs \
+         ${PN}-flow-gtk \
          ${PN}-dev \
          ${PN}-dbg \
          ${PN} \
@@ -47,6 +51,12 @@ FILES_${PN}-dev = " \
                 ${libdir}/soletta/modules/linux-micro/* \
                 ${libdir}/soletta/modules/flow-metatype/* \
                 ${sysconfdir}/modules-load.d/* \
+"
+
+ALLOW_EMPTY_${PN}-flow-gtk = "1"
+FILES_${PN}-flow-gtk = " \
+                ${libdir}/soletta/modules/flow/gtk.so \
+                ${datadir}/soletta/flow/descriptions/gtk.json \
 "
 
 FILES_${PN} = " \
@@ -86,6 +96,7 @@ B = "${WORKDIR}/git"
 do_configure_prepend() {
    export TARGETCC="${CC}"
    export TARGETAR="${AR}"
+   export LIBDIR="${libdir}/"
 }
 
 do_configure_append() {
@@ -93,11 +104,17 @@ do_configure_append() {
    # becoming invalid
    # Also, yocto has a toolchain that will treat RPATH for Soletta
    sed -i "s/^RPATH=y/# RPATH is not set/g" ${S}/.config
+
+   if ${@bb.utils.contains('PACKAGECONFIG', 'x11', 'false', 'true', d)}; then
+       sed -i -e 's/^ *FLOW_NODE_TYPE_GTK=.*/# FLOW_NODE_TYPE_GTK is not set/g' ${S}/.config
+   fi
+
 }
 
 do_compile() {
    # changing the home directory to the working directory, the .npmrc will be created in this directory
    export HOME=${WORKDIR}
+   export LIBDIR="${libdir}/"
 
    # does not build dev packages
    npm config set dev false
@@ -147,15 +164,16 @@ do_compile() {
 }
 
 do_install() {
+   export LIBDIR="${libdir}/"
    oe_runmake DESTDIR=${WORKDIR}/image install CFLAGS="--sysroot=${STAGING_DIR_TARGET}" TARGETCC="${CC}" TARGETAR="${AR}"
-   unlink ${WORKDIR}/image/usr/lib/libsoletta.so
-   mv ${WORKDIR}/image/usr/lib/libsoletta.so.0.0.1 ${WORKDIR}/image/usr/lib/libsoletta.so
-   ln -sf libsoletta.so ${WORKDIR}/image/usr/lib/libsoletta.so.0.0.1
+   unlink ${WORKDIR}/image/${libdir}/libsoletta.so
+   mv ${WORKDIR}/image/${libdir}/libsoletta.so.0.0.1 ${WORKDIR}/image/${libdir}/libsoletta.so
+   ln -sf libsoletta.so ${WORKDIR}/image/${libdir}/libsoletta.so.0.0.1
    COMMIT_ID=`git --git-dir=${WORKDIR}/git/.git rev-parse --verify HEAD`
-   echo "Soletta: $COMMIT_ID" > ${D}/usr/lib/soletta/soletta-image-hash
+   echo "Soletta: $COMMIT_ID" > ${D}/${libdir}/soletta/soletta-image-hash
 
    # Remove nan module as it is not needed.
-   rm -rf ${WORKDIR}/image/usr/lib/node_modules/soletta/node_modules/nan
+   rm -rf ${WORKDIR}/image/${libdir}/node_modules/soletta/node_modules/nan
 }
 
 do_install_append() {
@@ -167,6 +185,7 @@ do_install_append() {
 inherit ptest
 
 do_compile_ptest() {
+        export LIBDIR="${libdir}/"
         oe_runmake TARGETCC="${CC}" TARGETAR="${AR}" "tests"
 }
 

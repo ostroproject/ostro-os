@@ -26,7 +26,6 @@ oeqa.runtime.sensor.test_pressure_bmp280
 oeqa.runtime.sensor.test_pressure_lps331ap
 oeqa.runtime.sensor.test_pressure_mpl115
 oeqa.runtime.sensor.test_pressure_mpl3115
-oeqa.runtime.sensor.test_pressure_tmp006
 oeqa.runtime.sensor.test_temperature_bmp280
 oeqa.runtime.sensor.test_temperature_lps331ap
 oeqa.runtime.sensor.test_temperature_mpl115
