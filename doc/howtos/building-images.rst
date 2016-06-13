@@ -207,6 +207,15 @@ Example::
 
 will create both the raw and the VirtualBox appliance images, both compressed.
 
+The :command:`bmaptool` tool works best creating your bootable media (see :ref:`booting-and-installation`)
+when the corresponding block map :file:`bmap` file is also generated for the image. This ``.bmap``
+file contains empty block and checksum information about the image that lets :command:`bmaptool`
+optimize copying the image to your bootable media and verify what was copied. To do this, add
+``dsk.bmap`` to the ``OSTRO_VM_IMAGE_TYPES`` variable in your :file:`local.conf` file. As an example,
+the following line will create an xz-compressed image and the corresponding :file:`bmap` file::
+
+   OSTRO_VM_IMAGE_TYPES = "dsk.xz dsk.bmap"
+
 Non-EFI platforms (``edison`` and ``beaglebone`` MACHINEs) have their image types set
 by their corresponding BSP; use of ``OSTRO_VM_IMAGE_TYPES`` will be ignored for these platforms.
 
