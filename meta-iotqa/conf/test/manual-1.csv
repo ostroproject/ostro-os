@@ -109,3 +109,5 @@ TestStep,,,,2,"Run 'roscore', wait for 100 seconds",The terminal will output /ro
 TestScript,check_opencl_app_build,Benchmark,Check opencl app build in dev image,1,download sample app from https://software.intel.com/en-us/intel-opencl-support/code-samples,,EFT,ready,IOTOS-1504,,,,
 TestStep,,,,2,"unzip the zip package and build the app ""SimpleOptimizations"" by make", the app can be built successfully,,,,,,,
 TestStep,,,,3,run the application, the app can be execution successfully,,,,,,,
+TestScript,boot_from_eMMC,Documentation,Check if can install image to eMMC when boot from USB stick,1,"Follow https://ostroproject.org/documentation/howtos/booting-and-installation.html#booting-and-installation section Installing to internal media on generic x86 EFI platforms to install image to eMMC",,FVT,ready,IOTOS-1620,,,,
+TestStep,,,,2,"Remove USB and reboot from eMMC, run sanity test, no regression happen compare to sanity test result when boot from USB stick",,,,,,,,
