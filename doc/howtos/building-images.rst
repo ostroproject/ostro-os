@@ -270,8 +270,9 @@ to the image. In the case you build an Ostro image with ``swupd`` enabled
 (e.g.:``ostro-image-swupd``) these additional packages get added by default to the
 ``os-core`` bundle. For more information on how to define, add and modify bundles,
 please refer to these documents:
-- :ref:`software-update`
-- :ref:`software-update-server`
+
+* :ref:`software-update`
+* :ref:`software-update-server`
 
 The ``ostro-os`` repo contains many layers and recipes that are not enabled
 but are available for your use. You can see these by using the commands::
