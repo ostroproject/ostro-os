@@ -236,3 +236,7 @@ EXTRA_OECONF_append = "\
         --with-build-number=${OPENJDK_BUILD_NUMBER} \
         --with-update-version=${OPENJDK_UPDATE_VERSION} \
 "
+
+CFLAGS_append = " -fno-lifetime-dse -fno-delete-null-pointer-checks"
+CXXFLAGS_append = " -fno-lifetime-dse -fno-delete-null-pointer-checks"
+CXX_append = " -std=gnu++98"
