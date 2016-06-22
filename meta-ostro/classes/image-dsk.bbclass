@@ -219,7 +219,6 @@ python do_uefiapp() {
         # Store these for the creation of the UEFI binary
         if partition_table[key]['name'] == 'rootfs':
             d.setVar("ROOTFS_TYPE", partition_table[key]['filesystem'])
-            d.setVar("ROOTFS_SOURCE", partition_table[key]["source"])
             d.setVar("ROOTFS_PARTUUID", partition_table[key]["uuid"])
 
     if os.path.exists(d.expand('${B}/initrd')):
