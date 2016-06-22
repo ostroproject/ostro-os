@@ -280,6 +280,10 @@ NOHDD = "1"
 # the rootfs. WARNING: any change to this value will trigger a
 # rebuild (and re-sign, if enabled) of the combo EFI application.
 ROOTFS_PARTUUID_VALUE = "12345678-9abc-def0-0fed-cba987654321"
+# The second value is needed for the system installed onto
+# the device's internal storage in order to mount correct rootfs
+# when an installation media is still inserted into the device.
+INT_STORAGE_ROOTFS_PARTUUID_VALUE = "12345678-9abc-def0-0fed-cba987654320"
 
 # By default, all files will be signed. Once IMA is active and its
 # policy includes a signed file, such signed files can be removed and
