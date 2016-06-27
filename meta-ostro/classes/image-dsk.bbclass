@@ -327,7 +327,7 @@ ROOTFS_POSTPROCESS_COMMAND += " uefiapp_deploy; "
 # See: https://bugzilla.yoctoproject.org/show_bug.cgi?id=9095
 deltask do_rootfs_wicenv
 
-# All variables explicitly passed to image-iot.py.
+# All variables explicitly passed to image-dsk.py.
 IMAGE_DSK_VARIABLES = " \
     APPEND \
     DEPLOY_DIR_IMAGE \
