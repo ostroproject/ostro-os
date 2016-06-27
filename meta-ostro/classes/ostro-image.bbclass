@@ -279,7 +279,7 @@ NOHDD = "1"
 # Image creation: add here the desired value for the PARTUUID of
 # the rootfs. WARNING: any change to this value will trigger a
 # rebuild (and re-sign, if enabled) of the combo EFI application.
-ROOTFS_PARTUUID_VALUE = "12345678-9abc-def0-0fed-cba987654321"
+REMOVABLE_MEDIA_ROOTFS_PARTUUID_VALUE = "12345678-9abc-def0-0fed-cba987654321"
 # The second value is needed for the system installed onto
 # the device's internal storage in order to mount correct rootfs
 # when an installation media is still inserted into the device.

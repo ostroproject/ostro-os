@@ -120,7 +120,7 @@ def do_dsk_image():
             # for each product.
             # Default to lower case, to avoid issues from camelcase.
             partition_table[key]["uuid"] = \
-                expand_vars("${ROOTFS_PARTUUID_VALUE}").lower()
+                expand_vars("${REMOVABLE_MEDIA_ROOTFS_PARTUUID_VALUE}").lower()
 
     # Save to disk the layout with the PARTUUIDs used, to facilitate the
     # job of accessing programmatically individual partitions.

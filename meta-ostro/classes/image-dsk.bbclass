@@ -147,7 +147,7 @@ INITRD_LIVE_append = "${@ ('${DEPLOY_DIR_IMAGE}/' + d.getVar('INITRD_IMAGE', exp
 PACKAGES = " "
 EXCLUDE_FROM_WORLD = "1"
 
-ROOTFS_PARTUUID_VALUE ?= "deadbeef-dead-beef-dead-beefdeadbeef"
+REMOVABLE_MEDIA_ROOTFS_PARTUUID_VALUE ?= "deadbeef-dead-beef-dead-beefdeadbeef"
 
 # Partition types used for building the image - DO NOT MODIFY
 PARTITION_TYPE_EFI = "EF00"
@@ -175,7 +175,7 @@ DSK_IMAGE_LAYOUT ??= ' \
     }, \
     "partition_03_rootfs": { \
         "name": "rootfs", \
-        "uuid": "${ROOTFS_PARTUUID_VALUE}", \
+        "uuid": "${REMOVABLE_MEDIA_ROOTFS_PARTUUID_VALUE}", \
         "size_mb": 3700, \
         "source": "${IMAGE_ROOTFS}", \
         "filesystem": "ext4", \
@@ -289,7 +289,7 @@ export PART_%(pnum)d_FS=%(filesystem)s
             os.makedirs(d.expand('${DEPLOYDIR}/EFI' + suffix + '/BOOT'))
         shutil.copyfile(d.expand('${B}/' + executable + suffix), d.expand('${DEPLOYDIR}/EFI' + suffix + '/BOOT/' + executable))
 
-    generate_app(d.getVar('ROOTFS_PARTUUID_VALUE', True))
+    generate_app(d.getVar('REMOVABLE_MEDIA_ROOTFS_PARTUUID_VALUE', True))
     generate_app(d.getVar('INT_STORAGE_ROOTFS_PARTUUID_VALUE', True), "_internal_storage")
 
     with open(d.expand('${B}/emmc-partitions-data'), 'w') as emmc_part_data:
@@ -336,7 +336,7 @@ IMAGE_DSK_VARIABLES = " \
     IMAGE_NAME \
     IMAGE_ROOTFS \
     ROOTFS_TYPE \
-    ROOTFS_PARTUUID_VALUE \
+    REMOVABLE_MEDIA_ROOTFS_PARTUUID_VALUE \
     PARTITION_TYPE_EFI \
     PARTITION_TYPE_EFI_BACKUP \
     S \
