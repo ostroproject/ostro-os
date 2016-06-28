@@ -18,6 +18,8 @@ __version__ = '0.0.1'
 
 import os
 import subprocess
+import sys
+import shutil
 
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.decorators import tag
@@ -59,6 +61,33 @@ class RESTAPITest(oeRuntimeTest):
                 return False
         return True
 
+    @classmethod
+    def node_module_path(cls):
+        '''
+        Install the module path via npm
+        @fn node_module_path
+        @param cls
+        @return
+        '''
+        path_module_path = '/tmp/node_modules/path'
+        print os.path.exists(path_module_path)
+        if os.path.exists(path_module_path):
+            shutil.rmtree(path_module_path)
+        proc = subprocess.Popen(['npm', 'install', 'path'], cwd='/tmp/')
+        proc.wait()
+        if proc and proc.returncode == 0 and os.path.exists(path_module_path):
+            oldscp = cls.tc.target.connection.scp[:]
+            cls.tc.target.connection.scp.insert(1, '-r')
+            cls.tc.target.run('cd /tmp; mkdir node_modules;')
+            cls.tc.target.copy_to(
+                path_module_path,
+                '/tmp/node_modules'
+                )
+            cls.tc.target.connection.scp[:] = oldscp
+        else:
+            print 'Install node module path failed'
+            sys.exit(1)
+
 
     @classmethod
     def setUpClass(cls):
@@ -99,6 +128,21 @@ class RESTAPITest(oeRuntimeTest):
                                 cls.target_rest_api_dir,
                                 os.path.dirname(cls.target_rest_api_dir))
                             )
+
+        # Install and copy the node module path to device
+        cls.node_module_path()
+
+        #Start the server iot-rest-api-server
+        cls.tc.target.run('systemctl stop iot-rest-api-server.socket; systemctl stop iot-rest-api-server.service')
+        check_process_cmd = 'ps | grep "/usr/lib/node_modules/iot-rest-api" | grep -v grep | awk "{print $4}"'
+        (status, output) = cls.tc.target.run(check_process_cmd)
+        if '/usr/lib/node_modules/iot-rest-api' not in output:
+            cls.tc.target.run('systemctl start iot-rest-api-server.socket')
+            (status, output) = cls.tc.target.run('unset http_proxy; curl http://%s:8000/api/oic/d' % (cls.tc.target.ip))
+            (status, output) = cls.tc.target.run(check_process_cmd)
+            if '/usr/lib/node_modules/iot-rest-api' not in output:
+                print "The iot-rest-api-server doesn't start!"
+                sys.exit(1)
 
         # Download nodeunit from git hub
         proc = subprocess.Popen(['wget', 'https://github.com/caolan/nodeunit/archive/master.zip'],
@@ -1459,15 +1503,19 @@ class RESTAPITest(oeRuntimeTest):
         '''
         (_, pid) = cls.tc.target.run("ps | grep -v grep | grep 'ocserver' | awk '{print $1}'")
         cls.tc.target.run('kill -9 %s' % pid.strip());
+        stop_server_cmd = 'systemctl stop iot-rest-api-server.socket; systemctl stop iot-rest-api-server.service'
+        cls.tc.target.run(stop_server_cmd)
         if os.path.exists('%s.tar' % cls.rest_api_dir):
             os.remove('%s.tar' % cls.rest_api_dir)
         if os.path.exists(cls.nodeunit_zip):
             os.remove(cls.nodeunit_zip)
+        os.system('rm -rf %s/master.*' % cls.files_dir)
 
         cls.tc.target.run('rm -f %s.tar' % cls.target_rest_api_dir)
         cls.tc.target.run('rm -fr %s/' % cls.target_rest_api_dir)
         cls.tc.target.run('rm -fr /tmp/nodeunit-master')
         cls.tc.target.run('rm -f /tmp/master.tar')
+        cls.tc.target.run('rm -rf /tmp/modules')
 
 ##
 # @}

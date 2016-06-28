@@ -1,6 +1,7 @@
 var http = require('http');
 var fs = require('fs');
 var os = require('os');
+var path = require('path');
 
 var options = {
     host: '127.0.0.1',
@@ -13,7 +14,7 @@ var options = {
 };
 
 var apiSystem = {};
-var responseJson = 'api_system.json';
+var responseJson = path.join(path.dirname(__filename), 'api_system.json');
 
 function sendHttpRequest(opts) {
     var req = http.request(opts, function(res) {    
