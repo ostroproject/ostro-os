@@ -29,6 +29,7 @@
 
 import subprocess
 import os
+import sys
 import re
 import copy
 try:
@@ -90,7 +91,7 @@ class ISA_CFChecker():
                 files = self.find_files(fs_path)
                 import multiprocessing
                 pool = multiprocessing.Pool()
-                results = pool.imap(process_file, files)
+                results = pool.imap(process_file_wrapper, files)
                 pool.close()
                 pool.join()
                 self.process_results(results)
@@ -291,11 +292,11 @@ def _check_tools():
 
 def get_info(tool, args, file_name):
     env = copy.deepcopy(os.environ)
-    env['PSEUDO_UNLOAD'] = 1
+    env['PSEUDO_UNLOAD'] = "1"
     cmd = [tool, args, file_name]
     with open(os.devnull, 'wb') as DEVNULL:
         try:
-            result = subprocess.check_output(cmd, stderr=DEVNULL, env=env)
+            result = subprocess.check_output(cmd, stderr=DEVNULL, env=env).decode('utf-8')
         except:
             return ""
         else:
@@ -303,10 +304,10 @@ def get_info(tool, args, file_name):
 
 def get_security_flags(file_name):
     env = copy.deepcopy(os.environ)
-    env['PSEUDO_UNLOAD'] = 1
+    env['PSEUDO_UNLOAD'] = "1"
     cmd = ['checksec.sh', '--file', file_name]
     try:
-        result = subprocess.check_output(cmd, env=env).splitlines()[1]
+        result = subprocess.check_output(cmd, env=env).decode('utf-8').splitlines()[1]
     except:
         return "Not able to fetch flags"
     else:
@@ -321,13 +322,13 @@ def process_file(file):
     if not os.path.isfile(file):
         return fun_results
     env = copy.deepcopy(os.environ)
-    env['PSEUDO_UNLOAD'] = 1
+    env['PSEUDO_UNLOAD'] = "1"
     # getting file type
     cmd = ['file', '--mime-type', file]
     try:
-        result = subprocess.check_output(cmd, env=env)
+        result = subprocess.check_output(cmd, env=env).decode('utf-8')
     except:
-        fun_results[-1] += "\nNot able to decode mime type " + sys.exc_info()
+        fun_results[-1] += "\nNot able to decode mime type " + str(sys.exc_info())
         return fun_results
     file_type = result.split()[-1]
     # looking for links
@@ -335,9 +336,9 @@ def process_file(file):
         file = os.path.realpath(file)
         cmd = ['file', '--mime-type', file]
         try:
-            result = subprocess.check_output(cmd, env=env)
+            result = subprocess.check_output(cmd, env=env).decode('utf-8')
         except:
-            fun_results[-1] += "\nNot able to decode mime type " + sys.exc_info()
+            fun_results[-1] += "\nNot able to decode mime type " + str(sys.exc_info())
             return fun_results
         file_type = result.split()[-1]
     # checking security flags if applies
@@ -354,6 +355,18 @@ def process_file(file):
     fun_results[3] = get_info("readelf", '-s', file)
     fun_results[4] = get_info("objdump", '-d', file)
     return fun_results
+
+def process_file_wrapper(file):
+    # Ensures that exceptions get logged with the original backtrace.
+    # Without this, they appear with a backtrace rooted in
+    # the code which transfers back the result to process_results().
+    try:
+        return process_file(file)
+    except:
+        from isafw import isafw
+        import traceback
+        isafw.error('Internal error:\n%s' % traceback.format_exc())
+        raise
 
 # ======== supported callbacks from ISA ============ #
 

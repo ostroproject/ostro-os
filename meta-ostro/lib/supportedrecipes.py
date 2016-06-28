@@ -63,7 +63,8 @@ def parse_regex(regex, filename, linenumber):
             str(ex)))
 
 class SupportedRecipe:
-    def __init__(self, pattern, filename, linenumber):
+    def __init__(self, pattern, supportedby, filename, linenumber):
+        self.supportedby = supportedby
         self.filename = filename
         self.pattern = pattern
         self.linenumber = linenumber
@@ -75,10 +76,12 @@ class SupportedRecipe:
         self.pn_re = parse_regex(parts[0], filename, linenumber)
         self.collection_re = parse_regex(parts[1], filename, linenumber)
 
-    def supported(self, pn, collection):
+    def is_supportedby(self, pn, collection):
+        # Returns string identifying the team supporting the recipe or
+        # empty string if unsupported.
         supported = bool((pn is None or self.pn_re[0].match(pn)) and
                          (collection is None or self.collection_re[0].match(collection)))
-        return supported
+        return self.supportedby if supported else ''
 
 class SupportedRecipes:
     def __init__(self):
@@ -87,15 +90,21 @@ class SupportedRecipes:
     def append(self, recipe):
         self.supported.append(recipe)
 
-    def current_recipe_supported(self, d):
+    def current_recipe_supportedby(self, d):
         pn = d.getVar('PN', True)
         filename = d.getVar('FILE', True)
         collection = bb.utils.get_file_layer(filename, d)
-        return self.recipe_supported(pn, collection)
+        return self.recipe_supportedby(pn, collection)
 
-    def recipe_supported(self, pn, collection):
-        return any((supported_recipe.supported(pn, collection)
-                    for supported_recipe in self.supported))
+    def recipe_supportedby(self, pn, collection):
+        # Returns list of of teams supporting the recipe (could be
+        # more than one or none).
+        result = set()
+        for recipe in self.supported:
+            supportedby = recipe.is_supportedby(pn, collection)
+            if supportedby:
+                result.add(supportedby)
+        return sorted(result)
 
 
 def load_supported_recipes(d):
@@ -107,6 +116,10 @@ def load_supported_recipes(d):
     supported_recipes = SupportedRecipes()
     for filename in supported_files.split():
         try:
+            base = os.path.basename(filename)
+            supportedby = d.getVarFlag('SUPPORTED_RECIPES', base, True)
+            if not supportedby:
+                supportedby = base.rstrip('.txt')
             with open(filename) as f:
                 linenumber = 1
                 for line in f:
@@ -117,6 +130,7 @@ def load_supported_recipes(d):
                     pn = line.strip()
                     if pn:
                         supported_recipes.append(SupportedRecipe(line.strip(),
+                                                                 supportedby,
                                                                  filename,
                                                                  linenumber))
                     linenumber += 1
@@ -253,7 +267,7 @@ def collection_hint(pn, supported_recipes):
     collections = set([supported_recipe.collection_re[1]
                        for supported_recipe
                        in supported_recipes.supported
-                       if supported_recipe.supported(pn, None)])
+                       if supported_recipe.is_supportedby(pn, None)])
     return ' (would be supported in %s)' % ' '.join(collections) if collections else ''
 
 def dump_unsupported(unsupported, supported_recipes):
@@ -305,8 +319,8 @@ def check_build(d, event):
         if not isnative(pn, pndata):
             filename = pndata['filename']
             collection = bb.utils.get_file_layer(filename, d)
-            supported = supported_recipes.recipe_supported(pn, collection)
-            if not supported:
+            supportedby = supported_recipes.recipe_supportedby(pn, collection)
+            if not supportedby:
                 unsupported[pn] = collection
             if report_sources:
                 dumpfile = os.path.join(dirname, pn + filename)
@@ -314,7 +328,8 @@ def check_build(d, event):
                     reader = csv.reader(f)
                     for row in reader:
                         row_hash = {f: row[i] for i, f in enumerate(SOURCE_FIELDS)}
-                        row_hash['supported'] = 'yes' if supported else 'no'
+                        row_hash['supported'] = 'yes (%s)' % ' '.join(supportedby) \
+                                                if supportedby else 'no'
                         sources.append(row_hash)
 
     if report_sources:

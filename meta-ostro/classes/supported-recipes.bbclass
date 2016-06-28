@@ -19,6 +19,12 @@
 # Empty lines and lines starting with a hash are ignored.
 SUPPORTED_RECIPES ??= ""
 
+# For each file, the base name is listed in the SUPPORTED_RECIPES_SOURCES
+# report under "supported" if the file lists a recipe. This name can
+# be substituded with a short and/or nicer name with variable flags.
+# The replacement should be a single word with no spaces, as in:
+# SUPPORTED_RECIPES[foo-bar-recipe-list.txt] = "foobar".
+
 # Empty skips check, "note/warn/error/fatal" increases the logging level,
 # with "fatal" aborting the build.
 SUPPORTED_RECIPES_CHECK ??= ""
@@ -102,7 +108,7 @@ python () {
     # or removing entries does not trigger re-parsing and re-building.
     for file in files:
         bb.parse.mark_dependency(d, file)
-    if not supported_recipes.current_recipe_supported(d):
+    if not supported_recipes.current_recipe_supportedby(d):
         d.setVar('EXCLUDE_FROM_WORLD', '1')
     if d.getVar('SUPPORTED_RECIPES_SOURCES', True):
         supportedrecipes.dump_sources(d)

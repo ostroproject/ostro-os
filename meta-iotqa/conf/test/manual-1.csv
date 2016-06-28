@@ -38,10 +38,17 @@ TestScript,gstreamer_MJPEG_play,Benchmark,Check gstreamer integration (refer to:
 TestScript,gstreamer_OGV_video_play,Benchmark,Check gstreamer integration,1,play some ogv video,video can be played,FVT,ready,IOTOS-1573,,,,
 TestScript,tinymembench_benchmark,Benchmark,Check the benchmark integartion and work well or not,1,"In terminal, run command 'tinymembench'",,FVT,ready,IOTOS-1571,,,,
 TestStep,,,,2,Check the output,"The log output smoothly, showing 'tinymembench v0.4.9 (simple benchmark for memory throughput and latency)' and followed by detail log,  no error, break and crash message.",,,, ,,,
-TestScript,stress_benchmark,Benchmark,Check the benchmark integartion and work well or not,1,"In terminal, run command 'stress'",,FVT,ready,IOTOS-1570,,,,
-TestStep,,,,2,Check the output,The log shows '`stress' imposes certain types of compute stress on your system' and followed by its usage,,,,,,,
-TestStep,,,,3,"In terminal, run command 'stress --cpu 4 --io 4 --timeout 10s'",,,,,,,,
-TestStep,,,,4,check the output,"The log outputs smoothly and ends after about 10s, and no error message. For exmaple, 'stress: info: [19459] dispatching hogs: 4 cpu, 4 io, 2 vm, 0 hdd
+TestScript,stress_benchmark,Benchmark,Check the benchmark work well or not,1,"By default 'stress' is not included in image. In case you need it add the
+lines
+Boot from the local build image
+OSTRO_IMAGE_EXTRA_INSTALL += ""stress""
+SUPPORTED_RECIPES_CHECK = """"
+
+ to you build/conf/local.conf file.",image boot successfully,FVT,ready,IOTOS-1570,,,,
+TestStep,,,,2,"In terminal, run command 'stress'",,,,,,,,
+TestStep,,,,3,Check the output,The log shows '`stress' imposes certain types of compute stress on your system' and followed by its usage,,,,,,,
+TestStep,,,,4,"In terminal, run command 'stress --cpu 4 --io 4 --timeout 10s'",,,,,,,,
+TestStep,,,,5,check the output,"The log outputs smoothly and ends after about 10s, and no error message. For exmaple, 'stress: info: [19459] dispatching hogs: 4 cpu, 4 io, 2 vm, 0 hdd
 stress: info: [19459] successful run completed in 10s'.",,,,,,,
 TestScript,memtester_benchmark,Benchmark,Check the benchmark integartion and work well or not,1,"In terminal, run command 'memtester'",,FVT,ready,IOTOS-1569,,,,
 TestStep,,,,2,Check the output,"Version information and usage of memtester output and no any error, break and crash message included.",,,,,,,
@@ -72,11 +79,11 @@ TestStep,,,,2,set OPENCV_TEST_DATA_PATH environment variable to <path to opencv_
 TestStep,,,,3,execute tests from build directory. run /usr/bin/opencv_test_core,No error should happen idealy.,,,,,,,
 TestScript,test_hello_opencv,OpenCV,Verify opencv can be successfully initialized,1,run test_hello_opencv on DUT,OpenCV version should return,EFT,design,IOTOS-1547,,,,
 TestScript,test_opencv_image,OpenCV,Verify image can be opend by opencv,1,Download jpg file https://github.com/Itseez/opencv/tree/master/samples/data/lena.jpg on DUT,No error happens,FVT,ready,IOTOS-1547,,,,
-TestStep,,,,2,Run startvx on DUT,DUT should show up GUI interface.,,,,,,,
-TestStep,,,,3,run /usr/share/OpenCV/samples/cpp-example-image path-to-lena.jpg,The image showed out correctly.,,,,,,,
+TestStep,,,,2,Run startx/startxfce4 on DUT,DUT should show up GUI interface.,,,,,,,
+TestStep,,,,3,run /usr/share/OpenCV/samples/bin/cpp-example-image path-to-lena.jpg,The image showed out correctly.,,,,,,,
 TestScript,test_opencv_video,OpenCV,Verify video can be displayed by opencv,1,Download jpg file https://github.com/Itseez/opencv/tree/master/samples/data/tree.avi on DUT,No error happens,FVT,ready,IOTOS-1547,,,,
-TestStep,,,,2,Run startvx on DUT,DUT should show up GUI interface.,,,,,,,
-TestStep,,,,3,run /usr/share/OpenCV/samples/cpp-example-starter_video path-to-tree.avi,The video should be displayed properly,,,,,,,
+TestStep,,,,2,Run startx/startxfce4 on DUT,DUT should show up GUI interface.,,,,,,,
+TestStep,,,,3,run /usr/share/OpenCV/samples/bin/cpp-example-starter_video path-to-tree.avi,The video should be displayed properly,,,,,,,
 TestScript,test_upm_installed,UPM,Verify UPM libraries are installed in image,1,login DUT and go to root directory by cd / and find ./ -name *upm*.,"Check corresponding UPM libraries exist, like /usr/include/upm, /usr/lib/libupm-*.so, /usr/lib/pkgconfig/upm-*.pc,",FVT,ready,IOTOS-757,,,,
 TestScript,test_mraa_installed,MRAA,Verify MRAA libraries are installed in image,1,login DUT and go to root directory by cd / and find ./ -name *mraa*.,"Check corresponding MRAA libraries exist, like /usr/include/mraa*, /usr/lib/libmraa-*.so, /usr/lib/pkgconfig/mraa.pc,",FVT,ready,IOTOS-757,,,,
 TestStep,,,,2,cp hello-mraa from testsuite /deploy/target to DUT and run ./hello_mraa,mraa version is in output and the platform name saying unsupported.,,,,,,,
@@ -113,5 +120,5 @@ TestStep,,,,2,"Run 'roscore', wait for 100 seconds",The terminal will output /ro
 TestScript,check_opencl_app_build,Benchmark,Check opencl app build in dev image,1,download sample app from https://software.intel.com/en-us/intel-opencl-support/code-samples,,EFT,ready,IOTOS-1504,,,,
 TestStep,,,,2,"unzip the zip package and build the app ""SimpleOptimizations"" by make", the app can be built successfully,,,,,,,
 TestStep,,,,3,run the application, the app can be execution successfully,,,,,,,
-TestScript,boot_from_eMMC,Documentation,Check if can install image to eMMC when boot from USB stick,1,"Follow https://ostroproject.org/documentation/howtos/booting-and-installation.html#booting-and-installation section Installing to internal media on generic x86 EFI platforms to install image to eMMC",,FVT,ready,IOTOS-1620,,,,
+TestScript,boot_from_eMMC,Documentation,Check if can install image to eMMC when boot from USB stick,1,Follow https://ostroproject.org/documentation/howtos/booting-and-installation.html#booting-and-installation section Installing to internal media on generic x86 EFI platforms to install image to eMMC,,FVT,ready,IOTOS-1620,,,,
 TestStep,,,,2,"Remove USB and reboot from eMMC, run sanity test, no regression happen compare to sanity test result when boot from USB stick",,,,,,,,

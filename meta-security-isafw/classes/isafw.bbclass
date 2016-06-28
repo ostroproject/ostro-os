@@ -30,8 +30,7 @@ do_analysesource[nostamp] = "1"
 do_analysesource[cleandirs] = "${ISAFW_WORKDIR}"
 
 python do_analysesource() {
-
-    from isafw import *
+    from isafw import isafw
 
     imageSecurityAnalyser = isafw_init(isafw, d)
 
@@ -91,7 +90,6 @@ addhandler process_reports_handler
 process_reports_handler[eventmask] = "bb.event.BuildCompleted"
 
 python process_reports_handler() {
-
     from isafw import isafw
 
     savedenv = os.environ.copy()
@@ -138,7 +136,7 @@ python() {
 
 python analyse_image() {
 
-    from isafw import *
+    from isafw import isafw
 
     imageSecurityAnalyser = isafw_init(isafw, d)
 
@@ -148,13 +146,14 @@ python analyse_image() {
     imagebasename = d.getVar('IMAGE_BASENAME', True)
 
     kernelconf = d.getVar('STAGING_KERNEL_BUILDDIR', True) + "/.config"
-
-    kernel = isafw.ISA_kernel()
-    kernel.img_name = imagebasename
-    kernel.path_to_config = kernelconf
-
-    bb.debug(1, 'do kernel conf analysis on %s' % kernelconf)
-    imageSecurityAnalyser.process_kernel(kernel)
+    if os.path.exists(kernelconf):
+        kernel = isafw.ISA_kernel()
+        kernel.img_name = imagebasename
+        kernel.path_to_config = kernelconf
+        bb.debug(1, 'do kernel conf analysis on %s' % kernelconf)
+        imageSecurityAnalyser.process_kernel(kernel)
+    else:
+        bb.debug(1, 'Kernel configuration file is missing. Not performing analysis on %s' % kernelconf)
 
     pkglist = manifest2pkglist(d)
     imagebasename = d.getVar('IMAGE_BASENAME', True)
@@ -234,11 +233,13 @@ def binary2source(dirpath, filepath):
 
 manifest2pkglist[vardepsexclude] = "DATETIME"
 def manifest2pkglist(d):
+    import glob
 
     manifest_file = d.getVar('IMAGE_MANIFEST', True)
     imagebasename = d.getVar('IMAGE_BASENAME', True)
     reportdir = d.getVar('ISAFW_REPORTDIR', True) + "_" + d.getVar('DATETIME', True)
     pkgdata_dir = d.getVar("PKGDATA_DIR", True)
+    rr_dir = "%s/runtime-reverse/" % pkgdata_dir
     pkglist = reportdir + "/pkglist"
 
     with open(pkglist, 'a') as foutput:
@@ -247,8 +248,10 @@ def manifest2pkglist(d):
             for line in finput:
                 items = line.split()
                 if items and (len(items) >= 3):
-                    originPkg = binary2source("%s/runtime-reverse/" % pkgdata_dir, items[0])
-                    foutput.write(items[0] + " " + items[2] + " " + originPkg + "\n")
+                    pkgnames = map(os.path.basename, glob.glob(os.path.join(rr_dir, items[0])))
+                    for pkgname in pkgnames:
+                        originPkg = binary2source(rr_dir, pkgname)
+                        foutput.write(pkgname + " " + items[2] + " " + originPkg + "\n")
 
     return pkglist
 
