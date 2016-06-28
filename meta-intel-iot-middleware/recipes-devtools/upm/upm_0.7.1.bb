@@ -16,16 +16,14 @@ inherit distutils-base pkgconfig python-dir cmake
 CFLAGS_append_edison = " -msse3 -mfpmath=sse"
 
 FILES_${PN}-doc += " ${datadir}/upm/examples/"
-RDEPENDS_${PN} += " mraa"
+RDEPENDS_${PN} += " mraa mraa-java"
 
 # override this in local.conf to get a subset of bindings.
 # BINDINGS_pn-upm="python"
 # will result in only the python bindings being built/packaged.
 
-#Disable the python package generation until we can get it building consistently on all platforms/architectures.
-# note, we can rely on BINDINGS_${PN}-mraa if we want these controlled by 1 variable
-#BINDINGS ?= "python nodejs java"
-BINDINGS ?= "nodejs java"
+# Build all language bindings by default
+BINDINGS ?= "python nodejs java"
 
 PACKAGECONFIG ??= "${@bb.utils.contains('PACKAGES', 'node-${PN}', 'nodejs', '', d)} \
  ${@bb.utils.contains('PACKAGES', 'python-${PN}', 'python', '', d)} \
