@@ -40,7 +40,6 @@ OSTRO_IMAGE_PKG_FEATURES = " \
     connectivity \
     devkit \
     iotivity \
-    java-jdk \
     nodejs-runtime \
     nodejs-runtime-tools \
     python-runtime \
@@ -50,6 +49,10 @@ OSTRO_IMAGE_PKG_FEATURES = " \
     tools-develop \
     tools-interactive \
 "
+
+OSTRO_IMAGE_PKG_FEATURES += " \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'java', 'java-jdk', '', d)} \
+    "
 
 # Here is the complete list of image features, also including
 # those that modify the image configuration.
