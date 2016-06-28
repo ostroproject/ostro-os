@@ -168,3 +168,8 @@ Dos and Don'ts
   happens only for the full set of commits that are getting merged, so
   when bisecting history, the merge commits are good candidates for
   testing because they are more likely to build correctly.
+
+* Never add backdoors (i.e., something that enables unexpected and
+  unauthorized access to the system or some of its features) or
+  debug features to the default configuration. Such capabilities may
+  be enabled only in explicit debug configurations of the OS images.
