@@ -11,7 +11,7 @@ LIC_FILES_CHKSUM = " \
 
 PR = "r1"
 
-SRC_URI = "git://git.eclipse.org/gitroot/paho/org.eclipse.paho.mqtt.c.git;protocol=http \
+SRC_URI = "git://github.com/eclipse/paho.mqtt.c.git;protocol=https \
            file://makefile.patch \
 "
 
