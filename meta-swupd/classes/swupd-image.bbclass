@@ -353,7 +353,7 @@ fakeroot python do_fetch_swupd_inputs () {
 
         bb.debug(2, 'Unpacking sstate object %s in %s' % (sstatepkg, src))
         cmd = 'cd %s && tar -xvzf %s' % (src, sstatepkg)
-        oe.path.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+        subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
         bb.utils.mkdirhier(imgdst)
         swupd.path.copyxattrtree('%s/%s/' % (src, osv), imgdst)
         swupd.path.copyxattrtree('%s/swupd-manifests/' % src, deploydirimage)

@@ -10,7 +10,7 @@ def copyxattrtree(src, dst):
     """
     import subprocess
     cmd = "tar --xattrs --xattrs-include='*' -cf - -C %s -p . | tar -p --xattrs --xattrs-include='*' -xf - -C %s" % (src, dst)
-    oe.path.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+    subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
 
 
 def copyxattrfiles(d, filelist, src, dst):
@@ -37,7 +37,7 @@ def copyxattrfiles(d, filelist, src, dst):
             fdest.write('%s\n' % f)
 
     cmd = "tar --xattrs --xattrs-include='*' --no-recursion -cf - -T %s -p | tar -p --xattrs --xattrs-include='*' -xf - -C %s" % (copyfile, dst)
-    oe.path.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+    subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
     os.remove(copyfile)
 
 

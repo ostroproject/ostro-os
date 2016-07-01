@@ -107,7 +107,7 @@ def stage_package_bundle_contents(d, bundle):
     manfile = d.expand("${SWUPDIMAGEDIR}/${OS_VERSION}/bundle-%s-%s${SWUPD_ROOTFS_MANIFEST_SUFFIX}") % (imagename, bundle)
     bb.debug(3, 'Writing bundle file manifest %s' % manfile)
     cmd = 'cd %s && find . ! -path . > %s' % (dest, manfile)
-    oe.path.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+    subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
 
     # Generate a manifest of packages in the bundle, we need this so that we
     # can compose a complete list of packages installed in any bundle images
@@ -200,7 +200,7 @@ def copy_image_bundle_contents(d, bundle):
     # Generate the manifest of the bundle image's file contents
     bb.debug(3, 'Writing bundle image file manifest %s' % image_manifest)
     cmd = 'cd %s && find . ! -path . > %s' % (imagesrc, image_manifest)
-    oe.path.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+    subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
 
     # Get a list of files in the bundle image which aren't in the base (os-core)
     bb.debug(3, 'Comparing manifest %s to %s' %(base_manifest, image_manifest))
