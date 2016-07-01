@@ -5,7 +5,7 @@ AUTHOR = "Brendan Le Foll, Tom Ingleby, Yevgeniy Kiveisha"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=d1cc191275d6a8c5ce039c75b2b3dc29"
 
-DEPENDS = "nodejs libjpeg-turbo swig-native mraa"
+DEPENDS = "libjpeg-turbo mraa"
 
 SRC_URI = "git://github.com/intel-iot-devkit/upm.git;protocol=git;tag=v${PV}"
 
