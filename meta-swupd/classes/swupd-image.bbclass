@@ -169,7 +169,7 @@ def copyxattrtree(src, dst):
     # tar does not properly copy xattrs when used like this.
     # See the comment on tar in meta/classes/image_types.bbclass
     cmd = "tar --xattrs --xattrs-include='*' -cf - -C %s -p . | tar -p --xattrs --xattrs-include='*' -xf - -C %s" % (src, dst)
-    oe.path.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+    subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
 
 # swupd-client expects a bundle subscription to exist for each
 # installed bundle. This is simply an empty file named for the
