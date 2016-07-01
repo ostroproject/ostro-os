@@ -147,7 +147,7 @@ INITRD_LIVE_append = "${@ ('${DEPLOY_DIR_IMAGE}/' + d.getVar('INITRD_IMAGE', exp
 PACKAGES = " "
 EXCLUDE_FROM_WORLD = "1"
 
-ROOTFS_PARTUUID_VALUE ?= "deadbeef-dead-beef-dead-beefdeadbeef"
+REMOVABLE_MEDIA_ROOTFS_PARTUUID_VALUE ?= "deadbeef-dead-beef-dead-beefdeadbeef"
 
 # Partition types used for building the image - DO NOT MODIFY
 PARTITION_TYPE_EFI = "EF00"
@@ -175,7 +175,7 @@ DSK_IMAGE_LAYOUT ??= ' \
     }, \
     "partition_03_rootfs": { \
         "name": "rootfs", \
-        "uuid": "${ROOTFS_PARTUUID_VALUE}", \
+        "uuid": "${REMOVABLE_MEDIA_ROOTFS_PARTUUID_VALUE}", \
         "size_mb": 3700, \
         "source": "${IMAGE_ROOTFS}", \
         "filesystem": "ext4", \
@@ -201,6 +201,16 @@ python do_uefiapp() {
     import shutil
     from subprocess import check_call
 
+    # This data is imported by OS installer and used for partitioning internal storage
+    PART_DATA_TPL = """
+export PART_%(pnum)d_NAME=%(name)s
+export PART_%(pnum)d_SIZE=%(size_mb)d
+export PART_%(pnum)d_UUID=%(uuid)s
+export PART_%(pnum)d_TYPE=%(type)s
+export PART_%(pnum)d_FS=%(filesystem)s
+"""
+    partition_data = ""
+
     layout = d.getVar('DSK_IMAGE_LAYOUT', True)
     bb.note("Parsing disk image JSON %s" % layout)
     partition_table = json.loads(layout)
@@ -208,6 +218,8 @@ python do_uefiapp() {
     full_image_size_mb = partition_table["gpt_initial_offset_mb"] + \
                          partition_table["gpt_tail_padding_mb"]
 
+    rootfs_type = None
+    pnum = 0
     for key in sorted(partition_table.keys()):
         if not isinstance(partition_table[key], dict):
             continue
@@ -218,9 +230,22 @@ python do_uefiapp() {
             partition_table[key]['uuid'] = str(uuid.uuid4())
         # Store these for the creation of the UEFI binary
         if partition_table[key]['name'] == 'rootfs':
-            d.setVar("ROOTFS_TYPE", partition_table[key]['filesystem'])
-            d.setVar("ROOTFS_SOURCE", partition_table[key]["source"])
-            d.setVar("ROOTFS_PARTUUID", partition_table[key]["uuid"])
+            rootfs_type = partition_table[key]['filesystem']
+            int_part_uuid = d.getVar('INT_STORAGE_ROOTFS_PARTUUID_VALUE', True)
+        else:
+            int_part_uuid = partition_table[key]["uuid"]
+        partition_data += PART_DATA_TPL % {
+            "pnum": pnum,
+            "size_mb": partition_table[key]["size_mb"],
+            "uuid": int_part_uuid,
+            "type": partition_table[key]["type"],
+            "name": partition_table[key]["name"],
+            "filesystem": partition_table[key]["filesystem"],
+        }
+        pnum = pnum + 1
+
+    assert rootfs_type is not None
+    partition_data += "export PART_COUNT=%d\n" % pnum
 
     if os.path.exists(d.expand('${B}/initrd')):
         os.remove(d.expand('${B}/initrd'))
@@ -232,34 +257,44 @@ python do_uefiapp() {
                 dst.write(src.read())
     with open(d.expand('${B}/machine.txt'), 'w') as f:
         f.write(d.expand('${MACHINE}'))
-    with open(d.expand('${B}/cmdline.txt'), 'w') as f:
-        f.write(d.expand('${APPEND} root=PARTUUID=${ROOTFS_PARTUUID} rootfstype=${ROOTFS_TYPE}'))
     if '64' in d.getVar('MACHINE', True):
         executable = 'bootx64.efi'
     else:
         executable = 'bootia32.efi'
-    check_call(d.expand('objcopy ' +
-                      '--add-section .osrel=${B}/machine.txt ' +
-                          '--change-section-vma  .osrel=0x20000 ' +
-                      '--add-section .cmdline=${B}/cmdline.txt ' +
-                          '--change-section-vma .cmdline=0x30000 ' +
-                      '--add-section .linux=${DEPLOY_DIR_IMAGE}/bzImage ' +
-                          '--change-section-vma .linux=0x40000 ' +
-                      '--add-section .initrd=${B}/initrd ' +
-                          '--change-section-vma .initrd=0x3000000 ' +
-                      glob.glob(d.expand('${DEPLOY_DIR_IMAGE}/linux*.efi.stub'))[0] +
-                      ' ${B}/' + executable + '_tmp'
-                     ).split())
-    with open(d.expand('${B}/signature.txt'), 'w') as f:
-        f.write('Signature Placeholder.')
-    with open(d.expand('${B}/' + executable + '_tmp'), 'rb') as combo:
-        with open(d.expand('${B}/signature.txt'), 'rb') as signature:
-            with open(d.expand('${B}/' + executable), 'wb') as signed_combo:
-                signed_combo.write(combo.read())
-                signed_combo.write(signature.read())
-    if not os.path.exists(d.expand('${DEPLOYDIR}/EFI/BOOT')):
-        os.makedirs(d.expand('${DEPLOYDIR}/EFI/BOOT'))
-    shutil.copyfile(d.expand('${B}/' + executable), d.expand('${DEPLOYDIR}/EFI/BOOT/' + executable))
+
+    def generate_app(partuuid, suffix = ''):
+        with open(d.expand('${B}/cmdline' + suffix + '.txt'), 'w') as f:
+            f.write(d.expand('${APPEND} root=PARTUUID=%s rootfstype=%s' % \
+                             (partuuid, rootfs_type,)))
+        check_call(d.expand('objcopy ' +
+                          '--add-section .osrel=${B}/machine.txt ' +
+                              '--change-section-vma  .osrel=0x20000 ' +
+                          '--add-section .cmdline=${B}/cmdline' + suffix + '.txt ' +
+                              '--change-section-vma .cmdline=0x30000 ' +
+                          '--add-section .linux=${DEPLOY_DIR_IMAGE}/bzImage ' +
+                              '--change-section-vma .linux=0x40000 ' +
+                          '--add-section .initrd=${B}/initrd ' +
+                              '--change-section-vma .initrd=0x3000000 ' +
+                          glob.glob(d.expand('${DEPLOY_DIR_IMAGE}/linux*.efi.stub'))[0] +
+                          ' ${B}/' + executable + '_tmp' + suffix
+                          ).split())
+        with open(d.expand('${B}/signature.txt'), 'w') as f:
+            f.write('Signature Placeholder.')
+        with open(d.expand('${B}/' + executable + '_tmp' + suffix), 'rb') as combo:
+            with open(d.expand('${B}/signature.txt'), 'rb') as signature:
+                with open(d.expand('${B}/' + executable + suffix), 'wb') as signed_combo:
+                    signed_combo.write(combo.read())
+                    signed_combo.write(signature.read())
+        if not os.path.exists(d.expand('${DEPLOYDIR}/EFI' + suffix + '/BOOT')):
+            os.makedirs(d.expand('${DEPLOYDIR}/EFI' + suffix + '/BOOT'))
+        shutil.copyfile(d.expand('${B}/' + executable + suffix), d.expand('${DEPLOYDIR}/EFI' + suffix + '/BOOT/' + executable))
+
+    generate_app(d.getVar('REMOVABLE_MEDIA_ROOTFS_PARTUUID_VALUE', True))
+    generate_app(d.getVar('INT_STORAGE_ROOTFS_PARTUUID_VALUE', True), "_internal_storage")
+
+    with open(d.expand('${B}/emmc-partitions-data'), 'w') as emmc_part_data:
+        emmc_part_data.write(partition_data)
+    shutil.copyfile(d.expand('${B}/emmc-partitions-data'), d.expand('${DEPLOYDIR}/emmc-partitions-data'))
 }
 
 DEPLOYDIR = "${WORKDIR}/uefiapp-${PN}"
@@ -292,7 +327,7 @@ ROOTFS_POSTPROCESS_COMMAND += " uefiapp_deploy; "
 # See: https://bugzilla.yoctoproject.org/show_bug.cgi?id=9095
 deltask do_rootfs_wicenv
 
-# All variables explicitly passed to image-iot.py.
+# All variables explicitly passed to image-dsk.py.
 IMAGE_DSK_VARIABLES = " \
     APPEND \
     DEPLOY_DIR_IMAGE \
@@ -301,7 +336,7 @@ IMAGE_DSK_VARIABLES = " \
     IMAGE_NAME \
     IMAGE_ROOTFS \
     ROOTFS_TYPE \
-    ROOTFS_PARTUUID_VALUE \
+    REMOVABLE_MEDIA_ROOTFS_PARTUUID_VALUE \
     PARTITION_TYPE_EFI \
     PARTITION_TYPE_EFI_BACKUP \
     S \

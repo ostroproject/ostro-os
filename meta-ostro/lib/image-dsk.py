@@ -44,7 +44,7 @@ def populate_rawcopy(src, dst):
 def populate_vfat(src, dst):
     """Create and populate a FAT partition, out of a root directory <src>."""
     check_call(['mkdosfs', dst])
-    check_call(['mcopy', '-i', dst, '-s'] + glob(src + '/*') + ['::/'])
+    check_call(['mcopy', '-i', dst, '-s', src + '/EFI', '::/'])
 
 
 def populate_ext4(src, dst):
@@ -120,7 +120,7 @@ def do_dsk_image():
             # for each product.
             # Default to lower case, to avoid issues from camelcase.
             partition_table[key]["uuid"] = \
-                expand_vars("${ROOTFS_PARTUUID_VALUE}").lower()
+                expand_vars("${REMOVABLE_MEDIA_ROOTFS_PARTUUID_VALUE}").lower()
 
     # Save to disk the layout with the PARTUUIDs used, to facilitate the
     # job of accessing programmatically individual partitions.

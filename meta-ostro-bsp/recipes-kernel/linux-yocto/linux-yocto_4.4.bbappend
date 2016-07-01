@@ -121,3 +121,31 @@ SRC_URI_append = " file://ecryptfs.cfg"
 # Backport ambient capabilities support
 SRC_URI_append_edison = " file://0001-edison-capabilities-ambient-capabilities.patch"
 SRC_URI_append_edison = " file://0002-edison-capabilities-add-a-securebit-to-disable-PR_CAP_AMBIE.patch"
+
+# Enable the necessary options for systemd-nspawn'd containers.
+SRC_URI_append = " \
+    file://nspawn-fs.cfg \
+    file://nspawn-netdev.cfg \
+    file://nspawn-firewall.cfg \
+    file://nspawn-devpts.cfg \
+"
+
+# Workaround for IMA/overlayfs deadlock.
+SRC_URI_append_intel-quark = " \
+    file://0001-ovl-setxattr-don-t-deadlock-when-called-from-ima_fix.patch \
+"
+
+SRC_URI_append_intel-core2-32 = " \
+    file://0001-ovl-setxattr-don-t-deadlock-when-called-from-ima_fix.patch \
+"
+
+SRC_URI_append_intel-corei7-64 = " \
+    file://0001-ovl-setxattr-don-t-deadlock-when-called-from-ima_fix.patch \
+"
+
+SRC_URI_append_beaglebone = " \
+    file://0001-ovl-setxattr-don-t-deadlock-when-called-from-ima_fix.patch \
+"
+
+# lockdep and kernel debugging
+# SRC_URI_append = "  file://lockdep.cfg file://debug-kernel.cfg"

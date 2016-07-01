@@ -1,5 +1,6 @@
 var http = require('http');
 var fs = require('fs');
+var path = require('path');
 
 var options = {
     host: '127.0.0.1',
@@ -12,7 +13,7 @@ var options = {
 };
 
 var apiOicD = {};
-var responseJson = 'api_oic_d.json';
+var responseJson = path.join(path.dirname(__filename), 'api_oic_d.json');
 
 function sendHttpRequest(opts) {
     var req = http.request(opts, function(res) {
