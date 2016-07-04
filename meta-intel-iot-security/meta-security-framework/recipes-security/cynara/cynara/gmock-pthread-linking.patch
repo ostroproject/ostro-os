@@ -18,7 +18,7 @@ diff --git a/test/CMakeLists.txt b/test/CMakeLists.txt
 index 25a70db..f490a24 100644
 --- a/test/CMakeLists.txt
 +++ b/test/CMakeLists.txt
-@@ -130,6 +130,7 @@ ADD_EXECUTABLE(${TARGET_CYNARA_TESTS}
+@@ -138,6 +138,7 @@ ADD_EXECUTABLE(${TARGET_CYNARA_TESTS}
  TARGET_LINK_LIBRARIES(${TARGET_CYNARA_TESTS}
      ${PKGS_LDFLAGS}
      ${PKGS_LIBRARIES}
