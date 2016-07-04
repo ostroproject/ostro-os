@@ -136,13 +136,19 @@ class ISA_LicenseChecker():
             with open(self.image_pkg_list, 'r') as finput:
                 for line in finput:
                     line = line.strip()
+                    if not line:
+                        continue
                     if line.startswith("Packages "):
                         img_name = line.split()[3]
                         with open(self.logfile, 'a') as flog:
                             flog.write("img_name: " + img_name + "\n")
                         continue
-                    pkg_name = line.split()[0]
-                    orig_pkg_name = line.split()[2]
+                    package_info = line.split()
+                    pkg_name = package_info[0]
+                    if len(package_info) < 3 :
+                        orig_pkg_name = "UNKNOWN"   
+                    else:
+                        orig_pkg_name = package_info[2]
                     if (not self.image_pkgs) or ((pkg_name + " from " + img_name) not in self.image_pkgs):
                         self.image_pkgs.append(pkg_name + " from " + img_name + " " + orig_pkg_name)
 
