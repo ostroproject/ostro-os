@@ -262,10 +262,10 @@ export PART_%(pnum)d_FS=%(filesystem)s
     else:
         executable = 'bootia32.efi'
 
-    def generate_app(partuuid, suffix = ''):
+    def generate_app(partuuid, cmdline, suffix):
         with open(d.expand('${B}/cmdline' + suffix + '.txt'), 'w') as f:
-            f.write(d.expand('${APPEND} root=PARTUUID=%s rootfstype=%s' % \
-                             (partuuid, rootfs_type,)))
+            f.write(d.expand('${APPEND} root=PARTUUID=%s rootfstype=%s %s' % \
+                             (partuuid, rootfs_type, cmdline)))
         check_call(d.expand('objcopy ' +
                           '--add-section .osrel=${B}/machine.txt ' +
                               '--change-section-vma  .osrel=0x20000 ' +
@@ -289,8 +289,8 @@ export PART_%(pnum)d_FS=%(filesystem)s
             os.makedirs(d.expand('${DEPLOYDIR}/EFI' + suffix + '/BOOT'))
         shutil.copyfile(d.expand('${B}/' + executable + suffix), d.expand('${DEPLOYDIR}/EFI' + suffix + '/BOOT/' + executable))
 
-    generate_app(d.getVar('REMOVABLE_MEDIA_ROOTFS_PARTUUID_VALUE', True))
-    generate_app(d.getVar('INT_STORAGE_ROOTFS_PARTUUID_VALUE', True), "_internal_storage")
+    generate_app(d.getVar('REMOVABLE_MEDIA_ROOTFS_PARTUUID_VALUE', True), "installer", "")
+    generate_app(d.getVar('INT_STORAGE_ROOTFS_PARTUUID_VALUE', True), "", "_internal_storage")
 
     with open(d.expand('${B}/emmc-partitions-data'), 'w') as emmc_part_data:
         emmc_part_data.write(partition_data)
