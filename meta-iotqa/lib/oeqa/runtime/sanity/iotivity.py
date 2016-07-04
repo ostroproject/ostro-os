@@ -44,7 +44,7 @@ class IOtvtClient(oeRuntimeTest):
         # start client to get info
         client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclient > /tmp/output &"
         run_as("iotivity-tester", client_cmd)
-        print "\npatient... simpleclient needs long time for its observation"
+        print ("\npatient... simpleclient needs long time for its observation")
         time.sleep(60)
         # If there is no 'Observe is used', give a retry.
         (status, output) = cls.tc.target.run('cat /tmp/output')

@@ -49,7 +49,7 @@ class SanityTestRestApi(oeRuntimeTest):
             (status, output) = self.target.run(check_process_cmd)
             self.assertTrue('/usr/lib/node_modules/iot-rest-api' in output)
         (returncode, output) = self._run_curl_cmd()
-        self.assertEqual(output.strip(), '200')
+        self.assertEqual(output.strip(), b'200')
 
 
     def tearDown(self):

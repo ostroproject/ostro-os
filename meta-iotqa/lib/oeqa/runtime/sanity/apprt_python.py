@@ -95,6 +95,7 @@ class SanityTestPython(oeRuntimeTest):
                     'python binary does not work.')
         (_, ver) = re.split('\s+', output.strip())
         (major, minor, _) = re.split('\.', ver.strip())
+        major, minor = int(major), int(minor)
         ##
         # TESTPOINT: #2, test_python_version
         #
