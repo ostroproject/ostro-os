@@ -182,7 +182,10 @@ FEATURE_PACKAGES_can = "packagegroup-core-can"
 FEATURE_PACKAGES_ima = "packagegroup-ima-evm-utils"
 
 FEATURE_PACKAGES_iotivity = "packagegroup-iotivity"
-FEATURE_PACKAGES_devkit = "packagegroup-devkit"
+FEATURE_PACKAGES_devkit = "packagegroup-devkit \
+    ${@ bb.utils.contains('IMAGE_FEATURES', 'java-jdk', 'mraa-java upm-java', '', d)} \
+    ${@ bb.utils.contains('IMAGE_FEATURES', 'python-runtime', 'python-mraa', '', d)} \
+"
 
 FEATURE_PACKAGES_nodejs-runtime = "packagegroup-nodejs-runtime"
 FEATURE_PACKAGES_nodejs-runtime-tools = "packagegroup-nodejs-runtime-tools"

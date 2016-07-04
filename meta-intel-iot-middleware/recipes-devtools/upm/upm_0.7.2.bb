@@ -5,7 +5,7 @@ AUTHOR = "Brendan Le Foll, Tom Ingleby, Yevgeniy Kiveisha"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=d1cc191275d6a8c5ce039c75b2b3dc29"
 
-DEPENDS = "nodejs libjpeg-turbo swig-native mraa"
+DEPENDS = "libjpeg-turbo mraa"
 
 SRC_URI = "git://github.com/intel-iot-devkit/upm.git;protocol=git;tag=v${PV}"
 
@@ -22,10 +22,7 @@ RDEPENDS_${PN} += " mraa"
 # BINDINGS_pn-upm="python"
 # will result in only the python bindings being built/packaged.
 
-#Disable the python package generation until we can get it building consistently on all platforms/architectures.
-# note, we can rely on BINDINGS_${PN}-mraa if we want these controlled by 1 variable
-#BINDINGS ?= "python nodejs java"
-BINDINGS ?= "nodejs java"
+BINDINGS ?= "python nodejs java"
 
 PACKAGECONFIG ??= "${@bb.utils.contains('PACKAGES', 'node-${PN}', 'nodejs', '', d)} \
  ${@bb.utils.contains('PACKAGES', 'python-${PN}', 'python', '', d)} \

@@ -9,7 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit distutils-base pkgconfig python-dir cmake
 
-EXTRA_OECMAKE_append = "-DINSTALLTOOLS=ON -DFIRMATA=ON -DINSTALLGPIOTOOL=ON -DPYTHON_SITE_DIR:FILEPATH=${PYTHON_SITEPACKAGES_DIR} -DBASE_LIB_INSTALL_DIR=${base_libdir} -DCMAKE_SKIP_RPATH=ON"
+EXTRA_OECMAKE_append = "-DINSTALLTOOLS=ON -DFIRMATA=ON -DPYTHON_SITE_DIR:FILEPATH=${PYTHON_SITEPACKAGES_DIR} -DBASE_LIB_INSTALL_DIR=${base_libdir} -DCMAKE_SKIP_RPATH=ON"
 
 FILES_${PN}-doc += "${datadir}/mraa/examples/"
 
@@ -25,6 +25,7 @@ PACKAGECONFIG ??= "${@bb.utils.contains('PACKAGES', 'node-${PN}', 'nodejs', '', 
 PACKAGECONFIG[python] = "-DBUILDSWIGPYTHON=ON, -DBUILDSWIGPYTHON=OFF, swig-native python,"
 PACKAGECONFIG[nodejs] = "-DBUILDSWIGNODE=ON, -DBUILDSWIGNODE=OFF, swig-native nodejs,"
 PACKAGECONFIG[java] = "-DBUILDSWIGJAVA=ON, -DBUILDSWIGJAVA=OFF, swig-native openjdk-8-native,"
+PACKAGECONFIG[ft4222] = "-DUSBPLAT=ON -DFTDI4222=ON, -DUSBPLAT=OFF -DFTDI4222=OFF,, libft4222"
 
 do_compile_prepend () {
   # when yocto builds in ${D} it does not have access to ../git/.git so git
