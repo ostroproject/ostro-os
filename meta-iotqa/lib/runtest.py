@@ -22,7 +22,21 @@ from oeqa.oetest import oeRuntimeTest
 from oeqa.oetest import TestContext as OETestContext
 from oeqa.utils.sshcontrol import SSHControl
 from oeqa.utils.decorators import gettag
+import oeqa.utils.decorators
 
+__tag_prefix = "tag__"
+def tag(*args, **kwargs):
+    """Decorator that adds attributes to classes or functions
+    for use with the Attribute (-a) plugin.
+    """
+    def wrap_ob(ob):
+        for name in args:
+            setattr(ob, __tag_prefix + name, True)
+        for name, value in kwargs.items():
+            setattr(ob, __tag_prefix + name, value)
+        return ob
+    return wrap_ob
+oeqa.utils.decorators.tag = tag
 class FakeTarget(object):
     def __init__(self, d):
         self.connection = None
@@ -89,7 +103,10 @@ except ImportError:
 
 def setUp(self):
     pass
+def tearDown(self):
+    pass
 oeRuntimeTest.setUp = setUp
+oeRuntimeTest.tearDown = tearDown
 
 def wrap_runner(runner, *wargs, **wkwargs):
     @wraps(runner)
@@ -146,12 +163,12 @@ def main():
         options.tests_list = os.path.join(os.path.dirname(__file__), "testplan", "iottest.manifest")
     for each_manifest in options.tests_list.split():
         with open(each_manifest, "r") as f:
-            map(lambda y:tclist.append(y) if y not in tclist else None, 
-                filter(lambda x: x and not x.startswith('#'),
+            tl = filter(lambda x: x and not x.startswith('#'),
                               [n.strip() for n in f.readlines()])
-                )
+            for x in tl:
+                tclist.append(x)
     tc.testslist = tclist
-    print tc.testslist
+    print (tc.testslist)
 
     #add testsrequired for skipModule 
     tc.testsrequired = tc.testslist
@@ -179,7 +196,7 @@ def main():
         loaded = json.load(f)
     #inject build datastore
     d = MyDataDict()
-    if loaded.has_key("d"):
+    if "d" in loaded:
         for key in loaded["d"].keys():
             d[key] = loaded["d"][key]
     d["DEPLOY_DIR"], d["MACHINE"] = deployDir, machine
@@ -229,10 +246,5 @@ def main():
     return 0
 
 if __name__ == "__main__":
-    try:
-        ret = main()
-    except Exception:
-        ret = 1
-        import traceback
-        traceback.print_exc(5)
+    ret = main()
     sys.exit(ret)

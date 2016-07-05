@@ -203,6 +203,13 @@ FEATURE_PACKAGES_tools-develop = "packagegroup-core-buildessential git"
 # priorities.
 FEATURE_PACKAGES_tools-interactive = "packagegroup-tools-interactive bash"
 
+# OE-core treats "valgrind" as part of tools-profile aka
+# packagegroup-core-tools-profile.bb. We do not enable that set of tools
+# in Ostro because not all of them work and/or make sense, but valgrind
+# makes sense, in particular for debugging, so we add it there.
+# All our platforms support it, so this can be unconditional.
+FEATURE_PACKAGES_tools-debug_append = " valgrind"
+
 # We could make bash the login shell for interactive accounts as shown
 # below, but that would have to be done also in the os-core and thus
 # tools-interactive would have to be set in all swupd images.

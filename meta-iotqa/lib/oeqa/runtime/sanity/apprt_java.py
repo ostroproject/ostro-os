@@ -89,7 +89,9 @@ class SanityTestJava(oeRuntimeTest):
                     'java binary does not work.')
 
         ver = re.split('\s+', output.strip())[2]
+        ver = ver.replace('"', "")
         (major, minor, _) = re.split('\.', ver.strip())
+        major, minor = int(major), int(minor)
         ##
         # TESTPOINT: #2, test_java_version
         #

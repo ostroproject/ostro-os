@@ -2,6 +2,7 @@
 #\License: ALL RIGHTS RESERVED
 #\Author: Wang, Jing <jing.j.wang@intel.com>
 
+from __future__ import print_function
 import time
 import subprocess
 import os
@@ -64,7 +65,7 @@ def get_native_dir():
 def add_group(groupname, gid=None, target=None):
     target = target if target is not None else oeRuntimeTest.tc.target
     (ret, output) = target.run("groupadd %s %s"%(groupname, "" if gid is None else "-g %s"%gid))
-    print >> sys.stderr, output
+    print (output, file=sys.stderr)
     return ret == 0
 
 def add_user(username, group=None, home_dir=None, target=None):
@@ -82,7 +83,7 @@ def add_user(username, group=None, home_dir=None, target=None):
     cmd = cmd + "-d %s "%home_dir
     cmd = cmd + username
     (ret, output) = target.run(cmd)
-    print >> sys.stderr, output
+    print (output, file=sys.stderr)
     return ret == 0
 
 def remove_user(username, target=None):
