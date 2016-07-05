@@ -140,7 +140,7 @@ def load_supported_recipes(d):
 
     return (supported_recipes, files)
 
-SOURCE_FIELDS = 'component,collection,version,homepage,source,summary'.split(',')
+SOURCE_FIELDS = 'component,collection,version,homepage,source,summary,license'.split(',')
 
 # Collects information about one recipe during parsing for SUPPORTED_RECIPES_SOURCES.
 # The dumped information cannot be removed because it might be needed in future
@@ -153,6 +153,7 @@ def dump_sources(d):
     summary = d.getVar('SUMMARY', True) or ''
     homepage = d.getVar('HOMEPAGE', True) or ''
     src = d.getVar('SRC_URI', True).split()
+    license = d.getVar('LICENSE', True)
     sources = []
     for url in src:
         scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
@@ -179,7 +180,7 @@ def dump_sources(d):
                 fullname = '%s/%d' % (pn, idx)
             else:
                 fullname = pn
-            writer.writerow((fullname, collection, pv, homepage, url, summary))
+            writer.writerow((fullname, collection, pv, homepage, url, summary, license))
 
 class IsNative(object):
     def __init__(self, d):
