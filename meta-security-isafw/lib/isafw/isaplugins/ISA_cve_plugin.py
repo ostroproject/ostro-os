@@ -182,9 +182,12 @@ class ISA_CVEChecker:
             stdout_value = result[0]
             tool_stderr_value = result[1]
             if not tool_stderr_value :
-                report = self.report_name + "." + rtype
-                with open(report, 'wb') as freport:
-                    freport.write(stdout_value)
+                if popen.returncode != 0:
+                    tool_stderr_value = "cve-check-tool terminated with non-zero exit code " + str(popen.returncode)
+                else:
+                    report = self.report_name + "." + rtype
+                    with open(report, 'wb') as freport:
+                        freport.write(stdout_value)
         return tool_stderr_value
 
     def process_patch_list(self, patch_files):
