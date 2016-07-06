@@ -39,6 +39,7 @@ class ISA_CVEChecker:
 
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
+        self.cacert = ISA_config.cacert
         self.reportdir = ISA_config.reportdir
         self.timestamp = ISA_config.timestamp
         self.logfile = ISA_config.logdir + "/isafw_cvelog"
@@ -162,6 +163,8 @@ class ISA_CVEChecker:
         if self.proxy:
             args += "https_proxy=%s http_proxy=%s " % (self.proxy, self.proxy)
         args += "cve-check-tool "
+        if self.cacert:
+            args += "--cacert '%s' " % self.cacert
         if rtype != "html":
             args += "-c "
             rtype = "csv"

@@ -23,7 +23,7 @@ ISAFW_LA_PLUGIN_IMAGE_BLACKLIST ?= ""
 
 # First, code to handle scanning each recipe that goes into the build
 
-do_analysesource[depends] += "cve-check-tool-native:do_populate_sysroot"
+do_analysesource[depends] += "cve-check-tool-native:do_populate_sysroot ca-certificates-native:do_populate_sysroot"
 do_analysesource[depends] += "rpm-native:do_populate_sysroot"
 do_analysesource[depends] += "python-lxml-native:do_populate_sysroot"
 do_analysesource[nostamp] = "1"
@@ -173,7 +173,7 @@ python analyse_image() {
     imageSecurityAnalyser.process_filesystem(fs)
 }
 
-do_rootfs[depends] += "checksec-native:do_populate_sysroot"
+do_rootfs[depends] += "checksec-native:do_populate_sysroot ca-certificates-native:do_populate_sysroot"
 do_rootfs[depends] += "prelink-native:do_populate_sysroot"
 do_rootfs[depends] += "python-lxml-native:do_populate_sysroot"
 analyse_image[fakeroot] = "1"
@@ -184,6 +184,15 @@ def isafw_init(isafw, d):
 
     isafw_config = isafw.ISA_config()
     isafw_config.proxy = d.getVar('HTTP_PROXY', True)
+    # Override the builtin default in curl-native (used by cve-check-tool-native)
+    # because that default is a path that may not be valid: when curl-native gets
+    # installed from sstate, we end up with the sysroot path as it was on the
+    # original build host, which is not necessarily the same path used now
+    # (see https://bugzilla.yoctoproject.org/show_bug.cgi?id=9883).
+    #
+    # Can't use ${sysconfdir} here, it already includes ${STAGING_DIR_NATIVE}
+    # when the current recipe is native.
+    isafw_config.cacert = d.expand('${STAGING_DIR_NATIVE}/etc/ssl/certs/ca-certificates.crt')
     if not isafw_config.proxy :
         isafw_config.proxy = d.getVar('http_proxy', True)
     bb.debug(1, 'isafw: proxy is %s' % isafw_config.proxy)
