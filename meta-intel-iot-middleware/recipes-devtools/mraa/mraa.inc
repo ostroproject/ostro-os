@@ -9,9 +9,15 @@ S = "${WORKDIR}/git"
 
 inherit distutils-base pkgconfig python-dir cmake
 
-EXTRA_OECMAKE_append = "-DINSTALLTOOLS=ON -DFIRMATA=ON -DPYTHON2_PACKAGES_PATH:FILEPATH=../${PYTHON_SITEPACKAGES_DIR} -DBASE_LIB_INSTALL_DIR=${base_libdir} -DCMAKE_SKIP_RPATH=ON"
+EXTRA_OECMAKE_append = " -DINSTALLTOOLS:BOOL=ON -DFIRMATA=ON -DPYTHON2_PACKAGES_PATH:FILEPATH=../${PYTHON_SITEPACKAGES_DIR} -DBASE_LIB_INSTALL_DIR=${base_libdir} -DCMAKE_SKIP_RPATH=ON"
 
 FILES_${PN}-doc += "${datadir}/mraa/examples/"
+
+# Prepend mraa-utils to make sure bindir ends up in there
+PACKAGES =+ "${PN}-utils "
+
+FILES_${PN}-utils = "${bindir}/ \
+                    "
 
 # override this in local.conf to get a subset of bindings.
 # BINDINGS_pn-mraa="python"
@@ -33,7 +39,6 @@ do_compile_prepend () {
   # trick
   sed -i 's/-dirty//' src/version.c
 }
-
 
 ### Python ###
 
