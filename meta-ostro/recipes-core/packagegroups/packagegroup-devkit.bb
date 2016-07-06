@@ -6,5 +6,6 @@ inherit packagegroup
 RDEPENDS_${PN} = " \
     linuxptp \
     mraa \
+    mraa-utils \
     upm \
 "
