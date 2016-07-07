@@ -14,8 +14,11 @@
 import time
 import os
 import string
-import wifi
-import ConfigParser
+from oeqa.runtime.wifi import wifi
+try:
+ import ConfigParser
+except:
+ import configparser as ConfigParser
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import shell_cmd_timeout
 from oeqa.utils.decorators import tag

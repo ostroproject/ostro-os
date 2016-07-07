@@ -8,7 +8,10 @@
 
 import serial
 import sys, os
-import ConfigParser
+try:
+ import ConfigParser
+except:
+ import configparser as ConfigParser
 
 class Connector:
     """

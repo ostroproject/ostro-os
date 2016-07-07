@@ -11,7 +11,7 @@ import os
 import time
 from oeqa.utils.helper import shell_cmd
 from oeqa.oetest import oeRuntimeTest
-from EnvirSetup import EnvirSetup
+from oeqa.runtime.sensor.EnvirSetup import EnvirSetup
 from oeqa.utils.decorators import tag
 
 @tag(TestType="FVT", FeatureID="IOTOS-757")
@@ -24,7 +24,7 @@ class TestAdcADS7955(oeRuntimeTest):
         @fn setUp
         @param self
         @return'''
-        print 'start!\n'
+        print ('start!\n')
         envir = EnvirSetup(self.target)
         envir.envirSetup("ads7955","adc")
         
@@ -33,7 +33,7 @@ class TestAdcADS7955(oeRuntimeTest):
         @fn test_Adc_ADS7955
         @param self
         @return'''
-        print 'start reading data!'
+        print ('start reading data!')
         (status, output) = self.target.run(
                          "chmod 777 /opt/apps/test_adc_ads7955.fbp")
         (status, output) = self.target.run(
@@ -43,5 +43,5 @@ class TestAdcADS7955(oeRuntimeTest):
                          "cp /opt/apps/re.log /home/root/ads7955.log")
         #verification of target sensor data
         (status, output) = self.target.run("cat /opt/apps/re.log|grep float")
-        print output + "\n"
+        print (output + "\n")
         self.assertEqual(status, 0, msg="Error messages: %s" % error)

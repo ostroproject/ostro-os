@@ -11,7 +11,7 @@
 # @{
 ##
 
-import can
+from oeqa.runtime.can import can
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.decorators import tag
 

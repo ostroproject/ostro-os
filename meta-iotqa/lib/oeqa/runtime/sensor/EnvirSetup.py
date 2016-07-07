@@ -37,7 +37,7 @@ class EnvirSetup(oeRuntimeTest):
         #modprobe target sensor on DUT
         #send corresponding correct json to DUT      
         if "Minnow" in output:
-           print "DUT is MinnowMax\n"
+           print ("DUT is MinnowMax\n")
            time.sleep(1)
            (status, output) = self.target.run("modprobe iio-trig-sysfs")
            self.assertTrue(status == 0)
@@ -50,7 +50,7 @@ class EnvirSetup(oeRuntimeTest):
                           "/opt/apps/")
            
         if "Galileo" in output:
-           print "DUT is Galileo\n"
+           print ("DUT is Galileo\n")
            time.sleep(1)
            (status, output) = self.target.run("echo -n \"60\" >/sys/class/gpio/export")
            (status, output) = self.target.run("echo -n \"out\" >/sys/class/gpio/gpio60/direction")
@@ -69,7 +69,7 @@ class EnvirSetup(oeRuntimeTest):
            (status, output) = self.target.copy_to(copy_to_path, \
                           "/opt/apps/")  
         if "BODEGA" in output:
-           print "DUT is Edison\n"
+           print ("DUT is Edison\n")
            (status, output) = self.target.run("echo 28 > /sys/class/gpio/export")
            (status, output) = self.target.run("echo 27 > /sys/class/gpio/export")
            (status, output) = self.target.run("echo 204 > /sys/class/gpio/export")

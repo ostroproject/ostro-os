@@ -336,7 +336,7 @@ class IOtvtIntegration(oeRuntimeTest):
         ##
         # TESTPOINT: #1, test_room_default_collection
         #
-        self.assertEqual(string.atoi(output), 0, msg="CPP entity handler is: %s" % output)                      
+        self.assertEqual(int(output), 0, msg="CPP entity handler is: %s" % output)                      
     def test_room_application_collection(self):
         ''' 
             When number is 2 and request is put, room entity handler give light and fan 
@@ -379,7 +379,7 @@ class IOtvtIntegration(oeRuntimeTest):
             # start client to get info
             client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclient > /tmp/output &"
             run_as("iotivity-tester", client_cmd, timeout=90)
-            print "\npatient... simpleclient needs long time for its observation"
+            print ("\npatient... simpleclient needs long time for its observation")
             time.sleep(70)
             (status, output) = run_as("iotivity-tester", 'cat /tmp/output')
             # kill server and client
@@ -419,7 +419,7 @@ class IOtvtIntegration(oeRuntimeTest):
             # start client to get info
             client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclientHQ > /tmp/output &"
             run_as("iotivity-tester", client_cmd, timeout=90)
-            print "\npatient... simpleclientHQ needs long time for its observation"
+            print ("\npatient... simpleclientHQ needs long time for its observation")
             time.sleep(70)
             (status, output) = run_as("iotivity-tester", 'cat /tmp/output')
             # kill server and client
@@ -483,7 +483,7 @@ class IOtvtIntegration(oeRuntimeTest):
         # start test
         client_cmd = "/opt/iotivity/examples/resource/cpp/threadingsample > /tmp/output &"
         run_as("iotivity-tester", client_cmd, timeout=20)
-        print "\n patient, threadingsample needs some time to open 3 threads"
+        print ("\n patient, threadingsample needs some time to open 3 threads")
         time.sleep(20)
         (status, output) = run_as("iotivity-tester", 'cat /tmp/output')
         # judge if the values are correct

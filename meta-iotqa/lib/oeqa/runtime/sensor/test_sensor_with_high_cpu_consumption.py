@@ -12,7 +12,7 @@ import time
 import subprocess
 from oeqa.utils.helper import shell_cmd
 from oeqa.oetest import oeRuntimeTest
-from EnvirSetup import EnvirSetup
+from oeqa.runtime.sensor.EnvirSetup import EnvirSetup
 from oeqa.utils.decorators import tag
 
 @tag(TestType="EFT", FeatureID="IOTOS-757")
@@ -25,7 +25,7 @@ class TestSensorWithHighCPUConsumption(oeRuntimeTest):
         @fn setUp
         @param self
         @return'''
-        print 'start!\n'
+        print ('start!\n')
         #connect sensor and DUT through board
         shell_cmd("sudo python "+ os.path.dirname(__file__) + "/Connector.py tsl2561")
         envir = EnvirSetup(self.target)
@@ -66,13 +66,13 @@ class TestSensorWithHighCPUConsumption(oeRuntimeTest):
                    -o StrictHostKeyChecking=no -o LogLevel=ERROR" % self.target.ip
         sensor_cmd = "\"cd /opt/apps; ./test_light_tsl2561.fbp >/opt/apps/re.log 2>/dev/null\""
         workload_cmd = "\"/opt/powerDiablo -c 100 -t 1800 >/opt/cpu.log\""
-        print "process 1 kicked"
+        print ("process 1 kicked")
         subprocess.Popen("%s %s" % (ssh_cmd, sensor_cmd), shell=True)
-        print "process 2 kicked"
+        print ("process 2 kicked")
         subprocess.Popen("%s %s" % (ssh_cmd, workload_cmd), shell=True)
-        print "done\n"
+        print ("done\n")
         time.sleep(1800)
-        print "sleep done\n"
+        print ("sleep done\n")
         #makse sure sensor data is received
         (status, output) = self.target.run("cat /opt/apps/re.log|grep float")
         self.assertEqual(status, 0, msg="Error messages: %s" % output) 
