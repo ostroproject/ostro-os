@@ -54,7 +54,6 @@ class App(object):
         (status,output) = self.target.run("systemctl stop %s" % service_name)
         time.sleep(3)
         if status != 0 :
-            print output
             return False
         (status,output) = self.target.run("machinectl -l")
         if status == 0 and service_name not in output :

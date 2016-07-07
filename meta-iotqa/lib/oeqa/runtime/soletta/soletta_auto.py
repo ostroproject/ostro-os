@@ -40,14 +40,14 @@ class SolettaUpstreamTestCase(TestCaseInterface):
         self.fbp_fake_case = "Soletta_FBP_upstream_tests"
     def process_log_and_gen_resutls(self, fbpLog):
         if not os.path.isfile(fbpLog):
-            print fbpLog
+            print(fbpLog)
             self.addFailure(self.fbp_fake_case)
         else:
-            print "parse log: " + fbpLog
+            print("parse log: " + fbpLog)
             try: 
                 filelog = open(fbpLog, 'r')
                 for aline in filelog.readlines():
-                    print aline
+                    print(aline)
                     aline = aline.strip('\n')
                     if re.match(r'^PASS:', aline):
                         self.addSuccess(aline.split(':')[1])
