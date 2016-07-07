@@ -24,17 +24,14 @@ CXXFLAGS_append = " \
 -DCYNARA_LIB_PATH=\\\\\"${prefix}/lib/cynara/\\\\\" \
 -DCYNARA_TESTS_DIR=\\\\\"${prefix}/share/cynara/tests/\\\\\" \
 -DCYNARA_CONFIGURATION_DIR=\\\\\"${sysconfdir}/cynara/\\\\\" \
--DCYNARA_VERSION=\\\\\"${PV}\\\\\" \
 ${@bb.utils.contains('PACKAGECONFIG', 'debug', '-Wp,-U_FORTIFY_SOURCE', '', d)} \
 "
 
 EXTRA_OECMAKE += " \
 -DCMAKE_VERBOSE_MAKEFILE=ON \
--DSYSTEMD_SYSTEM_UNITDIR=${systemd_unitdir}/system \
--DLIB_INSTALL_DIR=${libdir} \
--DBIN_INSTALL_DIR=${bindir} \
--DSBIN_INSTALL_DIR=${sbindir} \
--DINCLUDE_INSTALL_DIR=${includedir} \
+-DBUILD_WITH_SYSTEMD=ON \
+-DSYSTEMD_UNIT_DIR=${systemd_unitdir}/system \
+-DSOCKET_DIR=/run/cynara \
 "
 
 # Explicitly package empty directory. Otherwise Cynara prints warnings

@@ -39,7 +39,7 @@ REQUIRED_DISTRO_FEATURES += "smack"
 # Only the main package gets created here, everything else remains in the
 # normal dbus recipe.
 do_install_append () {
-    for i in ${@' '.join([d.getVar('D', True) + x for x in (' '.join([d.getVar('FILES_dbus-cynara-' + p, True) or '' for p in ['lib', 'dev', 'staticdev', 'doc', 'locale', 'ptest']])).split()])}; do
+    for i in ${@' '.join([d.getVar('D', True) + x for x in (' '.join([d.getVar('FILES_${PN}-' + p, True) or '' for p in ['lib', 'dev', 'staticdev', 'doc', 'locale', 'ptest']])).split()])}; do
         rm -rf $i
     done
 

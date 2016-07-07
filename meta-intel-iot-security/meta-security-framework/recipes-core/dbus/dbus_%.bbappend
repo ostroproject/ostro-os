@@ -4,7 +4,7 @@
 # -> dbus).
 do_install_append_class-target () {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'dbus-cynara', 'true', 'false', d)}; then
-        for i in ${@' '.join([d.getVar('D', True) + x for x in (d.getVar('FILES_dbus', True) or '').split()])}; do
+        for i in ${@' '.join([d.getVar('D', True) + x for x in (d.getVar('FILES_${PN}', True) or '').split()])}; do
             rm -rf $i
         done
 

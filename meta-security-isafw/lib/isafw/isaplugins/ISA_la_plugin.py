@@ -28,7 +28,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import subprocess
-import os
+import os, sys
 
 LicenseChecker = None
 
@@ -93,7 +93,7 @@ class ISA_LicenseChecker():
                                 self.initialized = False
                                 with open(self.logfile, 'a') as flog:
                                     flog.write(
-                                        "Error in executing rpm query: " + sys.exc_info())
+                                        "Error in executing rpm query: " + str(sys.exc_info()))
                                     flog.write(
                                         "\nNot able to process package: " + ISA_pkg.name)
                                 return

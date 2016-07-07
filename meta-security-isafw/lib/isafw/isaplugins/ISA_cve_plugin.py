@@ -39,6 +39,7 @@ class ISA_CVEChecker:
 
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
+        self.cacert = ISA_config.cacert
         self.reportdir = ISA_config.reportdir
         self.timestamp = ISA_config.timestamp
         self.logfile = ISA_config.logdir + "/isafw_cvelog"
@@ -162,6 +163,8 @@ class ISA_CVEChecker:
         if self.proxy:
             args += "https_proxy=%s http_proxy=%s " % (self.proxy, self.proxy)
         args += "cve-check-tool "
+        if self.cacert:
+            args += "--cacert '%s' " % self.cacert
         if rtype != "html":
             args += "-c "
             rtype = "csv"
@@ -181,10 +184,13 @@ class ISA_CVEChecker:
         else:
             stdout_value = result[0]
             tool_stderr_value = result[1]
-            if not tool_stderr_value :
+            if not tool_stderr_value and popen.returncode == 0:
                 report = self.report_name + "." + rtype
                 with open(report, 'wb') as freport:
                     freport.write(stdout_value)
+            else:
+                tool_stderr_value = tool_stderr_value + \
+                "\ncve-check-tool terminated with exit code " + str(popen.returncode)
         return tool_stderr_value
 
     def process_patch_list(self, patch_files):

@@ -1,0 +1,56 @@
+From 8cd0a16af531cca0af6b4f9b729c252b8bdbf8e2 Mon Sep 17 00:00:00 2001
+From: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+Date: Tue, 5 Jul 2016 00:05:25 +0800
+Subject: [PATCH] Fix for misleading indentation error
+
+fix the indentation of the code to match the block structure. This may cause
+build errors if you have -Wall -Werror in your project.
+
+Signed-off-by: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+---
+ lib/librte_eal/linuxapp/kni/ethtool/igb/e1000_phy.c     | 8 ++++----
+ lib/librte_eal/linuxapp/kni/ethtool/ixgbe/ixgbe_82599.c | 2 +-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/lib/librte_eal/linuxapp/kni/ethtool/igb/e1000_phy.c b/lib/librte_eal/linuxapp/kni/ethtool/igb/e1000_phy.c
+index df22470..ba28eba 100644
+--- a/lib/librte_eal/linuxapp/kni/ethtool/igb/e1000_phy.c
++++ b/lib/librte_eal/linuxapp/kni/ethtool/igb/e1000_phy.c
+@@ -3302,8 +3302,8 @@ s32 e1000_read_phy_reg_mphy(struct e1000_hw *hw, u32 address, u32 *data)
+ 	/* Disable access to mPHY if it was originally disabled */
+ 	if (locked)
+ 		ready = e1000_is_mphy_ready(hw);
+-		if (!ready)
+-			return -E1000_ERR_PHY;
++	if (!ready)
++		return -E1000_ERR_PHY;
+ 		E1000_WRITE_REG(hw, E1000_MPHY_ADDR_CTRL,
+ 				E1000_MPHY_DIS_ACCESS);
+ 
+@@ -3367,8 +3367,8 @@ s32 e1000_write_phy_reg_mphy(struct e1000_hw *hw, u32 address, u32 data,
+ 	/* Disable access to mPHY if it was originally disabled */
+ 	if (locked)
+ 		ready = e1000_is_mphy_ready(hw);
+-		if (!ready)
+-			return -E1000_ERR_PHY;
++	if (!ready)
++		return -E1000_ERR_PHY;
+ 		E1000_WRITE_REG(hw, E1000_MPHY_ADDR_CTRL,
+ 				E1000_MPHY_DIS_ACCESS);
+ 
+diff --git a/lib/librte_eal/linuxapp/kni/ethtool/ixgbe/ixgbe_82599.c b/lib/librte_eal/linuxapp/kni/ethtool/ixgbe/ixgbe_82599.c
+index 017dfe1..7248a7e 100644
+--- a/lib/librte_eal/linuxapp/kni/ethtool/ixgbe/ixgbe_82599.c
++++ b/lib/librte_eal/linuxapp/kni/ethtool/ixgbe/ixgbe_82599.c
+@@ -870,7 +870,7 @@ s32 ixgbe_setup_mac_link_82599(struct ixgbe_hw *hw,
+ 		if (speed & IXGBE_LINK_SPEED_10GB_FULL)
+ 			if (orig_autoc & IXGBE_AUTOC_KX4_SUPP)
+ 				autoc |= IXGBE_AUTOC_KX4_SUPP;
+-			if ((orig_autoc & IXGBE_AUTOC_KR_SUPP) &&
++		if ((orig_autoc & IXGBE_AUTOC_KR_SUPP) &&
+ 			    (hw->phy.smart_speed_active == false))
+ 				autoc |= IXGBE_AUTOC_KR_SUPP;
+ 		if (speed & IXGBE_LINK_SPEED_1GB_FULL)
+-- 
+1.9.1
+

@@ -125,18 +125,14 @@ class ISA_CFChecker():
                 if "No PIE" in result[1]:
                     self.no_pie.append(result[0].replace(fs_path, ""))
             if result[2]:
-                if result[2].startswith("X "):
+                if result[2] == "execstack":
                     self.execstack.append(result[0].replace(fs_path, ""))
-                elif result[2].startswith("? "):
+                elif result[2] == "not_defined":
                     self.execstack_not_defined.append(result[0].replace(fs_path, ""))
-            if result[3]:
-                if ("setgid@GLIBC" in result[3]) or ("setegid@GLIBC" in result[3]) or ("setresgid@GLIBC" in result[3]):
-                    if ("setuid@GLIBC" in result[3]) or ("seteuid@GLIBC" in result[3]) or ("setresuid@GLIBC" in result[3]):
-                        if ("setgroups@GLIBC" not in result[3]) and ("initgroups@GLIBC" not in result[3]):
-                            self.nodrop_groups.append(result[0].replace(fs_path, ""))
-            if result[4]:
-                if ("bndcu" not in result[4]) and ("bndcl" not in result[4]) and ("bndmov" not in result[4]):
-                    self.no_mpx.append(result[0].replace(fs_path, ""))
+            if result[3] and (result[3] == True):
+                self.nodrop_groups.append(result[0].replace(fs_path, ""))
+            if result[4] and (result[4] == True):
+                self.no_mpx.append(result[0].replace(fs_path, ""))
             self.write_full_report(result)
         self.write_report()
         self.write_report_xml()
@@ -318,7 +314,7 @@ def get_security_flags(file_name):
 
 def process_file(file):
     log = "File from map " + file
-    fun_results = [file, [], "", "", "", log]
+    fun_results = [file, [], "", False, False, log]
     if not os.path.isfile(file):
         return fun_results
     env = copy.deepcopy(os.environ)
@@ -328,7 +324,7 @@ def process_file(file):
     try:
         result = subprocess.check_output(cmd, env=env).decode('utf-8')
     except:
-        fun_results[-1] += "\nNot able to decode mime type " + str(sys.exc_info())
+        fun_results[-1] += "\nNot able to decode mime type"
         return fun_results
     file_type = result.split()[-1]
     # looking for links
@@ -338,7 +334,7 @@ def process_file(file):
         try:
             result = subprocess.check_output(cmd, env=env).decode('utf-8')
         except:
-            fun_results[-1] += "\nNot able to decode mime type " + str(sys.exc_info())
+            fun_results[-1] += "\nNot able to decode mime type"
             return fun_results
         file_type = result.split()[-1]
     # checking security flags if applies
@@ -351,9 +347,19 @@ def process_file(file):
             ("pdf" in file_type)):
         return fun_results
     fun_results[1] = get_security_flags(file)
-    fun_results[2] = get_info("execstack", '-q', file)
-    fun_results[3] = get_info("readelf", '-s', file)
-    fun_results[4] = get_info("objdump", '-d', file)
+    tmp = get_info("execstack", '-q', file)
+    if tmp.startswith("X "):
+        fun_results[2] = "execstack"
+    elif tmp.startswith("? "):
+        fun_results[2] = "not_defined"
+    tmp = get_info("readelf", '-s', file)
+    if ("setgid@GLIBC" in tmp) or ("setegid@GLIBC" in tmp) or ("setresgid@GLIBC" in tmp):
+        if ("setuid@GLIBC" in tmp) or ("seteuid@GLIBC" in tmp) or ("setresuid@GLIBC" in tmp):
+            if ("setgroups@GLIBC" not in tmp) and ("initgroups@GLIBC" not in tmp):
+                fun_results[3] = True
+    tmp = get_info("objdump", '-d', file)
+    if ("bndcu" not in tmp) and ("bndcl" not in tmp) and ("bndmov" not in tmp):
+        fun_results[4] = True
     return fun_results
 
 def process_file_wrapper(file):

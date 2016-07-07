@@ -85,6 +85,10 @@ OSTROPROJECT_CI_TEST_RUNS="ostro-image-swupd-dev,iot-testsuite.tar.gz,iot-testfi
 # still needs to be determined.
 OS_VERSION ?= "${@ str(int('${BUILD_ID}'.split('-')[-1]) * 10) }"
 
+# Dont use disk space monitor in CI builds, to avoid frequent
+# space checks on (possibly remote, like NFS) volumes.
+BB_DISKMON_DIRS = ""
+
 #
 # Dymamic section.
 # Values are applied dynamically based on runtime config or builder host
