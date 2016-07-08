@@ -205,7 +205,7 @@ class ZigBeeFunction(object):
         elif self.get_lowpan0_ip().split(':')[-1] == "2":
             src="8002"
             tar="8001"
-        print '\n'    
+        print ('\n')    
         # Setup remote device to send a string for 5 times 
         send_expect = os.path.join(os.path.dirname(__file__), "files/izchat_send.exp")
         send_cmd = "expect %s 777 %s %s %s" % (send_expect, tar, src, remote_ip)

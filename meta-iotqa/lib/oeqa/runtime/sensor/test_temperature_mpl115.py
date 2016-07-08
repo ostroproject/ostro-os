@@ -10,7 +10,7 @@ import os
 import time
 from oeqa.utils.helper import shell_cmd
 from oeqa.oetest import oeRuntimeTest
-from EnvirSetup import EnvirSetup
+from oeqa.runtime.sensor.EnvirSetup import EnvirSetup
 from oeqa.utils.decorators import tag
 
 @tag(TestType="FVT", FeatureID="IOTOS-757")
@@ -23,7 +23,7 @@ class TestTemperatureMPL115(oeRuntimeTest):
         @fn setUp
         @param self
         @return'''
-        print 'start!\n'
+        print ('start!\n')
         #connect sensor and DUT through board
         #shell_cmd("sudo python "+ os.path.dirname(__file__) + "/Connector.py mpl115")
         envir = EnvirSetup(self.target)
@@ -49,7 +49,7 @@ class TestTemperatureMPL115(oeRuntimeTest):
         @fn test_Temperature_MPL115
         @param self
         @return'''
-        print 'start reading data!'
+        print ('start reading data!')
         (status, output) = self.target.run(
                          "chmod 777 /opt/apps/test_temperature_mpl115.fbp")
         (status, output) = self.target.run(
@@ -59,7 +59,7 @@ class TestTemperatureMPL115(oeRuntimeTest):
                          "cp /opt/apps/re.log /home/root/mpl115_temperature.log") 
         #verification of target sensor data
         (status, output) = self.target.run("cat /opt/apps/re.log|grep float")
-        print output + "\n"
+        print (output + "\n")
         self.assertEqual(status, 0, msg="Error messages: %s" % error) 
         #make sure sensor data is valid 
         (status, output) = self.target.run("cat /opt/apps/re.log|grep ' 0.000000'")

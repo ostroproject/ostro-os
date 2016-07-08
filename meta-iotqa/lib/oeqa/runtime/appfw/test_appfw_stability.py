@@ -1,6 +1,6 @@
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.decorators import tag
-from test_appfw import App
+from oeqa.runtime.appfw.test_appfw import App
 
 class AppFWStbTest(oeRuntimeTest):
 

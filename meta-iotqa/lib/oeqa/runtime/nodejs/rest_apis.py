@@ -70,7 +70,6 @@ class RESTAPITest(oeRuntimeTest):
         @return
         '''
         path_module_path = '/tmp/node_modules/path'
-        print os.path.exists(path_module_path)
         if os.path.exists(path_module_path):
             shutil.rmtree(path_module_path)
         proc = subprocess.Popen(['npm', 'install', 'path'], cwd='/tmp/')
@@ -85,7 +84,7 @@ class RESTAPITest(oeRuntimeTest):
                 )
             cls.tc.target.connection.scp[:] = oldscp
         else:
-            print 'Install node module path failed'
+            print ('Install node module path failed')
             sys.exit(1)
 
 
@@ -141,7 +140,7 @@ class RESTAPITest(oeRuntimeTest):
             (status, output) = cls.tc.target.run('unset http_proxy; curl http://%s:8000/api/oic/d' % (cls.tc.target.ip))
             (status, output) = cls.tc.target.run(check_process_cmd)
             if '/usr/lib/node_modules/iot-rest-api' not in output:
-                print "The iot-rest-api-server doesn't start!"
+                print ("The iot-rest-api-server doesn't start!")
                 sys.exit(1)
 
         # Download nodeunit from git hub

@@ -367,7 +367,7 @@ class IOtvtIntegrationMNode(oeRuntimeTest):
             # start client to get info
             client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclient > /tmp/output &"
             run_as("iotivity-tester", client_cmd, target=self.targets[0])
-            print "\npatient... simpleclient needs long time for its observation"
+            print ("\npatient... simpleclient needs long time for its observation")
             time.sleep(70)
             (status, output) = run_as("iotivity-tester", 'cat /tmp/output', target=self.targets[0])
             # kill server and client
@@ -408,7 +408,7 @@ class IOtvtIntegrationMNode(oeRuntimeTest):
             # start client to get info
             client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclientHQ > /tmp/output &"
             run_as("iotivity-tester", client_cmd, target=self.targets[0])
-            print "\npatient... simpleclientHQ needs long time for its observation"
+            print ("\npatient... simpleclientHQ needs long time for its observation")
             time.sleep(70)
             (status, output) = run_as("iotivity-tester", 'cat /tmp/output', target=self.targets[0])
             # kill server and client

@@ -71,7 +71,7 @@ class CommEthernet(oeRuntimeTest):
         # Use this prefix to get corresponding interface of the host
         (status, ifconfig) = shell_cmd_timeout('ifconfig')
         for line in ifconfig.splitlines():
-            if "inet addr:%s" % prefix in line:
+            if "inet addr:%s" % prefix in line.decode('ascii'):
                 index = ifconfig.splitlines().index(line)
                 return ifconfig.splitlines()[index - 1].split()[0]
 

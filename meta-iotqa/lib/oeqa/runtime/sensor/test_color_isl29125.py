@@ -11,7 +11,7 @@ import os
 import time
 from oeqa.utils.helper import shell_cmd
 from oeqa.oetest import oeRuntimeTest
-from EnvirSetup import EnvirSetup
+from oeqa.runtime.sensor.EnvirSetup import EnvirSetup
 from oeqa.utils.decorators import tag
 
 @tag(TestType="FVT", FeatureID="IOTOS-757")
@@ -24,7 +24,7 @@ class TestColorISL29125(oeRuntimeTest):
         @fn setUp
         @param self
         @return'''
-        print 'start!\n'
+        print ('start!\n')
         #connect sensor and DUT through board
         #shell_cmd("sudo python "+ os.path.dirname(__file__) + "/Connector.py isl29125")
         envir = EnvirSetup(self.target)
@@ -50,7 +50,7 @@ class TestColorISL29125(oeRuntimeTest):
         @fn test_Color_ISL29125
         @param self
         @return'''
-        print 'start reading data!'
+        print ('start reading data!')
         (status, output) = self.target.run(
                          "chmod 777 /opt/apps/test_color_isl29125.fbp")
         (status, output) = self.target.run(
@@ -60,7 +60,7 @@ class TestColorISL29125(oeRuntimeTest):
                          "cp /opt/apps/re.log /home/root/isl29125.log") 
         #verification of target sensor data
         (status, output) = self.target.run("cat /opt/apps/re.log|grep rgb")
-        print output + "\n"
+        print (output + "\n")
         self.assertEqual(status, 0, msg="Error messages: %s" % error) 
         #make sure sensor data is valid 
         (status, output) = self.target.run("cat /opt/apps/re.log|grep ' 000, 000, 000'")

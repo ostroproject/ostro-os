@@ -14,8 +14,11 @@
 import os
 import time
 import string
+try:
+ import ConfigParser
+except:
+ import configparser as ConfigParser
 from oeqa.runtime.wifi import wifi
-import ConfigParser
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import shell_cmd_timeout
 from oeqa.utils.helper import run_as, add_group, add_user, remove_user
@@ -90,7 +93,7 @@ class IOtvtWiFi(oeRuntimeTest):
             run_as("iotivity-tester", server_cmd, target=cls.tc.targets[1])
             client_cmd = "/opt/iotivity/examples/resource/cpp/simpleclient > /tmp/output &"
             run_as("iotivity-tester", client_cmd, target=cls.tc.targets[0])
-            print "\npatient... simpleclient needs long time for its observation"
+            print ("\npatient... simpleclient needs long time for its observation")
             time.sleep(70)
             (status, output) = run_as("iotivity-tester", 'cat /tmp/output', target=cls.tc.targets[0])
             if "Observe is used." in output:

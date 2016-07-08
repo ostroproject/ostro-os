@@ -12,7 +12,7 @@ import time
 import subprocess
 from oeqa.utils.helper import shell_cmd
 from oeqa.oetest import oeRuntimeTest
-from EnvirSetup import EnvirSetup
+from oeqa.runtime.sensor.EnvirSetup import EnvirSetup
 from oeqa.utils.decorators import tag
 
 @tag(TestType="EFT", FeatureID="IOTOS-757")
@@ -25,7 +25,7 @@ class TestLightTsl2561FourHrs(oeRuntimeTest):
         @fn setUp
         @param self
         @return'''
-        print 'start!\n'
+        print ('start!\n')
         #connect sensor and DUT through board
         #shell_cmd("sudo python "+ os.path.dirname(__file__) + "/Connector.py tsl2561")
         envir = EnvirSetup(self.target)
@@ -33,7 +33,7 @@ class TestLightTsl2561FourHrs(oeRuntimeTest):
         #update fbp file to run the data reading for 4 hrs
         timeUpdate = "sed -i 's/3000/14400000/g' /opt/apps/test_light_tsl2561.fbp" 
         (status, output) = self.target.run(timeUpdate)
-        print output
+        print (output)
         renameTC = "mv /opt/apps/test_light_tsl2561.fbp /opt/apps/test_light_tsl2561_4_hrs.fbp"
         (status, output) = self.target.run(renameTC)
 
@@ -51,7 +51,7 @@ class TestLightTsl2561FourHrs(oeRuntimeTest):
         @fn test_read_data_from_tsl2561_for_4_hrs
         @param self
         @return'''
-        print 'start reading data!'
+        print ('start reading data!')
         (status, output) = self.target.run(
                          "chmod 777 /opt/apps/test_light_tsl2561_4_hrs.fbp")        
         (status, output) = self.target.run(
@@ -66,8 +66,8 @@ class TestLightTsl2561FourHrs(oeRuntimeTest):
         while i <48:
           (status, output) = self.target.run(
                          "tail /opt/apps/re.log -n 1")
-          print "the output is:%s\n" % output
-          #if no data received, kill the process and print error log
+          print ("the output is:%s\n" % output)
+          #if no data received, kill the process and print (error log)
           if output == "":
              p1.kill()
              line = p1.stderr.readline()
@@ -81,7 +81,7 @@ class TestLightTsl2561FourHrs(oeRuntimeTest):
              time.sleep(300)
         p1.wait()
         #makse sure sensor data is received
-        print "test done\n"
+        print ("test done\n")
         (status, output) = self.target.run("cat /opt/apps/re.log|grep float")
         self.assertEqual(status, 0, msg="Error messages: %s" % output) 
         #make sure sensor data is valid 

@@ -14,8 +14,11 @@
 import time
 import os
 import string
-import wifi
-import ConfigParser
+from oeqa.runtime.wifi import wifi
+try:
+ import ConfigParser
+except:
+ import configparser as ConfigParser
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import shell_cmd_timeout
 from oeqa.utils.decorators import tag
@@ -58,7 +61,7 @@ class CommWiFiStable(oeRuntimeTest):
             self.wifi.enable_wifi()
             self.wifi.disable_wifi()
             if i % 10 == 0:
-                print "Finish %d times, successful." % i
+                print ("Finish %d times, successful." % i)
 
 ##
 # @}

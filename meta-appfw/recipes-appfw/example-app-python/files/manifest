@@ -1,17 +1,32 @@
 {
-    "application": "pythontest",
-    "description": "test Python application to see if the infra worked",
-    "provider": "foodine",
-    "groups": "foodine-pythontest",
-    "environment": {
-        "FROB": "nicate",
-        "FOOBAR": "xyzzy"
+    'application': {
+        'origin':      'foodine',
+        'name':        'pythontest',
+        'description': 'pythontest - Python dummy test applcation.',
+        'install':     'echo "Nothing to be done for installing..."',
+        'remove':      'echo "Nothing to be done for removing..."'
     },
-    "command": [  "/usr/bin/python", "/lib/python/pythontest/example.py" ],
-    "autostart": "false",
-     "container": {
-        "type": "nspawn",
-        "network": "VirtualEthernet",
-        "portmap": [ { "proto": "tcp", "host": 2010, "container": 27279} ]
+
+    'service': {
+        'groups': [ 'foodine-pythontest' ],
+        'environment': {
+            'FROB': 'nicate',
+            'FOOBAR': 'xyzzy'
+        },
+
+        'start': [
+            '/usr/bin/python /lib/python/pythontest/example.py'
+         ],
+        'stop': '',
+
+        'autostart': false
+    },
+
+    'container': {
+        'type': 'nspawn-app',
+        'network': {
+            'type': 'VirtualEthernet',
+            'ports': [ { 'proto': 'tcp', 'port': 27279, 'map': 27279 } ]
+        }
     }
 }

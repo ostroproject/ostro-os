@@ -35,7 +35,7 @@ class ScmTest(oeRuntimeTest):
         # TESTPOINT: check there are more than 1 partitions
         #
         self.assertEqual(status, 0, msg="Error message: %s" % output)
-        self.assertTrue((output > 1), msg="Error message: the partition is %s" % output)
+        self.assertTrue((int(output) > 1), msg="Error message: the partition is %s" % output)
 
 ##
 # @}

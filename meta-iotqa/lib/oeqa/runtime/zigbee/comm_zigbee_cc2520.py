@@ -14,7 +14,7 @@
 import time
 import os
 import string
-import zigbee
+from oeqa.runtime.zigbee import zigbee
 from oeqa.oetest import oeRuntimeTest
 from oeqa.utils.helper import shell_cmd_timeout
 from oeqa.utils.decorators import tag
