@@ -92,6 +92,8 @@ TestStep,,,,2,go to /usr/lib/node_module and ls |grep upm,"check jsupm_* files e
 TestScript,test_mraa_bindings,MRAA,Verify MRAA python/nodejs bindings are installed in image,1,login DUT and go to root directory by cd / and find ./ -name *mraa*.,check /usr/lib/python2.7/site-packages/mraa.py exist,FVT,ready,IOTOS-757,,,,
 TestStep,,,,2,try to run /usr/bin/mraa-i2c and /usr/bin/mraa-gpio,the binary should give proper output,,,,,,,
 TestStep,,,,3,go to /usr/lib/node_module and ls |grep mraa,check mraa.node should exist.,,,,,,,
+TestScript,test_thermal_daemon,Thermal,verify thermal deamon is integrated in image,1,"search image manifest file, like ostro-gt-image-swupd-intel-corei7-64-2016-07-12_20-44-19-build-129.rootfs.manifest","check the thermal verison is 1.5.3, like keywords thermald corei7-64 1.5.3-r0",FVT,ready,IOTOS-1675,,,,
+TestStep,,,,2,run ps|grep thermal,check /usr/sbin/thermald –no-deamon –dbus-enable exist,,,,,,,
 TestScript,test_xf86-video-intel_works,Graphics,Check 2D graphics driver works normally,1,Start FXCE4 by command 'startxfce4',FXCE desktop launch successfully and run smoothly ,FVT,ready,IOTOS-1546,,,,
 TestStep,,,,2,Check X log /var/log/Xorg.0.log,See intel_drv.so loaded,,,,,,,
 TestScript,test_Mesa_3D_works,Graphics,Check 3D graphics driver works normally,1,Start FXCE4 by command 'startxfce4',FXCE desktop launch successfully and run smoothly ,FVT,ready,IOTOS-1546,,,,
