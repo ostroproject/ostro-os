@@ -145,10 +145,7 @@ class ISA_LicenseChecker():
                         continue
                     package_info = line.split()
                     pkg_name = package_info[0]
-                    if len(package_info) < 3 :
-                        orig_pkg_name = "UNKNOWN"   
-                    else:
-                        orig_pkg_name = package_info[2]
+                    orig_pkg_name = package_info[2]
                     if (not self.image_pkgs) or ((pkg_name + " from " + img_name) not in self.image_pkgs):
                         self.image_pkgs.append(pkg_name + " from " + img_name + " " + orig_pkg_name)
 

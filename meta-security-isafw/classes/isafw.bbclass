@@ -242,7 +242,9 @@ def binary2source(dirpath, filepath):
                 if m:
                     originPkg = str(m.group(1))
             except ValueError:
-                pass    # ignore lines without valid key: value pairs
+                pass    # ignore lines without valid key: value pairs:
+    if not originPkg:
+        originPkg = "UNKNOWN"
     return originPkg
 
 manifest2pkglist[vardepsexclude] = "DATETIME"
@@ -265,7 +267,10 @@ def manifest2pkglist(d):
                     pkgnames = map(os.path.basename, glob.glob(os.path.join(rr_dir, items[0])))
                     for pkgname in pkgnames:
                         originPkg = binary2source(rr_dir, pkgname)
-                        foutput.write(pkgname + " " + items[2] + " " + originPkg + "\n")
+                        version = items[2]
+                        if not version:
+                            version = "undetermined"
+                        foutput.write(pkgname + " " + version + " " + originPkg + "\n")
 
     return pkglist
 
