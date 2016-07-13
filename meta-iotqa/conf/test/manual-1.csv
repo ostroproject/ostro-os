@@ -127,3 +127,4 @@ TestStep,,,,2,"unzip the zip package and build the app ""SimpleOptimizations"" b
 TestStep,,,,3,run the application, the app can be execution successfully,,,,,,,
 TestScript,boot_from_eMMC,Documentation,Check if can install image to eMMC when boot from USB stick,1,Follow https://ostroproject.org/documentation/howtos/booting-and-installation.html#booting-and-installation section Installing to internal media on generic x86 EFI platforms to install image to eMMC,,FVT,ready,IOTOS-1620,,,,
 TestStep,,,,2,"Remove USB and reboot from eMMC, run sanity test, no regression happen compare to sanity test result when boot from USB stick",,,,,,,,
+TestScript,Include_middleware_in_swupd_no_swupd_images,OS/Image configuration,Check swupd and no swupd images both have middleware components,1,Test sanity cases both on noswupd and swupd images,both of them are passed,FVT,ready,IOTOS-1634,,,,
