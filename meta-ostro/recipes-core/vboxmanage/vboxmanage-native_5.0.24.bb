@@ -21,8 +21,8 @@ SRC_URI=" \
     file://disable-guest-additions.patch \
 "
 
-SRC_URI[md5sum] = "1752a485b1cb377cee5f196918cda741"
-SRC_URI[sha256sum] = "f5a44d33a1db911f445b2eb2d22d9293a96a535cba488b5a235577ef868fa63c"
+SRC_URI[md5sum] = "2701f423f2828cab4405098982f4f446"
+SRC_URI[sha256sum] = "9134b04ca21ca23534e2300aab5ab7ff60d21b56bfd2e21504316bfee73afa87"
 
 # export path to native libdir, as this is needed during build
 # (see xpidl build fix patch)
