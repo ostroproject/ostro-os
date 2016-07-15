@@ -87,6 +87,7 @@ B = "${WORKDIR}/git"
 
 do_configure_prepend() {
    export TARGETCC="${CC}"
+   export HOSTCC="gcc"
    export TARGETAR="${AR}"
    export LIBDIR="${libdir}/"
 }
