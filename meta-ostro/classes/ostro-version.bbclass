@@ -20,6 +20,10 @@
 #   BB_ENV_EXTRAWHITE="$BB_ENV_EXTRAWHITE OS_VERSION" OS_VERSION=110 bitbake ...
 
 def ostro_get_os_version(d):
+    # String operations are used here to remove the last two digits and add back
+    # a zero instead of / 100 * 10 because the / operator has different semantic
+    # in Python 2 and 3 (integer division vs. floating point division).
+    os_version_datetime = str(int(d.getVar('DATETIME', True)) - 20160000000000)[:-2] + '0'
     build_id_str = d.getVar('BUILD_ID', True) or ''
     if build_id_str:
         try:
@@ -46,11 +50,11 @@ def ostro_get_os_version(d):
         # check if we have reached max value for 32-bit integer
         if build_id > 2147483646:
             bb.warn("The current value for BUILD_ID (%d) doesn't fit 32-bit integer: redefining..." % build_id)
-            return str(((int(d.getVar('DATETIME', True)) - 20160000000000) / 100) * 10)
+            return os_version_datetime
 
         return str(build_id)
     else:
-        return str(((int(d.getVar('DATETIME', True)) - 20160000000000) / 100) * 10)
+        return os_version_datetime
 
 ostro_get_os_version[vardepsexclude] += "DATETIME"
 
