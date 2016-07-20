@@ -299,6 +299,7 @@ export PART_%(pnum)d_FS=%(filesystem)s
 
 DEPLOYDIR = "${WORKDIR}/uefiapp-${PN}"
 SSTATETASKS += "do_uefiapp"
+do_uefiapp[vardeps] += " APPEND"
 do_uefiapp[sstate-inputdirs] = "${DEPLOYDIR}"
 do_uefiapp[sstate-outputdirs] = "${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}-uefiapp"
 
