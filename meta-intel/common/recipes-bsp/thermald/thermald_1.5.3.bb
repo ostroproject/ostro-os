@@ -25,3 +25,8 @@ FILES_${PN} += "${datadir}/dbus-1/system-services/*.service"
 SYSTEMD_SERVICE_${PN} = "thermald.service"
 
 COMPATIBLE_HOST = '(i.86|x86_64).*-linux'
+
+CONFFILES_${PN} = " \
+                   ${sysconfdir}/thermald/thermal-conf.xml \
+                   ${sysconfdir}/thermald/thermal-cpu-cdev-order.xml \
+                  "
