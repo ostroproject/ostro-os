@@ -95,7 +95,7 @@ class BTFunction(object):
         (status, output) = shell_cmd_timeout(cmd)
         assert status == 0, "Get hci0 name fails: %s" % output
         for line in output.splitlines():
-            if "Controller %s" % btmac in line:
+            if "Controller %s" % btmac in line.decode('ascii'):
                 return line.split()[3]
         return ""
 

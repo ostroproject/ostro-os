@@ -73,7 +73,7 @@ class CommEthernet(oeRuntimeTest):
         for line in ifconfig.splitlines():
             if "inet addr:%s" % prefix in line.decode('ascii'):
                 index = ifconfig.splitlines().index(line)
-                return ifconfig.splitlines()[index - 1].split()[0]
+                return ifconfig.splitlines()[index - 1].decode('ascii').split()[0]
 
         # if above return is not OK, there might be error, return Blank
         self.assertEqual(1, 0, msg="Host interface with %s is not found" % prefix)
