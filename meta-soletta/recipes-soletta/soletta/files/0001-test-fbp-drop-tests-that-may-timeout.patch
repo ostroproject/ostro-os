@@ -1,0 +1,626 @@
+From 33b55b4b01e923241e4e63c1ebf0bab9060ab67a Mon Sep 17 00:00:00 2001
+From: Bruno Dilly <bruno.dilly@intel.com>
+Date: Thu, 21 Jul 2016 17:46:45 -0300
+Subject: [PATCH] test-fbp: drop tests that may timeout
+
+HTTP tests intermitently fail due to timeouts.
+Let's drop these tests and keep http validation
+through make check (C unit tests) and manual
+tests only.
+
+Signed-off-by: Bruno Dilly <bruno.dilly@intel.com>
+---
+ src/test-fbp/http-allowed-methods.fbp   | 39 --------------
+ src/test-fbp/http-blob.fbp              | 26 ---------
+ src/test-fbp/http-boolean.fbp           | 62 ---------------------
+ src/test-fbp/http-direction-vector.fbp  | 29 ----------
+ src/test-fbp/http-drange.fbp            | 65 ----------------------
+ src/test-fbp/http-if-modified-since.fbp | 25 ---------
+ src/test-fbp/http-irange.fbp            | 65 ----------------------
+ src/test-fbp/http-json.fbp              | 95 ---------------------------------
+ src/test-fbp/http-rgb.fbp               | 30 -----------
+ src/test-fbp/http-sse.fbp               | 25 ---------
+ src/test-fbp/http-string.fbp            | 60 ---------------------
+ 11 files changed, 521 deletions(-)
+ delete mode 100644 src/test-fbp/http-allowed-methods.fbp
+ delete mode 100644 src/test-fbp/http-blob.fbp
+ delete mode 100644 src/test-fbp/http-boolean.fbp
+ delete mode 100644 src/test-fbp/http-direction-vector.fbp
+ delete mode 100644 src/test-fbp/http-drange.fbp
+ delete mode 100644 src/test-fbp/http-if-modified-since.fbp
+ delete mode 100644 src/test-fbp/http-irange.fbp
+ delete mode 100644 src/test-fbp/http-json.fbp
+ delete mode 100644 src/test-fbp/http-rgb.fbp
+ delete mode 100644 src/test-fbp/http-sse.fbp
+ delete mode 100644 src/test-fbp/http-string.fbp
+
+diff --git a/src/test-fbp/http-allowed-methods.fbp b/src/test-fbp/http-allowed-methods.fbp
+deleted file mode 100644
+index e63423b..0000000
+--- a/src/test-fbp/http-allowed-methods.fbp
++++ /dev/null
+@@ -1,39 +0,0 @@
+-# This file is part of the Soletta (TM) Project
+-#
+-# Copyright (C) 2015 Intel Corporation. All rights reserved.
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#     http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-
+-_(http-server/boolean:port=8080, path="/boolean_get_only", value=true, allowed_methods="GET")
+-
+-_(constant/boolean:value=false) OUT -> POST boolean_client(http-client/boolean:url="http://localhost:8080/boolean_get_only")
+-
+-boolean_client ERROR -> IN _(converter/empty-to-boolean:output_value=true) OUT -> RESULT _(test/result:timeout=6000)
+-
+-_(constant/empty) OUT -> GET boolean_client OUT -> RESULT _(test/result:timeout=6000)
+-
+-_(http-server/string:port=8080, path="/string_post_only", value="I Like http", allowed_methods="POST") OUT -> IN _(test/string-validator:sequence="my string") OUT -> RESULT _(test/result:timeout=6000)
+-
+-_(constant/string:value="my string") OUT -> POST string_client(http-client/string:url="http://localhost:8080/string_post_only")
+-
+-_(constant/empty) OUT -> GET string_client ERROR -> IN _(converter/empty-to-boolean:output_value=true) OUT -> RESULT _(test/result:timeout=6000)
+-
+-_(http-server/int:port=8080, path="/int_post_get", value=200, allowed_methods="POST|GET") OUT -> IN _(test/int-validator:sequence="256") OUT -> RESULT _(test/result:timeout=6000)
+-
+-_(constant/empty) OUT -> GET int_client(http-client/int:url="http://localhost:8080/int_post_get")
+-
+-int_client OUT -> IN[0] switcher(switcher/int) OUT[0] -> IN _(test/int-validator:sequence="200") OUT -> RESULT _(test/result:timeout=6000)
+-
+-switcher OUT[0] -> IN _(converter/empty-to-int:output_value=256) OUT -> POST int_client
+-
+-switcher OUT[0] -> IN _(converter/empty-to-int:output_value=2) OUT -> OUT_PORT switcher
+diff --git a/src/test-fbp/http-blob.fbp b/src/test-fbp/http-blob.fbp
+deleted file mode 100644
+index e4dfd88..0000000
+--- a/src/test-fbp/http-blob.fbp
++++ /dev/null
+@@ -1,26 +0,0 @@
+-# This file is part of the Soletta (TM) Project
+-#
+-# Copyright (C) 2015 Intel Corporation. All rights reserved.
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#     http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-
+-get-validator(test/string-validator:sequence="Hi!")
+-post-validator(test/string-validator:sequence="Hi!|Bye!")
+-
+-_(constant/string:value="Hi!") OUT -> IN _(converter/string-to-blob) OUT -> IN server(http-server/blob:path="/test", port=8080)
+-
+-server OUT -> IN _(converter/blob-to-string) OUT -> IN post-validator OUT -> RESULT test-post(test/result:timeout=6000)
+-
+-_(constant/empty) OUT -> GET client(http-client/blob:url="http://localhost:8080/test") OUT -> IN _(converter/blob-to-string) OUT -> IN get-validator OUT -> RESULT test-get(test/result:timeout=6000)
+-
+-client OUT -> IN _(converter/empty-to-string:output_value="Bye!") OUT -> IN _(converter/string-to-blob) OUT -> POST client
+diff --git a/src/test-fbp/http-boolean.fbp b/src/test-fbp/http-boolean.fbp
+deleted file mode 100644
+index e6ae195..0000000
+--- a/src/test-fbp/http-boolean.fbp
++++ /dev/null
+@@ -1,62 +0,0 @@
+-# This file is part of the Soletta (TM) Project
+-#
+-# Copyright (C) 2015 Intel Corporation. All rights reserved.
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#     http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-
+-constant-server(constant/boolean:value=true)
+-response-count(int/accumulator:setup_value=0|2)
+-constant-client(converter/empty-to-boolean:output_value=false)
+-string(constant/string:value="true")
+-
+-blob-to-str(converter/blob-to-string)
+-
+-# start with value=false instead of default true so our first packet will actually change something
+-server(http-server/boolean:path=/test,port=8080,value=false)
+-
+-get-blob(http-client/blob:url="http://localhost:8080/test")
+-get-string(http-client/string:url="http://localhost:8080/test")
+-get-json(http-client/json:url="http://localhost:8080/test")
+-post(http-client/boolean:url="http://localhost:8080/test")
+-
+-server-validator(test/boolean-validator:sequence="TF")
+-string-compare(string/compare)
+-blob-compare(string/compare)
+-json-compare(boolean/and)
+-
+-constant-server OUT -> IN server
+-constant-server OUT -> GET get-string
+-constant-server OUT -> GET get-json
+-constant-server OUT -> GET get-blob
+-
+-server OUT -> IN server-validator
+-
+-string OUT -> IN[0] string-compare
+-get-string OUT -> IN[1] string-compare
+-
+-string OUT -> IN[0] blob-compare
+-get-blob OUT -> IN blob-to-str OUT -> IN[1] blob-compare
+-
+-_(constant/boolean:value=true) OUT -> IN[0] json-compare
+-get-json BOOLEAN -> IN[1] json-compare
+-
+-get-blob OUT -> INC response-count
+-get-string OUT -> INC response-count
+-get-json BOOLEAN -> INC response-count
+-response-count OVERFLOW -> IN constant-client
+-constant-client OUT -> POST post
+-
+-server-validator OUT -> RESULT test_server_output(test/result:timeout=6000)
+-string-compare EQUAL -> RESULT test_string_output(test/result:timeout=6000)
+-blob-compare EQUAL -> RESULT test_blob_output(test/result:timeout=6000)
+-json-compare OUT -> RESULT test_json_output(test/result:timeout=6000)
+diff --git a/src/test-fbp/http-direction-vector.fbp b/src/test-fbp/http-direction-vector.fbp
+deleted file mode 100644
+index 095e8b1..0000000
+--- a/src/test-fbp/http-direction-vector.fbp
++++ /dev/null
+@@ -1,29 +0,0 @@
+-# This file is part of the Soletta (TM) Project
+-#
+-# Copyright (C) 2015 Intel Corporation. All rights reserved.
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#     http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-
+-HttpServer(http-server/direction-vector:port=8080,path="/dv") OUT -> IN direction_vector_to_float_server(converter/direction-vector-to-float)
+-
+-direction_vector_to_float_server X -> IN ServerValidator(test/float-validator:sequence="23.3 11.2 33.4") OUT -> RESULT TestServer(test/result:timeout=6000)
+-direction_vector_to_float_server Y -> IN ServerValidator
+-direction_vector_to_float_server Z -> IN ServerValidator
+-
+-_(constant/direction-vector:value=23.3|11.2|33.4) OUT -> POST HttpClient(http-client/direction-vector:url="http://localhost:8080/dv")
+-
+-HttpClient OUT -> IN direction_vector_to_float_client(converter/direction-vector-to-float)
+-
+-direction_vector_to_float_client X -> IN GetValidator(test/float-validator:sequence="23.3 11.2 33.4") OUT -> RESULT TestClient(test/result:timeout=6000)
+-direction_vector_to_float_client Y -> IN GetValidator
+-direction_vector_to_float_client Z -> IN GetValidator
+diff --git a/src/test-fbp/http-drange.fbp b/src/test-fbp/http-drange.fbp
+deleted file mode 100644
+index e6e0605..0000000
+--- a/src/test-fbp/http-drange.fbp
++++ /dev/null
+@@ -1,65 +0,0 @@
+-# This file is part of the Soletta (TM) Project
+-#
+-# Copyright (C) 2015 Intel Corporation. All rights reserved.
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#     http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-
+-constant-server(constant/float:value=1.5,value_spec=min:0|max:100|step:2.1415)
+-response-count(int/accumulator:setup_value=0|2)
+-constant-client(converter/empty-to-float:output_value=5.4)
+-string(constant/string:value="1.5")
+-json-str(constant/string:value="{\"value\":1.5,\"min\":0,\"max\":100,\"step\":2.1415}")
+-
+-json-blob(converter/json-object-to-blob)
+-blob-str(converter/blob-to-string)
+-blob-to-str(converter/blob-to-string)
+-
+-server(http-server/float:path=/test,port=8080)
+-
+-get-blob(http-client/blob:url="http://localhost:8080/test")
+-get-string(http-client/string:url="http://localhost:8080/test", accept="text/plain")
+-get-json(http-client/json:url="http://localhost:8080/test")
+-post(http-client/float:url="http://localhost:8080/test")
+-
+-server-validator(test/float-validator:sequence="1.5 5.4")
+-string-compare(string/compare)
+-blob-compare(string/compare)
+-json-compare(string/compare)
+-
+-constant-server OUT -> IN server
+-constant-server OUT -> GET get-string
+-constant-server OUT -> GET get-json
+-constant-server OUT -> GET get-blob
+-
+-server OUT -> IN server-validator
+-
+-string OUT -> IN[0] string-compare
+-get-string OUT -> IN[1] string-compare
+-
+-string OUT -> IN[0] blob-compare
+-get-blob OUT -> IN blob-to-str OUT -> IN[1] blob-compare
+-
+-json-str OUT -> IN[0] json-compare
+-get-json OBJECT -> IN json-blob OUT -> IN blob-str
+-blob-str OUT -> IN[1] json-compare
+-
+-get-blob OUT -> INC response-count
+-get-string OUT -> INC response-count
+-get-json OBJECT -> INC response-count
+-response-count OVERFLOW -> IN constant-client
+-constant-client OUT -> POST post
+-
+-server-validator OUT -> RESULT test_server_output(test/result:timeout=6000)
+-string-compare EQUAL -> RESULT test_string_output(test/result:timeout=6000)
+-blob-compare EQUAL -> RESULT test_blob_output(test/result:timeout=6000)
+-json-compare EQUAL -> RESULT test_json_output(test/result:timeout=6000)
+diff --git a/src/test-fbp/http-if-modified-since.fbp b/src/test-fbp/http-if-modified-since.fbp
+deleted file mode 100644
+index 70d2dab..0000000
+--- a/src/test-fbp/http-if-modified-since.fbp
++++ /dev/null
+@@ -1,25 +0,0 @@
+-# This file is part of the Soletta (TM) Project
+-#
+-# Copyright (C) 2015 Intel Corporation. All rights reserved.
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#     http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-
+-_(http-server/int:port=8080, value=20, path="/int")
+-
+-_(constant/empty) OUT -> GET http_client(http-client/int:url="http://localhost:8080/int")
+-
+-http_client OUT -> IN _(test/int-validator:sequence="20 30") OUT -> RESULT _(test/result:timeout=6000)
+-
+-http_client OUT -> GET http_client
+-
+-http_client OUT -> IN _(converter/empty-to-int:output_value=30) OUT -> POST http_client
+diff --git a/src/test-fbp/http-irange.fbp b/src/test-fbp/http-irange.fbp
+deleted file mode 100644
+index a478cfa..0000000
+--- a/src/test-fbp/http-irange.fbp
++++ /dev/null
+@@ -1,65 +0,0 @@
+-# This file is part of the Soletta (TM) Project
+-#
+-# Copyright (C) 2015 Intel Corporation. All rights reserved.
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#     http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-
+-constant-server(constant/int:value=1,value_spec=min:0|max:100|step:1)
+-response-count(int/accumulator:setup_value=0|2)
+-constant-client(converter/empty-to-int:output_value=5)
+-string(constant/string:value="1")
+-json-str(constant/string:value="{\"value\":1,\"min\":0,\"max\":100,\"step\":1}")
+-
+-json-blob(converter/json-object-to-blob)
+-blob-str(converter/blob-to-string)
+-blob-to-str(converter/blob-to-string)
+-
+-server(http-server/int:path=/test,port=8080)
+-
+-get-blob(http-client/blob:url="http://localhost:8080/test")
+-get-string(http-client/string:url="http://localhost:8080/test", accept="text/plain")
+-get-json(http-client/json:url="http://localhost:8080/test")
+-post(http-client/int:url="http://localhost:8080/test")
+-
+-server-validator(test/int-validator:sequence="1 5")
+-string-compare(string/compare)
+-blob-compare(string/compare)
+-json-compare(string/compare)
+-
+-constant-server OUT -> IN server
+-constant-server OUT -> GET get-string
+-constant-server OUT -> GET get-json
+-constant-server OUT -> GET get-blob
+-
+-server OUT -> IN server-validator
+-
+-string OUT -> IN[0] string-compare
+-get-string OUT -> IN[1] string-compare
+-
+-string OUT -> IN[0] blob-compare
+-get-blob OUT -> IN blob-to-str OUT -> IN[1] blob-compare
+-
+-json-str OUT -> IN[0] json-compare
+-get-json OBJECT -> IN json-blob OUT -> IN blob-str
+-blob-str OUT -> IN[1] json-compare
+-
+-get-blob OUT -> INC response-count
+-get-string OUT -> INC response-count
+-get-json OBJECT -> INC response-count
+-response-count OVERFLOW -> IN constant-client
+-constant-client OUT -> POST post
+-
+-server-validator OUT -> RESULT test_server_output(test/result:timeout=6000)
+-string-compare EQUAL -> RESULT test_string_output(test/result:timeout=6000)
+-blob-compare EQUAL -> RESULT test_blob_output(test/result:timeout=6000)
+-json-compare EQUAL -> RESULT test_json_output(test/result:timeout=6000)
+diff --git a/src/test-fbp/http-json.fbp b/src/test-fbp/http-json.fbp
+deleted file mode 100644
+index 93ae376..0000000
+--- a/src/test-fbp/http-json.fbp
++++ /dev/null
+@@ -1,95 +0,0 @@
+-# This file is part of the Soletta (TM) Project
+-#
+-# Copyright (C) 2015 Intel Corporation. All rights reserved.
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#     http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-
+-server_get(http-server/json:port=8080, path="/get")
+-client_get(http-client/json:url="http://localhost:8080/get")
+-server_post(http-server/json:port=8080, path="/post")
+-client_post(http-client/json:url="http://localhost:8080/post")
+-get_step(int/accumulator)
+-post_step(int/accumulator)
+-
+-#Values for HTTP GET
+-_(constant/string:value="[1, \"go\", true, 2.3]") OUT -> IN _(converter/string-to-json-array) OUT -> ARRAY server_get
+-_(constant/string:value="Just A String") OUT -> IN[1] string_switcher(switcher/string:keep_state=true) OUT[0] -> STRING server_get
+-get_step OUT -> IN_PORT string_switcher
+-_(constant/empty) OUT -> IN[2] empty_switcher(switcher/empty:keep_state=true) OUT[0] -> NULL server_get
+-get_step OUT -> IN_PORT empty_switcher
+-_(constant/string:value="{\"key\":\"value\", \"key2\": 23}") OUT -> IN[3] object_switcher(switcher/string:keep_state=true) OUT[0] -> IN _(converter/string-to-json-object) OUT -> OBJECT server_get
+-get_step OUT -> IN_PORT object_switcher
+-_(constant/float:value=56.9) OUT -> IN[4] float_switcher(switcher/float:keep_state=true) OUT[0] -> FLOAT server_get
+-get_step OUT -> IN_PORT float_switcher
+-_(constant/int:value=100) OUT -> IN[5] int_switcher(switcher/int:keep_state=true) OUT[0] -> INT server_get
+-get_step OUT -> IN_PORT int_switcher
+-
+-#Values for HTTP POST
+-_(constant/string:value="[\"O Hai!\"]") OUT -> IN[0] post_array_switcher(switcher/string:keep_state=true) OUT[0] -> IN _(converter/string-to-json-array) OUT -> POST_ARRAY client_post
+-post_step OUT -> IN_PORT post_array_switcher
+-_(constant/string:value="Just Anoter String") OUT -> IN[1] post_string_switcher(switcher/string:keep_state=true) OUT[0] -> POST_STRING client_post
+-post_step OUT -> IN_PORT post_string_switcher
+-_(constant/empty) OUT -> IN[2] post_empty_switcher(switcher/empty:keep_state=true) OUT[0] -> POST_NULL client_post
+-post_step OUT -> IN_PORT post_empty_switcher
+-_(constant/string:value="{\"32\":null}") OUT -> IN[3] post_object_switcher(switcher/string:keep_state=true) OUT[0] -> IN _(converter/string-to-json-object) OUT -> POST_OBJECT client_post
+-post_step OUT -> IN_PORT post_object_switcher
+-_(constant/float:value=45.2) OUT -> IN[4] post_float_switcher(switcher/float:keep_state=true) OUT[0] -> POST_FLOAT client_post
+-post_step OUT -> IN_PORT post_float_switcher
+-_(constant/int:value=200) OUT -> IN[5] post_int_switcher(switcher/int:keep_state=true) OUT[0] -> POST_INT client_post
+-post_step OUT -> IN_PORT post_int_switcher
+-
+-client_get ARRAY -> INC get_step
+-client_get OBJECT -> INC get_step
+-client_get INT -> INC get_step
+-client_get FLOAT -> INC get_step
+-client_get STRING -> INC get_step
+-client_get NULL -> INC get_step
+-
+-server_post ARRAY -> INC post_step
+-server_post OBJECT -> INC post_step
+-server_post INT -> INC post_step
+-server_post FLOAT -> INC post_step
+-server_post STRING -> INC post_step
+-server_post NULL -> INC post_step
+-
+-#Client_Get tests
+-client_get INT -> IN _(test/int-validator:sequence="56 100") OUT -> RESULT _(test/result:timeout=6000)
+-client_get FLOAT -> IN _(test/float-validator:sequence="56.9 100.0") OUT -> RESULT _(test/result:timeout=6000)
+-client_get STRING -> IN _(test/string-validator:sequence="Just A String") OUT -> RESULT _(test/result:timeout=6000)
+-client_get OBJECT -> IN _(converter/json-object-to-blob) OUT -> IN _(converter/blob-to-string) OUT -> IN _(test/string-validator:sequence="{\"key\":\"value\", \"key2\": 23}") OUT -> RESULT _(test/result:timeout=6000)
+-client_get ARRAY -> IN _(converter/json-array-to-blob) OUT -> IN _(converter/blob-to-string) OUT -> IN _(test/string-validator:sequence="[1, \"go\", true, 2.3]") OUT -> RESULT _(test/result:timeout=6000)
+-client_get NULL -> IN _(converter/empty-to-boolean:output_value=true) OUT -> RESULT _(test/result:timeout=6000)
+-
+-client_post INT -> IN _(test/int-validator:sequence="45 200") OUT -> RESULT _(test/result:timeout=6000)
+-client_post FLOAT -> IN _(test/float-validator:sequence="45.2 200.0") OUT -> RESULT _(test/result:timeout=6000)
+-client_post STRING -> IN _(test/string-validator:sequence="Just Anoter String") OUT -> RESULT _(test/result:timeout=6000)
+-client_post OBJECT -> IN _(converter/json-object-to-blob) OUT -> IN _(converter/blob-to-string) OUT -> IN _(test/string-validator:sequence="{\"32\":null}") OUT -> RESULT _(test/result:timeout=6000)
+-client_post ARRAY -> IN _(converter/json-array-to-blob) OUT -> IN _(converter/blob-to-string) OUT -> IN _(test/string-validator:sequence="[\"O Hai!\"]") OUT -> RESULT _(test/result:timeout=6000)
+-client_post NULL -> IN _(converter/empty-to-boolean:output_value=true) OUT -> RESULT _(test/result:timeout=6000)
+-
+-#Server tests
+-server_get INT -> IN _(test/int-validator:sequence="56 100") OUT -> RESULT _(test/result:timeout=6000)
+-server_get FLOAT -> IN _(test/float-validator:sequence="56.9 100.0") OUT -> RESULT _(test/result:timeout=6000)
+-server_get STRING -> IN _(test/string-validator:sequence="Just A String") OUT -> RESULT _(test/result:timeout=6000)
+-server_get OBJECT -> IN _(converter/json-object-to-blob) OUT -> IN _(converter/blob-to-string) OUT -> IN _(test/string-validator:sequence="{\"key\":\"value\", \"key2\": 23}") OUT -> RESULT _(test/result:timeout=6000)
+-server_get ARRAY -> IN _(converter/json-array-to-blob) OUT -> IN _(converter/blob-to-string) OUT -> IN _(test/string-validator:sequence="[1, \"go\", true, 2.3]") OUT -> RESULT _(test/result:timeout=6000)
+-server_get NULL -> IN _(converter/empty-to-boolean:output_value=true) OUT -> RESULT _(test/result:timeout=6000)
+-
+-server_post INT -> IN _(test/int-validator:sequence="45 200") OUT -> RESULT _(test/result:timeout=6000)
+-server_post FLOAT -> IN _(test/float-validator:sequence="45.2 200.0") OUT -> RESULT _(test/result:timeout=6000)
+-server_post STRING -> IN _(test/string-validator:sequence="Just Anoter String") OUT -> RESULT _(test/result:timeout=6000)
+-server_post OBJECT -> IN _(converter/json-object-to-blob) OUT -> IN _(converter/blob-to-string) OUT -> IN _(test/string-validator:sequence="{\"32\":null}") OUT -> RESULT _(test/result:timeout=6000)
+-server_post ARRAY -> IN _(converter/json-array-to-blob) OUT -> IN _(converter/blob-to-string) OUT -> IN _(test/string-validator:sequence="[\"O Hai!\"]") OUT -> RESULT _(test/result:timeout=6000)
+-server_post NULL -> IN _(converter/empty-to-boolean:output_value=true) OUT -> RESULT _(test/result:timeout=6000)
+-
+-_(constant/empty) OUT -> GET client_get
+diff --git a/src/test-fbp/http-rgb.fbp b/src/test-fbp/http-rgb.fbp
+deleted file mode 100644
+index 65f1297..0000000
+--- a/src/test-fbp/http-rgb.fbp
++++ /dev/null
+@@ -1,30 +0,0 @@
+-# This file is part of the Soletta (TM) Project
+-#
+-# Copyright (C) 2015 Intel Corporation. All rights reserved.
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#     http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-
+-
+-HttpServer(http-server/rgb:port=8080, path="/rgb") OUT -> IN rgb_to_int_server(converter/rgb-to-int)
+-
+-rgb_to_int_server RED -> IN ServerValidator(test/int-validator:sequence="125 122 63") OUT -> RESULT TestServer(test/result:timeout=6000)
+-rgb_to_int_server GREEN -> IN ServerValidator
+-rgb_to_int_server BLUE -> IN ServerValidator
+-
+-_(constant/rgb:value=125|122|63) OUT -> POST HttpClient(http-client/rgb:url="http://localhost:8080/rgb")
+-
+-HttpClient OUT -> IN rgb_to_int_client(converter/rgb-to-int)
+-
+-rgb_to_int_client RED -> IN GetValidator(test/int-validator:sequence="125 122 63") OUT -> RESULT TestClient(test/result:timeout=6000)
+-rgb_to_int_client GREEN -> IN GetValidator
+-rgb_to_int_client BLUE -> IN GetValidator
+diff --git a/src/test-fbp/http-sse.fbp b/src/test-fbp/http-sse.fbp
+deleted file mode 100644
+index c86ded9..0000000
+--- a/src/test-fbp/http-sse.fbp
++++ /dev/null
+@@ -1,25 +0,0 @@
+-# This file is part of the Soletta (TM) Project
+-#
+-# Copyright (C) 2015 Intel Corporation. All rights reserved.
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#     http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-
+-seq(test/int-validator:sequence="10 11 12 13 14 15 16 17 18 19 20")
+-
+-timer(timer:interval=10) OUT -> INC accumulator(int/accumulator:initial_value=10) OUT -> IN _(http-server/int:port=8080)
+-
+-_(constant/int:value=20) OUT -> IN[0] stop(int/equal) OUT -> IN _(boolean/not) OUT -> ENABLED timer
+-
+-accumulator OUT -> IN[1] stop
+-
+-_(constant/empty) OUT -> GET _(http-client/int:url="http://localhost:8080/int") OUT -> IN seq OUT -> RESULT _(test/result:timeout=6000)
+diff --git a/src/test-fbp/http-string.fbp b/src/test-fbp/http-string.fbp
+deleted file mode 100644
+index 79cee6c..0000000
+--- a/src/test-fbp/http-string.fbp
++++ /dev/null
+@@ -1,60 +0,0 @@
+-# This file is part of the Soletta (TM) Project
+-#
+-# Copyright (C) 2015 Intel Corporation. All rights reserved.
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#     http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-
+-constant-server(constant/string:value="hello")
+-response-count(int/accumulator:setup_value=0|2)
+-constant-client(converter/empty-to-string:output_value="world")
+-
+-blob-to-str(converter/blob-to-string)
+-
+-server(http-server/string:path=/test,port=8080)
+-
+-get-blob(http-client/blob:url="http://localhost:8080/test")
+-get-string(http-client/string:url="http://localhost:8080/test")
+-get-json(http-client/json:url="http://localhost:8080/test")
+-post(http-client/string:url="http://localhost:8080/test")
+-
+-server-validator(test/string-validator:sequence="hello|world")
+-string-compare(string/compare)
+-blob-compare(string/compare)
+-json-compare(string/compare)
+-
+-constant-server OUT -> IN server
+-constant-server OUT -> GET get-string
+-constant-server OUT -> GET get-json
+-constant-server OUT -> GET get-blob
+-
+-server OUT -> IN server-validator
+-
+-constant-server OUT -> IN[0] string-compare
+-get-string OUT -> IN[1] string-compare
+-
+-constant-server OUT -> IN[0] blob-compare
+-get-blob OUT -> IN blob-to-str OUT -> IN[1] blob-compare
+-
+-constant-server OUT -> IN[0] json-compare
+-get-json STRING -> IN[1] json-compare
+-
+-get-blob OUT -> INC response-count
+-get-string OUT -> INC response-count
+-get-json STRING -> INC response-count
+-response-count OVERFLOW -> IN constant-client
+-constant-client OUT -> POST post
+-
+-server-validator OUT -> RESULT test_server_output(test/result:timeout=6000)
+-string-compare EQUAL -> RESULT test_string_output(test/result:timeout=6000)
+-blob-compare EQUAL -> RESULT test_blob_output(test/result:timeout=6000)
+-json-compare EQUAL -> RESULT test_json_output(test/result:timeout=6000)
+-- 
+2.4.11
+
