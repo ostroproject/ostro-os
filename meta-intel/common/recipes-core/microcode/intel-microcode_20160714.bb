@@ -11,11 +11,11 @@ DESCRIPTION = "The microcode data file contains the latest microcode\
  if the file is placed in the /etc/firmware directory of the Linux system."
 
 LICENSE = "Intel-Microcode-License"
-LIC_FILES_CHKSUM = "file://microcode.dat;md5=0c9b76c8fa021400a15b3fd71a71977b"
+LIC_FILES_CHKSUM = "file://microcode.dat;md5=d8c57b35388b4b9f970f5377fcdfc486"
 
-SRC_URI = "http://downloadmirror.intel.com/25512/eng/microcode-${PV}.tgz"
-SRC_URI[md5sum] = "288dc721fb39d71457ef2f5a49161f57"
-SRC_URI[sha256sum] = "096e39489eef67666be652e81fa372a06b74f39ea3d565dc0287242c668717e7"
+SRC_URI = "http://downloadmirror.intel.com/26156/eng/microcode-${PV}.tgz"
+SRC_URI[md5sum] = "84e4c0530dc38fd7b804daf894b1bdf9"
+SRC_URI[sha256sum] = "f3a9c6fc93275bf1febc26f7c397ac93ed5f109e47fb52932f6dbd5cfdbc840e"
 
 DEPENDS = "iucode-tool-native"
 S = "${WORKDIR}"
