@@ -23,7 +23,7 @@ class TestFirewallRules(oeRuntimeTest):
 
         output, error = p.communicate()
         expected= "3 packets transmitted, 0 received, 100% packet loss"
-        self.assertIn(expected, output,
+        self.assertIn(expected, output.decode('ascii'),
                             "Incoming packets should be dropped")
 
     def test_ipv4_outgoing_packet(self):
@@ -45,7 +45,7 @@ class TestFirewallRules(oeRuntimeTest):
                             shell=True)
 
         output, error = p.communicate()
-        interface = output.strip().split()[-1]
+        interface = output.decode('ascii').strip().split()[-1]
 
         p = subprocess.Popen("ping6 -I %s -c 3 %s" %(interface, ipv6),
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -53,7 +53,7 @@ class TestFirewallRules(oeRuntimeTest):
 
         output, error = p.communicate()
         expected = "3 packets transmitted, 3 received, 0% packet loss"
-        self.assertIn(expected, output,
+        self.assertIn(expected, output.decode('ascii'),
                             "Incoming ipv6 icmp packets should be received")
 
     def test_ipv6_outgoing_icmp(self):
@@ -63,7 +63,7 @@ class TestFirewallRules(oeRuntimeTest):
 
         output, error = p.communicate()
         # get ipv6 address
-        ipv6 = output.strip().split('/')[0]
+        ipv6 = output.decode('ascii').strip().split('/')[0]
 
         cmd = "ip addr show | grep %s" %self.target.ip
         status, output = self.target.run(cmd)
