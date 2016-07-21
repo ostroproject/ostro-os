@@ -24,6 +24,7 @@ Technical Notes
    ip-address-config
    pull-request-guidelines
    software-update-server
+   app-dev-nodejs
 
 Process Notes
 =============
