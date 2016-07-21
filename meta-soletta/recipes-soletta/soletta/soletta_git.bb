@@ -8,18 +8,19 @@ DEPENDS = "glib-2.0 libpcre pkgconfig python3-jsonschema-native icu curl libmicr
 DEPENDS += " ${@bb.utils.contains('DISTRO_FEATURES','systemd','systemd','',d)}"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=93888867ace35ffec2c845ea90b2e16b"
-PV = "1+git${SRCPV}"
+PV = "1"
 
-SRC_URI = "gitsm://github.com/solettaproject/soletta.git;protocol=git \
+SRC_URI = "https://github.com/solettaproject/soletta/releases/download/v${PV}/soletta.tar.gz;protocol=archive \
            file://run-ptest \
            file://i2c-dev.conf \
            file://iio-trig-sysfs.conf \
            file://0001-test-fbp-drop-tests-that-may-timeout.patch \
            file://0001-tests-don-t-make-regexp-tests-depend-on-machine-id.patch \
           "
-SRCREV = "516cf9448d87eec1decf65590e32547efb59dad6"
+SRC_URI[md5sum] = "2b66fc09eb92d3785f3a791d20e448d6"
+SRC_URI[sha256sum] = "8a3f80ba62d8a4b6eaabf9e75250385b574bb801316224f1dac028df12d1ae01"
 
-S = "${WORKDIR}/git"
+S = "${WORKDIR}/${PN}"
 
 inherit cml1 python3native
 
@@ -85,7 +86,7 @@ RDEPENDS_${PN} = " \
 INSANE_SKIP_${PN} += "dev-deps file-rdeps"
 INSANE_SKIP_${PN}-dev += "dev-elf"
 
-B = "${WORKDIR}/git"
+B = "${WORKDIR}/${PN}"
 
 do_configure_prepend() {
    export TARGETCC="${CC}"
@@ -166,8 +167,7 @@ do_compile() {
 do_install() {
    export LIBDIR="${libdir}/"
    oe_runmake DESTDIR=${WORKDIR}/image install CFLAGS="--sysroot=${STAGING_DIR_TARGET}" TARGETCC="${CC}" TARGETAR="${AR}"
-   COMMIT_ID=`git --git-dir=${WORKDIR}/git/.git rev-parse --verify HEAD`
-   echo "Soletta: $COMMIT_ID" > ${D}/${libdir}/soletta/soletta-image-hash
+   echo "Soletta: v${PV}" > ${D}/${libdir}/soletta/soletta-image-hash
 
    # Remove nan module as it is not needed.
    rm -rf ${WORKDIR}/image/${libdir}/node_modules/soletta/node_modules/nan
