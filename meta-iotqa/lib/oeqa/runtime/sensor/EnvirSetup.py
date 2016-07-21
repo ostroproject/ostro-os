@@ -36,20 +36,27 @@ class EnvirSetup(oeRuntimeTest):
         (status, output) = self.target.run("cat /sys/devices/virtual/dmi/id/board_name")
         #modprobe target sensor on DUT
         #send corresponding correct json to DUT      
-        if "Minnow" in output:
-           print ("DUT is MinnowMax\n")
+        if "Minnow" in output or "SDS" in output:
+           print ("DUT is %s\n" %output)
+           platform =output
            time.sleep(1)
            (status, output) = self.target.run("modprobe iio-trig-sysfs")
            self.assertTrue(status == 0)
            if sensorName == "mpu6050":
               (status, output) = self.target.run("modprobe i2c-minnow-mpu6050")
               self.assertTrue(status == 0)
-           copy_to_path = os.path.join(os.path.dirname(__file__) + \
-                          '/config/sol-flow-intel-minnow-max-linux_gt_3_17.json')
-           (status, output) = self.target.copy_to(copy_to_path, \
-                          "/opt/apps/")
+           if "SDS" in platform:
+               copy_to_path = os.path.join(os.path.dirname(__file__) + \
+                            '/config/sol-flow.json')
+               (status, output) = self.target.copy_to(copy_to_path, \
+                            "/opt/apps/")
+           else :
+               copy_to_path = os.path.join(os.path.dirname(__file__) + \
+                            '/config/sol-flow-intel-minnow-max-linux_gt_3_17.json')
+               (status, output) = self.target.copy_to(copy_to_path, \
+                            "/opt/apps/")
            
-        if "Galileo" in output:
+        elif "Galileo" in output:
            print ("DUT is Galileo\n")
            time.sleep(1)
            (status, output) = self.target.run("echo -n \"60\" >/sys/class/gpio/export")
@@ -68,7 +75,7 @@ class EnvirSetup(oeRuntimeTest):
            copy_to_path = os.path.join(os.path.dirname(__file__) + '/config/sol-flow-intel-galileo-rev-g.json')
            (status, output) = self.target.copy_to(copy_to_path, \
                           "/opt/apps/")  
-        if "BODEGA" in output:
+        elif "BODEGA" in output:
            print ("DUT is Edison\n")
            (status, output) = self.target.run("echo 28 > /sys/class/gpio/export")
            (status, output) = self.target.run("echo 27 > /sys/class/gpio/export")

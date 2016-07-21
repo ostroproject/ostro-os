@@ -39,7 +39,7 @@ class TestTemperatureMPL115(oeRuntimeTest):
            (status, output) = self.target.run(
                          "cd /sys/bus/i2c/devices; \
                           echo 0x60 >i2c-1/delete_device")
-        if "Galileo" in output:
+        elif "Galileo" in output or "SDS" in output:
            (status, output) = self.target.run(
                          "cd /sys/bus/i2c/devices; \
                           echo 0x60 >i2c-0/delete_device")
