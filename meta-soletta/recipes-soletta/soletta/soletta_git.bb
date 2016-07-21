@@ -164,9 +164,6 @@ do_compile() {
 do_install() {
    export LIBDIR="${libdir}/"
    oe_runmake DESTDIR=${WORKDIR}/image install CFLAGS="--sysroot=${STAGING_DIR_TARGET}" TARGETCC="${CC}" TARGETAR="${AR}"
-   unlink ${WORKDIR}/image/${libdir}/libsoletta.so
-   mv ${WORKDIR}/image/${libdir}/libsoletta.so.0.0.1 ${WORKDIR}/image/${libdir}/libsoletta.so
-   ln -sf libsoletta.so ${WORKDIR}/image/${libdir}/libsoletta.so.0.0.1
    COMMIT_ID=`git --git-dir=${WORKDIR}/git/.git rev-parse --verify HEAD`
    echo "Soletta: $COMMIT_ID" > ${D}/${libdir}/soletta/soletta-image-hash
 
