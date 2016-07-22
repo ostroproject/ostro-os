@@ -193,7 +193,7 @@ class CommBTTestMNode(oeRuntimeTest):
             status, output = shell_cmd_timeout(cmd, timeout=100)
             if status == 2:
                 break
-        self.assertEqual(status, 2, msg="Scan remote device fails: %s" % output) 
+        self.assertEqual(status, 2, msg="Scan remote device fails: %s" % output.decode("ascii")) 
 
     @tag(FeatureID="IOTOS-456")
     def test_bt_scan(self):
@@ -210,7 +210,7 @@ class CommBTTestMNode(oeRuntimeTest):
             status, output = shell_cmd_timeout(cmd, timeout=100)
             if status == 2:
                 break
-        self.assertEqual(status, 2, msg="Scan remote device fails: %s" % output) 
+        self.assertEqual(status, 2, msg="Scan remote device fails: %s" % output.decode("ascii")) 
 
     @tag(FeatureID="IOTOS-759")
     def test_bt_le_advertising(self):
@@ -234,7 +234,7 @@ class CommBTTestMNode(oeRuntimeTest):
             else:
                 self.bt1.target.run('hciconfig hci0 reset')
                 time.sleep(3)
-        self.assertEqual(status, 2, msg="Be LE-scanned fails: %s" % output) 
+        self.assertEqual(status, 2, msg="Be LE-scanned fails: %s" % output.decode("ascii")) 
 
     @tag(FeatureID="IOTOS-770")
     def test_bt_le_scan(self):
@@ -258,7 +258,7 @@ class CommBTTestMNode(oeRuntimeTest):
             else:
                 self.bt2.target.run('hciconfig hci0 reset')
                 time.sleep(3)
-        self.assertEqual(status, 2, msg="LE Scan other fails: %s" % output) 
+        self.assertEqual(status, 2, msg="LE Scan other fails: %s" % output.decode("ascii")) 
 
     @tag(FeatureID="IOTOS-453")
     def test_bt_pairing(self):
@@ -279,7 +279,7 @@ class CommBTTestMNode(oeRuntimeTest):
             (status, output) = shell_cmd_timeout(cmd, timeout=200)
             if status == 2:
                 break
-        self.assertEqual(status, 2, msg="expect excution fail: %s" % output)
+        self.assertEqual(status, 2, msg="expect excution fail: %s" % output.decode("ascii"))
 
         # On target, check paired devices to see if IoT is in
         check_exp = os.path.join(os.path.dirname(__file__), "files/bt_list_paired_device.exp")

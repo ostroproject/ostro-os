@@ -89,7 +89,7 @@ class WiFiFunction(object):
         if "hidden" in ap_type:
             return output.strip()
         elif (ap_type == "broadcast"):
-            return output.split(" ")[-1]
+            return output.split("\n")[0].split(" ")[-1]
 
     def connect_wifi(self, ap_type, ssid, pwd):
         '''connmanctl to connect wifi AP
@@ -113,7 +113,7 @@ class WiFiFunction(object):
             status, output = shell_cmd_timeout(cmd, timeout=60)
             if status == 2:
                 break        
-        assert status == 2, "Error messages: %s" % output 
+        assert status == 2, "Error messages: %s" % output.decode("ascii") 
 
     def get_wifi_ipv4(self):
         ''' Get wifi ipv4 address
@@ -211,7 +211,7 @@ class WiFiFunction(object):
         exp = os.path.join(os.path.dirname(__file__), "files/ssh_to.exp")
         exp_cmd = 'expect %s %s %s' % (exp, self.target.ip, ipv4)
         (status, output) = shell_cmd_timeout(exp_cmd)
-        assert status == 2, "Error messages: %s" % output
+        assert status == 2, "Error messages: %s" % output.decode("ascii")
 
     def scp_to(self, file_path, ipv4):
         ''' On main target, scp file to second
