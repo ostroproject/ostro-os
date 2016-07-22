@@ -6,12 +6,12 @@ LIC_FILES_CHKSUM = "file://LICENSE-BSD;md5=f9f435c1bd3a753365e799edf375fc42"
 
 DEPENDS = "json-c systemd"
 
-SRC_URI = " \
-    git://git@github.com/ostroproject/iot-app-fw.git;protocol=https;branch=kli/devel/1.x \
-    file://80-container-host0.network \
-    file://80-container-ve.network \
-    file://appfw-packet-forward.conf \
-  "
+SRC_URI = "git://git@github.com/ostroproject/iot-app-fw.git;protocol=https;branch=kli/devel/1.x \
+           file://80-container-host0.network \
+           file://80-container-ve.network \
+           file://appfw-packet-forward.conf \
+           file://0001-macros.inc-create-etc-machine-id-inside-container.patch \
+           "
 
 SRCREV = "ed04e87a583b3ec73c56a629533c1ff74527133a"
 
