@@ -15,6 +15,7 @@ SRC_URI = "gitsm://github.com/solettaproject/soletta.git;protocol=git \
            file://i2c-dev.conf \
            file://iio-trig-sysfs.conf \
            file://0001-test-fbp-drop-tests-that-may-timeout.patch \
+           file://0001-tests-don-t-make-regexp-tests-depend-on-machine-id.patch \
           "
 SRCREV = "516cf9448d87eec1decf65590e32547efb59dad6"
 
