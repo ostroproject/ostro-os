@@ -220,7 +220,7 @@ class SmackLoadRule(SmackBasicTest):
         status, output = self.target.run(
             'cat %s/load | grep "^TheOne" | grep " TheOther "' %self.smack_path)
         self.assertEqual(status, 0, "Rule A was not added")
-        mode = filter(bool, output.split(" "))[2].strip()
+        mode = list(filter(bool, output.split(" ")))[2].strip()
         self.assertEqual(
             mode, modeA,
             "Mode A was not set correctly; mode: %s" %mode)
@@ -229,7 +229,7 @@ class SmackLoadRule(SmackBasicTest):
             'echo -n "%s" > %s/load' %(ruleB, self.smack_path))
         status, output = self.target.run(
             'cat %s/load | grep "^TheOne" | grep " TheOther "' %self.smack_path)
-        mode = filter(bool, output.split(" "))[2].strip()
+        mode = list(filter(bool, output.split(" ")))[2].strip()
         self.assertEqual(
             mode, modeB,
             "Mode B was not set correctly; mode: %s" %mode)
@@ -357,7 +357,7 @@ class SmackAmbient(SmackBasicTest):
 
         status, output = self.target.run("cat %s/ambient" %self.smack_path)
         # Filter '\x00', which is sometimes added to the ambient label
-        new_ambient = filter(lambda x: x in string.printable, output)
+        new_ambient = ''.join(filter(lambda x: x in string.printable, output))
         status, output = self.target.run(
             "echo '%s' > %s/ambient" %(initial_ambient, self.smack_path))
         self.assertEqual(

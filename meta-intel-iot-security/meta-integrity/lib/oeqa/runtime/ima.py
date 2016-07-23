@@ -38,7 +38,7 @@ class IMACheck(oeRuntimeTest):
         status, output = self.target.run("sha1sum %s" %filename)
         current_hash = output.split()[0]
         ima_hash = ""
-        
+
         while tries < maximum_tries:
             status, output = self.target.run("cat %s | grep %s" \
                                             %(ima_measure_file, filename))
@@ -74,4 +74,5 @@ class IMACheck(oeRuntimeTest):
         ''' Test if IMA prevents overwriting signed files '''
         signed_file = "/bin/sh"
         status, output = self.target.run(" echo 'foo' >> %s" %signed_file)
-        self.assertNotEqual(status, 0, "Signed file could be written")
+        self.assertIn("Text file busy", output,
+                      "Did not find expected error message. Got: %s" %output)

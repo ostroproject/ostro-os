@@ -40,11 +40,11 @@ class TestLightVcnl4000(oeRuntimeTest):
            (status, output) = self.target.run(
                          "cd /sys/bus/i2c/devices; \
                           echo 0x13 >i2c-1/delete_device")
-        if "Galileo" in output:
+        elif "Galileo" in output or "SDS" in output:
            (status, output) = self.target.run(
                          "cd /sys/bus/i2c/devices; \
                           echo 0x13 >i2c-0/delete_device")
-        if "BODEGA" in output:
+        elif "BODEGA" in output:
            (status, output) = self.target.run(
                          "cd /sys/bus/i2c/devices; \
                           echo 0x13 >i2c-6/delete_device")

@@ -27,7 +27,7 @@ class TestSensorWithHighCPUConsumption(oeRuntimeTest):
         @return'''
         print ('start!\n')
         #connect sensor and DUT through board
-        shell_cmd("sudo python "+ os.path.dirname(__file__) + "/Connector.py tsl2561")
+        #shell_cmd("sudo python "+ os.path.dirname(__file__) + "/Connector.py tsl2561")
         envir = EnvirSetup(self.target)
         envir.envirSetup("tsl2561","light")
         #update fbp file to run the data reading for 60s

@@ -249,7 +249,7 @@ SSTATE_MIRRORS ?= "file://.* http://download.ostroproject.org/sstate/ostro-os/PA
 # CONF_VERSION is increased each time build/conf/ changes incompatibly and is used to
 # track the version of this file when it was generated. This can safely be ignored if
 # this doesn't mean anything to you.
-CONF_VERSION = "3"
+CONF_VERSION = "4"
 
 #
 # ISAFW: https://github.com/01org/isafw
@@ -273,6 +273,15 @@ SUPPORTED_RECIPES_CHECK = "fatal"
 #
 # Alternatively, uncomment the following line to make it a non-fatal warning:
 #SUPPORTED_RECIPES_CHECK = "warn"
+
+# Ostro OS does not package source code in dbg packages because our
+# images include valgrind, and valgrind depends on the glibc dbg
+# package. Including source code in dbg packages would therefore make
+# the images larger than they normally need to be.
+#
+# If you need source code packaged and installed on images, comment out
+# the following line.
+PACKAGE_DEBUG_SPLIT_STYLE = "debug-without-src"
 
 # An explicit choice must be made between building Ostro OS
 # development images and production images. See

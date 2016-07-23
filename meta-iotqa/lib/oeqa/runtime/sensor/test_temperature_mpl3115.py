@@ -25,7 +25,7 @@ class TestTemperatureMPL3115(oeRuntimeTest):
         @return'''
         print ('start!\n')
         #connect sensor and DUT through board
-        shell_cmd("sudo python "+ os.path.dirname(__file__) + "/Connector.py mpl3115")
+        #shell_cmd("sudo python "+ os.path.dirname(__file__) + "/Connector.py mpl3115")
         envir = EnvirSetup(self.target)
         envir.envirSetup("mpl3115","temperature")
 
@@ -39,7 +39,7 @@ class TestTemperatureMPL3115(oeRuntimeTest):
            (status, output) = self.target.run(
                          "cd /sys/bus/i2c/devices; \
                           echo 0x60 >i2c-1/delete_device")
-        if "Galileo" in output:
+        elif "Galileo" in output or "SDS" in output:
            (status, output) = self.target.run(
                          "cd /sys/bus/i2c/devices; \
                           echo 0x60 >i2c-0/delete_device")

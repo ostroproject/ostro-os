@@ -84,7 +84,7 @@ class CommBTTest(oeRuntimeTest):
         new_name="iot-bt-test"
         self.target.run('hciconfig hci0 name %s' % new_name)
         name = self.bt.get_name()
-        if name == new_name:
+        if name.decode('ascii') == new_name:
             pass
         else:
            self.assertEqual(1, 0, msg="Bluetooth set name fails. Current name is: %s" % name)

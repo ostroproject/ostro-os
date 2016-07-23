@@ -40,11 +40,11 @@ class TestLightTsl2561(oeRuntimeTest):
            (status, output) = self.target.run(
                          "cd /sys/bus/i2c/devices; \
                           echo 0x39 >i2c-1/delete_device")
-        if "Galileo" in output:
+        elif "Galileo" in output or "SDS" in output:
            (status, output) = self.target.run(
                          "cd /sys/bus/i2c/devices; \
                           echo 0x39 >i2c-0/delete_device")
-        if "BODEGA" in output:
+        elif "BODEGA" in output:
            (status, output) = self.target.run(
                          "cd /sys/bus/i2c/devices; \
                           echo 0x39 >i2c-6/delete_device")
@@ -57,7 +57,7 @@ class TestLightTsl2561(oeRuntimeTest):
         (status, output) = self.target.run(
                          "chmod 777 /opt/apps/test_light_tsl2561.fbp")
         (status, output) = self.target.run(
-                         "cd /opt/apps; ./test_light_tsl2561.fbp >re.log")
+                          "cd /opt/apps; ./test_light_tsl2561.fbp >re.log")
         error = output 
         (status, output) = self.target.run(
                          "cp /opt/apps/re.log /home/root/tsl2561.log") 
