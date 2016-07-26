@@ -518,41 +518,14 @@ swupd_patch_os_release () {
 swupd_patch_os_release[vardepsexclude] = "OS_VERSION"
 ROOTFS_POSTPROCESS_COMMAND += "swupd_patch_os_release; "
 
-SWUPD_IMAGE_SANITY_CHECKS ??= ""
-# Add image-level QA/sanity checks to SWUPD_IMAGE_SANITY_CHECKS
-#
-# SWUPD_IMAGE_SANITY_CHECKS += " \
-#     swupd_check_dangling_symlinks \
-# "
-
-# This task runs all functions in SWUPD_IMAGE_SANITY_CHECKS after the image
-# construction has completed in order to validate the resulting image.
-# Image sanity checks should raise a NotImplementedError when they fail,
-# passing any failure messages to the Exception. For example:
-#
-#    python swupd_image_check_always_fails () {
-#        raise NotImplementedError('This check always fails')
-#    }
-python do_swupd_sanity_check_image () {
-    funcs = (d.getVar('SWUPD_IMAGE_SANITY_CHECKS', True) or '').split()
-    qasane = True
-
-    for func in funcs:
-        try:
-            bb.build.exec_func(func, d, pythonexception=True)
-        except NotImplementedError as e:
-            qasane = False
-            bb.error(str(e))
-
-    if not qasane:
-        bb.fatal('QA errors found whilst checking swupd image sanity.')
-}
-addtask swupd_sanity_check_image after do_image_complete before do_build
-
 # Check whether the constructed image contains any dangling symlinks, these
 # are likely to indicate deeper issues.
 # NOTE: you'll almost certainly want to override these for your distro.
 # /run, /var/volatile and /dev only get mounted at runtime.
+# Enable this check by adding it to IMAGE_QA_COMMANDS
+# IMAGE_QA_COMMANDS += " \
+#     swupd_check_dangling_symlinks \
+# "
 SWUPD_IMAGE_SYMLINK_WHITELIST ??= " \
     /run/lock \
     /var/volatile/tmp \
@@ -563,6 +536,8 @@ SWUPD_IMAGE_SYMLINK_WHITELIST ??= " \
 "
 
 python swupd_check_dangling_symlinks() {
+    from oe.utils import ImageQAFailed
+
     rootfs = d.getVar("IMAGE_ROOTFS", True)
 
     def resolve_links(target, root):
@@ -600,5 +575,5 @@ python swupd_check_dangling_symlinks() {
         message = message + '\nIf these symlinks not pointing to a valid destination is not an issue \
 i.e. the link is to a file which only exists at runtime, such as files in /proc, add them to \
 SWUPD_IMAGE_SYMLINK_WHITELIST to resolve this error.'
-        raise NotImplementedError(message)
+        raise ImageQAFailed(message, swupd_check_dangling_symlinks)
 }

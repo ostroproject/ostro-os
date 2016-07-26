@@ -127,9 +127,9 @@ included in the os-core bundle.
 To help detect the dangling symlink scenario the `swupd-image` class includes a
 mechanism to check for such dangling symlinks in a constructed image, enable it
 by adding the `swupd_check_dangling_symlinks` sanity check to
-`SWUPD_IMAGE_SANITY_CHECKS` i.e.:
+`IMAGE_QA_COMMANDS` i.e.:
 ```
-SWUPD_IMAGE_SANITY_CHECKS += " \
+IMAGE_QA_COMMANDS += " \
      swupd_check_dangling_symlinks \
 "
 ```
