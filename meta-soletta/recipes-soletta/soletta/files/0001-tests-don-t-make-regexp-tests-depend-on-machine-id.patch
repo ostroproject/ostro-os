@@ -1,0 +1,35 @@
+From 8c3264f7982e7716814ef3e0914cf59d63a04e9f Mon Sep 17 00:00:00 2001
+From: Bruno Dilly <bruno.dilly@intel.com>
+Date: Fri, 22 Jul 2016 14:24:59 -0300
+Subject: [PATCH] tests: don't make regexp tests depend on machine id
+
+Otherwise if it fail to fetch machine id tests
+will regexp tests will fail.
+
+Signed-off-by: Bruno Dilly <bruno.dilly@intel.com>
+---
+ src/test-fbp/string-pcre-regexp-search.fbp | 11 -----------
+ 1 file changed, 11 deletions(-)
+
+diff --git a/src/test-fbp/string-pcre-regexp-search.fbp b/src/test-fbp/string-pcre-regexp-search.fbp
+index 058690e..d763e46 100644
+--- a/src/test-fbp/string-pcre-regexp-search.fbp
++++ b/src/test-fbp/string-pcre-regexp-search.fbp
+@@ -85,14 +85,3 @@ _(string/uuid:with_hyphens=true,upcase=true) OUT -> IN regexp_search_13(string/r
+ regexp_search_13 LENGTH -> IN[0] cmp_13(int/equal)
+ _(constant/int:value=4) OUT -> IN[1] cmp_13
+ cmp_13 OUT -> RESULT result_13(test/result)
+-
+-_(platform/machine-id) OUT -> IN regexp_search_14(string/regexp-search:regexp="((?:[a-f]|[0-9]){32})")
+-regexp_search_14 LENGTH -> IN[0] cmp_14(int/equal)
+-_(constant/int:value=2) OUT -> IN[1] cmp_14
+-cmp_14 OUT -> RESULT result_14(test/result)
+-
+-_(platform/machine-id) OUT -> IN regexp_replace_15(string/regexp-replace:regexp="((?:[a-f]|[0-9]){8})((?:(?:[a-f]|[0-9]){4}))((?:(?:[a-f]|[0-9]){4}))((?:(?:[a-f]|[0-9]){4}))((?:[a-f]|[0-9]){12})",to="\\1-\\2-\\3-\\4-\\5")
+-regexp_replace_15 OUT -> IN regexp_search_15(string/regexp-search:regexp="((?:[a-f]|[0-9]){8}-)((?:(?:[a-f]|[0-9]){4}-){3})((?:[a-f]|[0-9]){12})")
+-regexp_search_15 LENGTH -> IN[0] cmp_15(int/equal)
+-_(constant/int:value=4) OUT -> IN[1] cmp_15
+-cmp_15 OUT -> RESULT result_15(test/result)
+-- 
+2.4.11
+
