@@ -23,6 +23,7 @@ COMPATIBLE_MACHINE = "crystalforest|intel-corei7-64"
 S = "${WORKDIR}/${ICP_DRIVER_TYPE}"
 ICP_TOOLS = "accelcomp"
 SAMPLE_CODE_DIR = "${S}/quickassist/lookaside/access_layer/src/sample_code"
+TARGET_CC_ARCH += "$(LDFLAGS)"
 
 export ICP_DRIVER_TYPE = "QAT1.6"
 export ICP_FIRMWARE_DIR="dh895xcc"
