@@ -349,7 +349,7 @@ class SmackAmbient(SmackBasicTest):
     @skipUnlessPassed('test_ssh')
     def test_smack_ambient(self):
         test_ambient = "test_ambient"
-        initial_ambient = self.target.run("cat %s/ambient" %self.smack_path)
+        status, initial_ambient = self.target.run("cat %s/ambient" %self.smack_path)
         status, output = self.target.run(
             "echo '%s' > %s/ambient" %(test_ambient, self.smack_path))
         self.assertEqual(status, 0,
@@ -358,6 +358,7 @@ class SmackAmbient(SmackBasicTest):
         status, output = self.target.run("cat %s/ambient" %self.smack_path)
         # Filter '\x00', which is sometimes added to the ambient label
         new_ambient = ''.join(filter(lambda x: x in string.printable, output))
+        initial_ambient = ''.join(filter(lambda x: x in string.printable, initial_ambient))
         status, output = self.target.run(
             "echo '%s' > %s/ambient" %(initial_ambient, self.smack_path))
         self.assertEqual(
