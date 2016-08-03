@@ -1,0 +1,66 @@
+From a38be4fe8ffed142abbba92f7ad91a8f7b8f1ace Mon Sep 17 00:00:00 2001
+From: Jianxun Zhang <jianxun.zhang@linux.intel.com>
+Date: Mon, 20 Jun 2016 13:08:20 -0700
+Subject: [PATCH 3/3] sd-boot: Support global kernel command line fragment
+
+Query file blob KBOOTPARAM from RMC. If it exists, we append
+it to the new linux boot entry's cmdline. A boot entry could
+be read from a .conf file on ESP, RMC database, or embedded
+linux image. content in KBOOTPARAM is effective in all of
+these cases.
+
+Upstream-Status: Pending
+
+Signed-off-by: Jianxun Zhang <jianxun.zhang@linux.intel.com>
+---
+ src/boot/efi/boot.c | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+
+diff --git a/src/boot/efi/boot.c b/src/boot/efi/boot.c
+index 43b0793..3dcd9a5 100644
+--- a/src/boot/efi/boot.c
++++ b/src/boot/efi/boot.c
+@@ -847,6 +847,40 @@ static VOID config_add_entry(Config *config, ConfigEntry *entry) {
+                         config->entries = ReallocatePool(config->entries,
+                                                          sizeof(VOID *) * config->entry_count, sizeof(VOID *) * i);
+         }
++
++        /* rmc: a linux entry could be added from .conf file or an embedded linux image
++         * we put appending global command line here to cover both of two cases.
++         */
++        if (entry->type == LOADER_LINUX && rmc_db && rmc_fp) {
++                rmc_policy_file_t rmc_kp;
++
++                if (!query_policy_from_db(rmc_fp, rmc_db, RMC_POLICY_BLOB, "KBOOTPARAM", &rmc_kp)) {
++                        CHAR8 *cmdline;
++                        CHAR16 *s;
++                        CHAR16 *t;
++                        CHAR16 *p;
++
++                        cmdline = AllocatePool(rmc_kp.blob_len * sizeof(CHAR8) + 1);
++                        CopyMem(cmdline, rmc_kp.blob, rmc_kp.blob_len);
++                        cmdline[rmc_kp.blob_len] = '\0';
++                        p = stra_to_str(cmdline);
++                        t = p;
++
++                        while (*t) {
++                                if (*t == '\n')
++                                        *t = '\0';
++                                t++;
++                        }
++
++                        s = PoolPrint(L"%s %s", entry->options, p);
++                        FreePool(entry->options);
++                        FreePool(p);
++                        FreePool(cmdline);
++
++                        entry->options = s;
++                }
++        }
++
+         config->entries[config->entry_count++] = entry;
+ }
+ 
+-- 
+2.7.4
+
