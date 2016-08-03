@@ -70,6 +70,7 @@ following this example, so that RMC recipes can pick up them correctly in build.
       |   |- board1.fp           fingerprint file must be provided (NOTE 1)
       |   |- BOOTENTRY.CONFIG    optional config file for boot entries. (NOTE 2)
       |   |- INSTALLER.CONFIG    optional config file for installer. (NOTE 3)
+      |   |- POSTINSTALL.sh      optional script hook for installer (NOTE 4)
       |   |- board_file_1        A file blob specific to the type of board
       |   |- board_file_2        An another file specific to the type of board
       |   |- ...more files
@@ -152,6 +153,13 @@ Installer simply ignores any errors in RMC deployment stage.
 
 The name of this config file is what installer looks up first, so it must be
 INSTALLER.CONFIG.
+
+Note 4:
+At the end of RMC deployment during installation, RMC installer queries a script
+file POSTINSTALL.sh from RMC database file, and execute it when query is
+successful on the running board. This hook provides developers almost ultimate
+flexibility to retouch what have been deployed on the target. There are some
+steps still can override results from this hook for boot entries and KBOOTPARAM.
 
 
 
@@ -236,7 +244,8 @@ This is a combo example with all supported configuration data for NUC Gen 6
 product. It shows two boot entries in bootloader menu when you boot image on NUC
 Gen 6 product, with "NUC Gen6" in entry titles. There shall no any "console=" in
 /proc/cmdline when you boot with either of two "NUC Gen6"entries. We designed it
-this way because there is no accessible tty port on NUC Gen 6 with housing.
+this way because there is no accessible tty port on NUC Gen 6 with housing. The
+post-install hook is also provided in this example.
 
 This example also includes a global kernel cmdline fragment KBOOTPARAM. Content
 of KBOOTPARAM shall be at the end of /proc/cmdline no matter which boot entry
@@ -255,6 +264,10 @@ The content of KBOOTPARAM shall be in /proc/cmdline too.
 A directory /etc/mylib/ is created and a file "mylib.conf" is there. The content
 of that file shall be what we put in mylib.conf in
 common/recipes-bsp/rmc/boards/nucgen6
+
+POSTINSTALL.sh shows how we get rid of an error message caused by no serial
+console available on NUC Gen 6, without creating another static board
+configuration.
 
 EXAMPLE 4: For validation only
 T100 (32bit):
