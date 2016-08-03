@@ -208,21 +208,14 @@ fi
 mount $bootfs /boot
 echo "Preparing boot partition..."
 
-# RMC deployment
-RMC_CMD=/src_root/usr/bin/rmc
-RMC_DB=/run/media/$1/rmc.db
-
 EFIDIR="/boot/EFI/BOOT"
 mkdir -p $EFIDIR
-
 # Copy the efi loader
 cp /run/media/$1/EFI/BOOT/*.efi $EFIDIR
 
-# We only support gummiboot/systemd-boot. Leave grub-efi not changed.
-if [ -d /run/media/$1/loader ]; then
-    # copy config files for gummiboot
-    cp -dr /run/media/$1/loader /boot
-fi
+# RMC deployment
+RMC_CMD=/src_root/usr/bin/rmc
+RMC_DB=/run/media/$1/rmc.db
 
 # We don't want to quit when a step failed. For example,
 # a file system could not support some operations.
@@ -298,9 +291,21 @@ fi
 if [ -d /run/media/$1/loader ]; then
     rootuuid=$(blkid -o value -s PARTUUID ${rootfs})
     GUMMIBOOT_CFGS="/boot/loader/entries/*.conf"
-    # delete the install entry
-    # fixme: If RMC did deploy install.conf at previous steps, it is purged here...
-    rm -f /boot/loader/entries/install.conf
+    if [ -d /boot/loader ]; then
+        # Don't override loader.conf RMC already deployed
+        if [ ! -f /boot/loader/loader.conf ]; then
+            cp /run/media/$1/loader/loader.conf /boot/loader/
+        fi
+        # only copy built OE entries when RMC entries don't exist.
+        if [ ! -d /boot/loader/entries ] || [ ! ls /boot/loader/entries/*.conf &>/dev/null ]; then
+            cp -dr /run/media/$1/loader/entries /boot/loader
+        fi
+    else
+        # copy config files for gummiboot
+        cp -dr /run/media/$1/loader /boot
+        # delete the install entry
+        rm -f /boot/loader/entries/install.conf
+    fi
     # delete the initrd lines
     sed -i "/initrd /d" $GUMMIBOOT_CFGS
     # delete any LABEL= strings
