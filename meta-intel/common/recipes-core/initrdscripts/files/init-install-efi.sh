@@ -267,6 +267,14 @@ if [ -f "${RMC_DB}" ] && [ -f "${RMC_CMD}" ]; then
     else
 	echo "INSTALLER.CONFIG is not found, skip RMC deployment"
     fi
+
+    # Final retouching by calling post-install hook
+    if ${RMC_CMD} -B POSTINSTALL.sh -d "${RMC_DB}" -o /tmp/POSTINSTALL.sh; then
+        echo "Found POSTINSTALL.sh execute it..."
+        chmod 500 /tmp/POSTINSTALL.sh
+        /tmp/POSTINSTALL.sh
+        rm -rf /tmp/POSTINSTALL.sh
+    fi
 fi
 set -e
 
