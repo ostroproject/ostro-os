@@ -24,6 +24,9 @@ IMA_EVM_SETATTR_PATCH_4.1.15 = "file://0001-ima-fix-ima_inode_post_setattr.patch
 IMA_EVM_SETATTR_PATCH_4.4.3 = "file://0001-ima-fix-ima_inode_post_setattr.patch \
                                file://0002-ima-add-support-for-creating-files-using-the-mknodat.patch \
                               "
+IMA_EVM_SETATTR_PATCH_4.4.14 = "file://0001-ima-fix-ima_inode_post_setattr.patch \
+                                file://0002-ima-add-support-for-creating-files-using-the-mknodat.patch \
+                               "
 
 # Kernel config fragment enabling IMA/EVM and (where necessary and possible)
 # also patching the kernel.
