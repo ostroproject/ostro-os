@@ -8,6 +8,9 @@
 #
 # OSTRO_APP_NAME:
 #       name of the application
+# OSTRO_APP_HOME:
+#       Apllication user's home folder path defaults to:
+#        "${OSTRO_APP_DIR}/home/${OSTRO_USER_APP_NAME}"
 #
 # ostro-app class exported variables:
 # ------------------------------
@@ -25,13 +28,14 @@ USERADD_PACKAGES = "${PN}"
 OSTRO_USER_SHELL ??= "/sbin/nologin"
 OSTRO_USER_APP_NAME ??= "${OSTRO_USER_NAME}-${OSTRO_APP_NAME}"
 
-# Create the user with disallowed login and no extra groups.
-USERADD_PARAM_${PN} = "-s ${OSTRO_USER_SHELL} ${OSTRO_USER_APP_NAME}"
-GROUPADD_PARAM_${PN} = ""
-GROUPMEMS_PARAM_${PN} = ""
-
 OSTRO_APP_DIR ??= "/apps"
 OSTRO_APP_ROOT ??= "${OSTRO_APP_DIR}/${OSTRO_USER_NAME}/${OSTRO_APP_NAME}"
+OSTRO_APP_HOME ??= "${OSTRO_APP_DIR}/home/${OSTRO_USER_APP_NAME}"
+
+# Create the user with disallowed login and no extra groups.
+USERADD_PARAM_${PN} = "-s ${OSTRO_USER_SHELL} -d ${OSTRO_APP_HOME} ${OSTRO_USER_APP_NAME}"
+GROUPADD_PARAM_${PN} = ""
+GROUPMEMS_PARAM_${PN} = ""
 
 export OSTRO_APP_ROOT
 RDEPENDS_${PN} += "iot-app-fw"
@@ -74,4 +78,4 @@ ostro_app_install () {
 }
 
 # Package app files by default.
-FILES_${PN} += "${OSTRO_APP_ROOT}"
+FILES_${PN} += "${OSTRO_APP_ROOT} ${OSTRO_APP_HOME}"
