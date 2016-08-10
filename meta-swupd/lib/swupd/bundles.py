@@ -66,8 +66,12 @@ def copy_core_contents(d):
         if f[1:] not in unwanted_files:
             bundle_file_contents.append(f[2:])
     bb.debug(1, 'os-core contains %s items' % len(bundle_file_contents))
-    bb.debug(1, "Copying from mega-image to os-core bundle dir (%s)" % (bundledir))
-    swupd.path.copyxattrfiles(d, bundle_file_contents, d.getVar('MEGA_IMAGE_ROOTFS', True), bundledir)
+    havebundles = (d.getVar('SWUPD_BUNDLES', True) or '') != ''
+    imgrootfs = d.getVar('MEGA_IMAGE_ROOTFS', True)
+    if not havebundles:
+        imgrootfs = rootfs
+    bb.debug(1, "Copying from image (%s) to os-core bundle dir (%s)" % (imgrootfs, bundledir))
+    swupd.path.copyxattrfiles(d, bundle_file_contents, imgrootfs, bundledir)
 
 
 def stage_package_bundle_contents(d, bundle):
