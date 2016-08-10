@@ -190,6 +190,7 @@ fakeroot do_rootfs_append () {
     for bundle in bundles:
         swupd.bundles.create_bundle_manifest(d, bundle)
 }
+do_rootfs[depends] += "virtual/fakeroot-native:do_populate_sysroot"
 
 do_image_append () {
     import swupd.rootfs
@@ -243,6 +244,7 @@ fakeroot python do_stage_swupd_inputs () {
 }
 addtask stage_swupd_inputs after do_image before do_swupd_update
 do_stage_swupd_inputs[dirs] = "${SWUPDIMAGEDIR} ${SWUPDMANIFESTDIR} ${DEPLOY_DIR_SWUPD}/maps/"
+do_stage_swupd_inputs[depends] += "virtual/fakeroot-native:do_populate_sysroot"
 
 SSTATETASKS += "do_stage_swupd_inputs"
 do_stage_swupd_inputs[sstate-inputdirs] = "${SWUPDIMAGEDIR}/${OS_VERSION} ${SWUPDMANIFESTDIR}"
@@ -360,6 +362,7 @@ fakeroot python do_fetch_swupd_inputs () {
 }
 addtask fetch_swupd_inputs before do_swupd_update
 do_fetch_swupd_inputs[dirs] = "${DEPLOY_DIR_SWUPD}/maps ${DEPLOY_DIR_SWUPD}/image"
+do_fetch_swupd_inputs[depends] += "virtual/fakeroot-native:do_populate_sysroot"
 
 SWUPD_FORMAT ??= "3"
 fakeroot do_swupd_update () {
