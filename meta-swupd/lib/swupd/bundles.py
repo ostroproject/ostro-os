@@ -241,7 +241,7 @@ def copy_bundle_contents(d):
 
     d -- the bitbake datastore
     """
-    bb.debug(1, 'Vopying contents of bundles for %s from mega image rootfs' % d.getVar('PN', True))
+    bb.debug(1, 'Copying contents of bundles for %s from mega image rootfs' % d.getVar('PN', True))
     bundles = (d.getVar('SWUPD_BUNDLES', True) or '').split()
     for bndl in bundles:
         features = d.getVarFlag('BUNDLE_FEATURES', bndl, True)
