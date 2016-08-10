@@ -25,6 +25,11 @@ def create_rootfs(d):
         bb.debug(2, "Skipping swupd_create_rootfs() in bundle image %s for bundle %s." % (pn, bndl))
         return
 
+    havebundles = (d.getVar('SWUPD_BUNDLES', True) or '') != ''
+    if not havebundles:
+        bb.debug(2, 'Skipping swupd_create_rootfs(), original rootfs can be used as no additional bundles are defined')
+        return
+
     # Sanity checking was already done in swupdimage.bbclass.
     # Here we can simply use the settings.
     imagebundles = d.getVarFlag('SWUPD_IMAGES', imageext, True).split() if imageext else []
