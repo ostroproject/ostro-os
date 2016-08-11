@@ -90,7 +90,7 @@ OVERRIDES .= ":smack"
 VIRTUAL-RUNTIME_init_manager = "systemd"
 DISTRO_FEATURES_BACKFILL_CONSIDERED = "sysvinit"
 VIRTUAL-RUNTIME_initscripts = ""
-CORE_IMAGE_EXTRA_INSTALL_append_pn-core-image-minimal = " smack-userspace security-manager security-manager-policy cynara app-runas"
+CORE_IMAGE_EXTRA_INSTALL_append_pn-core-image-minimal = " smack-userspace cynara"
 INHERIT_append_pn-core-image-minimal = " ima-evm-rootfs"
 IMA_EVM_KEY_DIR = "${IMA_EVM_BASE}/data/debug-keys"
 
