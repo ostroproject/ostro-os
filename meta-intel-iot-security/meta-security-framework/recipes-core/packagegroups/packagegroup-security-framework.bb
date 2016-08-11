@@ -4,6 +4,5 @@ LICENSE = "MIT"
 inherit packagegroup
 
 RDEPENDS_${PN}_append_smack = " \
-    cynara \
     smacknet \
 "
