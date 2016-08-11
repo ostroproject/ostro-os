@@ -81,7 +81,7 @@ python () {
         # Because real image building via SWUPD_IMAGES can happen also after
         # the initial "bitbake <core image>" invocation, we have to keep that
         # pseudo database around and cannot delete it.
-        pseudo_state = d.expand('${TMPDIR}/work-shared/${PN_BASE}/pseudo')
+        pseudo_state = d.expand('${TMPDIR}/work-shared/${IMAGE_BASENAME}/pseudo')
         d.setVar('PSEUDO_LOCALSTATEDIR', pseudo_state)
 
         # Non mega virtual images must depend on the mega image having been
