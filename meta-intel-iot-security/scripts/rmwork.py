@@ -41,6 +41,24 @@ class RunQueueSchedulerRmWork(BaseScheduler):
         bb.note('BB_NUMBER_COMPILE_THREADS %d BB_NUMBER_THREADS %d' % \
                 (self.number_compile_tasks, self.rq.number_tasks))
 
+        # Looking up fn and taskname differs depending on the bitbake version.
+        if hasattr(self.rqdata, 'get_task_file'):
+            # bitbake <= 1.28
+            def get_task_info(taskid):
+                fn = self.rqdata.get_task_file(taskid)
+                taskname = self.rqdata.get_task_name(taskid)
+                return (fn, taskname)
+            get_task_name = self.rqdata.get_task_name
+        else:
+            # bitbake > 1.28 - taskid itself is composed of fn and taskname
+            def get_task_info(taskid):
+                fn, taskname = taskid.rsplit(':', 1)
+                return (fn, taskname)
+            def get_task_name(taskid):
+                _, taskname = taskid.rsplit(':', 1)
+                return (fn, taskname)
+        self.get_task_name = get_task_name
+
         # Extract list of tasks for each recipe, with tasks sorted
         # ascending from "must run first" (typically do_fetch) to
         # "runs last" (do_rm_work). Both the speed and completion
@@ -48,8 +66,7 @@ class RunQueueSchedulerRmWork(BaseScheduler):
         # that run later; this is what we depend on here.
         task_lists = {}
         for taskid in self.prio_map:
-            fn = self.rqdata.get_task_file(taskid)
-            taskname = self.rqdata.get_task_name(taskid)
+            fn, taskname = get_task_info(taskid)
             task_lists.setdefault(fn, []).append(taskname)
 
         # Now unify the different task lists. The strategy is that
@@ -59,8 +76,8 @@ class RunQueueSchedulerRmWork(BaseScheduler):
         # the ordering of the common tasks, this should result in a
         # deterministic result that is a superset of the individual
         # task ordering.
-        all_tasks = task_lists.itervalues().next()
-        for recipe, new_tasks in task_lists.iteritems():
+        all_tasks = []
+        for recipe, new_tasks in task_lists.items():
             index = 0
             old_task = all_tasks[index] if index < len(all_tasks) else None
             for new_task in new_tasks:
@@ -88,7 +105,7 @@ class RunQueueSchedulerRmWork(BaseScheduler):
                         #          all_tasks))
                         all_tasks.insert(index, new_task)
                         index += 1
-        # bb.note('merged task list: %s'  % all_tasks)
+        bb.note('merged task list: %s'  % all_tasks)
 
         # Now reverse the order so that tasks that finish the work on one
         # recipe are considered more imporant (= come first). The ordering
@@ -121,9 +138,9 @@ class RunQueueSchedulerRmWork(BaseScheduler):
         task_index = 0
         # self.dump_prio('Original priorities from %s' % BaseScheduler)
         for task in all_tasks:
-            for index in xrange(task_index, self.numTasks):
+            for index in range(task_index, self.numTasks):
                 taskid = self.prio_map[index]
-                taskname = self.rqdata.runq_task[taskid]
+                taskname = get_task_name(taskid)
                 if taskname == task:
                     del self.prio_map[index]
                     self.prio_map.insert(task_index, taskid)
@@ -138,11 +155,11 @@ class RunQueueSchedulerRmWork(BaseScheduler):
                 # The reason is that each compile task itself is allowed to run
                 # multiple processes, and therefore it makes sense to run less
                 # of them without also limiting the number of other tasks.
-                taskname = self.rqdata.runq_task[taskid]
+                taskname = self.get_task_name(taskid)
                 if taskname == 'do_compile':
-                    active = [x for x in xrange(self.numTasks) if \
+                    active = [x for x in range(self.numTasks) if \
                               self.rq.runq_running[x] and not self.rq.runq_complete[x]]
-                    active_compile = [x for x in active if self.rqdata.runq_task[x] == 'do_compile']
+                    active_compile = [x for x in active if self.get_task_name(x) == 'do_compile']
                     if len(active_compile) >= self.number_compile_tasks:
                         # bb.note('Not starting compile task %s, already have %d running: %s' % \
                         #         (self.describe_task(taskid),
