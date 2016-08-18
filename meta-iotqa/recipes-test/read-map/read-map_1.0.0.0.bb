@@ -8,7 +8,7 @@ SRC_URI = "file://read-map.c \
 S = "${WORKDIR}"
 
 do_compile() {
-    ${CC} read-map.c -o read-map
+    ${CC} read-map.c ${LDFLAGS} -o read-map
 }
 
 do_install() {
