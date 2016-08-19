@@ -11,7 +11,7 @@ LIC_FILES_CHKSUM = "file://COPYING.LIB;md5=4fbd65380cdd255951079008b364516c"
 
 DEPENDS = "libva"
 
-SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/${REALPN}/${REALPN}-${PV}.tar.bz2 \
+SRC_URI = "https://gstreamer.freedesktop.org/src/${REALPN}/${REALPN}-${PV}.tar.xz \
           "
 
 S = "${WORKDIR}/${REALPN}-${PV}"
@@ -19,8 +19,6 @@ S = "${WORKDIR}/${REALPN}-${PV}"
 inherit autotools pkgconfig gtk-doc
 
 PACKAGES =+ "${PN}-tests"
-
-EXTRA_OECONF += "--disable-builtin-libvpx"
 
 PACKAGECONFIG ??= "drm \
                    ${@bb.utils.contains("DISTRO_FEATURES", "opengl x11", "glx", "", d)} \

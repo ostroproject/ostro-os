@@ -1,0 +1,28 @@
+From 230b6084ba5b3f8e3e2cc1aa972bdf5c22ca0f73 Mon Sep 17 00:00:00 2001
+From: Houman Brinjcargorabi <houman.brinjcargorabi@intel.com>
+Date: Wed, 27 Jul 2016 11:02:22 +0100
+Subject: [PATCH] firmata_mraa.c: Fixed aio bug
+
+Signed-off-by: Houman Brinjcargorabi <houman.brinjcargorabi@intel.com>
+Signed-off-by: Brendan Le Foll <brendan.le.foll@intel.com>
+---
+ src/firmata/firmata_mraa.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/firmata/firmata_mraa.c b/src/firmata/firmata_mraa.c
+index 25dd9f5..ab1ca68 100644
+--- a/src/firmata/firmata_mraa.c
++++ b/src/firmata/firmata_mraa.c
+@@ -351,6 +351,9 @@ mraa_firmata_aio_read(mraa_aio_context dev)
+ static mraa_result_t
+ mraa_firmata_aio_init_internal_replace(mraa_aio_context dev, int aio)
+ {
++    // set the channel, since we override internal it's never set
++    // offset by 14 because it makes total logical sense.
++    dev->channel = aio + 14;
+     // firmata considers A0 pin0 as well as actual pin0 :/
+     firmata_pinMode(firmata_dev, aio, MODE_ANALOG);
+     // register for updates on that ADC channel
+-- 
+2.9.0
+

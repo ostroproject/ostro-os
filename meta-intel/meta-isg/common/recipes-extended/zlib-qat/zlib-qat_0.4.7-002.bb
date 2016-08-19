@@ -33,6 +33,7 @@ COMPATIBLE_MACHINE = "crystalforest|intel-corei7-64"
 
 ZLIB_VERSION = "1.2.8"
 ZLIB_QAT_VERSION = "0.4.7-002"
+QAT_PATCH_VERSION = "l.0.4.7_002"
 
 S = "${WORKDIR}/zlib-${ZLIB_VERSION}"
 
@@ -46,26 +47,38 @@ export ZLIB_DH895XCC = "1"
 export ZLIB_MEMORY_DRIVER = "qat_mem"
 export ICP_BUILD_OUTPUT = "${STAGING_DIR_TARGET}"
 EXTRA_OEMAKE = "-e MAKEFLAGS="
+TARGET_CC_ARCH += "${LDFLAGS}"
 
 inherit module
 MEM_PATH = "${S}/contrib/qat"
 
-do_unpack2(){
-	cd ${WORKDIR}/
-	unzip zlib_quickassist_patch_l.0.4.7_002_stable.zip
-	cd zlib_quickassist_patch_l.0.4.7_002_devbranch
-	tar -xvzf zlib-1.2.8-qat.L.0.4.7-002.tar.gz
-	cp zlib-1.2.8-qat.patch ${WORKDIR}
+zlibqat_do_patch() {
+	cd ${WORKDIR}
+        unzip -q -o zlib_quickassist_patch_${QAT_PATCH_VERSION}_stable.zip
+        cd zlib_quickassist_patch_${QAT_PATCH_VERSION}_devbranch
+        tar -xvzf zlib-${ZLIB_VERSION}-qat.L.${ZLIB_QAT_VERSION}.tar.gz
+        cp -f zlib-${ZLIB_VERSION}-qat.patch ${WORKDIR}
+        cd ${S}
+        if [ ! -d ${S}/debian/patches ]; then
+                mkdir -p ${S}/debian/patches
+                cp -f ${WORKDIR}/zlib-${ZLIB_VERSION}-qat.patch ${S}/debian/patches
+                echo "zlib-${ZLIB_VERSION}-qat.patch -p1" > ${S}/debian/patches/series
+        fi
+        quilt pop -a || true
+        if [ -d ${S}/.pc-zlibqat ]; then
+                rm -rf ${S}/.pc
+                mv ${S}/.pc-zlibqat ${S}/.pc
+                QUILT_PATCHES=${S}/debian/patches quilt pop -a
+                rm -rf ${S}/.pc
+        fi
+        QUILT_PATCHES=${S}/debian/patches quilt push -a
+        mv ${S}/.pc ${S}/.pc-zlibqat
 }
 
-addtask unpack2 after do_unpack before do_patch
-
-do_patch() {
-	cd ${S}
-	patch -p1  < ${WORKDIR}/zlib-1.2.8-qat.patch
-	patch -p1  < ${WORKDIR}/zlib-qat-0.4.7-002-qat_mem-build-qat_mem-ko-against-yocto-kernel-src.patch
-        patch -p1  < ${WORKDIR}/zlib-qat-0.4.7-002-zlib-qat-add-a-install-target-to-makefile.patch
-        patch -p1  < ${WORKDIR}/zlib-qat-0.4.7-002-zlib-Remove-rpaths-from-makefile.patch        
+# We invoke base do_patch at end, to incorporate any local patch
+python do_patch() {
+    bb.build.exec_func('zlibqat_do_patch', d)
+    bb.build.exec_func('patch_do_patch', d)
 }
 
 do_configure() {

@@ -44,22 +44,35 @@ export KERNEL_BUILDDIR = "${STAGING_KERNEL_BUILDDIR}"
 
 S = "${WORKDIR}/git"
 
-do_unpack2() {
-	cd ${WORKDIR}/openssl_qat-${PV}
-	cd libcrypto_shim_${PV}_*
-	tar -zxof libCrypto_Shim_${PV}.tar.gz
-	tar -zxof libcrypto-openssl-${OPENSSL_VERSION}-qat.L.${PV}.tar.gz
-	mv openssl-${OPENSSL_VERSION}-qat.patch ${WORKDIR}
-}
+opensslqat_do_patch() {
+        cd ${WORKDIR}/openssl_qat-${PV}
+        cd libcrypto_shim_${PV}_*
+        tar -zxof libCrypto_Shim_${PV}.tar.gz
+        tar -zxof libcrypto-openssl-${OPENSSL_VERSION}-qat.L.${PV}.tar.gz
+        mv openssl-${OPENSSL_VERSION}-qat.patch ${WORKDIR}
 
-addtask unpack2 after do_unpack before do_patch_prepend
-
-do_prepatch() {
 	cd ${S}
-	patch -p1 < ${WORKDIR}/openssl-${OPENSSL_VERSION}-qat.patch
+        if [ ! -d ${S}/debian/patches ]; then
+                mkdir -p ${S}/debian/patches
+                cp -f ${WORKDIR}/openssl-${OPENSSL_VERSION}-qat.patch ${S}/debian/patches
+                echo "openssl-${OPENSSL_VERSION}-qat.patch -p1" > ${S}/debian/patches/series
+        fi
+        quilt pop -a || true
+        if [ -d ${S}/.pc-opensslqat ]; then
+                rm -rf ${S}/.pc
+                mv ${S}/.pc-opensslqat ${S}/.pc
+                QUILT_PATCHES=${S}/debian/patches quilt pop -a
+                rm -rf ${S}/.pc
+        fi
+        QUILT_PATCHES=${S}/debian/patches quilt push -a
+        mv ${S}/.pc ${S}/.pc-opensslqat
 }
 
-addtask prepatch after do_unpack2 before do_patch
+# We invoke base do_patch at end, to incorporate any local patch
+python do_patch() {
+    bb.build.exec_func('opensslqat_do_patch', d)
+    bb.build.exec_func('patch_do_patch', d)
+}
 
 do_configure () {
 	os=linux

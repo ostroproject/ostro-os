@@ -1,0 +1,32 @@
+From 4b2d610bbeb6d8a421abd62c8112456e7b35fd75 Mon Sep 17 00:00:00 2001
+From: Jianxun Zhang <jianxun.zhang@linux.intel.com>
+Date: Wed, 1 Jun 2016 15:04:22 -0700
+Subject: [PATCH] Add GUID for SMBIOS 3 entry point structure
+
+64 bit entry point structure has a different GUID from the
+existing 32 bit version.
+
+Upstream-Status: Pending
+
+Signed-off-by: Jianxun Zhang <jianxun.zhang@linux.intel.com>
+---
+ inc/efiapi.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/inc/efiapi.h b/inc/efiapi.h
+index 14cd939..7e3e1d6 100644
+--- a/inc/efiapi.h
++++ b/inc/efiapi.h
+@@ -895,6 +895,9 @@ typedef struct _EFI_BOOT_SERVICES {
+ #define SMBIOS_TABLE_GUID    \
+     { 0xeb9d2d31, 0x2d88, 0x11d3, {0x9a, 0x16, 0x0, 0x90, 0x27, 0x3f, 0xc1, 0x4d} }
+ 
++#define SMBIOS3_TABLE_GUID    \
++    { 0xf2fd1544, 0x9794, 0x4a2c, {0x99, 0x2e, 0xe5, 0xbb, 0xcf, 0x20, 0xe3, 0x94} }
++
+ #define SAL_SYSTEM_TABLE_GUID    \
+     { 0xeb9d2d32, 0x2d88, 0x11d3, {0x9a, 0x16, 0x0, 0x90, 0x27, 0x3f, 0xc1, 0x4d} }
+ 
+-- 
+2.7.4
+

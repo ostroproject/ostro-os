@@ -211,9 +211,10 @@ the downloaded BSP layer or from the meta-intel git repository, you'll
 find the bootable image in the build/tmp/deploy/images/xxx directory,
 where again 'xxx' refers to the machine name used in the build.
 
-The Galileo board boots off of an SD card that has a special disk
-layout.  The 'wic' tool can be used to create an SD card adhering to
-that format via the following steps.
+The Galileo board can boot off of either an SD card or USB storage
+media that has a special disk layout.  The 'wic' tool can be used to
+create directly bootable images for either of the two formats via the
+following steps.
 
 If you haven't already, you need to build parted-native. (You will get
 an error message when running the wic script if you haven't.)
@@ -223,25 +224,29 @@ an error message when running the wic script if you haven't.)
 Use the wic script to create an SD card image:
 
     $ wic list images
-       mkgalileodisk                         Create an Galileo Gen 1/2 disk image
-       mkgummidisk                           Create an EFI disk image
+       galileodisk-sd        Create an Galileo Gen 1/2 disk image (SD card)
+       galileodisk-usb       Create an Galileo Gen 1/2 disk image (USB Storage)
+       mkgummidisk           Create an EFI disk image
 
-Assuming you want to boot the 'core-image-minimal' image:
+Assuming you want to boot the 'core-image-minimal' image for SD card media:
 
-     $ wic create mkgalileodisk -e core-image-minimal
+     $ wic create galileodisk-sd -e core-image-minimal
 
 If successful, the wic script generates the image and prints its location:
 
        Info: The new image(s) can be found here:
-         /var/tmp/wic/build/mkgalileodisk-201604211444-mmcblk0.direct
+         /var/tmp/wic/build/galileodisk-sd-201604211444-mmcblk0.direct
        ...
 
 Write the output image to an SD Card
 
-     $ sudo dd if=/path/to/image/mkgalileodisk-*-mmcblk0.direct of=/dev/your_sd_dev
+     $ sudo dd if=/path/to/image/galileodisk-sd-*-mmcblk0.direct of=/dev/your_sd_dev
  
 Insert the SD Card into the reference platform and power on.
 
+To create a direct-boot image for USB storage media, simply specify
+galileodisk-usb instead of galileodisk-sd in the "wic create ..."
+command, then write the output image to USB storage media and boot it.
 
 III. Technical Miscellany
 =========================

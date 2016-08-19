@@ -1,0 +1,31 @@
+From b7775f24928fca01600cac1077ff3f215aa6362d Mon Sep 17 00:00:00 2001
+From: Jianxun Zhang <jianxun.zhang@linux.intel.com>
+Date: Sat, 21 May 2016 18:52:07 -0700
+Subject: [PATCH 1/3] sd-boot: Link RMC libraries into bootloader
+
+Add two RMC libraries into bootloader binary. EFI stub is not changed
+until we really need rmc in stub.
+
+Upstream-Status: Pending
+
+Signed-off-by: Jianxun Zhang <jianxun.zhang@linux.intel.com>
+---
+ Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 305099a..ff21ebd 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -2802,7 +2802,7 @@ $(top_builddir)/src/boot/efi/%.o: $(top_srcdir)/src/boot/efi/%.c $(addprefix $(t
+ 
+ $(systemd_boot_solib): $(systemd_boot_objects)
+ 	$(AM_V_CCLD)$(LD) $(efi_ldflags) $(systemd_boot_objects) \
+-		-o $@ -lefi -lgnuefi $(shell $(CC) -print-libgcc-file-name); \
++		-o $@ -lefi -lgnuefi -lrmclefi -lrsmpefi $(shell $(CC) -print-libgcc-file-name); \
+ 	nm -D -u $@ | grep ' U ' && exit 1 || :
+ 
+ $(systemd_boot): $(systemd_boot_solib)
+-- 
+2.7.4
+
