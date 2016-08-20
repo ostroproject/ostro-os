@@ -20,15 +20,15 @@ You can learn more about these resources and how to subscribe to and access them
 
 Communication on IRC is immediate, yet transient, making it good for meetings or a quick question. 
 The mailing list is for announcements and questions for broad exposure and discussion. 
-JIRA is our issue tracking system, for feature requests and bug reports.
+GitHub's issue tracker is our tracking system for feature requests and bug reports.
 
 .. _`Open Embedded guidelines for commit messages`: http://openembedded.org/wiki/Commit_Patch_Message_Guidelines
 .. _`Yocto Project`: http://yoctoproject.org
 .. _`Ostro OS Release Notes`: https://github.com/ostroproject/ostro-os/releases/
 .. _`Ostro-dev mailing list`: mailto://ostro-dev@lists.ostroproject.org
 .. _`ostroproject GitHub repo`: https://github.com/ostroproject/
-.. _`Ostro Project JIRA`: https://ostroproject.org/jira
-.. _`bug and issue tracking`: https://ostroproject.org/jira
+.. _`Ostro Project Issues`: https://github.com/ostroproject/ostro-os/issues
+.. _`bug and issue tracking`: https://github.com/ostroproject/ostro-os/issues
 .. _`Ostro Project IRC channel`: irc://#ostroproject@irc.freenode.net
 
 Prerequisites
@@ -42,15 +42,14 @@ As a Linux developer, you should also be familiar with common development tools 
 Logging Bugs and Enhancement Requests
 =====================================
 
-Before starting on a patch, first check in `Ostro Project JIRA`_ to see what’s been reported on the issue you’re addressing. 
+Before starting on a patch, first check in `Ostro Project Issues`_ to see what’s been reported on the issue you’re addressing. 
 Have a conversation on the mailing list to see what others think of your issue (and proposed solution). 
 You may find others that have encountered the issue you're finding, or with similar ideas for changes or additions. 
 If you don't, send a message to the mailing list to introduce and discuss your idea with the development community.
 
-After logging into JIRA, click “Issues” to search for open items. To avoid duplication, it's always a good practice 
+After accessing the ``ostro-os`` GitHub repo, click “Issues” to search for open (and closed) items. To avoid duplication, it's always a good practice 
 to search for existing or related issues before submitting your own. When you submit an issue (bug or feature request),
-the triage team will review the submission, typically within a few business days, and update the “Priority” 
-and “Target Version” and other program management fields. 
+the triage team will review and comment on the submission, typically within a few business days. 
 
 
 Code Review Process Guidelines
@@ -63,9 +62,9 @@ Here are guidelines for the review process that you and the maintainers will fol
 #. Contributors follow the `Open Embedded guidelines for commit messages`_ and patches for recipes and other submissions.
    In your commit message, briefly describe what the patch does, the problem it is addressing, or why it was submitted. 
    Include additional detailed comments in the code itself, as appropriate.  
-#. In the commit message, include the JIRA issue ID if available (using this notation::
+#. In the commit message, include the issue ID if available (using this notation::
 
-    [Fixes|Related-to] OP-<number>
+    [Fixes|Related-to] <Issue-number>
 
 #. When making contributions to the Ostro project (or any open source project), it's important to confirm you have
    the rights to submit your contribution under the open source license being used by the project. The
@@ -147,25 +146,21 @@ mistakes, there are additional notes in :ref:`pull-request-guidelines`.
 Bug and Feature Request Tracking Process
 ========================================
 
-.. note::
-   We anticipate the `Ostro Project JIRA`_ issue tracking system to be live early May...
-
 The Ostro Project includes many upstream projects. Some projects are unchanged and reused directly in Ostro; 
 some are patched with Ostro OS-specific code.  While this section addresses bug reporting and tracking, a similar
-approach is used for feature requests since they're also entered and tracked in JIRA and could apply to an 
+approach is used for feature requests since they're also entered and tracked as GitHub Issues and could apply to an 
 upstream component used by Ostro OS. (We'll collectively refer to bugs and features as issues.)
 
-In general, all issues found in the Ostro OS image are tracked in the `Ostro Project JIRA`_, though some are not. For example, 
+In general, all bugs found in the Ostro OS image are tracked as `Ostro Project Issues`_, though some are not. For example, 
 if an upstream test case fails both upstream and in Ostro OS but without obvious impact to devices running Ostro OS, 
-we want to avoid duplicating such minor issues in the Ostro Project JIRA. The bug should be reported
+we want to avoid duplicating such minor issues in the Ostro Project tracking system. The bug should be reported
 to the upstream projects' issue tracking system.
 
 When an bug is discovered:
 
 #. Find the proper Ostro OS component for tracking the bug:
-     * If the bug is caused by Ostro OS code, an Ostro Project feature or component owner should address it. (Ostro Project
-       components and the responsible owner can be found on the "Components" page in `Ostro Project JIRA`_.)
-     * If the bug is caused by upstream code, the feature owner and QA owner should report in the Ostro OS JIRA and 
+     * If the bug is caused by Ostro OS code, an Ostro Project feature or component owner should address it. 
+     * If the bug is caused by upstream code, the feature owner and QA owner should report in the Ostro OS Issue tracker and 
        map it to an upstream project’s bug tracking system. 
 
    Similarly for feature requests, submit them to the appropriate component or upstream project's issue tracking system.

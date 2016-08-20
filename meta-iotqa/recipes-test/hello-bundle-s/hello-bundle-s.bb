@@ -7,7 +7,7 @@ SRC_URI = "file://hello-bundle-s.c \
 
 S = "${WORKDIR}"
 do_compile() {
-    ${CC} hello-bundle-s.c -o hello-bundle-s
+    ${CC} hello-bundle-s.c ${LDFLAGS} -o hello-bundle-s
 }
  
 do_install() {

@@ -9,7 +9,7 @@ SRC_URI = "file://shm-util.c \
 S = "${WORKDIR}"
 
 do_compile() {
-    ${CC} shm-util.c -o shm-util
+    ${CC} shm-util.c ${LDFLAGS} -o shm-util
 }
 
 do_install() {

@@ -9,7 +9,7 @@ SRC_URI = "file://hello_mraa.c \
 S = "${WORKDIR}"
 
 do_compile() {
-    ${CC} hello_mraa.c -o hello_mraa -lmraa
+    ${CC} hello_mraa.c ${LDFLAGS} -o hello_mraa -lmraa
 }
 
 do_install() {

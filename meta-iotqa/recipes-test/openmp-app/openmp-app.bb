@@ -10,7 +10,7 @@ do_configure() {
 }
 
 do_compile() {
-	${CC} ${CFLAGS} -fopenmp -o ${WORKDIR}/openmp-app ${S}/openmp-app.c
+	${CC} ${CFLAGS} -fopenmp ${LDFLAGS} -o ${WORKDIR}/openmp-app ${S}/openmp-app.c
 }
 
 do_install() {
