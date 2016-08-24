@@ -59,30 +59,6 @@ export CACAO_CONFIGURE_ARGS = " \
 
 JAVA_HOME[unexport] = "1"
 
-# OpenJDK supports parallel compilation but uses a plain number for this.
-# In OE we have PARALLEL_MAKE which is the actual option passed to make,
-# e.g. "-j 4".
-
-OPENJDK_PARALLEL_MAKE := "${PARALLEL_MAKE}"
-PARALLEL_MAKE =  ""
-
-def get_jdk7_jobs(d):
-    import bb
-
-    pm = bb.data.getVar('OPENJDK_PARALLEL_MAKE', d, 1);
-    if not pm:
-        return "1"
-
-    pm = pm.split("j");
-    if (len(pm) == 2):
-        return pm[1].strip()
-
-    # Whatever found in PARALLEL_MAKE was not suitable.
-    return "1"
-
-get_jdk7_jobs[vardepsexclude] += "OPENJDK_PARALLEL_MAKE"
-JDK_JOBS = "${@get_jdk7_jobs(d)}"
-
 EXTRA_OECONF = " \
     --enable-downloading=no \
     \
@@ -108,7 +84,7 @@ EXTRA_OECONF = " \
     --with-jdk-src-zip=${WORKDIR}/${JDK_FILE} \
     --with-langtools-src-zip=${WORKDIR}/${LANGTOOLS_FILE} \
     \
-    --with-parallel-jobs=${JDK_JOBS} \
+    --with-parallel-jobs=${@java_get_parallel_make(d)} \
     \
     --with-pkgversion=${PV} \
     --with-cc-for-build=${BUILD_CC} \
@@ -123,8 +99,6 @@ EXTRA_OECONF += " \
 "
 
 do_configure_prepend() {
-    echo "Configure with parallel-jobs: ${JDK_JOBS}"
-
     # Automatically copy everything that starts with "icedtea" (or "cacao") and ends with
     # ".patch" into the patches directory.
     find ${WORKDIR} -maxdepth 1 -name "icedtea*.patch" -exec cp {} ${S}/patches \;
@@ -138,10 +112,6 @@ do_configure_append() {
 # Work around broken variable quoting in oe-stable 2009 and provide the variable
 # via the environment which then overrides the erroneous value that was written
 # into '${ICETDEA}/Makefile'.
-# Icedtea's makefile is not compatible to parallelization so we cannot allow
-# passing a valid ${PARALLEL_MAKE} to it. OTOH OpenJDK's makefiles are
-# parallelizable and we need ${PARALLEL_MAKE} to derive the proper value.
-# The base for this quirk is that GNU Make only considers the last "-j" option.
 EXTRA_OEMAKE += 'CC="${CC}" CCC="${CXX}" CPP="${CPP}" CXX="${CXX}" CC_FOR_BUILD="${BUILD_CC}"'
 
 EXTRA_OEMAKE += ' \

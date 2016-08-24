@@ -54,27 +54,8 @@ export ALT_FREETYPE_LIB_PATH = "${STAGING_LIBDIR}"
 # which is already stripped.
 INSANE_SKIP_${PN} = "already-stripped"
 
-# OpenJDK supports parallel compilation but uses a plain number for this.
-# In OE we have PARALLEL_MAKE which is the actual option passed to make,
-# e.g. "-j 4".
-ICEDTEA_PARALLEL_MAKE := "${PARALLEL_MAKE}"
-PARALLEL_MAKE = ""
-def get_jdk7_native_jobs(d):
-    import bb
-
-    pm = bb.data.getVar('ICEDTEA_PARALLEL_MAKE', d, 1);
-    if not pm:
-        return "1"
-
-    pm = pm.split("j");
-    if (len(pm) == 2):
-        return pm[1].strip()
-
-    # Whatever found in PARALLEL_MAKE was not suitable.
-    return "1"
-
 EXTRA_OECONF = "\
-	--with-parallel-jobs=${@get_jdk7_native_jobs(d)} \
+	--with-parallel-jobs=${@java_get_parallel_make(d)} \
 	\
         --disable-tests \
         --disable-hotspot-tests \
@@ -273,5 +254,3 @@ do_install() {
 	# Fix missing write permissions on the files.
 	chmod ug+w -R ${JDK_INSTALL_DIR}
 }
-
-get_jdk7_native_jobs[vardepsexclude] += "ICEDTEA_PARALLEL_MAKE"

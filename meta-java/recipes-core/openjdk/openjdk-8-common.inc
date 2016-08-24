@@ -167,27 +167,6 @@ do_configure_prepend() {
         export ${@jdk_environment_options(d)}
 }
 
-# OpenJDK supports parallel compilation but uses a plain number for this.
-# In OE we have PARALLEL_MAKE which is the actual option passed to make,
-# e.g. "-j 4".
-OPENJDK8_PARALLEL_MAKE := "${PARALLEL_MAKE}"
-PARALLEL_MAKE = ""
-def get_jdk8_native_jobs(d):
-    import bb
-
-    pm = bb.data.getVar('OPENJDK8_PARALLEL_MAKE', d, 1);
-    if not pm:
-        return "1"
-
-    pm = pm.split("j");
-    if (len(pm) == 2):
-        return pm[1].strip()
-
-    # Whatever found in PARALLEL_MAKE was not suitable.
-    return "1"
-
-get_jdk8_native_jobs[vardepsexclude] += "OPENJDK8_PARALLEL_MAKE"
-
 # A function that is needed in the Shark builds.
 def get_llvm_configure_arch(d):
     import bb;
