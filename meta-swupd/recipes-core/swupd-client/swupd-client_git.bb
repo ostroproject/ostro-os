@@ -10,6 +10,7 @@ SRC_URI = "\
     git://github.com/clearlinux/swupd-client.git;protocol=https \
     file://Change-systemctl-path-to-OE-systemctl-path.patch \
     file://0001-Add-configure-option-to-re-enable-updating-of-config.patch \
+    file://Make-pinned-pubkey-configurable.patch \
 "
 SRCREV = "f4000c5b22be47ec1af2f8748fd71a36148b5dc4"
 
@@ -35,6 +36,7 @@ PACKAGECONFIG[stateless] = ",--disable-stateless"
 SWUPD_VERSION_URL ??= "example.com"
 SWUPD_CONTENT_URL ??= "example.com"
 SWUPD_FORMAT ??= "3"
+SWUPD_PINNED_PUBKEY ??= ""
 do_install_append () {
     # TODO: This should be a less os-specific directory and not hard-code datadir
     install -d ${D}$/usr/share/clear/bundles
@@ -44,6 +46,7 @@ do_install_append () {
     echo "${SWUPD_VERSION_URL}" >> ${D}/usr/share/defaults/swupd/versionurl
     echo "${SWUPD_CONTENT_URL}" >> ${D}/usr/share/defaults/swupd/contenturl
     echo "${SWUPD_FORMAT}" >> ${D}/usr/share/defaults/swupd/format
+    test -n "${SWUPD_PINNED_PUBKEY}" && echo "${SWUPD_PINNED_PUBKEY}" > ${D}/usr/share/defaults/swupd/pinnedpubkey || true
 }
 
 FILES_${PN} += "\
