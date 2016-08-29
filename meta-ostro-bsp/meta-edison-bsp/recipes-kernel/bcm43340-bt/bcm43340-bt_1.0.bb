@@ -11,7 +11,7 @@ PR = "r1"
 S = "${WORKDIR}/git/broadcom_cws/bluetooth/firmware/"
 
 do_compile() {
-        ${CC} -O2 -Wall -o brcm_patchram_plus brcm_patchram_plus.c
+        ${CC} -O2 -Wall ${LDFLAGS} -o brcm_patchram_plus brcm_patchram_plus.c
 }
 
 do_install() {
