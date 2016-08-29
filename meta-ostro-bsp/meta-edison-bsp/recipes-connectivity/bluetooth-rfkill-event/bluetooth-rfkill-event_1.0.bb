@@ -23,14 +23,14 @@ INC_DIRS = "-I${STAGING_INCDIR}/glib-2.0 -I${STAGING_LIBDIR}/glib-2.0/include/"
 LIBS = "-lglib-2.0"
 
 do_compile() {
-        ${CC} $CFLAGS -o bluetooth_rfkill_event bluetooth_rfkill_event.c ${INC_DIRS} ${LIBS}
+        ${CC} $CFLAGS ${LDFLAGS} -o bluetooth_rfkill_event bluetooth_rfkill_event.c ${INC_DIRS} ${LIBS}
 }
 
 do_install() {
         install -v -d ${D}${sbindir}
         install -m 0755 bluetooth_rfkill_event ${D}${sbindir}
 
-        if ${@base_contains('DISTRO_FEATURES','systemd','true','false',d)}; then
+        if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
                 # Copy file service
                 install -d ${D}/${systemd_unitdir}/system
                 install -m 644 ${WORKDIR}/bluetooth-rfkill-event.service ${D}/${systemd_unitdir}/system
