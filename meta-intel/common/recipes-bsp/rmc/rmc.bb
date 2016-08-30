@@ -20,6 +20,8 @@ S = "${WORKDIR}/git"
 
 DEPENDS_class-target = "gnu-efi"
 
+EXTRA_OEMAKE='RMC_CFLAGS="-Wl,--hash-style=both"'
+
 # from gnu-efi, we should align arch-mapping with it.
 def rmc_efi_arch(d):
     import re
