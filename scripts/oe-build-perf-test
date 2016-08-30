@@ -19,19 +19,22 @@ import errno
 import fcntl
 import logging
 import os
+import shutil
 import sys
+import unittest
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/lib')
 import scriptpath
 scriptpath.add_oe_lib_path()
-from oeqa.buildperf import BuildPerfTestRunner, KernelDropCaches
+import oeqa.buildperf
+from oeqa.buildperf import (BuildPerfTestLoader, BuildPerfTestResult,
+                            BuildPerfTestRunner, KernelDropCaches)
 from oeqa.utils.commands import runCmd
 
 
 # Set-up logging
-LOG_FORMAT = '[%(asctime)s] %(levelname)s: %(message)s'
-logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 log = logging.getLogger()
 
 
@@ -72,10 +75,18 @@ def setup_file_logging(log_file):
     log_dir = os.path.dirname(log_file)
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
-    formatter = logging.Formatter(LOG_FORMAT)
+    formatter = logging.Formatter('[%(asctime)s] %(levelname)s: %(message)s')
     handler = logging.FileHandler(log_file)
     handler.setFormatter(formatter)
     log.addHandler(handler)
+
+
+def archive_build_conf(out_dir):
+    """Archive build/conf to test results"""
+    src_dir = os.path.join(os.environ['BUILDDIR'], 'conf')
+    tgt_dir = os.path.join(out_dir, 'build', 'conf')
+    os.makedirs(os.path.dirname(tgt_dir))
+    shutil.copytree(src_dir, tgt_dir)
 
 
 def parse_args(argv):
@@ -100,6 +111,10 @@ def main(argv=None):
     """Script entry point"""
     args = parse_args(argv)
 
+    # Set-up log file
+    out_dir = args.out_dir.format(date=datetime.now().strftime('%Y%m%d%H%M%S'))
+    setup_file_logging(os.path.join(out_dir, 'output.log'))
+
     if args.debug:
         log.setLevel(logging.DEBUG)
 
@@ -114,18 +129,29 @@ def main(argv=None):
     # Check our capability to drop caches and ask pass if needed
     KernelDropCaches.check()
 
-    # Set-up log file
-    out_dir = args.out_dir.format(date=datetime.now().strftime('%Y%m%d%H%M%S'))
-    setup_file_logging(os.path.join(out_dir, 'output.log'))
+    # Load build perf tests
+    loader = BuildPerfTestLoader()
+    suite = loader.discover(start_dir=os.path.dirname(oeqa.buildperf.__file__))
+
+    archive_build_conf(out_dir)
+    runner = BuildPerfTestRunner(out_dir, verbosity=2)
+
+    # Suppress logger output to stderr so that the output from unittest
+    # is not mixed with occasional logger output
+    log.handlers[0].setLevel(logging.CRITICAL)
 
     # Run actual tests
-    runner = BuildPerfTestRunner(out_dir)
-    ret = runner.run_tests()
-    if not ret:
-        if args.globalres_file:
-            runner.update_globalres_file(args.globalres_file)
+    result = runner.run(suite)
 
-    return ret
+    # Restore logger output to stderr
+    log.handlers[0].setLevel(log.level)
+
+    if result.wasSuccessful():
+        if args.globalres_file:
+            result.update_globalres_file(args.globalres_file)
+        return 0
+
+    return 1
 
 
 if __name__ == '__main__':

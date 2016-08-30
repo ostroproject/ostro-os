@@ -78,7 +78,10 @@ class Command(object):
                 self.process.kill()
                 self.thread.join()
 
-        self.output = self.output.decode("utf-8").rstrip()
+        if not self.output:
+            self.output = ""
+        else:
+            self.output = self.output.decode("utf-8", errors='replace').rstrip()
         self.status = self.process.poll()
 
         self.log.debug("Command '%s' returned %d as exit code." % (self.cmd, self.status))
@@ -261,3 +264,15 @@ def runqemu(pn, ssh=True):
             qemu.stop()
         except:
             pass
+
+def updateEnv(env_file):
+    """
+    Source a file and update environment.
+    """
+
+    cmd = ". %s; env -0" % env_file
+    result = runCmd(cmd)
+
+    for line in result.output.split("\0"):
+        (key, _, value) = line.partition("=")
+        os.environ[key] = value

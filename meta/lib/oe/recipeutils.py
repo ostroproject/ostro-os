@@ -2,7 +2,7 @@
 #
 # Some code borrowed from the OE layer index
 #
-# Copyright (C) 2013-2015 Intel Corporation
+# Copyright (C) 2013-2016 Intel Corporation
 #
 
 import sys
@@ -15,6 +15,7 @@ from . import utils
 import shutil
 import re
 import fnmatch
+import glob
 from collections import OrderedDict, defaultdict
 
 
@@ -258,7 +259,7 @@ def patch_recipe_lines(fromlines, values, trailing_newline=True):
     changed, tolines = bb.utils.edit_metadata(fromlines, varlist, patch_recipe_varfunc, match_overrides=True)
 
     if remainingnames:
-        if tolines[-1].strip() != '':
+        if tolines and tolines[-1].strip() != '':
             tolines.append('\n')
         for k in remainingnames.keys():
             outputvalue(k, tolines)
@@ -365,6 +366,7 @@ def copy_recipe_files(d, tgt_dir, whole_dir=False, download=True):
     # Copy local files to target directory and gather any remote files
     bb_dir = os.path.dirname(d.getVar('FILE', True)) + os.sep
     remotes = []
+    copied = []
     includes = [path for path in d.getVar('BBINCLUDED', True).split() if
                 path.startswith(bb_dir) and os.path.exists(path)]
     for path in fetch.localpaths() + includes:
@@ -376,13 +378,14 @@ def copy_recipe_files(d, tgt_dir, whole_dir=False, download=True):
                 if not os.path.exists(subdir):
                     os.makedirs(subdir)
                 shutil.copy2(path, os.path.join(tgt_dir, relpath))
+                copied.append(relpath)
         else:
             remotes.append(path)
     # Simply copy whole meta dir, if requested
     if whole_dir:
         shutil.copytree(bb_dir, tgt_dir)
 
-    return remotes
+    return copied, remotes
 
 
 def get_recipe_local_files(d, patches=False):
@@ -447,6 +450,60 @@ def validate_pn(pn):
         return 'Recipe name "%s" is invalid: should be just a name, not a file name' % pn
     return ''
 
+
+def get_bbfile_path(d, destdir, extrapathhint=None):
+    """
+    Determine the correct path for a recipe within a layer
+    Parameters:
+        d: Recipe-specific datastore
+        destdir: destination directory. Can be the path to the base of the layer or a
+            partial path somewhere within the layer.
+        extrapathhint: a path relative to the base of the layer to try
+    """
+    import bb.cookerdata
+
+    destdir = os.path.abspath(destdir)
+    destlayerdir = find_layerdir(destdir)
+
+    # Parse the specified layer's layer.conf file directly, in case the layer isn't in bblayers.conf
+    confdata = d.createCopy()
+    confdata.setVar('BBFILES', '')
+    confdata.setVar('LAYERDIR', destlayerdir)
+    destlayerconf = os.path.join(destlayerdir, "conf", "layer.conf")
+    confdata = bb.cookerdata.parse_config_file(destlayerconf, confdata)
+    pn = d.getVar('PN', True)
+
+    bbfilespecs = (confdata.getVar('BBFILES', True) or '').split()
+    if destdir == destlayerdir:
+        for bbfilespec in bbfilespecs:
+            if not bbfilespec.endswith('.bbappend'):
+                for match in glob.glob(bbfilespec):
+                    splitext = os.path.splitext(os.path.basename(match))
+                    if splitext[1] == '.bb':
+                        mpn = splitext[0].split('_')[0]
+                        if mpn == pn:
+                            return os.path.dirname(match)
+
+    # Try to make up a path that matches BBFILES
+    # this is a little crude, but better than nothing
+    bpn = d.getVar('BPN', True)
+    recipefn = os.path.basename(d.getVar('FILE', True))
+    pathoptions = [destdir]
+    if extrapathhint:
+        pathoptions.append(os.path.join(destdir, extrapathhint))
+    if destdir == destlayerdir:
+        pathoptions.append(os.path.join(destdir, 'recipes-%s' % bpn, bpn))
+        pathoptions.append(os.path.join(destdir, 'recipes', bpn))
+        pathoptions.append(os.path.join(destdir, bpn))
+    elif not destdir.endswith(('/' + pn, '/' + bpn)):
+        pathoptions.append(os.path.join(destdir, bpn))
+    closepath = ''
+    for pathoption in pathoptions:
+        bbfilepath = os.path.join(pathoption, 'test.bb')
+        for bbfilespec in bbfilespecs:
+            if fnmatch.fnmatchcase(bbfilepath, bbfilespec):
+                return pathoption
+    return None
 
 def get_bbappend_path(d, destlayerdir, wildcardver=False):
     """Determine how a bbappend for a recipe should be named and located within another layer"""
@@ -728,14 +785,16 @@ def bbappend_recipe(rd, destlayerdir, srcfiles, install=None, wildcardver=False,
 
 
 def find_layerdir(fn):
-    """ Figure out relative path to base of layer for a file (e.g. a recipe)"""
-    pth = os.path.dirname(fn)
+    """ Figure out the path to the base of the layer containing a file (e.g. a recipe)"""
+    pth = fn
     layerdir = ''
     while pth:
         if os.path.exists(os.path.join(pth, 'conf', 'layer.conf')):
             layerdir = pth
             break
         pth = os.path.dirname(pth)
+        if pth == '/':
+            return None
     return layerdir
 
 

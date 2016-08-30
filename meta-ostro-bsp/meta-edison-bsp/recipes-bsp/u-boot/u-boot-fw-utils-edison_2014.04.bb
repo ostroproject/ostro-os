@@ -10,6 +10,8 @@ SRC_URI += "file://fw_env.config"
 
 EXTRA_OEMAKE = 'CROSS_COMPILE=${TARGET_PREFIX} CC="${TARGET_PREFIX}gcc ${TOOLCHAIN_OPTIONS}"'
 
+INSANE_SKIP_${PN} += "ldflags"
+
 do_compile () {
   oe_runmake ${UBOOT_MACHINE}
   oe_runmake env

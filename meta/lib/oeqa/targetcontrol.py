@@ -66,7 +66,7 @@ class BaseTarget(object, metaclass=ABCMeta):
         bb.note("SSH log file: %s" %  self.sshlog)
 
     @abstractmethod
-    def start(self, params=None, ssh=True):
+    def start(self, params=None, ssh=True, extra_bootparams=None):
         pass
 
     @abstractmethod
@@ -174,8 +174,8 @@ class QemuTarget(BaseTarget):
         bb.note("Qemu log file: %s" % self.qemulog)
         super(QemuTarget, self).deploy()
 
-    def start(self, params=None, ssh=True):
-        if self.runner.start(params, get_ip=ssh):
+    def start(self, params=None, ssh=True, extra_bootparams=None):
+        if self.runner.start(params, get_ip=ssh, extra_bootparams=extra_bootparams):
             if ssh:
                 self.ip = self.runner.ip
                 self.server_ip = self.runner.server_ip
@@ -230,7 +230,7 @@ class SimpleRemoteTarget(BaseTarget):
     def deploy(self):
         super(SimpleRemoteTarget, self).deploy()
 
-    def start(self, params=None, ssh=True):
+    def start(self, params=None, ssh=True, extra_bootparams=None):
         if ssh:
             self.connection = SSHControl(self.ip, logfile=self.sshlog, port=self.port)
 
