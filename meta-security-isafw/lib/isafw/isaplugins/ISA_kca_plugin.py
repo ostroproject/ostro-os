@@ -41,122 +41,159 @@ KCAnalyzer = None
 class ISA_KernelChecker():
     initialized = False
 
-    hardening_kco = {'CONFIG_CC_STACKPROTECTOR': 'not set',
-                     'CONFIG_DEFAULT_MMAP_MIN_ADDR': 'not set',
-                     'CONFIG_KEXEC': 'not set',
-                     'CONFIG_PROC_KCORE': 'not set',
-                     'CONFIG_SECURITY_DMESG_RESTRICT': 'not set',
-                     'CONFIG_DEBUG_STACKOVERFLOW': 'not set',
-                     'CONFIG_DEBUG_STRICT_USER_COPY_CHECKS': 'not set',
-                     'CONFIG_ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS': 'not set',
-                     'CONFIG_IKCONFIG_PROC': 'not set',
-                     'CONFIG_RANDOMIZE_BASE': 'not set',
-                     'CONFIG_RANDOMIZE_BASE_MAX_OFFSET': 'not set',
-                     'CONFIG_DEBUG_RODATA': 'not set',
-                     'CONFIG_STRICT_DEVMEM': 'not set',
-                     'CONFIG_DEVKMEM': 'not set',
-                     'CONFIG_X86_MSR': 'not set',
-                     'CONFIG_ARCH_BINFMT_ELF_RANDOMIZE_PIE': 'not set',
-                     'CONFIG_DEBUG_KERNEL': 'not set',
-                     'CONFIG_DEBUG_FS': 'not set',
-                     'CONFIG_MODULE_SIG_FORCE': 'not set',
-                     'CONFIG_X86_INTEL_MPX': 'not set'
-                     }
-
-    hardening_kco_ref = {'CONFIG_CC_STACKPROTECTOR': 'y',
-                         'CONFIG_DEFAULT_MMAP_MIN_ADDR': '65536', # x86 specific
-                         'CONFIG_KEXEC': 'not set',
-                         'CONFIG_PROC_KCORE': 'not set',
-                         'CONFIG_SECURITY_DMESG_RESTRICT': 'y',
-                         'CONFIG_DEBUG_STACKOVERFLOW': 'y',
-                         'CONFIG_DEBUG_STRICT_USER_COPY_CHECKS': 'y',
-                         'CONFIG_ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS': 'y',
-                         'CONFIG_IKCONFIG_PROC': 'not set',
-                         'CONFIG_RANDOMIZE_BASE': 'y',
-                         'CONFIG_RANDOMIZE_BASE_MAX_OFFSET': '0x20000000,0x40000000', # x86 specific
-                         'CONFIG_DEBUG_RODATA': 'y',
-                         'CONFIG_STRICT_DEVMEM': 'y',
-                         'CONFIG_DEVKMEM': 'not set',
-                         'CONFIG_X86_MSR': 'not set',
-                         'CONFIG_ARCH_BINFMT_ELF_RANDOMIZE_PIE': 'y',
-                         'CONFIG_DEBUG_KERNEL': 'not set',
-                         'CONFIG_DEBUG_FS': 'not set',
-                         'CONFIG_MODULE_SIG_FORCE': 'y',
-                         'CONFIG_X86_INTEL_MPX': 'y' # x86 and certain HW variants specific
-                         }
-
-    keys_kco = {'CONFIG_KEYS': 'not set',
-                'CONFIG_TRUSTED_KEYS': 'not set',
-                'CONFIG_ENCRYPTED_KEYS': 'not set',
-                'CONFIG_KEYS_DEBUG_PROC_KEYS': 'not set'
-                }
-    keys_kco_ref = {'CONFIG_KEYS': 'y',
-                    'CONFIG_TRUSTED_KEYS': 'y',
-                    'CONFIG_ENCRYPTED_KEYS': 'y',
-                    'CONFIG_KEYS_DEBUG_PROC_KEYS': 'not set'
+    ############################################################################################
+    # Kernel Hardening Configurations
+    ############################################################################################
+    hardening_arch_kco = {'common': {  'CONFIG_CC_STACKPROTECTOR'                       : 'not set',
+                                       'CONFIG_KEXEC'                                   : 'not set',
+                                       'CONFIG_PROC_KCORE'                              : 'not set',
+                                       'CONFIG_SECURITY_DMESG_RESTRICT'                 : 'not set',
+                                       'CONFIG_DEBUG_STACKOVERFLOW'                     : 'not set',
+                                       'CONFIG_DEBUG_STRICT_USER_COPY_CHECKS'           : 'not set',
+                                       'CONFIG_ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS'  : 'not set',
+                                       'CONFIG_IKCONFIG_PROC'                           : 'not set',
+                                       'CONFIG_RANDOMIZE_BASE'                          : 'not set',
+                                       'CONFIG_DEBUG_RODATA'                            : 'not set',
+                                       'CONFIG_STRICT_DEVMEM'                           : 'not set',
+                                       'CONFIG_DEVKMEM'                                 : 'not set',
+                                       'CONFIG_ARCH_BINFMT_ELF_RANDOMIZE_PIE'           : 'not set',
+                                       'CONFIG_DEBUG_KERNEL'                            : 'not set',
+                                       'CONFIG_DEBUG_FS'                                : 'not set',
+                                       'CONFIG_MODULE_SIG_FORCE'                        : 'not set'
+                                    },
+                     'x86': {  'CONFIG_DEFAULT_MMAP_MIN_ADDR'                      : 'not set',
+                               'CONFIG_RANDOMIZE_BASE_MAX_OFFSET'                  : 'not set',
+                               'CONFIG_X86_MSR'                                    : 'not set',
+                               'CONFIG_X86_INTEL_MPX'                              : 'not set'
+                             },
+                     'arm': {  'CONFIG_DEFAULT_MMAP_MIN_ADDR'                      : 'not set'
+                            }
                     }
-
-    security_kco = {'CONFIG_SECURITY': 'not set',
-                    'CONFIG_SECURITYFS': 'not set',
-                    'CONFIG_SECURITY_NETWORKING': 'not set',
-                    'CONFIG_DEFAULT_SECURITY': 'not set',
-                    'CONFIG_SECURITY_SELINUX': 'not set',
-                    'CONFIG_SECURITY_SMACK': 'not set',
-                    'CONFIG_SECURITY_TOMOYO': 'not set',
-                    'CONFIG_SECURITY_APPARMOR': 'not set',
-                    'CONFIG_SECURITY_YAMA': 'not set',
-                    'CONFIG_SECURITY_YAMA_STACKED': 'not set',
-                    'CONFIG_LSM_MMAP_MIN_ADDR': 'not set',
-                    'CONFIG_INTEL_TXT': 'not set'
-                    }
-
-    security_kco_ref = {'CONFIG_SECURITY': 'y',
-                        'CONFIG_SECURITYFS': 'y',
-                        'CONFIG_SECURITY_NETWORKING': 'y',
-                        'CONFIG_DEFAULT_SECURITY': '"selinux","smack","apparmor","tomoyo"',
-                        'CONFIG_SECURITY_SELINUX': 'y',
-                        'CONFIG_SECURITY_SMACK': 'y',
-                        'CONFIG_SECURITY_TOMOYO': 'y',
-                        'CONFIG_SECURITY_APPARMOR': 'y',
-                        'CONFIG_SECURITY_YAMA': 'y',
-                        'CONFIG_SECURITY_YAMA_STACKED': 'y',
-                        'CONFIG_LSM_MMAP_MIN_ADDR': '65536', # x86 specific
-                        'CONFIG_INTEL_TXT': 'y'
+    hardening_arch_kco_ref = { 'common': {  'CONFIG_CC_STACKPROTECTOR'                       : 'y',
+                                            'CONFIG_KEXEC'                                   : 'not set',
+                                            'CONFIG_PROC_KCORE'                              : 'not set',
+                                            'CONFIG_SECURITY_DMESG_RESTRICT'                 : 'y',
+                                            'CONFIG_DEBUG_STACKOVERFLOW'                     : 'y',
+                                            'CONFIG_DEBUG_STRICT_USER_COPY_CHECKS'           : 'y',
+                                            'CONFIG_ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS'  : 'y',
+                                            'CONFIG_IKCONFIG_PROC'                           : 'not set',
+                                            'CONFIG_RANDOMIZE_BASE'                          : 'y',
+                                            'CONFIG_DEBUG_RODATA'                            : 'y',
+                                            'CONFIG_STRICT_DEVMEM'                           : 'y',
+                                            'CONFIG_DEVKMEM'                                 : 'not set',
+                                            'CONFIG_ARCH_BINFMT_ELF_RANDOMIZE_PIE'           : 'y',
+                                            'CONFIG_DEBUG_KERNEL'                            : 'not set',
+                                            'CONFIG_DEBUG_FS'                                : 'not set',
+                                            'CONFIG_MODULE_SIG_FORCE'                        : 'y'
+                                         },
+                          'x86': {  'CONFIG_DEFAULT_MMAP_MIN_ADDR'                   : '65536', # x86 specific
+                                    'CONFIG_RANDOMIZE_BASE_MAX_OFFSET'               : '0x20000000,0x40000000', # x86 specific
+                                    'CONFIG_X86_MSR'                                 : 'not set',
+                                    'CONFIG_X86_INTEL_MPX': 'y' # x86 and certain HW variants specific
+                                 },
+                          'arm': {  'CONFIG_DEFAULT_MMAP_MIN_ADDR'                   : '32768'
+                                 }
                         }
 
-    integrity_kco = {'CONFIG_INTEGRITY': 'not set',
-                     'CONFIG_INTEGRITY_SIGNATURE': 'not set',
-                     'CONFIG_INTEGRITY_AUDIT': 'not set',
-                     'CONFIG_IMA': 'not set',
-                     'CONFIG_IMA_LSM_RULES': 'not set',
-                     'CONFIG_IMA_APPRAISE': 'not set',
-                     'CONFIG_IMA_TRUSTED_KEYRING': 'not set',
-                     'CONFIG_IMA_APPRAISE_SIGNED_INIT': 'not set',
-                     'CONFIG_EVM': 'not set',
-                     'CONFIG_EVM_ATTR_FSUUID': 'not set',
-                     'CONFIG_EVM_EXTRA_SMACK_XATTRS': 'not set',
-                     'CONFIG_IMA_DEFAULT_HASH_SHA1': 'not set',
-                     'CONFIG_IMA_DEFAULT_HASH_SHA256': 'not set',
-                     'CONFIG_IMA_DEFAULT_HASH_SHA512': 'not set',
-                     'CONFIG_IMA_DEFAULT_HASH_WP512': 'not set'
-                     }
+    ############################################################################################
+    # Keys Kernel Configuration
+    ############################################################################################
+    keys_arch_kco = {'common': { 'CONFIG_KEYS'                                    : 'not set',
+                                 'CONFIG_TRUSTED_KEYS'                            : 'not set',
+                                 'CONFIG_ENCRYPTED_KEYS'                          : 'not set',
+                                 'CONFIG_KEYS_DEBUG_PROC_KEYS'                    : 'not set'
+                               },
+                'x86': {},
+                'arm': {}
+               }
+    keys_arch_kco_ref = {'common': { 'CONFIG_KEYS'                                    : 'y',
+                                     'CONFIG_TRUSTED_KEYS'                            : 'y',
+                                     'CONFIG_ENCRYPTED_KEYS'                          : 'y',
+                                     'CONFIG_KEYS_DEBUG_PROC_KEYS'                    : 'not set'
+                                   },
+                    'x86': {},
+                    'arm': {}
+                   }
 
-    integrity_kco_ref = {'CONFIG_INTEGRITY': 'y',
-                         'CONFIG_INTEGRITY_SIGNATURE': 'y',
-                         'CONFIG_INTEGRITY_AUDIT': 'y',
-                         'CONFIG_IMA': 'y',
-                         'CONFIG_IMA_LSM_RULES': 'y',
-                         'CONFIG_IMA_APPRAISE': 'y',
-                         'CONFIG_IMA_TRUSTED_KEYRING': 'y',
-                         'CONFIG_IMA_APPRAISE_SIGNED_INIT': 'y',
-                         'CONFIG_EVM': 'y',
-                         'CONFIG_EVM_ATTR_FSUUID': 'y',
-                         'CONFIG_EVM_EXTRA_SMACK_XATTRS': 'y',
-                         'CONFIG_IMA_DEFAULT_HASH_SHA1': 'not set',
-                         'CONFIG_IMA_DEFAULT_HASH_SHA256': 'y',
-                         'CONFIG_IMA_DEFAULT_HASH_SHA512': 'y',
-                         'CONFIG_IMA_DEFAULT_HASH_WP512': 'not set'
-                         }
+    ############################################################################################
+    # Security Kernel Configuration
+    ############################################################################################
+    security_arch_kco = {'common': { 'CONFIG_SECURITY'                                : 'not set',
+                                     'CONFIG_SECURITYFS'                              : 'not set',
+                                     'CONFIG_SECURITY_NETWORKING'                     : 'not set',
+                                     'CONFIG_DEFAULT_SECURITY'                        : 'not set',
+                                     'CONFIG_SECURITY_SELINUX'                        : 'not set',
+                                     'CONFIG_SECURITY_SMACK'                          : 'not set',
+                                     'CONFIG_SECURITY_TOMOYO'                         : 'not set',
+                                     'CONFIG_SECURITY_APPARMOR'                       : 'not set',
+                                     'CONFIG_SECURITY_YAMA'                           : 'not set',
+                                     'CONFIG_SECURITY_YAMA_STACKED'                   : 'not set'
+                                   },
+                    'x86': { 'CONFIG_LSM_MMAP_MIN_ADDR'                       : 'not set',
+                             'CONFIG_INTEL_TXT'                               : 'not set'
+                           },
+                    'arm': { 'CONFIG_LSM_MMAP_MIN_ADDR'                       : 'not set'
+                           }
+                   }
+    security_arch_kco_ref = {'common': { 'CONFIG_SECURITY'                                : 'y',
+                                         'CONFIG_SECURITYFS'                              : 'y',
+                                         'CONFIG_SECURITY_NETWORKING'                     : 'y',
+                                         'CONFIG_DEFAULT_SECURITY'                        : '"selinux","smack","apparmor","tomoyo"',
+                                         'CONFIG_SECURITY_SELINUX'                        : 'y',
+                                         'CONFIG_SECURITY_SMACK'                          : 'y',
+                                         'CONFIG_SECURITY_TOMOYO'                         : 'y',
+                                         'CONFIG_SECURITY_APPARMOR'                       : 'y',
+                                         'CONFIG_SECURITY_YAMA'                           : 'y',
+                                         'CONFIG_SECURITY_YAMA_STACKED'                   : 'y'
+                                       },
+                        'x86': { 'CONFIG_LSM_MMAP_MIN_ADDR'                       : '65536', #x86 specific
+                                 'CONFIG_INTEL_TXT'                               : 'y'
+                               },
+                        'arm': { 'CONFIG_LSM_MMAP_MIN_ADDR'                       : '32768'
+                               }
+                        }
+
+    ############################################################################################
+    # Integrity Kernel Configuration
+    ############################################################################################
+    integrity_arch_kco = {'common': { 'CONFIG_INTEGRITY'                               : 'not set',
+                                      'CONFIG_INTEGRITY_SIGNATURE'                     : 'not set',
+                                      'CONFIG_INTEGRITY_AUDIT'                         : 'not set',
+                                      'CONFIG_IMA'                                     : 'not set',
+                                      'CONFIG_IMA_LSM_RULES'                           : 'not set',
+                                      'CONFIG_IMA_APPRAISE'                            : 'not set',
+                                      'CONFIG_IMA_TRUSTED_KEYRING'                     : 'not set',
+                                      'CONFIG_IMA_APPRAISE_SIGNED_INIT'                : 'not set',
+                                      'CONFIG_EVM'                                     : 'not set',
+                                      'CONFIG_EVM_ATTR_FSUUID'                         : 'not set',
+                                      'CONFIG_EVM_EXTRA_SMACK_XATTRS'                  : 'not set',
+                                      'CONFIG_IMA_DEFAULT_HASH_SHA1'                   : 'not set',
+                                      'CONFIG_IMA_DEFAULT_HASH_SHA256'                 : 'not set',
+                                      'CONFIG_IMA_DEFAULT_HASH_SHA512'                 : 'not set',
+                                      'CONFIG_IMA_DEFAULT_HASH_WP512'                  : 'not set'
+                                    },
+                     'x86': {},
+                     'arm': {}
+                    }
+    integrity_arch_kco_ref = {'common': { 'CONFIG_INTEGRITY'                               : 'y',
+                                          'CONFIG_INTEGRITY_SIGNATURE'                     : 'y',
+                                          'CONFIG_INTEGRITY_AUDIT'                         : 'y',
+                                          'CONFIG_IMA'                                     : 'y',
+                                          'CONFIG_IMA_LSM_RULES'                           : 'y',
+                                          'CONFIG_IMA_APPRAISE'                            : 'y',
+                                          'CONFIG_IMA_TRUSTED_KEYRING'                     : 'y',
+                                          'CONFIG_IMA_APPRAISE_SIGNED_INIT'                : 'y',
+                                          'CONFIG_EVM'                                     : 'y',
+                                          'CONFIG_EVM_ATTR_FSUUID'                         : 'y',
+                                          'CONFIG_EVM_EXTRA_SMACK_XATTRS'                  : 'y',
+                                          'CONFIG_IMA_DEFAULT_HASH_SHA1'                   : 'not set',
+                                          'CONFIG_IMA_DEFAULT_HASH_SHA256'                 : 'y',
+                                          'CONFIG_IMA_DEFAULT_HASH_SHA512'                 : 'y',
+                                          'CONFIG_IMA_DEFAULT_HASH_WP512'                  : 'not set'
+                                        } ,
+                         'x86': {},
+                         'arm': {}
+                        }
 
     def __init__(self, ISA_config):
         self.proxy = ISA_config.proxy
@@ -167,12 +204,22 @@ class ISA_KernelChecker():
             "/kca_problems_report_" + ISA_config.machine + "_" + ISA_config.timestamp
         self.full_reports = ISA_config.full_reports
         self.initialized = True
+        self.arch = ISA_config.arch
         with open(self.logfile, 'w') as flog:
             flog.write("\nPlugin ISA_KernelChecker initialized!\n")
 
     def process_kernel(self, ISA_kernel):
         if (self.initialized):
             if (ISA_kernel.img_name and ISA_kernel.path_to_config):
+                # Merging common and arch configs
+                self.hardening_kco = merge_config(self.hardening_arch_kco[self.arch], self.hardening_arch_kco['common'])
+                self.hardening_kco_ref = merge_config(self.hardening_arch_kco_ref[self.arch], self.hardening_arch_kco_ref['common'])
+                self.keys_kco = merge_config(self.keys_arch_kco[self.arch], self.keys_arch_kco['common'])
+                self.keys_kco_ref = merge_config(self.keys_arch_kco_ref[self.arch], self.keys_arch_kco_ref['common'])
+                self.security_kco = merge_config(self.security_arch_kco[self.arch], self.security_arch_kco['common'])
+                self.security_kco_ref = merge_config(self.security_arch_kco_ref[self.arch], self.security_arch_kco_ref['common'])
+                self.integrity_kco = merge_config(self.integrity_arch_kco[self.arch], self.integrity_arch_kco['common'])
+                self.integrity_kco_ref = merge_config(self.integrity_arch_kco_ref[self.arch], self.integrity_arch_kco_ref['common'])
                 with open(self.logfile, 'a') as flog:
                     flog.write("Analyzing kernel config file at: " + ISA_kernel.path_to_config +
                                " for the image: " + ISA_kernel.img_name + "\n")
@@ -399,8 +446,12 @@ class ISA_KernelChecker():
             tree.write(output, encoding='UTF-8', xml_declaration=True)
 
 
-# ======== supported callbacks from ISA ============= #
+def merge_config(arch_kco, common_kco):
+    merged = arch_kco.copy()
+    merged.update(common_kco)
+    return merged
 
+# ======== supported callbacks from ISA ============= #
 def init(ISA_config):
     global KCAnalyzer
     KCAnalyzer = ISA_KernelChecker(ISA_config)

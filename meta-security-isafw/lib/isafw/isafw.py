@@ -113,6 +113,7 @@ class ISA_config:
     machine = ""                  # name of machine build is produced for
     la_plugin_image_whitelist = ""# whitelist of images for violating license checks
     la_plugin_image_blacklist = ""# blacklist of images for violating license checks
+    arch = ""                     # target architecture
 
 class ISA:
     def call_plugins(self, methodname, *parameters, **keywords):

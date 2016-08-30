@@ -208,6 +208,11 @@ def isafw_init(isafw, d):
                 pass
             else: raise
     isafw_config.logdir = d.getVar('ISAFW_LOGDIR', True)
+    # Adding support for arm
+    # TODO: Add support for other platforms
+    isafw_config.arch =  d.getVar('TARGET_ARCH', True)
+    if ( isafw_config.arch != "arm" ):
+        isafw_config.arch = "x86"
 
     whitelist = d.getVar('ISAFW_PLUGINS_WHITELIST', True)
     blacklist = d.getVar('ISAFW_PLUGINS_BLACKLIST', True)
@@ -288,4 +293,3 @@ python isafwreport_handler () {
 }
 addhandler isafwreport_handler
 isafwreport_handler[eventmask] = "bb.event.BuildStarted"
-
