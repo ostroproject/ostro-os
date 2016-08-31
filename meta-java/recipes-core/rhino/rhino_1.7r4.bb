@@ -2,6 +2,8 @@ DESCRIPTION = "Lexical analyzer generator for Java"
 LICENSE = "MPL-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=8e2372bdbf22c99279ae4599a13cc458"
 
+DEPENDS_class-native += "classpath-native"
+
 BBCLASSEXTEND = "native"
 
 inherit java-library

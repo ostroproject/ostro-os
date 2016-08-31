@@ -31,6 +31,8 @@ NGINX_USER   ?= "www"
 EXTRA_OECONF = ""
 DISABLE_STATIC = ""
 
+PACKAGECONFIG[http2] = "--with-http_v2_module,,"
+
 do_configure () {
 	if [ "${SITEINFO_BITS}" = "64" ]; then
 		PTRSIZE=8
@@ -40,6 +42,9 @@ do_configure () {
 
 	echo $CFLAGS
 	echo $LDFLAGS
+
+	# Add the LDFLAGS to the main nginx link to avoid issues with missing GNU_HASH
+	echo "MAIN_LINK=\"\${MAIN_LINK} ${LDFLAGS}\"" >> auto/cc/conf
 
 	./configure \
 	--crossbuild=Linux:${TUNE_ARCH} \

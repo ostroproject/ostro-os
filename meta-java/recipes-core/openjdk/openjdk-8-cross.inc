@@ -40,7 +40,7 @@ SRC_URI_append = "\
 "
 
 EXTRA_OECONF_append = "\
-    --with-jobs=${@get_jdk8_native_jobs(d)} \
+    --with-jobs=${@java_get_parallel_make(d)} \
     \
     --with-sys-root=${STAGING_DIR} \
     --with-tools-dir=${STAGING_DIR_NATIVE} \
@@ -65,13 +65,13 @@ do_install_append() {
     if ${@bb.utils.contains('PACKAGECONFIG', 'repack', 'true', 'false', d)} ; then
       if [ -d ${D}${JDK_HOME} ] ; then
         find ${D}${JDK_HOME} -name "*.jar" -print0 | \
-          xargs -0 -n1 -P ${@get_jdk8_native_jobs(d)} sh -c ' \
+          xargs -0 -n1 -P ${@java_get_parallel_make(d)} sh -c ' \
               echo "Repacking" "$0" ; \
               pack200 --repack --effort=9 --segment-limit=-1 --modification-time=latest --strip-debug "$0"'
       fi
       if [ -d ${D}${JRE_HOME} ] ; then
         find ${D}${JRE_HOME} -name "*.jar" -print0 | \
-          xargs -0 -n1 -P ${@get_jdk8_native_jobs(d)} sh -c ' \
+          xargs -0 -n1 -P ${@java_get_parallel_make(d)} sh -c ' \
               echo "Repacking" "$0" ; \
               pack200 --repack --effort=9 --segment-limit=-1 --modification-time=latest --strip-debug "$0"'
       fi

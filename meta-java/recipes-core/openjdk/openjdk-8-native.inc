@@ -16,7 +16,7 @@ PACKAGECONFIG[alsa] = "--with-alsa,,alsa-lib-native"
 PACKAGECONFIG[jce] = "--enable-unlimited-crypto,,"
 
 EXTRA_OECONF_append = "\
-    --with-jobs=${@get_jdk8_native_jobs(d)} \
+    --with-jobs=${@java_get_parallel_make(d)} \
     \
     --with-sys-root=${STAGING_DIR_NATIVE} \
     --with-tools-dir=${STAGING_DIR_NATIVE} \
