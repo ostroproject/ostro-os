@@ -4,12 +4,13 @@ SECTION = "security"
 LICENSE = "BSD-3-Clause"
 HOMEPAGE="http://www.trapkit.de/tools/checksec.html"
 
-LIC_FILES_CHKSUM = "file://checksec.sh;beginline=3;endline=34;md5=c1bd90129ce3bb5519cfcaea794ab515"
+LIC_FILES_CHKSUM = "file://checksec.sh;beginline=3;endline=34;md5=6dab14470bfdf12634b866dbdd7a04b0"
 
 SRC_URI = "http://www.trapkit.de/tools/checksec.sh"
 
-SRC_URI[md5sum] = "075996be339ab16ad7b94d6de3ee07bd"
-SRC_URI[sha256sum] = "77b8a7fd9393d10def665658a41176ee745d5c7969a4a0f43cefcc8a4cd90947"
+SRC_URI[md5sum] = "57cc3fbbbe48e8ebd4672c569954374d"
+SRC_URI[sha256sum] = "05822cd8668589038d20650faa0e56f740911d8ad06f7005b3d12a5c76591b90"
+
 
 S = "${WORKDIR}"
 
