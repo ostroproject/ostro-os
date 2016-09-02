@@ -50,7 +50,7 @@ INSANE_SKIP_${PYTHON_PN}-${PN} = "debug-files"
 ### Node ###
 
 # node-upm package containing Nodejs bindings
-FILES_node-${PN} = "${libdir}/node_modules/ \
+FILES_node-${PN} = "${prefix}/lib/node_modules/ \
                     ${datadir}/${BPN}/examples/javascript/ \
                    "
 RDEPENDS_node-${PN} += "nodejs mraa"

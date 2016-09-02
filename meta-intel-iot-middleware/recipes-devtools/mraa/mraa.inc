@@ -56,7 +56,7 @@ INSANE_SKIP_python-${PN} = "debug-files"
 ### Node ###
 
 # node-mraa package containing Nodejs bindings
-FILES_node-${PN} = "${libdir}/node_modules/ \
+FILES_node-${PN} = "${prefix}/lib/node_modules/ \
                     ${datadir}/mraa/examples/javascript/ \
                    "
 RDEPENDS_node-${PN} += "nodejs"
