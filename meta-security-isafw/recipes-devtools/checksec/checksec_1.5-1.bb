@@ -17,6 +17,7 @@ S = "${WORKDIR}"
 do_install() {
     install -d ${D}${bindir}
     install -m 0755 ${WORKDIR}/checksec.sh    ${D}${bindir}
+    sed -i 's/\r//' ${D}${bindir}/checksec.sh
 }
 
 RDEPENDS_${PN} = "bash binutils"
