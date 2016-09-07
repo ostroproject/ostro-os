@@ -1,0 +1,32 @@
+From a33a9e7559b59bc5fb0988af85062436ec4389a4 Mon Sep 17 00:00:00 2001
+From: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+Date: Fri, 19 Aug 2016 11:57:49 +0800
+Subject: [PATCH] dpdk: add --sysroot option within app makefile
+
+Upstream-Status: Inappropriate [configuration]
+
+rte.app.mk has been changed to add -Wl, to all items listed
+under EXTRA_LDFLAGS. It causes --sysroot=<path> to not setup
+correctly when we depends on gcc to setup for GNU ld.
+
+Signed-off-by: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+---
+ mk/rte.app.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mk/rte.app.mk b/mk/rte.app.mk
+index eb28e11..296c8c7 100644
+--- a/mk/rte.app.mk
++++ b/mk/rte.app.mk
+@@ -195,7 +195,7 @@ exe2cmd = $(strip $(call dotfile,$(patsubst %,%.cmd,$(1))))
+ ifeq ($(LINK_USING_CC),1)
+ O_TO_EXE = $(CC) -o $@ $(CFLAGS) $(OBJS-y) $(call linkerprefix, \
+ 	$(LDLIBS) $(LDFLAGS) $(LDFLAGS_$(@)) $(EXTRA_LDFLAGS) \
+-	$(MAPFLAGS))
++	$(MAPFLAGS)) $(SYSROOTPATH)
+ else
+ O_TO_EXE = $(LD) -o $@ $(OBJS-y) \
+ 	$(LDLIBS) $(LDFLAGS) $(LDFLAGS_$(@)) $(EXTRA_LDFLAGS) \
+-- 
+1.9.1
+

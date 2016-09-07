@@ -1,0 +1,42 @@
+From 4cdcb5ea4af9677677a007c4f9b286948123be87 Mon Sep 17 00:00:00 2001
+From: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+Date: Fri, 2 Sep 2016 15:48:52 +0800
+Subject: [PATCH] dpdk: fix for parellel make issue
+
+To make sure that the path of libraries should be correct and
+libraries will be build before, And available at the time of
+linking example apps.
+
+Signed-off-by: Rahul Kumar Gupta <rahul.kumarxx.gupta@intel.com>
+---
+ examples/Makefile                     | 1 +
+ examples/ethtool/ethtool-app/Makefile | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/examples/Makefile b/examples/Makefile
+index 18b41b9..c7c2beb 100644
+--- a/examples/Makefile
++++ b/examples/Makefile
+@@ -43,6 +43,7 @@ DIRS-$(CONFIG_RTE_LIBRTE_DISTRIBUTOR) += distributor
+ ifneq ($(ICP_ROOT),)
+ DIRS-y += dpdk_qat
+ endif
++DEPDIRS-y += examples/ethtool/lib
+ DIRS-y += ethtool
+ DIRS-y += exception_path
+ DIRS-y += helloworld
+diff --git a/examples/ethtool/ethtool-app/Makefile b/examples/ethtool/ethtool-app/Makefile
+index 09c66ad..ec068e6 100644
+--- a/examples/ethtool/ethtool-app/Makefile
++++ b/examples/ethtool/ethtool-app/Makefile
+@@ -47,6 +47,7 @@ SRCS-y := main.c ethapp.c
+ CFLAGS += -O3 -D_GNU_SOURCE -pthread -I$(SRCDIR)/../lib
+ CFLAGS += $(WERROR_FLAGS)
+ 
++LDLIBS += -L$(ETHTOOL_LIB_PATH)/
+ LDLIBS += -L$(subst ethtool-app,lib,$(RTE_OUTPUT))/lib
+ LDLIBS += -lrte_ethtool
+ 
+-- 
+1.9.1
+
