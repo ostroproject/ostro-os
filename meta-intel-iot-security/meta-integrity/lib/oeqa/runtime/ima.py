@@ -72,7 +72,11 @@ class IMACheck(oeRuntimeTest):
 
     def test_ima_overwrite(self):
         ''' Test if IMA prevents overwriting signed files '''
-        signed_file = "/bin/sh"
+        status, output = self.target.run("find /bin -type f")
+        self.assertEqual(status, 0 , "ssh to device fail: %s" %output)  
+        signed_file = output.strip().split()[0]
+        print("\n signed_file is %s" % signed_file)
         status, output = self.target.run(" echo 'foo' >> %s" %signed_file)
-        self.assertIn("Text file busy", output,
+        self.assertNotEqual(status, 0 , "Signed file could be written")
+        self.assertIn("Permission denied", output,
                       "Did not find expected error message. Got: %s" %output)

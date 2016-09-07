@@ -14,11 +14,13 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=838c366f69b72c5df05c96dff79b35f2"
 
 SRC_URI = "git://git.yoctoproject.org/rmc"
 
-SRCREV = "9bc0f645729bb41e050395fbfac170fca351b3b8"
+SRCREV = "2e38d056f86c0457f3a5ca7ef848545bbb190e47"
 
 S = "${WORKDIR}/git"
 
 DEPENDS_class-target = "gnu-efi"
+
+EXTRA_OEMAKE='RMC_CFLAGS="-Wl,--hash-style=both"'
 
 # from gnu-efi, we should align arch-mapping with it.
 def rmc_efi_arch(d):

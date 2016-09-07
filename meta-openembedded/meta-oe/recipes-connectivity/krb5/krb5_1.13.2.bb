@@ -36,6 +36,7 @@ SRC_URI = "http://web.mit.edu/kerberos/dist/${BPN}/${SHRT_VER}/${BP}-signed.tar 
            file://krb5-admin-server.service \
            file://krb5-CVE-2016-3119.patch;striplevel=2 \
            file://0001-Work-around-uninitialized-warning-in-cc_kcm.c.patch;striplevel=2 \
+	   file://krb5-CVE-2016-3120.patch;striplevel=2 \
 "
 SRC_URI[md5sum] = "f7ebfa6c99c10b16979ebf9a98343189"
 SRC_URI[sha256sum] = "e528c30b0209c741f6f320cb83122ded92f291802b6a1a1dc1a01dcdb3ff6de1"
@@ -57,8 +58,8 @@ CACHED_CONFIGUREVARS += "krb5_cv_attr_constructor_destructor=yes ac_cv_func_regc
                   ac_cv_printf_positional=yes ac_cv_file__etc_environment=yes \
                   ac_cv_file__etc_TIMEZONE=no"
 
-CFLAGS_append += "-DDESTRUCTOR_ATTR_WORKS=1 -I${STAGING_INCDIR}/et"
-LDFLAGS_append += "-lpthread"
+CFLAGS_append = " -DDESTRUCTOR_ATTR_WORKS=1 -I${STAGING_INCDIR}/et"
+LDFLAGS_append = " -lpthread"
 
 FILES_${PN} += "${datadir}/gnats"
 FILES_${PN}-doc += "${datadir}/examples"

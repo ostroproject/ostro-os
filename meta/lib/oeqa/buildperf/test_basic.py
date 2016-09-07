@@ -23,15 +23,13 @@ class Test1P1(BuildPerfTestCase):
 
     def test1(self):
         """Measure wall clock of bitbake core-image-sato and size of tmp dir"""
-        self.log_cmd_output("bitbake {} -c fetchall".format(self.build_target))
         self.rm_tmp()
         self.rm_sstate()
         self.rm_cache()
         self.sync()
         self.measure_cmd_resources(['bitbake', self.build_target], 'build',
-                                   'bitbake ' + self.build_target)
+                                   'bitbake ' + self.build_target, save_bs=True)
         self.measure_disk_usage(self.bb_vars['TMPDIR'], 'tmpdir', 'tmpdir')
-        self.save_buildstats()
 
 
 class Test1P2(BuildPerfTestCase):
@@ -39,8 +37,10 @@ class Test1P2(BuildPerfTestCase):
 
     def test12(self):
         """Measure bitbake virtual/kernel"""
-        self.log_cmd_output("bitbake {} -c cleansstate".format(
-            self.build_target))
+        # Build and cleans state in order to get all dependencies pre-built
+        self.log_cmd_output(['bitbake', self.build_target])
+        self.log_cmd_output(['bitbake', self.build_target, '-c', 'cleansstate'])
+
         self.sync()
         self.measure_cmd_resources(['bitbake', self.build_target], 'build',
                                    'bitbake ' + self.build_target)
@@ -61,11 +61,11 @@ class Test1P3(BuildPerfTestCase):
             self.sync()
             cmd = ['bitbake', '-R', postfile, self.build_target]
             self.measure_cmd_resources(cmd, 'build',
-                                       'bitbake' + self.build_target)
+                                       'bitbake' + self.build_target,
+                                       save_bs=True)
             self.measure_disk_usage(self.bb_vars['TMPDIR'], 'tmpdir', 'tmpdir')
         finally:
             os.unlink(postfile)
-        self.save_buildstats()
 
 
 class Test2(BuildPerfTestCase):
@@ -73,6 +73,9 @@ class Test2(BuildPerfTestCase):
 
     def test2(self):
         """Measure bitbake core-image-sato -c rootfs with sstate"""
+        # Build once in order to populate sstate cache
+        self.log_cmd_output(['bitbake', self.build_target])
+
         self.rm_tmp()
         self.rm_cache()
         self.sync()

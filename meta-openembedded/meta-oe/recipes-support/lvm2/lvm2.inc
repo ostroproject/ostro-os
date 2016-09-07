@@ -11,6 +11,7 @@ SRC_URI = "ftp://sources.redhat.com/pub/lvm2/old/LVM2.${PV}.tgz \
            file://0002-use-PTHREAD_MUTEX_RECURSIVE-instead-of-PTHREAD_MUTEX.patch \
            file://0003-Guard-use-of-mallinfo-with-__GLIBC__.patch \
            file://0004-include-fcntl.h-for-O_-defines-and-fcntl-signature.patch \
+           file://0005-tweak-MODPROBE_CMD-for-cross-compile.patch \
            "
 
 S = "${WORKDIR}/LVM2.${PV}"
@@ -39,6 +40,8 @@ EXTRA_OECONF = "--with-user= \
                 --with-systemdsystemunitdir=${systemd_system_unitdir} \
 "
 
+CACHED_CONFIGUREVARS += "MODPROBE_CMD=${base_sbindir}/modprobe"
+
 do_install_append() {
     # Install machine specific configuration file
     install -m 0644 ${WORKDIR}/lvm.conf ${D}${sysconfdir}/lvm/lvm.conf
@@ -63,6 +66,6 @@ TARGET_CC_ARCH += "${LDFLAGS}"
 FILES_${PN} += "${libdir}/device-mapper/*.so ${base_libdir}/udev"
 FILES_${PN}-dbg += "${libdir}/device-mapper/.debug"
 
-RDEPENDS_${PN} = "bash"
+RDEPENDS_${PN} = "bash thin-provisioning-tools"
 
 CONFFILES_${PN} += "${sysconfdir}/lvm/lvm.conf"

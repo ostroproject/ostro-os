@@ -16,6 +16,8 @@ FILES_${PN}-doc += "${datadir}/mraa/examples/"
 # Prepend mraa-utils to make sure bindir ends up in there
 PACKAGES =+ "${PN}-utils "
 
+DEPENDS += " json-c"
+
 FILES_${PN}-utils = "${bindir}/ \
                     "
 
@@ -54,7 +56,7 @@ INSANE_SKIP_python-${PN} = "debug-files"
 ### Node ###
 
 # node-mraa package containing Nodejs bindings
-FILES_node-${PN} = "${libdir}/node_modules/ \
+FILES_node-${PN} = "${prefix}/lib/node_modules/ \
                     ${datadir}/mraa/examples/javascript/ \
                    "
 RDEPENDS_node-${PN} += "nodejs"

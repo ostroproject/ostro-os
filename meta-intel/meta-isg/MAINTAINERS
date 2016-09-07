@@ -29,8 +29,8 @@ Descriptions of section entries:
 	M: Mail patches to: FullName <address@domain>
 	F: Files and directories with wildcard patterns.
 	   A trailing slash includes all files and subdirectory files.
-	   F:	meta-haswell-wc/    all files in and below meta-haswell-wc
-	   F:	meta-haswell-wc/*   all files in meta-haswell-wc, but not below
+	   F:	meta-mohonpeak/    all files in and below meta-mohonpeak
+	   F:	meta-mohonpeak/*   all files in meta-mohonpeak, but not below
 	   One pattern per line.  Multiple F: lines acceptable.
 
 Please keep this list in alphabetical order.
@@ -38,17 +38,9 @@ Please keep this list in alphabetical order.
 Maintainers List (try to look for most precise areas first)
 
 		-----------------------------------
-HASWELL-WC
-M:      Ong Boon Leong <boon.leong.ong@intel.com>
-F:      meta-haswell-wc/
-
 MOHONPEAK
 M:	Ong Boon Leong <boon.leong.ong@intel.com>
 F:	meta-mohonpeak/
-
-VALLEYISLAND
-M:	Chang Rebecca Swee Fun <rebecca.swee.fun.chang@intel.com>
-F:	meta-valleyisland/
 
 CRYSTALFOREST
 M:      Wu Chia Chuan <chia.chuan.wu@intel.com>

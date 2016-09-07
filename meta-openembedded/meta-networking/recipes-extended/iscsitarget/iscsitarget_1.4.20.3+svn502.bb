@@ -26,7 +26,8 @@ do_configure[noexec] = "1"
 do_make_scripts[depends] += "virtual/kernel:do_shared_workdir"
 
 do_compile() {
-    oe_runmake KSRC=${STAGING_KERNEL_DIR} LDFLAGS='' V=1
+    oe_runmake KSRC=${STAGING_KERNEL_DIR} LDFLAGS='' V=1 kernel
+    oe_runmake KSRC=${STAGING_KERNEL_DIR} usr
 }
 
 do_install() {
@@ -34,12 +35,12 @@ do_install() {
     install -d ${D}/lib/modules/${KERNEL_VERSION}/kernel/iscsi
     install -m 0644 kernel/iscsi_trgt.ko \
     ${D}/lib/modules/${KERNEL_VERSION}/kernel/iscsi/iscsi_trgt.ko
-    
+
     # Userspace utilities
     install -d ${D}${sbindir}
     install -m 0755 usr/ietd ${D}${sbindir}/ietd
     install -m 0755 usr/ietadm ${D}${sbindir}/ietadm
-    
+
     # Config files, init scripts
     mkdir -p ${D}${sysconfdir}/iet
     install -m 0644 etc/ietd.conf ${D}/${sysconfdir}/iet/ietd.conf

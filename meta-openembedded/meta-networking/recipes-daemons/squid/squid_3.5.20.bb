@@ -20,6 +20,7 @@ SRC_URI = "http://www.squid-cache.org/Versions/v${MAJ_VER}/${MIN_VER}/${BPN}-${P
            file://run-ptest \
            file://volatiles.03_squid \
            file://set_sysroot_patch.patch \
+           file://squid-don-t-do-squid-conf-tests-at-build-time.patch \
 "
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=c492e2d6d32ec5c1aad0e0609a141ce9 \
@@ -37,9 +38,11 @@ USERADD_PARAM_${PN} = "--system --no-create-home --home-dir /var/run/squid --she
 
 PACKAGECONFIG ??= "${@bb.utils.contains('TARGET_ARCH', 'powerpc', 'noatomics', '', d)} \
                    ${@bb.utils.contains('TARGET_ARCH', 'mips', 'noatomics', '', d)} \
+                   ${@bb.utils.contains('DISTRO_FEATURES', 'ipv6', 'ipv6', '', d)} \
                   "
 PACKAGECONFIG[libnetfilter-conntrack] = "--with-netfilter-conntrack=${includedir}, --without-netfilter-conntrack, libnetfilter-conntrack"
 PACKAGECONFIG[noatomics] = "squid_cv_gnu_atomics=no,squid_cv_gnu_atomics=yes,,"
+PACKAGECONFIG[ipv6] = "--enable-ipv6,--disable-ipv6,"
 
 BASIC_AUTH = "DB SASL LDAP NIS"
 DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'libpam', '', d)}"
@@ -64,13 +67,18 @@ do_install_ptest() {
 
     # do NOT need to rebuild Makefile itself
     sed -i 's/^Makefile:.*$/Makefile:/' ${D}${PTEST_PATH}/${TESTDIR}/Makefile
+
+    # Add squid-conf-tests for runtime tests
+    sed -e 's/^\(runtest-TESTS:\)/\1 squid-conf-tests/' \
+        -e "s/\(list=' \$(TESTS)\)/\1 squid-conf-tests/" \
+        -i ${D}${PTEST_PATH}/${TESTDIR}/Makefile
 }
 
 do_install_append() {
-	install -d ${D}${sysconfdir}/default/volatiles
-	install -m 0644 ${WORKDIR}/volatiles.03_squid  ${D}${sysconfdir}/default/volatiles/volatiles.03_squid
-	rmdir "${D}${localstatedir}/run/${BPN}"
-	rmdir --ignore-fail-on-non-empty "${D}${localstatedir}/run"
+    install -d ${D}${sysconfdir}/default/volatiles
+    install -m 0644 ${WORKDIR}/volatiles.03_squid  ${D}${sysconfdir}/default/volatiles/volatiles.03_squid
+    rmdir "${D}${localstatedir}/run/${BPN}"
+    rmdir --ignore-fail-on-non-empty "${D}${localstatedir}/run"
 }
 
 FILES_${PN} += "${libdir} ${datadir}/errors ${datadir}/icons"

@@ -1,6 +1,8 @@
 import os
 import sys
 import shutil
+import json
+import fileinput
 
 
 from oeqa.oetest import oeRuntimeTest
@@ -81,7 +83,8 @@ def copy_test_files(self):
         'tests',
         'grunt-build',
         'Gruntfile.js',
-        '.jscsrc'
+        '.eslintrc.json',
+        'package.json'
     ]
     for item in COPY_FILE_LIST:
         new_item = os.path.join(self.files_dir, item)
@@ -101,7 +104,7 @@ def copy_test_files(self):
                     )
                 sys.stdout.flush()
                 sys.exit(1)
-    (status, output) = self.target.copy_to(
+    self.target.copy_to(
         os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
             'iotivity_node_upstream_parser_log.py'),
@@ -122,7 +125,8 @@ def write_log(output):
     f.close()
 
 def get_version(self):
-    (status, output) = self.target.run('npm view iotivity-node version')
+    (status, output) = self.target.run('python \
+        /usr/lib/node_modules/iotivity-node/iotivity_node_get_version_package_file.py')
     if status == 0 and 'error' not in output:
         self.branch_version = output
         sys.stdout.write('\nGet iotivity-node version ' + output)
@@ -131,6 +135,24 @@ def get_version(self):
         sys.stdout.write('\nFailed to get iotivity-node version!\n' + output)
         sys.stdout.flush()
 
+def get_suite_name():
+    suite_json_path = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        "files/iotivityNode/single_suite.json")
+    with open(suite_json_path) as data_file:
+        data = json.load(data_file)
+        suite_value = data['suite']
+        if suite_value == 'None':
+            suite_name = ''
+        else:
+            suite_name = '--suites="%s"' % suite_value
+    return suite_name
+
+def update_suite_js():
+    file_path = '/tmp/iotivity-node/tests/setup.js'
+    for line in fileinput.input(file_path, inplace = True):
+        new_line = line.replace('30000', '90000')
+        print new_line.strip('\n')
 
 @tag(TestType='EFT', FeatureID='IOTOS-764')
 class IotivitynodeRuntimeTest(oeRuntimeTest):
@@ -146,6 +168,12 @@ class IotivitynodeRuntimeTest(oeRuntimeTest):
         @param self
         '''
         # Get iotivity-node version
+        self.target.copy_to(
+            os.path.join(
+                os.path.dirname(os.path.realpath(__file__)),
+                'iotivity_node_get_version_package_file.py'),
+            '/usr/lib/node_modules/iotivity-node/'
+            )
         get_version(self)
 
         # Download the repository of soletta
@@ -153,8 +181,8 @@ class IotivitynodeRuntimeTest(oeRuntimeTest):
         sys.stdout.flush()
         iotivity_url = ''.join([
             'https://github.com/otcshare/iotivity-node/archive/',
-            self.branch_version,
-            '.zip'
+            #self.branch_version,
+            '1.1.1-0.zip'
             ])
         get_test_module_repo(iotivity_url, 'iotivity-node')
 
@@ -167,6 +195,7 @@ class IotivitynodeRuntimeTest(oeRuntimeTest):
         copy_node_modules(self)
 
         # Copy all files related to testing to device
+        update_suite_js()
         copy_test_files(self)
         sys.stdout.write(
             '\nCopy all files related to testing to target device done!'
@@ -189,11 +218,12 @@ class IotivitynodeRuntimeTest(oeRuntimeTest):
         (status, output) = self.target.run(
             "rm -rf /usr/lib/node_modules/iotivity-node/tests/tests/Load\ Library.js")
 
+        suites = get_suite_name()
         run_grunt_cmd = ''.join([
             'cd ',
             self.target_path,
             '; node_modules/grunt-cli/bin/grunt',
-            ' test'
+            ' test %s' % suites
             ])
         format_result_cmd = ''.join([
             'python ',

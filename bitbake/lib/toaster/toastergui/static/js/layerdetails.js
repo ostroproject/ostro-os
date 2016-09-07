@@ -10,11 +10,20 @@ function layerDetailsPageInit (ctx) {
   var targetTab = $("#targets-tab");
   var machineTab = $("#machines-tab");
   var detailsTab = $("#details-tab");
+  var editLayerSource = $("#edit-layer-source");
+  var saveSourceChangesBtn = $("#save-changes-for-switch");
+  var layerGitRefInput = $("#layer-git-ref");
+  var layerSubDirInput = $('#layer-subdir');
+
+  targetTab.on('show.bs.tab', targetsTabShow);
+  detailsTab.on('show.bs.tab', detailsTabShow);
+  machineTab.on('show.bs.tab', machinesTabShow);
 
   /* setup the dependencies typeahead */
-  libtoaster.makeTypeahead(layerDepInput, libtoaster.ctx.layersTypeAheadUrl, { include_added: "true" }, function(item){
+  libtoaster.makeTypeahead(layerDepInput,
+                           libtoaster.ctx.layersTypeAheadUrl,
+                           { include_added: "true" }, function(item){
     currentLayerDepSelection = item;
-
     layerDepBtn.removeAttr("disabled");
   });
 
@@ -22,20 +31,6 @@ function layerDetailsPageInit (ctx) {
   layerDepInput.on("keyup",function(){
     if ($(this).val().length === 0) {
       layerDepBtn.attr("disabled", "disabled");
-    }
-  });
-
-  $(window).on('hashchange', function(e){
-    switch(window.location.hash){
-      case '#machines':
-        machineTab.tab('show');
-        break;
-      case '#recipes':
-        targetTab.tab('show');
-        break;
-      default:
-        detailsTab.tab('show');
-        break;
     }
   });
 
@@ -150,6 +145,7 @@ function layerDetailsPageInit (ctx) {
     });
   });
 
+
   function defaultAddBtnText(){
       var text = " Add the "+ctx.layerVersion.name+" layer to your project";
       addRmLayerBtn.text(text);
@@ -157,12 +153,12 @@ function layerDetailsPageInit (ctx) {
       addRmLayerBtn.removeClass("btn-danger");
   }
 
-  detailsTab.on('show', function(){
+  function detailsTabShow(){
     if (!ctx.layerVersion.inCurrentPrj)
       defaultAddBtnText();
 
-    window.location.hash = "details";
-  });
+    window.location.hash = "information";
+  }
 
   function targetsTabShow(){
     if (!ctx.layerVersion.inCurrentPrj){
@@ -216,7 +212,6 @@ function layerDetailsPageInit (ctx) {
 
   });
 
-  targetTab.on('show.bs.tab', targetsTabShow);
 
   function machinesTabShow(){
     if (!ctx.layerVersion.inCurrentPrj) {
@@ -232,8 +227,6 @@ function layerDetailsPageInit (ctx) {
 
     window.location.hash = "machines";
   }
-
-  machineTab.on('show.bs.tab', machinesTabShow);
 
   $(".pagesize").change(function(){
     var search = libtoaster.parseUrlParams();
@@ -423,4 +416,101 @@ function layerDetailsPageInit (ctx) {
   $(".glyphicon-trash").tooltip();
   $(".commit").tooltip();
 
+  editLayerSource.click(function() {
+    /* Kindly bring the git layers imported from layerindex to normal page
+     * and not this new page :(
+     */
+    $(this).hide();
+    saveSourceChangesBtn.attr("disabled", "disabled");
+
+    $("#git-repo-info", "#directory-info").hide();
+    $("#edit-layer-source-form").fadeIn();
+    if ($("#layer-dir-path-in-details").val() == "") {
+      //Local dir path is empty...
+      $("#repo").prop("checked", true);
+      $("#layer-git").fadeIn();
+      $("#layer-dir").hide();
+    } else {
+      $("#layer-git").hide();
+      $("#layer-dir").fadeIn();
+    }
+  });
+
+  $('input:radio[name="source-location"]').change(function() {
+    if ($('input[name=source-location]:checked').val() == "repo") {
+      $("#layer-git").fadeIn();
+      $("#layer-dir").hide();
+      if ($("#layer-git-repo-url").val().length === 0 && layerGitRefInput.val().length === 0) {
+        saveSourceChangesBtn.attr("disabled", "disabled");
+      }
+    } else {
+      $("#layer-dir").fadeIn();
+      $("#layer-git").hide();
+    }
+  });
+
+  $("#layer-dir-path-in-details").keyup(function() {
+    saveSourceChangesBtn.removeAttr("disabled");
+  });
+
+  $("#layer-git-repo-url").keyup(function() {
+    if ($("#layer-git-repo-url").val().length > 0 && layerGitRefInput.val().length > 0) {
+      saveSourceChangesBtn.removeAttr("disabled");
+    }
+  });
+
+  layerGitRefInput.keyup(function() {
+    if ($("#layer-git-repo-url").val().length > 0 && layerGitRefInput.val().length > 0) {
+      saveSourceChangesBtn.removeAttr("disabled");
+    }
+  });
+
+
+  layerSubDirInput.keyup(function(){
+    if ($(this).val().length > 0){
+      saveSourceChangesBtn.removeAttr("disabled");
+    }
+  });
+
+  $('#cancel-changes-for-switch').click(function() {
+    $("#edit-layer-source-form").add("#layer-git").add("#layer-dir").fadeOut().promise().done(function(){
+      editLayerSource.show();
+    });
+  });
+
+  saveSourceChangesBtn.click(function() {
+
+    var layerData = {
+      vcs_url: $('#layer-git-repo-url').val(),
+      commit: layerGitRefInput.val(),
+      dirpath: layerSubDirInput.val(),
+      local_source_dir: $('#layer-dir-path-in-details').val(),
+    };
+
+    if ($('input[name=source-location]:checked').val() == "repo") {
+      layerData.local_source_dir = "";
+    } else {
+      layerData.vcs_url = "";
+      layerData.git_ref = "";
+    }
+
+    $.ajax({
+        type: "POST",
+        url: ctx.xhrUpdateLayerUrl,
+        data: layerData,
+        headers: { 'X-CSRFToken' : $.cookie('csrftoken')},
+        success: function (data) {
+          if (data.error != "ok") {
+            console.warn(data.error);
+          } else {
+            /* success layer property changed */
+            window.location.reload();
+          }
+        },
+        error: function (data) {
+          console.warn("Call failed");
+          console.warn(data);
+        }
+    });
+  });
 }

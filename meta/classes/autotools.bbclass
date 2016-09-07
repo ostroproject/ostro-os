@@ -19,8 +19,6 @@ def autotools_dep_prepend(d):
 
     return deps + 'gnu-config-native '
 
-EXTRA_OEMAKE = ""
-
 DEPENDS_prepend = "${@autotools_dep_prepend(d)} "
 
 inherit siteinfo
@@ -130,6 +128,8 @@ autotools_postconfigure(){
 }
 
 EXTRACONFFUNCS ??= ""
+
+EXTRA_OECONF_append = " ${PACKAGECONFIG_CONFARGS}"
 
 do_configure[prefuncs] += "autotools_preconfigure autotools_copy_aclocals ${EXTRACONFFUNCS}"
 do_configure[postfuncs] += "autotools_postconfigure"
