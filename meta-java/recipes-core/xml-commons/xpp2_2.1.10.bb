@@ -19,7 +19,7 @@ do_compile() {
 
     sourcepath="src/java/drivers/jaxp11:src/java/drivers/sax2:src/java/impl/factory:src/java/impl/format:src/java/impl/node:src/java/impl/pullparser:src/java/impl/tag:src/java/intf"
 
-    findpath="${sourcepath//:/ }"
+    findpath="$(echo "$sourcepath" | tr : " ")"
 
     javac -sourcepath $sourcepath -d build-oe `find $findpath -name "*.java"`
 
