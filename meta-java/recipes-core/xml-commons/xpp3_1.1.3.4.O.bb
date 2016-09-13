@@ -33,7 +33,7 @@ do_compile() {
     mkdir -p build-xpath
 
     sourcepath="src/java/xpath"
-    findpath="${sourcepath//:/ }"
+    findpath=${sourcepath}
     javac -sourcepath $sourcepath -cp build-oe -d build-xpath `find $findpath -name "*.java"`
 
     fastjar -C build-xpath -c -f xpp3-xpath-${PV}.jar .
