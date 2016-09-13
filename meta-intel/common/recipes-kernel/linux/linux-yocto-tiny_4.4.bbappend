@@ -7,4 +7,4 @@ SRCREV_machine_i586-nlp-32-intel-common = "2cbbf10c66383c0c052708686ab005a9f9dc4
 COMPATIBLE_MACHINE_i586-nlp-32-intel-common = "${MACHINE}"
 KBRANCH_i586-nlp-32-intel-common = "standard/tiny/intel/base"
 KMACHINE_i586-nlp-32-intel-common = "intel-quark"
-KERNEL_FEATURES_append_i586-nlp-32-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}"
+KERNEL_FEATURES_append_i586-nlp-32-intel-common = "${KERNEL_FEATURES_INTEL_COMMON} cfg/fs/ext4.scc"
