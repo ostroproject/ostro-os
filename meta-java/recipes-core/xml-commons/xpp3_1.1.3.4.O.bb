@@ -19,7 +19,7 @@ do_compile() {
     mkdir -p build-oe
 
     sourcepath="src/java/api:src/java/builder:src/java/dom2_builder:src/java/mxp1_min:src/java/mxp1_standard:src/java/parser_pool:src/java/sax2_driver:src/java/serializer_impl:src/java/util:src/java/wrapper"
-    findpath="${sourcepath//:/ }"
+    findpath="$(echo "$sourcepath" | tr : " ")"
 
     javac -sourcepath $sourcepath -d build-oe `find $findpath -name "*.java"`
 

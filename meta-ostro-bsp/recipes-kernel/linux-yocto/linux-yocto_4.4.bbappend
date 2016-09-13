@@ -135,7 +135,3 @@ SRC_URI_append_beaglebone = " \
 
 # lockdep and kernel debugging
 # SRC_URI_append = "  file://lockdep.cfg file://debug-kernel.cfg"
-
-# Temporarily use this yocto-kernel-cache commit to make intel-quark to compile
-# with the latest linux-yocto-4.% changes.
-SRCREV_meta_i586-nlp-32-intel-common = "698835841165b68089604398f68fd8bc3f79cb65"

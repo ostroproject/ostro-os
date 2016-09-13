@@ -74,6 +74,7 @@ ignore_errors = {
     'default' : common_errors,
     'qemux86' : [
         'Failed to access perfctr msr (MSR',
+        'pci 0000:00:00.0: [Firmware Bug]: reg 0x..: invalid BAR (can\'t size)',
         ] + qemux86_common,
     'qemux86-64' : qemux86_common,
     'qemumips' : [
@@ -88,16 +89,28 @@ ignore_errors = {
         'host side 80-wire cable detection failed, limiting max speed',
         'mode "640x480" test failed',
         'Failed to load module "glx"',
+        'can\'t handle BAR above 4GB',
+        'Cannot reserve Legacy IO',
         ] + common_errors,
     'qemuarm' : [
         'mmci-pl18x: probe of fpga:05 failed with error -22',
         'mmci-pl18x: probe of fpga:0b failed with error -22',
-        'Failed to load module "glx"'
+        'Failed to load module "glx"',
+        'OF: amba_device_add() failed (-19) for /amba/smc@10100000',
+        'OF: amba_device_add() failed (-19) for /amba/mpmc@10110000',
+        'OF: amba_device_add() failed (-19) for /amba/sctl@101e0000',
+        'OF: amba_device_add() failed (-19) for /amba/watchdog@101e1000',
+        'OF: amba_device_add() failed (-19) for /amba/sci@101f0000',
+        'OF: amba_device_add() failed (-19) for /amba/ssp@101f4000',
+        'OF: amba_device_add() failed (-19) for /amba/fpga/sci@a000',
+        'Failed to initialize \'/amba/timer@101e3000\': -22',
+        'jitterentropy: Initialization failed with host not compliant with requirements: 2',
         ] + common_errors,
     'qemuarm64' : [
         'Fatal server error:',
         '(EE) Server terminated with error (1). Closing log file.',
         'dmi: Firmware registration failed.',
+        'irq: type mismatch, failed to map hwirq-27 for /intc',
         ] + common_errors,
     'emenlow' : [
         '[Firmware Bug]: ACPI: No _BQC method, cannot determine initial brightness',

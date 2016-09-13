@@ -5,11 +5,12 @@ LIC_FILES_CHKSUM = "file://LICENSE.GPL;md5=751419260aa954499f7abaabaa882bbe"
 
 SRC_URI = "http://dpdk.org/browse/dpdk/snapshot/dpdk-${PV}.tar.gz;name=dpdk \
 	   file://dpdk-16.04-add-RTE_KERNELDIR_OUT-to-split-kernel-bu.patch \
-	   file://dpdk-16.04-add-sysroot-option-within-app-makefile.patch \
+	   file://dpdk-16.07-add-sysroot-option-within-app-makefile.patch \
 	   file://dpdk-16.04-point-to-the-right-include-and-lib-path.patch \
 	   file://dpdk-16.04-Fix-for-misleading-indentation-error.patch \
-	   file://dpdk-16.04-dpdk-fix-installation-warning-and-issue.patch \
+	   file://dpdk-16.07-dpdk-fix-installation-warning-and-issue.patch \
 	   file://dpdk-16.04-dpdk-fix-compilation-with-dynamic-libs.patch \
+	   file://dpdk-16.07-dpdk-fix-for-parellel-make-issue.patch \
 	  "
 
 COMPATIBLE_MACHINE = "crystalforest|intel-corei7-64"
@@ -44,6 +45,7 @@ export RTE_KERNELDIR = "${STAGING_KERNEL_DIR}"
 export RTE_KERNELDIR_OUT = "${STAGING_KERNEL_BUILDDIR}"
 export INSTALL_PATH = "${prefix}/share"
 export RTE_OUTPUT = "${S}/${RTE_TARGET}"
+export ETHTOOL_LIB_PATH = "${S}/examples/ethtool/lib/${RTE_TARGET}/"
 export SYSROOTPATH = "--sysroot=${STAGING_DIR_HOST}"
 export DPDK_TARGET_MACH = "${@get_dpdk_target_mach(bb,d)}"
 export ICP_LAC_API_DIR = "${STAGING_DIR_TARGET}${includedir}/lac"
