@@ -1,0 +1,13 @@
+diff --git a/Makefile.am b/Makefile.am
+index 5eaff4c40aac..a4f0f63f3e43 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -2294,7 +2294,7 @@ if LACKS_SUN_AWT_TOOLKIT
+ 	   mkdir -p `dirname $$destpath` ; \
+ 	   cp -a ../../$$dirs $$destpath ; \
+ 	 done ; \
+-	 $(ZIP) -qur $(STAGE1_BOOT_DIR)/jre/lib/rt.jar \
++	 $(ZIP) -qr $(STAGE1_BOOT_DIR)/jre/lib/rt.jar \
+ 	 com java javax sun );
+ endif
+ 	mkdir -p stamps
