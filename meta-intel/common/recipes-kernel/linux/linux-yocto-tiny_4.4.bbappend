@@ -1,6 +1,6 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-#LINUX_VERSION_i586-nlp-32-intel-common = "4.4.18"
+LINUX_VERSION_i586-nlp-32-intel-common = "4.4.20"
 SRCREV_meta_i586-nlp-32-intel-common = "59290c5f6192da2eccf478d37a8f9f88134822b3"
 SRCREV_machine_i586-nlp-32-intel-common = "2cbbf10c66383c0c052708686ab005a9f9dc442c"
 
