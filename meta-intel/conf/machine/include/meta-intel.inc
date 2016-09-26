@@ -8,8 +8,9 @@
 # XSERVER subcomponents, used to build the XSERVER variable
 #
 
-PREFERRED_PROVIDER_virtual/kernel ?= "linux-yocto"
-PREFERRED_VERSION_linux-yocto ?= "4.4%"
+# Soft set linux-yocto as preferred kernel like x86-base.inc
+PREFERRED_PROVIDER_virtual/kernel ??= "linux-yocto"
+PREFERRED_VERSION_linux-yocto ?= "4.8%"
 
 # for Xserver older than 1.13.0
 OLD_XSERVER_X86_EXT = "xserver-xorg-extension-dri \

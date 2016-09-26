@@ -116,7 +116,7 @@ python () {
 
 def rootfs_variables(d):
     from oe.rootfs import variable_depends
-    variables = ['IMAGE_DEVICE_TABLES','BUILD_IMAGES_FROM_FEEDS','IMAGE_TYPES_MASKED','IMAGE_ROOTFS_ALIGNMENT','IMAGE_OVERHEAD_FACTOR','IMAGE_ROOTFS_SIZE','IMAGE_ROOTFS_EXTRA_SPACE',
+    variables = ['IMAGE_DEVICE_TABLE','IMAGE_DEVICE_TABLES','BUILD_IMAGES_FROM_FEEDS','IMAGE_TYPES_MASKED','IMAGE_ROOTFS_ALIGNMENT','IMAGE_OVERHEAD_FACTOR','IMAGE_ROOTFS_SIZE','IMAGE_ROOTFS_EXTRA_SPACE',
                  'IMAGE_ROOTFS_MAXSIZE','IMAGE_NAME','IMAGE_LINK_NAME','IMAGE_MANIFEST','DEPLOY_DIR_IMAGE','RM_OLD_IMAGE','IMAGE_FSTYPES','IMAGE_INSTALL_COMPLEMENTARY','IMAGE_LINGUAS',
                  'MULTILIBRE_ALLOW_REP','MULTILIB_TEMP_ROOTFS','MULTILIB_VARIANTS','MULTILIBS','ALL_MULTILIB_PACKAGE_ARCHS','MULTILIB_GLOBAL_VARIANTS','BAD_RECOMMENDATIONS','NO_RECOMMENDATIONS',
                  'PACKAGE_ARCHS','PACKAGE_CLASSES','TARGET_VENDOR','TARGET_ARCH','TARGET_OS','OVERRIDES','BBEXTENDVARIANT','FEED_DEPLOYDIR_BASE_URI','INTERCEPT_DIR','USE_DEVFS',
@@ -359,7 +359,7 @@ python () {
     # Without de-duplication, gen_conversion_cmds() below
     # would create the same compression command multiple times.
     ctypes = set(d.getVar('CONVERSIONTYPES', True).split())
-    old_overrides = d.getVar('OVERRIDES', 0)
+    old_overrides = d.getVar('OVERRIDES', False)
 
     def _image_base_type(type):
         basetype = type
@@ -415,6 +415,7 @@ python () {
     d.appendVarFlag('do_image', 'vardeps', ' '.join(vardeps))
 
     maskedtypes = (d.getVar('IMAGE_TYPES_MASKED', True) or "").split()
+    maskedtypes = [dbg + t for t in maskedtypes for dbg in ("", "debugfs_")]
 
     for t in basetypes:
         vardeps = set()
@@ -536,6 +537,12 @@ def get_rootfs_size(d):
 
     base_size += rootfs_alignment - 1
     base_size -= base_size % rootfs_alignment
+
+    # Do not check image size of the debugfs image. This is not supposed
+    # to be deployed, etc. so it doesn't make sense to limit the size
+    # of the debug.
+    if (d.getVar('IMAGE_BUILDING_DEBUGFS', True) or "") == "true":
+        return base_size
 
     # Check the rootfs size against IMAGE_ROOTFS_MAXSIZE (if set)
     if rootfs_maxsize:

@@ -48,8 +48,9 @@ python write_qemuboot_conf() {
     import configparser
 
     build_vars = ['MACHINE', 'TUNE_ARCH', 'DEPLOY_DIR_IMAGE', \
-                'IMAGE_NAME', 'IMAGE_LINK_NAME', 'STAGING_DIR_NATIVE', \
-                'STAGING_BINDIR_NATIVE', 'STAGING_DIR_HOST']
+                'KERNEL_IMAGETYPE', 'IMAGE_NAME', 'IMAGE_LINK_NAME', \
+                'STAGING_DIR_NATIVE', 'STAGING_BINDIR_NATIVE', \
+                'STAGING_DIR_HOST']
 
     # Vars from bsp
     qb_vars = []
@@ -63,6 +64,15 @@ python write_qemuboot_conf() {
     cf.add_section('config_bsp')
     for k in build_vars + qb_vars:
         cf.set('config_bsp', k, '%s' % d.getVar(k, True))
+
+    # QB_DEFAULT_KERNEL's value of KERNEL_IMAGETYPE is the name of a symlink
+    # to the kernel file, which hinders relocatability of the qb conf.
+    # Read the link and replace it with the full filename of the target.
+    kernel_link = os.path.join(d.getVar('DEPLOY_DIR_IMAGE', True), d.getVar('QB_DEFAULT_KERNEL', True))
+    kernel = os.readlink(kernel_link)
+    cf.set('config_bsp', 'QB_DEFAULT_KERNEL', kernel)
+
+    bb.utils.mkdirhier(os.path.dirname(qemuboot))
     with open(qemuboot, 'w') as f:
         cf.write(f)
 

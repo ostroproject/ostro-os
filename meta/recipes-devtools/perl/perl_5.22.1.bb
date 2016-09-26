@@ -66,6 +66,8 @@ SRC_URI += " \
         file://perl-fix-conflict-between-skip_all-and-END.patch \
         file://perl-test-customized.patch \
         file://perl-fix-CVE-2016-2381.patch \
+        file://perl-fix-CVE-2016-6185.patch \
+        file://perl-fix-CVE-2015-8607.patch \
 "
 
 # Fix test case issues

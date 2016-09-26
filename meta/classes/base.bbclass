@@ -309,7 +309,7 @@ base_do_compile() {
 }
 
 addtask install after do_compile
-do_install[dirs] = "${D} ${B}"
+do_install[dirs] = "${B}"
 # Remove and re-create ${D} so that is it guaranteed to be empty
 do_install[cleandirs] = "${D}"
 
@@ -472,7 +472,7 @@ python () {
         else:
             raise bb.parse.SkipPackage("incompatible with machine %s (not in COMPATIBLE_MACHINE)" % d.getVar('MACHINE', True))
 
-    source_mirror_fetch = d.getVar('SOURCE_MIRROR_FETCH', 0)
+    source_mirror_fetch = d.getVar('SOURCE_MIRROR_FETCH', False)
     if not source_mirror_fetch:
         need_host = d.getVar('COMPATIBLE_HOST', True)
         if need_host:

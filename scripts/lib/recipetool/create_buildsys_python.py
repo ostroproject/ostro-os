@@ -61,8 +61,6 @@ class PythonRecipeHandler(RecipeHandler):
     }
     # PN/PV are already set by recipetool core & desc can be extremely long
     excluded_fields = [
-        'Name',
-        'Version',
         'Description',
     ]
     setup_parse_map = {
@@ -88,8 +86,11 @@ class PythonRecipeHandler(RecipeHandler):
     ]
     setuparg_multi_line_values = ['Description']
     replacements = [
+        ('License', r' +$', ''),
+        ('License', r'^ +', ''),
         ('License', r' ', '-'),
-        ('License', r'-License$', ''),
+        ('License', r'^GNU-', ''),
+        ('License', r'-[Ll]icen[cs]e(,?-[Vv]ersion)?', ''),
         ('License', r'^UNKNOWN$', ''),
 
         # Remove currently unhandled version numbers from these variables
@@ -218,6 +219,9 @@ class PythonRecipeHandler(RecipeHandler):
             else:
                 info = self.get_setup_args_info(setupscript)
 
+        # Grab the license value before applying replacements
+        license_str = info.get('License', '').strip()
+
         self.apply_info_replacements(info)
 
         if uses_setuptools:
@@ -225,19 +229,38 @@ class PythonRecipeHandler(RecipeHandler):
         else:
             classes.append('distutils')
 
+        if license_str:
+            for i, line in enumerate(lines_before):
+                if line.startswith('LICENSE = '):
+                    lines_before.insert(i, '# NOTE: License in setup.py/PKGINFO is: %s' % license_str)
+                    break
+
         if 'Classifier' in info:
+            existing_licenses = info.get('License', '')
             licenses = []
             for classifier in info['Classifier']:
                 if classifier in self.classifier_license_map:
                     license = self.classifier_license_map[classifier]
+                    if license == 'Apache' and 'Apache-2.0' in existing_licenses:
+                        license = 'Apache-2.0'
+                    elif license == 'GPL':
+                        if 'GPL-2.0' in existing_licenses or 'GPLv2' in existing_licenses:
+                            license = 'GPL-2.0'
+                        elif 'GPL-3.0' in existing_licenses or 'GPLv3' in existing_licenses:
+                            license = 'GPL-3.0'
+                    elif license == 'LGPL':
+                        if 'LGPL-2.1' in existing_licenses or 'LGPLv2.1' in existing_licenses:
+                            license = 'LGPL-2.1'
+                        elif 'LGPL-2.0' in existing_licenses or 'LGPLv2' in existing_licenses:
+                            license = 'LGPL-2.0'
+                        elif 'LGPL-3.0' in existing_licenses or 'LGPLv3' in existing_licenses:
+                            license = 'LGPL-3.0'
                     licenses.append(license)
 
             if licenses:
                 info['License'] = ' & '.join(licenses)
 
-
         # Map PKG-INFO & setup.py fields to bitbake variables
-        bbinfo = {}
         for field, values in info.items():
             if field in self.excluded_fields:
                 continue
@@ -251,37 +274,8 @@ class PythonRecipeHandler(RecipeHandler):
                 value = ' '.join(str(v) for v in values if v)
 
             bbvar = self.bbvar_map[field]
-            if bbvar not in bbinfo and value:
-                bbinfo[bbvar] = value
-
-        comment_lic_line = None
-        for pos, line in enumerate(list(lines_before)):
-            if line.startswith('#') and 'LICENSE' in line:
-                comment_lic_line = pos
-            elif line.startswith('LICENSE =') and 'LICENSE' in bbinfo:
-                if line in ('LICENSE = "Unknown"', 'LICENSE = "CLOSED"'):
-                    lines_before[pos] = 'LICENSE = "{}"'.format(bbinfo['LICENSE'])
-                    if line == 'LICENSE = "CLOSED"' and comment_lic_line:
-                        lines_before[comment_lic_line:pos] = [
-                            '# WARNING: the following LICENSE value is a best guess - it is your',
-                            '# responsibility to verify that the value is complete and correct.'
-                        ]
-                del bbinfo['LICENSE']
-
-        src_uri_line = None
-        for pos, line in enumerate(lines_before):
-            if line.startswith('SRC_URI ='):
-                src_uri_line = pos
-
-        if bbinfo:
-            mdinfo = ['']
-            for k in sorted(bbinfo):
-                v = bbinfo[k]
-                mdinfo.append('{} = "{}"'.format(k, v))
-            if src_uri_line:
-                lines_before[src_uri_line-1:src_uri_line-1] = mdinfo
-            else:
-                lines_before.extend(mdinfo)
+            if bbvar not in extravalues and value:
+                extravalues[bbvar] = value
 
         mapped_deps, unmapped_deps = self.scan_setup_python_deps(srctree, setup_info, setup_non_literals)
 

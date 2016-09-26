@@ -43,6 +43,7 @@ from orm.models import Package, Package_File, Target_Installed_Package, Target_F
 from orm.models import Task_Dependency, Package_Dependency
 from orm.models import Recipe_Dependency, Provides
 from orm.models import Project, CustomImagePackage, CustomImageRecipe
+from orm.models import signal_runbuilds
 
 from bldcontrol.models import BuildEnvironment, BuildRequest
 
@@ -234,6 +235,7 @@ class ORMWrapper(object):
         build.completed_on = timezone.now()
         build.outcome = outcome
         build.save()
+        signal_runbuilds()
 
     def update_target_set_license_manifest(self, target, license_manifest_path):
         target.license_manifest_path = license_manifest_path
@@ -449,7 +451,11 @@ class ORMWrapper(object):
             # note that this is different
             buildrequest = BuildRequest.objects.get(pk = br_id)
             for brl in buildrequest.brlayer_set.all():
-                localdirname = os.path.join(bc.getGitCloneDirectory(brl.giturl, brl.commit), brl.dirpath)
+                if brl.local_source_dir:
+                    localdirname = os.path.join(brl.local_source_dir,
+                                                brl.dirpath)
+                else:
+                    localdirname = os.path.join(bc.getGitCloneDirectory(brl.giturl, brl.commit), brl.dirpath)
                 # we get a relative path, unless running in HEAD mode where the path is absolute
                 if not localdirname.startswith("/"):
                     localdirname = os.path.join(bc.be.sourcedir, localdirname)
@@ -979,8 +985,6 @@ class BuildInfoHelper(object):
     def _get_layer_version_for_path(self, path):
         self._ensure_build()
 
-        assert path.startswith("/")
-
         def _slkey_interactive(layer_version):
             assert isinstance(layer_version, Layer_Version)
             return len(layer_version.local_path)
@@ -1354,6 +1358,7 @@ class BuildInfoHelper(object):
         self._ensure_build()
         self.internal_state['build'].outcome = Build.CANCELLED
         self.internal_state['build'].save()
+        signal_runbuilds()
 
     def store_dependency_information(self, event):
         assert '_depgraph' in vars(event)
@@ -1521,9 +1526,7 @@ class BuildInfoHelper(object):
             return
 
         br_id, be_id = self.brbe.split(":")
-        be = BuildEnvironment.objects.get(pk = be_id)
-        be.lock = BuildEnvironment.LOCK_LOCK
-        be.save()
+
         br = BuildRequest.objects.get(pk = br_id)
 
         # if we're 'done' because we got cancelled update the build outcome
@@ -1540,6 +1543,11 @@ class BuildInfoHelper(object):
         else:
             br.state = BuildRequest.REQ_FAILED
         br.save()
+
+        be = BuildEnvironment.objects.get(pk = be_id)
+        be.lock = BuildEnvironment.LOCK_FREE
+        be.save()
+        signal_runbuilds()
 
     def store_log_error(self, text):
         mockevent = MockEvent()

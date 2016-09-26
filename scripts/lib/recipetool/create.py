@@ -256,27 +256,49 @@ def validate_pv(pv):
 
 def determine_from_filename(srcfile):
     """Determine name and version from a filename"""
-    part = ''
-    if '.tar.' in srcfile:
-        namepart = srcfile.split('.tar.')[0].lower()
-    else:
-        namepart = os.path.splitext(srcfile)[0].lower()
     if is_package(srcfile):
         # Force getting the value from the package metadata
         return None, None
+
+    if '.tar.' in srcfile:
+        namepart = srcfile.split('.tar.')[0]
     else:
-        splitval = namepart.rsplit('_', 1)
+        namepart = os.path.splitext(srcfile)[0]
+    namepart = namepart.lower().replace('_', '-')
+    if namepart.endswith('.src'):
+        namepart = namepart[:-4]
+    if namepart.endswith('.orig'):
+        namepart = namepart[:-5]
+    splitval = namepart.split('-')
+    logger.debug('determine_from_filename: split name %s into: %s' % (srcfile, splitval))
+
+    ver_re = re.compile('^v?[0-9]')
+
+    pv = None
+    pn = None
     if len(splitval) == 1:
-        splitval = namepart.rsplit('-', 1)
-    pn = splitval[0].replace('_', '-')
-    if len(splitval) > 1:
-        if splitval[1][0] in '0123456789':
-            pv = splitval[1]
+        # Try to split the version out if there is no separator (or a .)
+        res = re.match('^([^0-9]+)([0-9.]+.*)$', namepart)
+        if res:
+            if len(res.group(1)) > 1 and len(res.group(2)) > 1:
+                pn = res.group(1).rstrip('.')
+                pv = res.group(2)
         else:
-            pn = '-'.join(splitval).replace('_', '-')
-            pv = None
+            pn = namepart
     else:
-        pv = None
+        if splitval[-1] in ['source', 'src']:
+            splitval.pop()
+        if len(splitval) > 2 and re.match('^(alpha|beta|stable|release|rc[0-9]|pre[0-9]|p[0-9]|[0-9]{8})', splitval[-1]) and ver_re.match(splitval[-2]):
+            pv = '-'.join(splitval[-2:])
+            if pv.endswith('-release'):
+                pv = pv[:-8]
+            splitval = splitval[:-2]
+        elif ver_re.match(splitval[-1]):
+            pv = splitval.pop()
+        pn = '-'.join(splitval)
+        if pv and pv.startswith('v'):
+            pv = pv[1:]
+    logger.debug('determine_from_filename: name = "%s" version = "%s"' % (pn, pv))
     return (pn, pv)
 
 def determine_from_url(srcuri):
@@ -314,10 +336,16 @@ def supports_srcrev(uri):
     # odd interactions with the urldata cache which lead to errors
     localdata.setVar('SRCREV', '${AUTOREV}')
     bb.data.update_data(localdata)
-    fetcher = bb.fetch2.Fetch([uri], localdata)
-    urldata = fetcher.ud
-    for u in urldata:
-        if urldata[u].method.supports_srcrev():
+    try:
+        fetcher = bb.fetch2.Fetch([uri], localdata)
+        urldata = fetcher.ud
+        for u in urldata:
+            if urldata[u].method.supports_srcrev():
+                return True
+    except bb.fetch2.FetchError as e:
+        logger.debug('FetchError in supports_srcrev: %s' % str(e))
+        # Fall back to basic check
+        if uri.startswith(('git://', 'gitsm://')):
             return True
     return False
 
@@ -325,10 +353,13 @@ def reformat_git_uri(uri):
     '''Convert any http[s]://....git URI into git://...;protocol=http[s]'''
     checkuri = uri.split(';', 1)[0]
     if checkuri.endswith('.git') or '/git/' in checkuri or re.match('https?://github.com/[^/]+/[^/]+/?$', checkuri):
-        res = re.match('(https?)://([^;]+(\.git)?)(;.*)?$', uri)
+        res = re.match('(http|https|ssh)://([^;]+(\.git)?)(;.*)?$', uri)
         if res:
             # Need to switch the URI around so that the git fetcher is used
             return 'git://%s;protocol=%s%s' % (res.group(2), res.group(1), res.group(4) or '')
+        elif '@' in checkuri:
+            # Catch e.g. git@git.example.com:repo.git
+            return 'git://%s;protocol=ssh' % checkuri.replace(':', '/', 1)
     return uri
 
 def is_package(url):
@@ -358,7 +389,7 @@ def create_recipe(args):
     if os.path.isfile(source):
         source = 'file://%s' % os.path.abspath(source)
 
-    if '://' in source:
+    if scriptutils.is_src_url(source):
         # Fetch a URL
         fetchuri = reformat_git_uri(urldefrag(source)[0])
         if args.binary:
@@ -450,7 +481,7 @@ def create_recipe(args):
                 for line in stdout.splitlines():
                     splitline = line.split()
                     if len(splitline) > 1:
-                        if splitline[0] == 'origin' and '://' in splitline[1]:
+                        if splitline[0] == 'origin' and scriptutils.is_src_url(splitline[1]):
                             srcuri = reformat_git_uri(splitline[1])
                             srcsubdir = 'git'
                             break
@@ -844,7 +875,7 @@ def crunch_license(licfile):
 
     # Note: these are carefully constructed!
     license_title_re = re.compile('^\(?(#+ *)?(The )?.{1,10} [Ll]icen[sc]e( \(.{1,10}\))?\)?:?$')
-    license_statement_re = re.compile('^This (project|software) is( free software)? released under the .{1,10} [Ll]icen[sc]e:?$')
+    license_statement_re = re.compile('^(This (project|software) is( free software)? (released|licen[sc]ed)|(Released|Licen[cs]ed)) under the .{1,10} [Ll]icen[sc]e:?$')
     copyright_re = re.compile('^(#+)? *Copyright .*$')
 
     crunched_md5sums = {}

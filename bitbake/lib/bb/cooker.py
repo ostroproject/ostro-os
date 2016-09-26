@@ -658,7 +658,7 @@ class BBCooker:
         if task is None:
             task = self.configuration.cmd
 
-        fulltargetlist = self.checkPackages(pkgs_to_build)
+        fulltargetlist = self.checkPackages(pkgs_to_build, task)
         taskdata = {}
         localdata = {}
 
@@ -1147,6 +1147,8 @@ class BBCooker:
             collection_list = collections.split()
             min_prio = 0
             for c in collection_list:
+                bb.debug(1,'Processing %s in collection list' % (c))
+
                 # Get collection priority if defined explicitly
                 priority = self.data.getVar("BBFILE_PRIORITY_%s" % c, True)
                 if priority:
@@ -1165,10 +1167,10 @@ class BBCooker:
                 deps = self.data.getVar("LAYERDEPENDS_%s" % c, True)
                 if deps:
                     try:
-                        deplist = bb.utils.explode_dep_versions2(deps)
+                        depDict = bb.utils.explode_dep_versions2(deps)
                     except bb.utils.VersionStringException as vse:
                         bb.fatal('Error parsing LAYERDEPENDS_%s: %s' % (c, str(vse)))
-                    for dep, oplist in list(deplist.items()):
+                    for dep, oplist in list(depDict.items()):
                         if dep in collection_list:
                             for opstr in oplist:
                                 layerver = self.data.getVar("LAYERVERSION_%s" % dep, True)
@@ -1187,9 +1189,38 @@ class BBCooker:
                         else:
                             parselog.error("Layer '%s' depends on layer '%s', but this layer is not enabled in your configuration", c, dep)
                             errors = True
-                    collection_depends[c] = deplist.keys()
+                    collection_depends[c] = list(depDict.keys())
                 else:
                     collection_depends[c] = []
+
+                # Check recommends and store information for priority calculation
+                recs = self.data.getVar("LAYERRECOMMENDS_%s" % c, True)
+                if recs:
+                    try:
+                        recDict = bb.utils.explode_dep_versions2(recs)
+                    except bb.utils.VersionStringException as vse:
+                        bb.fatal('Error parsing LAYERRECOMMENDS_%s: %s' % (c, str(vse)))
+                    for rec, oplist in list(recDict.items()):
+                        if rec in collection_list:
+                            if oplist:
+                                opstr = oplist[0]
+                                layerver = self.data.getVar("LAYERVERSION_%s" % rec, True)
+                                if layerver:
+                                    (op, recver) = opstr.split()
+                                    try:
+                                        res = bb.utils.vercmp_string_op(layerver, recver, op)
+                                    except bb.utils.VersionStringException as vse:
+                                        bb.fatal('Error parsing LAYERRECOMMENDS_%s: %s' % (c, str(vse)))
+                                    if not res:
+                                        parselog.debug(3,"Layer '%s' recommends version %s of layer '%s', but version %s is currently enabled in your configuration. Check that you are using the correct matching versions/branches of these two layers.", c, opstr, rec, layerver)
+                                        continue
+                                else:
+                                    parselog.debug(3,"Layer '%s' recommends version %s of layer '%s', which exists in your configuration but does not specify a version. Check that you are using the correct matching versions/branches of these two layers.", c, opstr, rec)
+                                    continue
+                            parselog.debug(3,"Layer '%s' recommends layer '%s', so we are adding it", c, rec)
+                            collection_depends[c].append(rec)
+                        else:
+                            parselog.debug(3,"Layer '%s' recommends layer '%s', but this layer is not enabled in your configuration", c, rec)
 
             # Recursively work out collection priorities based on dependencies
             def calc_layer_priority(collection):
@@ -1421,7 +1452,8 @@ class BBCooker:
         if not task.startswith("do_"):
             task = "do_%s" % task
 
-        packages = ["%s:%s" % (target, task) for target in targets]
+        packages = [target if ':' in target else '%s:%s' % (target, task) for target in targets]
+
         bb.event.fire(bb.event.BuildInit(packages), self.expanded_data)
 
         taskdata, runlist = self.buildTaskData(targets, task, self.configuration.abort)
@@ -1586,7 +1618,7 @@ class BBCooker:
 
         return True
 
-    def checkPackages(self, pkgs_to_build):
+    def checkPackages(self, pkgs_to_build, task=None):
 
         # Return a copy, don't modify the original
         pkgs_to_build = pkgs_to_build[:]
@@ -1602,7 +1634,7 @@ class BBCooker:
         if 'world' in pkgs_to_build:
             pkgs_to_build.remove('world')
             for mc in self.multiconfigs:
-                bb.providers.buildWorldTargetList(self.recipecaches[mc])
+                bb.providers.buildWorldTargetList(self.recipecaches[mc], task)
                 for t in self.recipecaches[mc].world_target:
                     if mc:
                         t = "multiconfig:" + mc + ":" + t

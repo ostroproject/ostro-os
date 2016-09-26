@@ -127,9 +127,9 @@ PACKAGES_DYNAMIC += "^kernel-firmware-.*"
 export OS = "${TARGET_OS}"
 export CROSS_COMPILE = "${TARGET_PREFIX}"
 
-KERNEL_PRIORITY ?= "${@int(d.getVar('PV',1).split('-')[0].split('+')[0].split('.')[0]) * 10000 + \
-                       int(d.getVar('PV',1).split('-')[0].split('+')[0].split('.')[1]) * 100 + \
-                       int(d.getVar('PV',1).split('-')[0].split('+')[0].split('.')[-1])}"
+KERNEL_PRIORITY ?= "${@int(d.getVar('PV', True).split('-')[0].split('+')[0].split('.')[0]) * 10000 + \
+                       int(d.getVar('PV', True).split('-')[0].split('+')[0].split('.')[1]) * 100 + \
+                       int(d.getVar('PV', True).split('-')[0].split('+')[0].split('.')[-1])}"
 
 KERNEL_RELEASE ?= "${KERNEL_VERSION}"
 
@@ -140,7 +140,7 @@ KERNEL_IMAGEDEST = "boot"
 #
 # configuration
 #
-export CMDLINE_CONSOLE = "console=${@d.getVar("KERNEL_CONSOLE",1) or "ttyS0"}"
+export CMDLINE_CONSOLE = "console=${@d.getVar("KERNEL_CONSOLE", True) or "ttyS0"}"
 
 KERNEL_VERSION = "${@get_kernelversion_headers('${B}')}"
 
@@ -156,6 +156,7 @@ UBOOT_LOADADDRESS ?= "${UBOOT_ENTRYPOINT}"
 # Some Linux kernel configurations need additional parameters on the command line
 KERNEL_EXTRA_ARGS ?= ""
 
+EXTRA_OEMAKE = " HOSTCC="${BUILD_CC}" HOSTCPP="${BUILD_CPP}""
 KERNEL_ALT_IMAGETYPE ??= ""
 
 copy_initramfs() {
@@ -199,7 +200,7 @@ copy_initramfs() {
 	echo "Finished copy of initramfs into ./usr"
 }
 
-INITRAMFS_BASE_NAME = "initramfs-${PV}-${PR}-${MACHINE}-${DATETIME}"
+INITRAMFS_BASE_NAME ?= "initramfs-${PV}-${PR}-${MACHINE}-${DATETIME}"
 INITRAMFS_BASE_NAME[vardepsexclude] = "DATETIME"
 do_bundle_initramfs () {
 	if [ ! -z "${INITRAMFS_IMAGE}" -a x"${INITRAMFS_IMAGE_BUNDLE}" = x1 ]; then
@@ -325,6 +326,36 @@ kernel_do_install() {
 	install -d ${D}${sysconfdir}/modprobe.d
 }
 do_install[prefuncs] += "package_get_auto_pr"
+
+# Must be ran no earlier than after do_kernel_checkout or else Makefile won't be in ${S}/Makefile
+do_kernel_version_sanity_check() {
+	# The Makefile determines the kernel version shown at runtime
+	# Don't use KERNEL_VERSION because the headers it grabs the version from aren't generated until do_compile
+	VERSION=$(grep "^VERSION =" ${S}/Makefile | sed s/.*=\ *//)
+	PATCHLEVEL=$(grep "^PATCHLEVEL =" ${S}/Makefile | sed s/.*=\ *//)
+	SUBLEVEL=$(grep "^SUBLEVEL =" ${S}/Makefile | sed s/.*=\ *//)
+	EXTRAVERSION=$(grep "^EXTRAVERSION =" ${S}/Makefile | sed s/.*=\ *//)
+
+	# Build a string for regex and a plain version string
+	reg="^${VERSION}\.${PATCHLEVEL}"
+	vers="${VERSION}.${PATCHLEVEL}"
+	if [ -n "${SUBLEVEL}" ]; then
+		# Ignoring a SUBLEVEL of zero is fine
+		if [ "${SUBLEVEL}" = "0" ]; then
+			reg="${reg}(\.${SUBLEVEL})?"
+		else
+			reg="${reg}\.${SUBLEVEL}"
+			vers="${vers}.${SUBLEVEL}"
+		fi
+	fi
+	vers="${vers}${EXTRAVERSION}"
+	reg="${reg}${EXTRAVERSION}"
+
+	if [ -z `echo ${PV} | grep -E "${reg}"` ]; then
+		bbfatal "Package Version (${PV}) does not match of kernel being built (${vers}). Please update the PV variable to match the kernel source."
+	fi
+	exit 0
+}
 
 addtask shared_workdir after do_compile before do_compile_kernelmodules
 addtask shared_workdir_setscene

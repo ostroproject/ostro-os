@@ -193,12 +193,6 @@ def exec_func(func, d, dirs = None, pythonexception=False):
     except:
         oldcwd = None
 
-    body = d.getVar(func, False)
-    if not body:
-        if body is None:
-            logger.warning("Function %s doesn't exist", func)
-        return
-
     flags = d.getVarFlags(func)
     cleandirs = flags.get('cleandirs')
     if cleandirs:
@@ -217,6 +211,13 @@ def exec_func(func, d, dirs = None, pythonexception=False):
         adir = dirs[-1]
     else:
         adir = None
+
+    body = d.getVar(func, False)
+    if not body:
+        if body is None:
+            logger.warning("Function %s doesn't exist", func)
+        return
+
     ispython = flags.get('python')
 
     lockflag = flags.get('lockfiles')
@@ -573,6 +574,9 @@ def _exec_task(fn, task, d, quieterr):
             errprinted = errchk.triggered
             logger.error(str(exc))
             event.fire(TaskFailed(task, logfn, localdata, errprinted), localdata)
+        return 1
+    except bb.BBHandledException:
+        event.fire(TaskFailed(task, logfn, localdata, True), localdata)
         return 1
     finally:
         sys.stdout.flush()

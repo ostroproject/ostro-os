@@ -1,4 +1,5 @@
 include conf/machine/include/x86-base.inc
+require conf/machine/include/qemuboot-x86.inc
 MACHINE_FEATURES += "wifi efi pcbios"
 
 PREFERRED_PROVIDER_virtual/kernel ?= "linux-yocto"
@@ -18,3 +19,7 @@ MACHINE_EXTRA_RRECOMMENDS += "linux-firmware eee-acpi-scripts"
 GLIBC_ADDONS = "nptl"
 
 EXTRA_OECONF_append_pn-matchbox-panel-2 = " --with-battery=acpi"
+
+IMAGE_FSTYPES += "wic"
+WKS_FILE = "directdisk.wks"
+do_image_wic[depends] += "mtools-native:do_populate_sysroot dosfstools-native:do_populate_sysroot syslinux-native:do_populate_sysroot syslinux:do_build"
