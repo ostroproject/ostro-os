@@ -786,6 +786,9 @@ class BaseConfig(object):
             self.cleantap = True
             logger.info('Created tap: %s' % tap)
 
+        if not tap:
+            logger.error("Failed to setup tap device. Run runqemu-gen-tapdevs to manually create.")
+            return 1
         self.tap = tap
         n0 = tap[3:]
         n1 = int(n0) * 2 + 1
@@ -821,7 +824,6 @@ class BaseConfig(object):
             self.rootfs_options = '-drive file=%s,if=virtio,format=raw' % self.rootfs
 
         if self.fstype in ('cpio.gz', 'cpio'):
-            self.set('NETWORK_CMD', '')
             self.kernel_cmdline = 'root=/dev/ram0 rw debugshell'
             self.rootfs_options = '-initrd %s' % self.rootfs
         else:
@@ -899,9 +901,6 @@ class BaseConfig(object):
         check_libgl(qemu_bin)
 
         self.qemu_opt = "%s %s %s %s %s" % (qemu_bin, self.get('NETWORK_CMD'), self.qemu_opt_script, self.get('ROOTFS_OPTIONS'), self.get('QB_OPT_APPEND'))
-
-        # Enable virtio RNG else we can run out of entropy in guests
-        self.qemu_opt += " -device virtio-rng-pci"
 
         if self.snapshot:
             self.qemu_opt += " -snapshot"
