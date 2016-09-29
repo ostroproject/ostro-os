@@ -7,10 +7,13 @@ DEPENDS = "file glib-2.0 rsync openssl libarchive bsdiff bzip2"
 DEPENDS_append_class-native = " bzip2-replacement-native"
 
 PV = "3.2.5+git${SRCPV}"
-SRC_URI = "\
-    git://github.com/clearlinux/swupd-server.git;protocol=https \
-    file://fullfiles.c-work-around-pseudo-bug.patch \
-"
+SRC_URI = "git://github.com/clearlinux/swupd-server.git;protocol=https \
+           file://0025-swupd_make_pack-fix-extracting-files-with-bsdtar.patch \
+           file://0026-fullfiles.c-fix-invalid-LOG-call.patch \
+           file://0027-update-control-over-parallelism.patch \
+           file://0028-enable-locales-in-all-programs.patch \
+           file://0029-fullfiles-use-libarchive-directly.patch \
+           "
 SRCREV = "ddca171dad32229ceeff8b8527a179610b88ce55"
 
 S = "${WORKDIR}/git"
