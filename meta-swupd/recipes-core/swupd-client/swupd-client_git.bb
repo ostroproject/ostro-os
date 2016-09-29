@@ -5,14 +5,13 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=f8d90fb802930e30e49c39c8126a959e"
 
 DEPENDS = "glib-2.0 curl openssl libarchive bsdiff"
 
-PV = "3.6.0+git${SRCPV}"
+PV = "3.5.3+git${SRCPV}"
 SRC_URI = "\
     git://github.com/clearlinux/swupd-client.git;protocol=https \
     file://Change-systemctl-path-to-OE-systemctl-path.patch \
     file://0001-Add-configure-option-to-re-enable-updating-of-config.patch \
-    file://Make-pinned-pubkey-configurable.patch \
 "
-SRCREV = "f4000c5b22be47ec1af2f8748fd71a36148b5dc4"
+SRCREV = "42c02c5f4a91f3ef2cdb9f80fa7ca79dfbab1ac0"
 
 S = "${WORKDIR}/git"
 
@@ -36,17 +35,15 @@ PACKAGECONFIG[stateless] = ",--disable-stateless"
 SWUPD_VERSION_URL ??= "example.com"
 SWUPD_CONTENT_URL ??= "example.com"
 SWUPD_FORMAT ??= "3"
-SWUPD_PINNED_PUBKEY ??= ""
 do_install_append () {
     # TODO: This should be a less os-specific directory and not hard-code datadir
     install -d ${D}$/usr/share/clear/bundles
 
     # Write default values to the configuration hierarchy (since 3.4.0)
     install -d ${D}/usr/share/defaults/swupd
-    echo "${SWUPD_VERSION_URL}" >> ${D}/usr/share/defaults/swupd/versionurl
-    echo "${SWUPD_CONTENT_URL}" >> ${D}/usr/share/defaults/swupd/contenturl
-    echo "${SWUPD_FORMAT}" >> ${D}/usr/share/defaults/swupd/format
-    test -n "${SWUPD_PINNED_PUBKEY}" && echo "${SWUPD_PINNED_PUBKEY}" > ${D}/usr/share/defaults/swupd/pinnedpubkey || true
+    echo "{SWUPD_VERSION_URL}" >> ${D}/usr/share/defaults/swupd/versionurl
+    echo "{SWUPD_CONTENT_URL}" >> ${D}/usr/share/defaults/swupd/contenturl
+    echo "{SWUPD_FORMAT}" >> ${D}/usr/share/defaults/swupd/format
 }
 
 FILES_${PN} += "\

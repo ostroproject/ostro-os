@@ -48,11 +48,7 @@ python swupdimage_virtclass_handler () {
     e.data.setVar("IMAGE_BUNDLE_NAME", imageext)
     # We override the default methods such that they only copy from the mega rootfs.
     e.data.setVar("do_image", "    swupd_create_rootfs(d)\n")
-    # do_rootfs must not be empty, because empty tasks get skipped
-    # and we don't want that for do_rootfs because its cleandirs
-    # variable triggers the creation of the IMGDEPLOYDIR that we
-    # are going to write into.
-    e.data.setVar("do_rootfs", "    bb.utils.mkdirhier(d.getVar('IMAGE_ROOTFS', True))\n")
+    e.data.setVar("do_rootfs", "")
     # Depend on complete bundle generation in the base image.
     dep = ' %s:do_swupd_update' % pn_base
     e.data.appendVarFlag('do_image', 'depends', dep)

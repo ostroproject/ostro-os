@@ -169,7 +169,7 @@ def copyxattrtree(src, dst):
     # tar does not properly copy xattrs when used like this.
     # See the comment on tar in meta/classes/image_types.bbclass
     cmd = "tar --xattrs --xattrs-include='*' -cf - -C %s -p . | tar -p --xattrs --xattrs-include='*' -xf - -C %s" % (src, dst)
-    subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+    oe.path.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
 
 # swupd-client expects a bundle subscription to exist for each
 # installed bundle. This is simply an empty file named for the
@@ -205,11 +205,6 @@ def swupd_create_rootfs(d):
     imageext = d.getVar('IMAGE_BUNDLE_NAME', True) or ''
     if bndl and bndl != 'os-core':
         bb.debug(2, "Skipping swupd_create_rootfs() in bundle image %s for bundle %s." % (pn, bndl))
-        return
-
-    havebundles = (d.getVar('SWUPD_BUNDLES', True) or '') != ''
-    if not havebundles:
-        bb.debug(2, "Skipping swupd_create_rootfs(), original rootfs can be used because no additional bundles are defined")
         return
 
     # Sanity checking was already done in swupdimage.bbclass.
@@ -291,15 +286,9 @@ fakeroot python do_copy_bundle_contents () {
     manifest_cmd = 'cd %s && find . ! -path . > %s' % (rootfs, outfile)
     subprocess.call(manifest_cmd, shell=True, stderr=subprocess.STDOUT)
 
-    havebundles = (d.getVar('SWUPD_BUNDLES', True) or '') != ''
-    if havebundles:
-        # Copy the entire mega image's contents, we'll prune this down to only
-        # the files in the manifest in do_prune_bundle
-        copyxattrtree(d.getVar('MEGA_IMAGE_ROOTFS', True), bundledir)
-    else:
-        # Copy the original rootfs. There isn't any other rootfs because we
-        # don't have extra bundles.
-        copyxattrtree(d.getVar('IMAGE_ROOTFS', True), bundledir)
+    # Copy the entire mega image's contents, we'll prune this down to only
+    # the files in the manifest in do_prune_bundle
+    copyxattrtree(d.getVar('MEGA_IMAGE_ROOTFS', True), bundledir)
 
     create_bundle_manifest(d, bndl)
 }
@@ -554,7 +543,7 @@ python swupd_replace_hardlinks () {
             if stat.S_ISREG(s.st_mode):
                 inodes.setdefault(s.st_ino, []).append(path)
 
-    for inode, paths in inodes.items():
+    for inode, paths in inodes.iteritems():
         if len(paths) > 1:
             paths.sort()
             bb.debug(3, 'Removing hardlinks: %s' % ' = '.join(paths))
