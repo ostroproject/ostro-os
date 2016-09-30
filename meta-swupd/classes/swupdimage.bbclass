@@ -33,6 +33,9 @@ python swupdimage_virtclass_handler () {
     pn = pn + '-' + imageext
     e.data.setVar("PN", pn)
 
+    # Unset BUNDLE_NAME because we are not a bundle.
+    e.data.delVar("BUNDLE_NAME")
+
     # Sanity check settings to catch errors already during parsing.
     imagebundles = (e.data.getVarFlag('SWUPD_IMAGES', imageext, True) or '').split()
     if not imagebundles:
