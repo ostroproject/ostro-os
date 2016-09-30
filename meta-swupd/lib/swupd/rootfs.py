@@ -68,7 +68,7 @@ def create_rootfs(d):
     bb.debug(2, 'Re-copying rootfs contents from mega image %s to %s' % (mega_rootfs, rootfs))
     copyxattrfiles(d, rootfs_contents, mega_rootfs, rootfs)
 
-    deploy_dir = d.getVar('DEPLOY_DIR_IMAGE', True)
+    deploy_dir = d.getVar('IMGDEPLOYDIR', True)
     link_name = d.getVar('IMAGE_LINK_NAME', True)
     # Create .rootfs.manifest for bundle images as the union of all
     # contained bundles. Otherwise the image wouldn't have that file,
@@ -76,7 +76,7 @@ def create_rootfs(d):
     # and utility classes (like isafw.bbclass).
     if imageext:
         packages = set()
-        manifest = d.expand('${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.manifest')
+        manifest = d.getVar('IMAGE_MANIFEST', True)
         for bundle in imagebundles:
             bundlemanifest = manifest.replace(pn, 'bundle-%s-%s' % (pn_base, bundle))
             if not os.path.exists(bundlemanifest):
