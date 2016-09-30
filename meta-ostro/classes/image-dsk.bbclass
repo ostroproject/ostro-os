@@ -25,14 +25,10 @@
 
 
 # Ostro custom conversion types
-COMPRESSIONTYPES_append = " vdi ova"
-COMPRESS_CMD_vdi = "qemu-img convert -O vdi ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type} ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}.vdi"
-COMPRESS_DEPENDS_vdi = "qemu-native"
-COMPRESS_DEPENDS_ova = "vboxmanage-native"
-
-# temporary assignment: only needed in combination with OE-core which doesn't
-# have the variable yet.
-IMGDEPLOYDIR ??= "${DEPLOY_DIR_IMAGE}"
+CONVERSIONTYPES_append = " vdi ova"
+CONVERSION_CMD_vdi = "qemu-img convert -O vdi ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type} ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}.vdi"
+CONVERSION_DEPENDS_vdi = "qemu-native"
+CONVERSION_DEPENDS_ova = "vboxmanage-native"
 
 # Needed to use native python libraries
 inherit pythonnative
@@ -117,7 +113,7 @@ create_ova() {
   rm -rf ${WORK_FOLDER}
 }
 
-COMPRESS_CMD_ova = "create_ova"
+CONVERSION_CMD_ova = "create_ova"
 
 do_uefiapp[depends] += " \
                          systemd:do_deploy \
@@ -324,11 +320,6 @@ addtask do_uefiapp
 addtask do_uefiapp before do_rootfs
 
 ROOTFS_POSTPROCESS_COMMAND += " uefiapp_deploy; "
-
-# Workaround for spurious execution of unrequested task
-# related to wic.
-# See: https://bugzilla.yoctoproject.org/show_bug.cgi?id=9095
-deltask do_rootfs_wicenv
 
 # All variables explicitly passed to image-dsk.py.
 IMAGE_DSK_VARIABLES = " \
