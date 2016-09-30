@@ -12,3 +12,6 @@ SRC_URI += "file://disable-doc-creation.patch"
 # Workaround for upstream incompatibility with older Linux distros.
 # Relevant for us when compiling ima-evm-utils-native.
 SRC_URI += "file://evmctl.c-do-not-depend-on-xattr.h-with-IMA-defines.patch"
+
+# Required for xargs with more than one path as argument (better for performance).
+SRC_URI += "file://command-line-apply-operation-to-all-paths.patch"
