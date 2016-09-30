@@ -1,48 +1,5 @@
 
 
-def sanitise_file_list(filelist):
-    """
-    expand a list of paths ensuring each component is represented in the list
-
-    We need to ensure that each component of every file path to be copied is
-    present in the list.
-    This is because when copying the file contents using copyxattrfiles() any
-    intermediate path components which aren't explicitly specified will be
-    automatically created (instead of being copied) and thus end up with the
-    default permissions for newly created directories -- this will likely lead
-    to hash mismatches in the swupd Manifests and verification failures.
-    We also take the step of removing a leading / from the path, as required
-    by copyxattrfiles()
-
-    filelist -- the list of files to expand
-    """
-    sanitised = set()
-    rootrepr = ['', '.', '/']
-
-    def addpathcomponents(path):
-        """
-        add each component of path to the file list
-
-        path -- the path to add compoents from
-        """
-        dirname = os.path.dirname(path)
-        while dirname:
-            # If the directory is a representation of / then we're done
-            if dirname in rootrepr:
-                break
-            sanitised.add(dirname[1:])
-            # Process the next component of the path
-            dirname = os.path.dirname(dirname)
-
-    for f in filelist:
-        # Ensure every component of the path is included in the file list
-        addpathcomponents(f)
-        # Remove / prefix for passing to tar
-        sanitised.add(f[1:])
-
-    return sorted(sanitised)
-
-
 def manifest_to_file_list(manifest_fn):
     """
     open a manifest file and read it into a list

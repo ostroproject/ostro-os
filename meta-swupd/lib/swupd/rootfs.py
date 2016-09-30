@@ -46,6 +46,7 @@ def create_rootfs(d):
         outfile = d.expand('${WORKDIR}/orig-rootfs-manifest.txt')
         rootfs = d.getVar('IMAGE_ROOTFS', True)
         # Generate a manifest of the current file contents
+        # TODO: use the same common utility method
         manifest_cmd = 'cd %s && find . ! -path . > %s' % (rootfs, outfile)
         subprocess.call(manifest_cmd, shell=True, stderr=subprocess.STDOUT)
         # Remove the current rootfs contents
@@ -55,18 +56,17 @@ def create_rootfs(d):
         # clean up
         os.unlink(outfile)
     else: # non-base image, i.e. swupdimage
-        manifest = d.expand("${DEPLOY_DIR_SWUPD}/image/${OS_VERSION}/${PN_BASE}${SWUPD_ROOTFS_MANIFEST_SUFFIX}")
-        for entry in manifest_to_file_list(manifest):
-            rootfs_contents.append(entry[2:])
+        manifest = d.expand("${DEPLOY_DIR_SWUPD}/image/${OS_VERSION}/os-core${SWUPD_ROOTFS_MANIFEST_SUFFIX}")
+        rootfs_contents.extend(manifest_to_file_list(manifest))
 
     bb.debug(3, 'rootfs_contents has %s entries' % (len(rootfs_contents)))
     for bundle in imagebundles:
-        manifest = d.expand("${DEPLOY_DIR_SWUPD}/image/${OS_VERSION}/bundle-${PN_BASE}-%s${SWUPD_ROOTFS_MANIFEST_SUFFIX}") % bundle
-        for entry in manifest_to_file_list(manifest):
-            rootfs_contents.append(entry[2:])
+        manifest = d.expand("${DEPLOY_DIR_SWUPD}/image/${OS_VERSION}/%s${SWUPD_ROOTFS_MANIFEST_SUFFIX}") % bundle
+        rootfs_contents.extend(manifest_to_file_list(manifest))
 
-    bb.debug(2, 'Re-copying rootfs contents from mega image')
-    copyxattrfiles(d, rootfs_contents, d.getVar('MEGA_IMAGE_ROOTFS', True), rootfs)
+    mega_rootfs = d.getVar('MEGA_IMAGE_ROOTFS', True)
+    bb.debug(2, 'Re-copying rootfs contents from mega image %s to %s' % (mega_rootfs, rootfs))
+    copyxattrfiles(d, rootfs_contents, mega_rootfs, rootfs)
 
     deploy_dir = d.getVar('DEPLOY_DIR_IMAGE', True)
     link_name = d.getVar('IMAGE_LINK_NAME', True)

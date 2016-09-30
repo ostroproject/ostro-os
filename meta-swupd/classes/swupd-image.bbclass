@@ -16,8 +16,7 @@
 # See docs/Guide.md for more information.
 
 DEPLOY_DIR_SWUPDBASE = "${DEPLOY_DIR}/swupd/${MACHINE}"
-SWUPD_ROOTFS_MANIFEST_SUFFIX = "-files-in-image.txt"
-SWUPD_ROOTFS_MANIFEST = "${PN}${SWUPD_ROOTFS_MANIFEST_SUFFIX}"
+SWUPD_ROOTFS_MANIFEST_SUFFIX = ".content.txt"
 
 # User configurable variables to disable all swupd processing or deltapack
 # generation.
@@ -130,17 +129,13 @@ python () {
     for bndl in bundles:
         check_reserved_name(bndl)
 
-    # Generate virtual images for each bundle which adds IMAGE_FEATURES as
-    # we can't easily determine which packages to install in order to satisfy
-    # the dependecies of an IMAGE_FEATURES
+    # Generate virtual images for all bundles.
     for bndl in bundles:
-        features = d.getVarFlag('BUNDLE_FEATURES', bndl, True)
-        if features:
-            extended.append('swupdbundle:%s' % bndl)
-            dep = ' bundle-%s-%s:do_image_complete' % (pn, bndl)
-            # do_stage_swupd_inputs will try and utilise artefacts of the bundle
-            # image build, so must depend on it having completed
-            d.appendVarFlag('do_stage_swupd_inputs', 'depends', dep)
+        extended.append('swupdbundle:%s' % bndl)
+        dep = ' bundle-%s-%s:do_image_complete' % (pn, bndl)
+        # do_stage_swupd_inputs will try and utilise artefacts of the bundle
+        # image build, so must depend on it having completed
+        d.appendVarFlag('do_stage_swupd_inputs', 'depends', dep)
 
     if havebundles:
         extended.append('swupdbundle:mega')
@@ -427,17 +422,17 @@ END
     done
 
     ${SWUPD_LOG_FN} "Generating update from $PREVREL to ${OS_VERSION}"
-    bsdtar -acf ${DEPLOY_DIR}/swupd-before-create-update.tar.gz -C ${DEPLOY_DIR} swupd
+    # bsdtar -acf ${DEPLOY_DIR}/swupd-before-create-update.tar.gz -C ${DEPLOY_DIR} swupd
     echo ${STAGING_BINDIR_NATIVE}/swupd_create_update -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION} --format ${SWUPD_FORMAT}
     time ${STAGING_BINDIR_NATIVE}/swupd_create_update -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION} --format ${SWUPD_FORMAT}
 
     ${SWUPD_LOG_FN} "Generating fullfiles for ${OS_VERSION}"
-    bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-fullfiles.tar.gz -C ${DEPLOY_DIR} swupd
+    # bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-fullfiles.tar.gz -C ${DEPLOY_DIR} swupd
     echo ${STAGING_BINDIR_NATIVE}/swupd_make_fullfiles -S ${DEPLOY_DIR_SWUPD} ${OS_VERSION}
     time ${STAGING_BINDIR_NATIVE}/swupd_make_fullfiles -S ${DEPLOY_DIR_SWUPD} ${OS_VERSION}
 
     ${SWUPD_LOG_FN} "Generating zero packs, this can take some time."
-    bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-zero-pack.tar.gz -C ${DEPLOY_DIR} swupd
+    # bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-zero-pack.tar.gz -C ${DEPLOY_DIR} swupd
     for bndl in ${ALL_BUNDLES}; do
         ${SWUPD_LOG_FN} "Generating zero pack for $bndl"
         echo ${STAGING_BINDIR_NATIVE}/swupd_make_pack -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl
@@ -445,7 +440,7 @@ END
     done
 
     # Generate delta-packs going back SWUPD_N_DELTAPACK versions
-    bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-delta-pack.tar.gz -C ${DEPLOY_DIR} swupd
+    # bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-delta-pack.tar.gz -C ${DEPLOY_DIR} swupd
     if [ ${SWUPD_DELTAPACKS} -eq 1 -a ${SWUPD_N_DELTAPACK} -gt 0 -a $PREVREL -gt 0 ]; then
         for bndl in ${ALL_BUNDLES}; do
             bndlcnt=0
@@ -465,7 +460,7 @@ END
     mkdir -p ${DEPLOY_DIR_SWUPD}/www/version/format${SWUPD_FORMAT}
     echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/www/version/format${SWUPD_FORMAT}/latest
     echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/image/latest.version
-    bsdtar -acf ${DEPLOY_DIR}/swupd-done.tar.gz -C ${DEPLOY_DIR} swupd
+    # bsdtar -acf ${DEPLOY_DIR}/swupd-done.tar.gz -C ${DEPLOY_DIR} swupd
 }
 
 SWUPDDEPENDS = "\
