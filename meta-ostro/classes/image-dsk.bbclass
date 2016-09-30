@@ -25,11 +25,9 @@
 
 
 # Ostro custom conversion types
-COMPRESSIONTYPES_append = " vdi bmap ova"
+COMPRESSIONTYPES_append = " vdi ova"
 COMPRESS_CMD_vdi = "qemu-img convert -O vdi ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type} ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}.vdi"
-COMPRESS_CMD_bmap = "bmaptool create ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type} -o ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}.bmap"
 COMPRESS_DEPENDS_vdi = "qemu-native"
-COMPRESS_DEPENDS_bmap = "bmap-tools-native"
 COMPRESS_DEPENDS_ova = "vboxmanage-native"
 
 # temporary assignment: only needed in combination with OE-core which doesn't
