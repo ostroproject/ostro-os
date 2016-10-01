@@ -422,6 +422,18 @@ END
         echo "" >> ${GROUPS_INI}
     done
 
+    # Unpack the input rootfs dir(s) for use with the swupd tools. Might have happened
+    # already in a previous run of this task.
+    for archive in ${DEPLOY_DIR_SWUPD}/image/*/*.tar; do
+        dir=$(echo $archive | sed -e 's/.tar$//')
+        if [ -e $archive ] && ! [ -d $dir ]; then
+            mkdir -p $dir
+            # TODO: use bsdtar and auto-detect compression
+            bbnote Unpacking $archive
+            tar --xattrs --xattrs-include='*' -Jxf $archive -C $dir
+        fi
+    done
+
     ${SWUPD_LOG_FN} "Generating update from $PREVREL to ${OS_VERSION}"
     # bsdtar -acf ${DEPLOY_DIR}/swupd-before-create-update.tar.gz -C ${DEPLOY_DIR} swupd
     echo ${STAGING_BINDIR_NATIVE}/swupd_create_update --log-stdout -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION} --format ${SWUPD_FORMAT}

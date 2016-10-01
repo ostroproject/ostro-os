@@ -70,13 +70,14 @@ def copy_core_contents(d):
 
     d -- the bitbake datastore
     """
+    imagedir = d.expand('${SWUPDIMAGEDIR}/${OS_VERSION}')
     corefile = d.expand('${SWUPDIMAGEDIR}/${OS_VERSION}/os-core${SWUPD_ROOTFS_MANIFEST_SUFFIX}')
     fullfile = d.expand('${SWUPDIMAGEDIR}/${OS_VERSION}/full${SWUPD_ROOTFS_MANIFEST_SUFFIX}')
-    bundledir = d.expand('${SWUPDIMAGEDIR}/${OS_VERSION}/full/')
+    bundle = d.expand('${SWUPDIMAGEDIR}/${OS_VERSION}/full.tar')
     rootfs = d.getVar('IMAGE_ROOTFS', True)
 
     # Generate a manifest of the bundle content.
-    bb.utils.mkdirhier(bundledir)
+    bb.utils.mkdirhier(imagedir)
     unwanted_files = (d.getVar('SWUPD_FILE_BLACKLIST', True) or '').split()
     create_content_manifest(rootfs, corefile, unwanted_files)
 
@@ -91,8 +92,10 @@ def copy_core_contents(d):
         create_content_manifest(imgrootfs, fullfile, unwanted_files)
         manifest_files = swupd.utils.manifest_to_file_list(fullfile)
 
-    bb.debug(1, "Copying from image (%s) to full bundle dir (%s)" % (imgrootfs, bundledir))
-    swupd.path.copyxattrfiles(d, manifest_files, imgrootfs, bundledir)
+    bb.debug(1, "Copying from image (%s) to full bundle (%s)" % (imgrootfs, bundle))
+    # Create full.tar.gz instead of directory - speeds up
+    # do_stage_swupd_input from ~11min in the Ostro CI to 6min.
+    swupd.path.copyxattrfiles(d, manifest_files, imgrootfs, bundle, True)
 
 
 def stage_image_bundle_contents(d, bundle):

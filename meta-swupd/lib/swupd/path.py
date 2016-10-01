@@ -13,7 +13,7 @@ def copyxattrtree(src, dst):
     subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
 
 
-def copyxattrfiles(d, filelist, src, dst):
+def copyxattrfiles(d, filelist, src, dst, archive=False):
     """
     copy files preserving extended attributes
 
@@ -21,11 +21,12 @@ def copyxattrfiles(d, filelist, src, dst):
     filelist -- a list of file paths
     src -- where to copy the files from
     dst -- where to copy the files to
+    archive -- create archive at dst instead of writing into that directory
     """
     import subprocess
     import tempfile
 
-    bb.utils.mkdirhier(dst)
+    bb.utils.mkdirhier(os.path.dirname(dst) if archive else dst)
     files = sorted(filelist)
 
     workdir = d.getVar('WORKDIR', True)
@@ -36,7 +37,10 @@ def copyxattrfiles(d, filelist, src, dst):
         for f in files:
             fdest.write('%s\n' % f)
 
-    cmd = "tar --xattrs --xattrs-include='*' --no-recursion -cf - -T %s -p | tar -p --xattrs --xattrs-include='*' -xf - -C %s" % (copyfile, dst)
+    if archive:
+        cmd = "tar --xattrs --xattrs-include='*' --no-recursion -Jcf %s -T %s -p" % (dst, copyfile)
+    else:
+        cmd = "tar --xattrs --xattrs-include='*' --no-recursion -cf - -T %s -p | tar -p --xattrs --xattrs-include='*' -xf - -C %s" % (copyfile, dst)
     subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
     os.remove(copyfile)
 
