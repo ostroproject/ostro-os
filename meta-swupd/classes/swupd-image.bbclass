@@ -424,20 +424,20 @@ END
 
     ${SWUPD_LOG_FN} "Generating update from $PREVREL to ${OS_VERSION}"
     # bsdtar -acf ${DEPLOY_DIR}/swupd-before-create-update.tar.gz -C ${DEPLOY_DIR} swupd
-    echo ${STAGING_BINDIR_NATIVE}/swupd_create_update -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION} --format ${SWUPD_FORMAT}
-    time ${STAGING_BINDIR_NATIVE}/swupd_create_update -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION} --format ${SWUPD_FORMAT}
+    echo ${STAGING_BINDIR_NATIVE}/swupd_create_update --log-stdout -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION} --format ${SWUPD_FORMAT}
+    time ${STAGING_BINDIR_NATIVE}/swupd_create_update --log-stdout -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION} --format ${SWUPD_FORMAT}
 
     ${SWUPD_LOG_FN} "Generating fullfiles for ${OS_VERSION}"
     # bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-fullfiles.tar.gz -C ${DEPLOY_DIR} swupd
-    echo ${STAGING_BINDIR_NATIVE}/swupd_make_fullfiles -S ${DEPLOY_DIR_SWUPD} ${OS_VERSION}
-    time ${STAGING_BINDIR_NATIVE}/swupd_make_fullfiles -S ${DEPLOY_DIR_SWUPD} ${OS_VERSION}
+    echo ${STAGING_BINDIR_NATIVE}/swupd_make_fullfiles --log-stdout -S ${DEPLOY_DIR_SWUPD} ${OS_VERSION}
+    time ${STAGING_BINDIR_NATIVE}/swupd_make_fullfiles --log-stdout -S ${DEPLOY_DIR_SWUPD} ${OS_VERSION}
 
     ${SWUPD_LOG_FN} "Generating zero packs, this can take some time."
     # bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-zero-pack.tar.gz -C ${DEPLOY_DIR} swupd
     for bndl in ${ALL_BUNDLES}; do
         ${SWUPD_LOG_FN} "Generating zero pack for $bndl"
-        echo ${STAGING_BINDIR_NATIVE}/swupd_make_pack -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl
-        time ${STAGING_BINDIR_NATIVE}/swupd_make_pack -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl
+        echo ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl
+        time ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl
     done
 
     # Generate delta-packs going back SWUPD_N_DELTAPACK versions
@@ -450,8 +450,8 @@ END
             # right now.
             ls -d -1 ${DEPLOY_DIR_SWUPD}/image/*/$bndl | sed -e 's;${DEPLOY_DIR_SWUPD}/image/\([^/]*\)/.*;\1;' | grep -e '^[0-9]*$' | sort -n | head -n -1 | tail -n ${SWUPD_N_DELTAPACK} | while read prevver; do
                 ${SWUPD_LOG_FN} "Generating delta pack from $prevver to ${OS_VERSION} for $bndl"
-                echo ${STAGING_BINDIR_NATIVE}/swupd_make_pack -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl
-                time ${STAGING_BINDIR_NATIVE}/swupd_make_pack -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl
+                echo ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl
+                time ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl
             done
         done
     fi
