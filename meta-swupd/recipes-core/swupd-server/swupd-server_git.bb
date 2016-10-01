@@ -14,6 +14,7 @@ SRC_URI = "git://github.com/clearlinux/swupd-server.git;protocol=https \
            file://0028-enable-locales-in-all-programs.patch \
            file://0029-fullfiles-use-libarchive-directly.patch \
            file://0001-swupd-create-update-alternative-input-layout.patch \
+           file://0002-add-logging-to-stdout.patch \
            "
 SRCREV = "ddca171dad32229ceeff8b8527a179610b88ce55"
 
