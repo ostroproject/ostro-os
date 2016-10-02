@@ -430,7 +430,7 @@ END
             mkdir -p $dir
             # TODO: use bsdtar and auto-detect compression
             bbnote Unpacking $archive
-            tar --xattrs --xattrs-include='*' -Jxf $archive -C $dir
+            tar --xattrs --xattrs-include='*' -zxf $archive -C $dir
         fi
     done
 

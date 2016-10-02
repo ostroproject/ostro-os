@@ -38,7 +38,7 @@ def copyxattrfiles(d, filelist, src, dst, archive=False):
             fdest.write('%s\n' % f)
 
     if archive:
-        cmd = "tar --xattrs --xattrs-include='*' --no-recursion -Jcf %s -T %s -p" % (dst, copyfile)
+        cmd = "tar --xattrs --xattrs-include='*' --no-recursion -zcf %s -T %s -p" % (dst, copyfile)
     else:
         cmd = "tar --xattrs --xattrs-include='*' --no-recursion -cf - -T %s -p | tar -p --xattrs --xattrs-include='*' -xf - -C %s" % (copyfile, dst)
     subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
