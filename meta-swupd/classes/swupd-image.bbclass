@@ -205,7 +205,14 @@ do_image_append () {
 #"
 SWUPD_FILE_BLACKLIST ??= ""
 
-SWUPDIMAGEDIR = "${WORKDIR}/swupd-image"
+# When set to a non-empty string, the "swupd/image" content for the
+# current build gets archived in the sstate-cache. This is
+# experimental and disabled by default. Using it to create deltas
+# between builds also implies doing some extra work to preserve the
+# SWUPD_SSTATE_MAP map file across builds.
+SWUPD_SSTATE ??= ""
+
+SWUPDIMAGEDIR = "${@ '${WORKDIR}/swupd-image' if '${SWUPD_SSTATE}' else '${DEPLOY_DIR_SWUPD}/image'}"
 SWUPDMANIFESTDIR = "${WORKDIR}/swupd-manifests"
 SWUPD_SSTATE_MAP = "${DEPLOY_DIR_SWUPD}/${PN}-map.inc"
 fakeroot python do_stage_swupd_inputs () {
@@ -242,7 +249,7 @@ addtask stage_swupd_inputs after do_image before do_swupd_update
 do_stage_swupd_inputs[dirs] = "${SWUPDIMAGEDIR} ${SWUPDMANIFESTDIR} ${DEPLOY_DIR_SWUPD}/maps/"
 do_stage_swupd_inputs[depends] += "virtual/fakeroot-native:do_populate_sysroot"
 
-SSTATETASKS += "do_stage_swupd_inputs"
+SSTATETASKS += "${@ 'do_stage_swupd_inputs' if '${SWUPD_SSTATE}' else ''}"
 do_stage_swupd_inputs[sstate-inputdirs] = "${SWUPDIMAGEDIR}/${OS_VERSION} ${SWUPDMANIFESTDIR}"
 do_stage_swupd_inputs[sstate-outputdirs] = "${DEPLOY_DIR_SWUPD}/image/${OS_VERSION} ${DEPLOY_DIR_IMAGE}"
 
