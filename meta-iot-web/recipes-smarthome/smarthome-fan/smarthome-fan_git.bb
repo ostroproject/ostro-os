@@ -10,7 +10,7 @@ RDEPENDS_${PN} += "iotivity node-mraa nodejs iotivity-node"
 SRC_URI = "git://git@github.com/01org/SmartHome-Demo.git;protocol=https \
            file://smarthome-fan.service \
           "
-SRCREV = "a7a6e745fad9485b2b7e8f650dbefa53f22aa11f"
+SRCREV = "78c3043f581135dcfa1e755def8d2081e086b751"
 PV = "0.1+git${SRCPV}"
 
 S = "${WORKDIR}/git/"

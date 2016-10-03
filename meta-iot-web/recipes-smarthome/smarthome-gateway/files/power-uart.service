@@ -3,7 +3,7 @@ Description=SmartHome Power startup service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/node /opt/smarthome-ocf-servers/smarthome-power.js
+ExecStart=/usr/bin/node /opt/smarthome-ocf-servers/power-uart.js
 Environment='NODE_PATH=/usr/lib/node_modules/'
 Restart=on-failure
 User=root
