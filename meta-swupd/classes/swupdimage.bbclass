@@ -52,7 +52,7 @@ python swupdimage_virtclass_handler () {
     # and we don't want that for do_rootfs because its cleandirs
     # variable triggers the creation of the IMGDEPLOYDIR that we
     # are going to write into.
-    e.data.setVar("do_rootfs", "    pass")
+    e.data.setVar("do_rootfs", "    bb.utils.mkdirhier(d.getVar('IMAGE_ROOTFS', True))\n")
     # Depend on complete bundle generation in the base image.
     dep = ' %s:do_swupd_update' % pn_base
     e.data.appendVarFlag('do_image', 'depends', dep)
