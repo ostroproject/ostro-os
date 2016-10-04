@@ -375,7 +375,16 @@ do_fetch_swupd_inputs[dirs] = "${DEPLOY_DIR_SWUPD}/maps ${DEPLOY_DIR_SWUPD}/imag
 do_fetch_swupd_inputs[depends] += "virtual/fakeroot-native:do_populate_sysroot"
 
 SWUPD_FORMAT ??= "3"
-fakeroot do_swupd_update () {
+# do_swupd_update uses its own pseudo database, for several reasons:
+# - Performance is better when the pseudo instance is not shared
+#   with the do_image tasks of other virtual swupd image recipes (those
+#   tend to run in parallel, because they also depend on
+#   do_image_complete).
+# - Wiping out the deploy/swupd directory and re-executing do_stage_swupd_inputs/do_swupd_update
+#   really starts from a clean slate.
+# - The log.do_swupd_update will show commands that can be invoked directly, without
+#   having to enter a devshell (slightly more convenient).
+do_swupd_update () {
     if [ -z "${BUNDLE_NAME}" ] || [ ! -z "${PN_BASE}" ] ; then
         bbdebug 1 'We only generate swupd updates for the base image, skipping ${PN}:do_swupd_update'
         exit
@@ -436,6 +445,9 @@ END
         echo "" >> ${GROUPS_INI}
     done
 
+    # Activate pseudo for all following commands explicitly.
+    PSEUDO="${FAKEROOTENV} PSEUDO_LOCALSTATEDIR=${DEPLOY_DIR_SWUPD}/pseudo ${FAKEROOTCMD}"
+
     # Unpack the input rootfs dir(s) for use with the swupd tools. Might have happened
     # already in a previous run of this task.
     for archive in ${DEPLOY_DIR_SWUPD}/image/*/*.tar; do
@@ -444,30 +456,32 @@ END
             mkdir -p $dir
             # TODO: use bsdtar and auto-detect compression
             bbnote Unpacking $archive
-            tar --xattrs --xattrs-include='*' -zxf $archive -C $dir
+            env $PSEUDO tar --xattrs --xattrs-include='*' -zxf $archive -C $dir
         fi
     done
 
+    invoke_swupd () {
+        echo $PSEUDO "$@"
+        time env $PSEUDO "$@"
+    }
+
     ${SWUPD_LOG_FN} "Generating update from $PREVREL to ${OS_VERSION}"
-    # bsdtar -acf ${DEPLOY_DIR}/swupd-before-create-update.tar.gz -C ${DEPLOY_DIR} swupd
-    echo ${STAGING_BINDIR_NATIVE}/swupd_create_update --log-stdout -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION} --format ${SWUPD_FORMAT}
-    time ${STAGING_BINDIR_NATIVE}/swupd_create_update --log-stdout -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION} --format ${SWUPD_FORMAT}
+    # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-create-update.tar.gz -C ${DEPLOY_DIR} swupd
+    invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_create_update --log-stdout -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION} --format ${SWUPD_FORMAT}
 
     ${SWUPD_LOG_FN} "Generating fullfiles for ${OS_VERSION}"
-    # bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-fullfiles.tar.gz -C ${DEPLOY_DIR} swupd
-    echo ${STAGING_BINDIR_NATIVE}/swupd_make_fullfiles --log-stdout -S ${DEPLOY_DIR_SWUPD} ${OS_VERSION}
-    time ${STAGING_BINDIR_NATIVE}/swupd_make_fullfiles --log-stdout -S ${DEPLOY_DIR_SWUPD} ${OS_VERSION}
+    # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-fullfiles.tar.gz -C ${DEPLOY_DIR} swupd
+    invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_fullfiles --log-stdout -S ${DEPLOY_DIR_SWUPD} ${OS_VERSION}
 
     ${SWUPD_LOG_FN} "Generating zero packs, this can take some time."
-    # bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-zero-pack.tar.gz -C ${DEPLOY_DIR} swupd
+    # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-zero-pack.tar.gz -C ${DEPLOY_DIR} swupd
     for bndl in ${ALL_BUNDLES}; do
         ${SWUPD_LOG_FN} "Generating zero pack for $bndl"
-        echo ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl
-        time ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl
+        invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl
     done
 
     # Generate delta-packs going back SWUPD_N_DELTAPACK versions
-    # bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-delta-pack.tar.gz -C ${DEPLOY_DIR} swupd
+    # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-delta-pack.tar.gz -C ${DEPLOY_DIR} swupd
     if [ ${SWUPD_DELTAPACKS} -eq 1 -a ${SWUPD_N_DELTAPACK} -gt 0 -a $PREVREL -gt 0 ]; then
         for bndl in ${ALL_BUNDLES}; do
             bndlcnt=0
@@ -476,8 +490,7 @@ END
             # right now.
             ls -d -1 ${DEPLOY_DIR_SWUPD}/image/*/$bndl | sed -e 's;${DEPLOY_DIR_SWUPD}/image/\([^/]*\)/.*;\1;' | grep -e '^[0-9]*$' | sort -n | head -n -1 | tail -n ${SWUPD_N_DELTAPACK} | while read prevver; do
                 ${SWUPD_LOG_FN} "Generating delta pack from $prevver to ${OS_VERSION} for $bndl"
-                echo ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl
-                time ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl
+                invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl
             done
         done
     fi
@@ -487,7 +500,7 @@ END
     mkdir -p ${DEPLOY_DIR_SWUPD}/www/version/format${SWUPD_FORMAT}
     echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/www/version/format${SWUPD_FORMAT}/latest
     echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/image/latest.version
-    # bsdtar -acf ${DEPLOY_DIR}/swupd-done.tar.gz -C ${DEPLOY_DIR} swupd
+    # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-done.tar.gz -C ${DEPLOY_DIR} swupd
 }
 
 SWUPDDEPENDS = "\
