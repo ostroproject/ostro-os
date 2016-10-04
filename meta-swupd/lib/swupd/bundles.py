@@ -1,4 +1,5 @@
 import subprocess
+import shutil
 from oe.package_manager import RpmPM
 from oe.package_manager import OpkgPM
 from oe.package_manager import DpkgPM
@@ -42,28 +43,6 @@ def get_bundle_packages(d, bundle):
     return pkgs
 
 
-def create_content_manifest(dir, outfile, blacklist):
-    """
-    Iterate over the content of the directory, remove entries listed in the blacklist
-    (for example, /etc/machine-id), and write the full paths of the remaining
-    entries (without leading ./ or /) to the file named in outfile. All directories
-    are explicitly listed.
-    """
-    bb.debug(3, 'Creating %s from directory %s, excluding %s' % (outfile, dir, blacklist))
-    cwd = os.getcwd()
-    try:
-        os.chdir(dir)
-        with open(outfile, 'w') as f:
-            for root, dirs, files in os.walk('.'):
-                for entry in dirs + files:
-                    # strip the leading ./
-                    fullpath = os.path.join(root, entry)[2:]
-                    if not ('/' + fullpath) in blacklist:
-                        f.write(fullpath + '\n')
-    finally:
-        os.chdir(cwd)
-
-
 def copy_core_contents(d):
     """
     Determine the os-core contents and copy the mega image to swupd's image directory.
@@ -71,26 +50,34 @@ def copy_core_contents(d):
     d -- the bitbake datastore
     """
     imagedir = d.expand('${SWUPDIMAGEDIR}/${OS_VERSION}')
-    corefile = d.expand('${SWUPDIMAGEDIR}/${OS_VERSION}/os-core${SWUPD_ROOTFS_MANIFEST_SUFFIX}')
-    fullfile = d.expand('${SWUPDIMAGEDIR}/${OS_VERSION}/full${SWUPD_ROOTFS_MANIFEST_SUFFIX}')
+    corefile = d.expand('${SWUPDIMAGEDIR}/${OS_VERSION}/os-core')
+    contentsuffix = d.getVar('SWUPD_ROOTFS_MANIFEST_SUFFIX', True)
+    imagesuffix = d.getVar('SWUPD_IMAGE_MANIFEST_SUFFIX', True)
+    fullfile = d.expand('${SWUPDIMAGEDIR}/${OS_VERSION}/full')
     bundle = d.expand('${SWUPDIMAGEDIR}/${OS_VERSION}/full.tar')
     rootfs = d.getVar('IMAGE_ROOTFS', True)
 
     # Generate a manifest of the bundle content.
     bb.utils.mkdirhier(imagedir)
     unwanted_files = (d.getVar('SWUPD_FILE_BLACKLIST', True) or '').split()
-    create_content_manifest(rootfs, corefile, unwanted_files)
+    swupd.utils.create_content_manifests(rootfs,
+                                         corefile + contentsuffix,
+                                         corefile + imagesuffix,
+                                         unwanted_files)
 
     havebundles = (d.getVar('SWUPD_BUNDLES', True) or '') != ''
     imgrootfs = d.getVar('MEGA_IMAGE_ROOTFS', True)
     if not havebundles:
         imgrootfs = rootfs
-        manifest_files = swupd.utils.manifest_to_file_list(corefile)
-        with open(fullfile, 'w') as f:
-            f.write('\n'.join(manifest_files))
+        for suffix in (contentsuffix, imagesuffix):
+            shutil.copy2(corefile + suffix, fullfile + suffix)
     else:
-        create_content_manifest(imgrootfs, fullfile, unwanted_files)
-        manifest_files = swupd.utils.manifest_to_file_list(fullfile)
+        swupd.utils.create_content_manifests(imgrootfs,
+                                             fullfile + contentsuffix,
+                                             fullfile + imagesuffix,
+                                             unwanted_files)
+        manifest_files = swupd.utils.manifest_to_file_list(fullfile + contentsuffix) + \
+                         swupd.utils.manifest_to_file_list(fullfile + imagesuffix)
 
     bb.debug(1, "Copying from image (%s) to full bundle (%s)" % (imgrootfs, bundle))
     # Create full.tar.gz instead of directory - speeds up
@@ -112,20 +99,22 @@ def stage_image_bundle_contents(d, bundle):
 
     # Construct paths to manifest files and directories
     pn = d.getVar('PN', True)
-    manifest_path = d.expand('${SWUPDIMAGEDIR}/${OS_VERSION}/')
-    base_manifest_name = d.expand('os-core${SWUPD_ROOTFS_MANIFEST_SUFFIX}')
-    image_manifest_name = base_manifest_name.replace('os-core', bundle, 1)
-    base_manifest = manifest_path + base_manifest_name
-    image_manifest = manifest_path + image_manifest_name
+    corefile = d.expand('${SWUPDIMAGEDIR}/${OS_VERSION}/os-core')
+    bundlefile = d.expand('${SWUPDIMAGEDIR}/${OS_VERSION}/') + bundle
+    contentsuffix = d.getVar('SWUPD_ROOTFS_MANIFEST_SUFFIX', True)
+    imagesuffix = d.getVar('SWUPD_IMAGE_MANIFEST_SUFFIX', True)
     megarootfs = d.getVar('MEGA_IMAGE_ROOTFS', True)
     imagesrc = megarootfs.replace('mega', bundle)
 
     # Generate the manifest of the bundle image's file contents,
     # excluding blacklisted files and the content of the os-core.
-    bb.debug(3, 'Writing bundle image file manifest %s' % image_manifest)
+    bb.debug(3, 'Writing bundle image file manifests %s' % bundlefile)
     unwanted_files = set((d.getVar('SWUPD_FILE_BLACKLIST', True) or '').split())
-    unwanted_files.update(['/' + x for x in swupd.utils.manifest_to_file_list(base_manifest)])
-    create_content_manifest(imagesrc, image_manifest, unwanted_files)
+    unwanted_files.update(['/' + x for x in swupd.utils.manifest_to_file_list(corefile + contentsuffix)])
+    swupd.utils.create_content_manifests(imagesrc,
+                                         bundlefile + contentsuffix,
+                                         bundlefile + imagesuffix,
+                                         unwanted_files)
 
 def stage_empty_bundle(d, bundle):
     """

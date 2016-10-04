@@ -13,6 +13,30 @@ def manifest_to_file_list(manifest_fn):
     return image_manifest_list
 
 
+def create_content_manifests(dir, included, excluded, blacklist):
+    """
+    Iterate over the content of the directory, decide which entries are
+    included in the swupd update mechanism and write the full paths of the remaining
+    entries (without leading ./ or /) to the respective file. All directories
+    are explicitly listed.
+    """
+    bb.debug(3, 'Creating %s and %s from directory %s, excluding %s' %
+             (included, excluded, dir, blacklist))
+    cwd = os.getcwd()
+    try:
+        os.chdir(dir)
+        with open(included, 'w') as i:
+            with open(excluded or '/dev/null', 'w') as e:
+                for root, dirs, files in os.walk('.'):
+                    # Strip the leading ./ that we get in root from os.walk('.').
+                    root = root[2:]
+                    for entry in sorted(dirs + files):
+                        fullpath = os.path.join(root, entry)
+                        out = e if blacklist and ('/' + fullpath) in blacklist else i
+                        out.write(fullpath + '\n')
+    finally:
+        os.chdir(cwd)
+
 def delta_contents(difflist):
     """
     Generate a list of files which exist in the bundle image but not the base

@@ -16,7 +16,14 @@
 # See docs/Guide.md for more information.
 
 DEPLOY_DIR_SWUPDBASE = "${DEPLOY_DIR}/swupd/${MACHINE}"
+# Created for each bundle (including os-core) and the "full" directory,
+# describing files and directories that swupd-server needs to include in the update
+# mechanism (i.e. without SWUPD_FILE_BLACKLIST entries). Used by swupd-server.
 SWUPD_ROOTFS_MANIFEST_SUFFIX = ".content.txt"
+# Additional entries which need to be in images (for example, /etc/machine-id, but
+# that are excluded from the update mechanism. Ignored by swupd-server,
+# used by swupdimage.bbclass.
+SWUPD_IMAGE_MANIFEST_SUFFIX = ".extra-content.txt"
 
 # User configurable variables to disable all swupd processing or deltapack
 # generation.
