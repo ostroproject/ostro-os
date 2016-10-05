@@ -65,9 +65,9 @@ def create_rootfs(d):
         for suffix in suffixes:
             rootfs_contents.update(manifest_to_file_list(manifest + suffix))
 
-    mega_rootfs = d.getVar('MEGA_IMAGE_ROOTFS', True)
-    bb.debug(2, 'Re-copying rootfs contents from mega image %s to %s' % (mega_rootfs, rootfs))
-    copyxattrfiles(d, rootfs_contents, mega_rootfs, rootfs)
+    mega_archive = d.getVar('MEGA_IMAGE_ARCHIVE', True)
+    bb.debug(2, 'Re-copying rootfs contents from mega image %s to %s' % (mega_archive, rootfs))
+    copyxattrfiles(d, rootfs_contents, mega_archive, rootfs)
 
     deploy_dir = d.getVar('IMGDEPLOYDIR', True)
     link_name = d.getVar('IMAGE_LINK_NAME', True)

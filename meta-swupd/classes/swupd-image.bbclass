@@ -70,10 +70,13 @@ SWUPD_LOG_FN ??= "bbdebug 1"
 # a non-negative integer that fits in an int.
 OS_VERSION ??= "${DISTRO_VERSION}"
 
-# We need to preserve xattrs which is only supported by GNU tar >= 1.27
-# to be sure this functionality works as expected use the tar-replacement-native
-DEPENDS += "tar-replacement-native"
-EXTRANATIVEPATH += "tar-native"
+# We need to preserve xattrs, which works with bsdtar out of the box.
+# It also has saner file handling (less syscalls per file) than GNU tar.
+# Last but not least, GNU tar 1.27.1 had weird problems extracting
+# all requested entries with -T from an archive ("Not found in archive"
+# errors for entries which were present and could be extraced or listed
+# when using simpler file lists).
+DEPENDS += "libarchive-native"
 
 inherit distro_features_check
 REQUIRED_DISTRO_FEATURES = "systemd"
@@ -95,29 +98,17 @@ python () {
     # For bundle images, the corresponding bundle name. None in swupd images.
     bundle_name = d.getVar('BUNDLE_NAME', True)
 
-    # We set the path to the rootfs folder of the mega image here so that
-    # it's simple to refer to later.
-    megarootfs = d.getVar('IMAGE_ROOTFS', True)
+    # bundle-<image>-mega archives its rootfs as ${IMAGE_ROOTFS}.tar.
+    # Every other recipe then can copy (do_stage_swupd_inputs) or
+    # extract relevant files (do_image/create_rootfs()) without sharing
+    # the same pseudo database. Not sharing pseudo instances is faster
+    # and the expensive reading of individual files via pseudo only
+    # needs to be done once.
     if havebundles:
-        megarootfs = megarootfs.replace('/' + pn +'/', '/bundle-%s-mega/' % (pn_base or pn))
-        d.setVar('MEGA_IMAGE_ROOTFS', megarootfs)
-
-    # do_stage_swupd_inputs in the main image recipe and do_image in the
-    # swupd images will copy files from the mega bundle and thus those
-    # recipes must use the same pseudo database.
-    #
-    # All other bundles can use their own pseudo instance, because the
-    # main image recipe is only interested in file lists, not the actual
-    # file attributes.
-    #
-    # Because real image building via SWUPD_IMAGES can happen also after
-    # the initial "bitbake <core image>" invocation, we have to keep that
-    # pseudo database around and cannot delete it.
-    if pn_base is None or \
-       bundle_name is None or \
-       bundle_name == 'mega':
-        pseudo_state = d.expand('${TMPDIR}/work-shared/%s/pseudo') % (pn_base or pn)
-        d.setVar('PSEUDO_LOCALSTATEDIR', pseudo_state)
+        mega_rootfs = d.getVar('IMAGE_ROOTFS', True)
+        mega_rootfs = mega_rootfs.replace('/' + pn +'/', '/bundle-%s-mega/' % (pn_base or pn))
+        d.setVar('MEGA_IMAGE_ROOTFS', mega_rootfs)
+        d.setVar('MEGA_IMAGE_ARCHIVE', mega_rootfs + '.tar')
 
     if pn_base is not None:
         # Swupd images must depend on the mega image having been
@@ -284,9 +275,7 @@ addtask do_fetch_swupd_inputs before do_swupd_update
 
 # do_swupd_update uses its own pseudo database, for several reasons:
 # - Performance is better when the pseudo instance is not shared
-#   with the do_image tasks of other virtual swupd image recipes (those
-#   tend to run in parallel, because they also depend on
-#   do_image_complete).
+#   with other tasks that run in parallel (for example, meta-isafw's do_analyse_image).
 # - Wiping out the deploy/swupd directory and re-executing do_stage_swupd_inputs/do_swupd_update
 #   really starts from a clean slate.
 # - The log.do_swupd_update will show commands that can be invoked directly, without
@@ -383,9 +372,8 @@ END
         dir=$(echo $archive | sed -e 's/.tar$//')
         if [ -e $archive ] && ! [ -d $dir ]; then
             mkdir -p $dir
-            # TODO: use bsdtar and auto-detect compression
             bbnote Unpacking $archive
-            env $PSEUDO tar --xattrs --xattrs-include='*' -zxf $archive -C $dir
+            env $PSEUDO bsdtar -xf $archive -C $dir
         fi
     done
 

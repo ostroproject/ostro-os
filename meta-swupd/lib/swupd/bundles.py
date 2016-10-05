@@ -70,24 +70,25 @@ def copy_core_contents(d):
                                          corefile + imagesuffix,
                                          unwanted_files)
 
+    # Create full.tar.gz instead of directory - speeds up
+    # do_stage_swupd_input from ~11min in the Ostro CI to 6min.
+    # Where we take the data from depends on whether we have bundles:
+    # without them, there's also no "mega" bundle and we work
+    # directly with the rootfs of the main image recipe.
     havebundles = (d.getVar('SWUPD_BUNDLES', True) or '') != ''
-    imgrootfs = d.getVar('MEGA_IMAGE_ROOTFS', True)
     if not havebundles:
-        imgrootfs = rootfs
         for suffix in (contentsuffix, imagesuffix):
             shutil.copy2(corefile + suffix, fullfile + suffix)
+        bb.debug(1, "Copying from image rootfs (%s) to full bundle (%s)" % (imgrootfs, bundle))
+        swupd.path.copyxattrfiles(d, manifest_files, imgrootfs, bundle, True)
     else:
-        swupd.utils.create_content_manifests(imgrootfs,
+        mega_rootfs = d.getVar('MEGA_IMAGE_ROOTFS', True)
+        mega_archive = d.getVar('MEGA_IMAGE_ARCHIVE', True)
+        swupd.utils.create_content_manifests(mega_rootfs,
                                              fullfile + contentsuffix,
                                              fullfile + imagesuffix,
                                              unwanted_files)
-        manifest_files = swupd.utils.manifest_to_file_list(fullfile + contentsuffix) + \
-                         swupd.utils.manifest_to_file_list(fullfile + imagesuffix)
-
-    bb.debug(1, "Copying from image (%s) to full bundle (%s)" % (imgrootfs, bundle))
-    # Create full.tar.gz instead of directory - speeds up
-    # do_stage_swupd_input from ~11min in the Ostro CI to 6min.
-    swupd.path.copyxattrfiles(d, manifest_files, imgrootfs, bundle, True)
+        os.link(mega_archive, bundle)
 
 
 def stage_image_bundle_contents(d, bundle):
