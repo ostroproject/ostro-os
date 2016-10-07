@@ -9,14 +9,14 @@ Signed-off-by: Sudarsana Nagineni <sudarsana.nagineni@intel.com>
  1 file changed, 1 deletion(-)
 
 diff --git a/package.json b/package.json
-index 78f4e27..60982bc 100644
+index 43acbb1..60982bc 100644
 --- a/package.json
 +++ b/package.json
 @@ -9,7 +9,6 @@
    "author": "",
    "license": "Apache-2.0",
    "dependencies": { 
--	"iotivity-node": "^1.1.0-4",
+-	"iotivity-node": "^1.1.1-1",
  	"express": "*",
  	"websocket": "*",
  	"http": "*"

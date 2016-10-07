@@ -11,20 +11,17 @@ RDEPENDS_${PN} += "iotivity node-mraa nodejs iotivity-node iptables"
 SRC_URI = "git://git@github.com/01org/SmartHome-Demo.git;protocol=https \
            file://0001-Remove-iotivity-node-dependency.patch \
            file://smarthome-gateway.service \
-           file://smarthome-gateway.socket \
-           file://${PN}-ipv4.conf \
-           file://${PN}-ipv6.conf \
-           file://smarthome-power.service \
+           file://power-uart.service \
           "
 
-SRCREV = "a7a6e745fad9485b2b7e8f650dbefa53f22aa11f"
+SRCREV = "78c3043f581135dcfa1e755def8d2081e086b751"
 PV = "0.1+git${SRCPV}"
 
 S = "${WORKDIR}/git/"
 
 inherit systemd
-SYSTEMD_SERVICE_${PN} = "smarthome-gateway.socket \
-                         smarthome-power.service \
+SYSTEMD_SERVICE_${PN} = "smarthome-gateway.service \
+                         power-uart.service \
                         "
 INSANE_SKIP_${PN} += "ldflags staticdev"
 
@@ -81,40 +78,28 @@ do_install () {
     install -d ${D}${libdir}/node_modules/smarthome-gateway/
 
     install -m 0644 ${S}/first_server.js ${D}${libdir}/node_modules/smarthome-gateway/first_server.js
-    install -m 0644 ${S}/data.json ${D}${libdir}/node_modules/smarthome-gateway/data.json
     install -m 0644 ${S}/package.json ${D}${libdir}/node_modules/smarthome-gateway/package.json
 
+    cp -r ${S}/rules-engine/ ${D}${libdir}/node_modules/smarthome-gateway/
     cp -r ${S}/gateway-webui/ ${D}${libdir}/node_modules/smarthome-gateway/
     cp -r ${S}/node_modules/ ${D}${libdir}/node_modules/smarthome-gateway/
 
     # Install SmartHome Power sensor
     install -d ${D}${POWER_INSTALLATION_PATH}
-    install -m 0664 ${S}/ocf-servers/js-servers/power-uart.js ${D}${POWER_INSTALLATION_PATH}/smarthome-power.js
+    install -m 0664 ${S}/ocf-servers/js-servers/power-uart.js ${D}${POWER_INSTALLATION_PATH}/power-uart.js
 
     # Install SmartHome Power service script
     install -d ${D}/${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/smarthome-power.service ${D}/${systemd_unitdir}/system/
+    install -m 0644 ${WORKDIR}/power-uart.service ${D}/${systemd_unitdir}/system/
 
     # Install SmartHome gateway service script
     install -d ${D}/${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/smarthome-gateway.service ${D}/${systemd_unitdir}/system/
-    install -m 0644 ${WORKDIR}/smarthome-gateway.socket ${D}/${systemd_unitdir}/system/
-
-    # Copy the firewall configuration fragments in place
-    install -d ${D}${systemd_unitdir}/system/${PN}.socket.d
-    install -m 0644 ${WORKDIR}/${PN}-ipv4.conf ${D}${systemd_unitdir}/system/${PN}.socket.d
-    if ${@bb.utils.contains('DISTRO_FEATURES', 'ipv6', 'true', 'false', d)}; then
-        install -m 0644 ${WORKDIR}/${PN}-ipv6.conf ${D}${systemd_unitdir}/system/${PN}.socket.d
-    fi
-
 }
 
 FILES_${PN} = "${libdir}/node_modules/smarthome-gateway/ \
                ${POWER_INSTALLATION_PATH} \
                ${systemd_unitdir}/system/ \
-               ${systemd_unitdir}/system/${PN}.socket.d/${PN}-ipv4.conf \
-               ${@bb.utils.contains('DISTRO_FEATURES', 'ipv6', \
-                   '${systemd_unitdir}/system/${PN}.socket.d/${PN}-ipv6.conf', '', d)} \
               "
 
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
