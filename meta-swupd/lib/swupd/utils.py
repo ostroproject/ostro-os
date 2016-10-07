@@ -2,13 +2,15 @@
 
 def manifest_to_file_list(manifest_fn):
     """
-    open a manifest file and read it into a list
+    Open a manifest file and read it into a list.
+    Entries in the list are relative, i.e. no leading
+    slash.
 
     manifest_fn -- the manifest file to read
     """
     image_manifest_list = []
     with open(manifest_fn) as image:
-        image_manifest_list = image.read().splitlines()
+        image_manifest_list = [x[1:] for x in image.read().splitlines()]
 
     return image_manifest_list
 
@@ -16,8 +18,8 @@ def manifest_to_file_list(manifest_fn):
 def create_content_manifests(dir, included, excluded, blacklist):
     """
     Iterate over the content of the directory, decide which entries are
-    included in the swupd update mechanism and write the full paths of the remaining
-    entries (without leading ./ or /) to the respective file. All directories
+    included in the swupd update mechanism and write the absolute paths of the remaining
+    entries (with leading slash) to the respective file. All directories
     are explicitly listed.
     """
     bb.debug(3, 'Creating %s and %s from directory %s, excluding %s' %
@@ -28,11 +30,14 @@ def create_content_manifests(dir, included, excluded, blacklist):
         with open(included, 'w') as i:
             with open(excluded or '/dev/null', 'w') as e:
                 for root, dirs, files in os.walk('.'):
-                    # Strip the leading ./ that we get in root from os.walk('.').
-                    root = root[2:]
+                    # Strip the leading . that we get in root from os.walk('.').
+                    # Resulting path must be absolute (for consistency with how
+                    # swupd-server handles scanning real directories); this
+                    # also matches the blacklist convention (also absolute).
+                    root = '/' if root == '.' else root[1:]
                     for entry in sorted(dirs + files):
                         fullpath = os.path.join(root, entry)
-                        out = e if blacklist and ('/' + fullpath) in blacklist else i
+                        out = e if blacklist and fullpath in blacklist else i
                         out.write(fullpath + '\n')
     finally:
         os.chdir(cwd)
