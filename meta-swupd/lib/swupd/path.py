@@ -42,6 +42,9 @@ def copyxattrfiles(d, filelist, src, dst, archive=False):
     else:
         cmd = "tar --xattrs --xattrs-include='*' --no-recursion -cf - -T %s -p | tar -p --xattrs --xattrs-include='*' -xf - -C %s" % (copyfile, dst)
     subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+    output = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+    if output:
+        bb.fatal('Unexpected output from the following command:\n%s\n%s' % (cmd, output))
     os.remove(copyfile)
 
 
