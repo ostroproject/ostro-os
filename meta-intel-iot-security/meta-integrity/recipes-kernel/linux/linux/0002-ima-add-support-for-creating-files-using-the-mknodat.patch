@@ -19,7 +19,7 @@ written, before signing the file.  This patch relaxes this requirement
 for new files, allowing the file signature to be written before the file
 contents.
 
-Upstream-Status: Submitted [https://git.kernel.org/cgit/linux/kernel/git/zohar/linux-integrity.git/log/?h=next-4.7]
+Upstream-Status: Accepted [https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/security/integrity/ima/ima_appraise.c?id=05d1a717ec0430c916a749b94eb90ab74bbfa356]
 
 Signed-off-by: Mimi Zohar <zohar@linux.vnet.ibm.com>
 ---
