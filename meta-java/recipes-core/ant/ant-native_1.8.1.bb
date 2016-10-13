@@ -30,7 +30,7 @@ do_removecruft() {
 	rm -rf ${S}/src/main/org/apache/tools/ant/taskdefs/optional/NetRexxC.java
 }
 
-addtask removecruft before do_patch after do_unpack
+addtask removecruft before do_patch after do_removebinaries
 
 do_compile() {
   mkdir -p build
