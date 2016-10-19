@@ -204,6 +204,15 @@ class IotivitynodeRuntimeTest(oeRuntimeTest):
 
         self.target.connection.scp[:] = oldscp
 
+        # Set firewall rules
+        (status, output) = self.target.run("cat /proc/sys/net/ipv4/ip_local_port_range")
+        port_range = output.split()
+        self.target.run("/usr/sbin/iptables -w -A INPUT -p udp --dport 5683 -j ACCEPT")
+        self.target.run("/usr/sbin/iptables -w -A INPUT -p udp --dport 5684 -j ACCEPT")
+        self.target.run("/usr/sbin/ip6tables -w -A INPUT -s fe80::/10 -p udp -m udp --dport 5683 -j ACCEPT")
+        self.target.run("/usr/sbin/ip6tables -w -A INPUT -s fe80::/10 -p udp -m udp --dport 5684 -j ACCEPT")
+        self.target.run("/usr/sbin/ip6tables -w -A INPUT -s fe80::/10 -p udp -m udp --dport %s:%s -j ACCEPT" % (port_range[0], port_range[1]))
+
     @tag(CasesNumber=23)
     def test_apprt_iotivitynode(self):
         '''
@@ -244,11 +253,18 @@ class IotivitynodeRuntimeTest(oeRuntimeTest):
 
     def tearDown(self):
         '''
-        Clean work: remove all the files downloaded on host and
-        copied to the target device during the test.
+        Clean work: remove all the files downloaded on host,
+        copied to the target device during the test and reset firewall setting.
         @fn tearDown
         @param self
         '''
+        (status, output) = self.target.run("cat /proc/sys/net/ipv4/ip_local_port_range")
+        port_range = output.split()
+        self.target.run("/usr/sbin/iptables -w -D INPUT -p udp --dport 5683 -j ACCEPT")
+        self.target.run("/usr/sbin/iptables -w -D INPUT -p udp --dport 5684 -j ACCEPT")
+        self.target.run("/usr/sbin/ip6tables -w -D INPUT -s fe80::/10 -p udp -m udp --dport 5683 -j ACCEPT")
+        self.target.run("/usr/sbin/ip6tables -w -D INPUT -s fe80::/10 -p udp -m udp --dport 5684 -j ACCEPT")
+        self.target.run("/usr/sbin/ip6tables -w -D INPUT -s fe80::/10 -p udp -m udp --dport %s:%s -j ACCEPT" % (port_range[0], port_range[1]))
         sys.stdout.write("\nClean test files in device, eg: tests grunt-build")
         sys.stdout.flush()
         self.target_path = '/usr/lib/node_modules/iotivity-node/'

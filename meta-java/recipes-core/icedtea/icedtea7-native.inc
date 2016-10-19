@@ -41,6 +41,7 @@ SRC_URI = " \
   ${OPENJDK_PATCHES} \
   file://allow-headless-build.patch;striplevel=0 \
   file://jaxws_fix_NullPointerException.patch;apply=no \
+  file://timezoneszip.patch \
   "
 
 S = "${WORKDIR}/${ICEDTEA}"
