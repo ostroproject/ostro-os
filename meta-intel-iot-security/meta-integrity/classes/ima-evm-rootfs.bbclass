@@ -28,13 +28,20 @@ IMA_EVM_ROOTFS_IVERSION ?= ""
 ima_evm_sign_rootfs () {
     cd ${IMAGE_ROOTFS}
 
+    # Beware that all operations below must also work when
+    # ima_evm_sign_rootfs was already called earlier for the same
+    # rootfs. That's because do_image might again run for various
+    # reasons (including a change of the signing keys) without also
+    # re-running do_rootfs.
+
     # Copy file(s) which must be on the device. Note that
     # evmctl uses x509_evm.der also for "ima_verify", which is probably
     # a bug (should default to x509_ima.der). Does not matter for us
     # because we use the same key for both.
     install -d ./${sysconfdir}/keys
+    rm -f ./${sysconfdir}/keys/x509_evm.der
     install "${IMA_EVM_X509}" ./${sysconfdir}/keys/x509_evm.der
-    ln -s x509_evm.der ./${sysconfdir}/keys/x509_ima.der
+    ln -sf x509_evm.der ./${sysconfdir}/keys/x509_ima.der
 
     # Fix /etc/fstab: it must include the "i_version" mount option for
     # those file systems where writing files is allowed, otherwise
@@ -49,8 +56,10 @@ ima_evm_sign_rootfs () {
     # "iversion" and only understands "i_version". systemd only understands
     # "iversion". We pick "iversion" here for systemd, whereas rootflags
     # for initramfs must use "i_version" for busybox.
+    #
+    # Deduplicates iversion in case that this gets called more than once.
     if [ -f etc/fstab ]; then
-       perl -pi -e 's;(\S+)(\s+)(${@"|".join((d.getVar("IMA_EVM_ROOTFS_IVERSION", True) or "no-such-mount-point").split())})(\s+)(\S+)(\s+)(\S+);\1\2\3\4\5\6\7,iversion;' etc/fstab
+       perl -pi -e 's;(\S+)(\s+)(${@"|".join((d.getVar("IMA_EVM_ROOTFS_IVERSION", True) or "no-such-mount-point").split())})(\s+)(\S+)(\s+)(\S+);\1\2\3\4\5\6\7,iversion;; s/(,iversion)+/,iversion/;' etc/fstab
     fi
 
     # Sign file with private IMA key. EVM not supported at the moment.
@@ -62,6 +71,7 @@ ima_evm_sign_rootfs () {
     # Optionally install custom policy for loading by systemd.
     if [ "${IMA_EVM_POLICY_SYSTEMD}" ]; then
         install -d ./${sysconfdir}/ima
+        rm -f ./${sysconfdir}/ima/ima-policy
         install "${IMA_EVM_POLICY_SYSTEMD}" ./${sysconfdir}/ima/ima-policy
     fi
 }
