@@ -32,6 +32,28 @@ SWUPD_IMAGE_PN = "${@ d.getVar('PN_BASE', True) or d.getVar('PN', True)}"
 # to be published will be in the "www" sub-directory.
 DEPLOY_DIR_SWUPD = "${DEPLOY_DIR}/swupd/${MACHINE}/${SWUPD_IMAGE_PN}"
 
+# The current format has to match the the source code of the
+# swupd-client that is in the image. This recipe picks a suitable
+# swupd-client via the client's RPROVIDES.
+SWUPD_FORMAT ??= "3"
+IMAGE_INSTALL_append = " swupd-client-format${SWUPD_FORMAT}"
+
+# The information about where to find version information and actual
+# content is needed in several places:
+# - the swupd client in the image gets configured such that it uses that as default
+# - swupd server needs information about the previous build
+#
+# The version URL determines what the client picks as the version that it updates to.
+# The content URL must have all builds ever produced and is expected to also
+# have the corresponding version information.
+SWUPD_VERSION_URL ??= "http://download.example.com/updates/my-distro/milestone/${MACHINE}/${SWUPD_IMAGE_PN}"
+SWUPD_CONTENT_URL ??= "http://download.example.com/updates/my-distro/builds/${MACHINE}/${SWUPD_IMAGE_PN}"
+
+# An absolute path for a file containing the SSL certificate that is
+# is to be used for verifying https connections to the version and content
+# derver.
+SWUPD_PINNED_PUBKEY ??= ""
+
 # User configurable variables to disable all swupd processing or deltapack
 # generation.
 SWUPD_GENERATE ??= "1"
@@ -42,8 +64,6 @@ SWUPD_LOG_FN ??= "bbdebug 1"
 # This version number *must* map to VERSION_ID in /etc/os-release and *must* be
 # a non-negative integer that fits in an int.
 OS_VERSION ??= "${DISTRO_VERSION}"
-
-IMAGE_INSTALL_append = " swupd-client os-release"
 
 # We need to preserve xattrs which is only supported by GNU tar >= 1.27
 # to be sure this functionality works as expected use the tar-replacement-native
@@ -240,7 +260,6 @@ addtask stage_swupd_inputs after do_image before do_swupd_update
 do_stage_swupd_inputs[dirs] = "${SWUPDIMAGEDIR} ${SWUPDMANIFESTDIR} ${DEPLOY_DIR_SWUPD}/maps/"
 do_stage_swupd_inputs[depends] += "virtual/fakeroot-native:do_populate_sysroot"
 
-SWUPD_FORMAT ??= "3"
 # do_swupd_update uses its own pseudo database, for several reasons:
 # - Performance is better when the pseudo instance is not shared
 #   with the do_image tasks of other virtual swupd image recipes (those
@@ -449,7 +468,7 @@ ROOTFS_POSTPROCESS_COMMAND += "swupd_replace_hardlinks; "
 # then this can be achieved by influencing the os-release package
 # by setting in local.conf:
 # VERSION_ID = "${OS_VERSION}"
-
+IMAGE_INSTALL_append = " os-release"
 swupd_patch_os_release () {
     sed -i -e 's/^VERSION_ID *=.*/VERSION_ID="${OS_VERSION}"/' ${IMAGE_ROOTFS}/usr/lib/os-release
 }
@@ -515,3 +534,51 @@ i.e. the link is to a file which only exists at runtime, such as files in /proc,
 SWUPD_IMAGE_SYMLINK_WHITELIST to resolve this error.'
         raise ImageQAFailed(message, swupd_check_dangling_symlinks)
 }
+
+def hash_swupd_pinned_pubkey(d):
+    pubkey = d.getVar('SWUPD_PINNED_PUBKEY', True)
+    if pubkey:
+        import hashlib
+        bb.parse.mark_dependency(d, pubkey)
+        with open(pubkey, 'rb') as f:
+            hash = hashlib.sha256()
+            hash.update(f.read())
+            return hash.hexdigest()
+    else:
+        return ''
+
+SWUPD_PINNED_PUBKEY_HASH := "${@ hash_swupd_pinned_pubkey(d)}"
+
+# The swupd client must be configured on a per-image basis.
+# Different images might need different settings.
+configure_swupd_client () {
+    # Write default values to the configuration hierarchy (since 3.4.0)
+    install -d ${IMAGE_ROOTFS}/usr/share/defaults/swupd
+    echo "${SWUPD_VERSION_URL}" >> ${IMAGE_ROOTFS}/usr/share/defaults/swupd/versionurl
+    echo "${SWUPD_CONTENT_URL}" >> ${IMAGE_ROOTFS}/usr/share/defaults/swupd/contenturl
+    echo "${SWUPD_FORMAT}" >> ${IMAGE_ROOTFS}/usr/share/defaults/swupd/format
+    # Changing content of the pubkey also changes the hash and thus ensures
+    # that this method and thus do_rootfs run again.
+    #
+    # TODO: does not actually work. Recipe gets reparsed when the file
+    # changes ("bitbake -e ostro-image-swupd | SWUPD_PINNED_PUBKEY_HASH" changes)
+    # but the task  does not get re-executed. Forcing that leads to:
+    #
+    # ERROR: ostro-image-swupd-1.0-r0 do_rootfs: Taskhash mismatch 8762bf20b997ac29dd6793fd11e609c3 versus cb40afac8ca291e31022d5ffd9a9bbac for /work/ostro-os/meta-ostro/recipes-image/images/ostro-image-swupd.bb.do_rootfs
+    # ERROR: Taskhash mismatch 8762bf20b997ac29dd6793fd11e609c3 versus cb40afac8ca291e31022d5ffd9a9bbac for /work/ostro-os/meta-ostro/recipes-image/images/ostro-image-swupd.bb.do_rootfs
+    #
+    # $ bitbake-diffsigs tmp-glibc/stamps/qemux86-ostro-linux/ostro-image-swupd/1.0-r0.do_rootfs.sigdata.c8a9371831f58ce4f8b49a73211f66aa tmp-glibc/stamps/qemux86-ostro-linux/ostro-image-swupd/1.0-r0.do_rootfs.sigdata.cb40afac8ca291e31022d5ffd9a9bbac 
+    # basehash changed from 02de100ee7baa348e224f21844fdaa06 to e3bb23a069673a09afee4994522991d3
+    # Variable SWUPD_PINNED_PUBKEY_HASH value changed from 'b9ffbe0963f3f7ab3f3c1af5cd8471c121cb601eb4294ad4b211f1e206746a0a' to '8d172423eb0162feb8c7fb2f2d7da28a6effdf3e95184114c62e6b0efdeae89a'
+    # Taint (by forced/invalidated task) changed from None to 2c8e3b43-5e70-4c96-bf6e-741f0b344731
+    #
+    # There's no sigdata for 8762b. c8a93 is from before changing the file.
+    if [ "${SWUPD_PINNED_PUBKEY_HASH}" ]; then
+        install -d ${IMAGE_ROOTFS}${datadir}/clear/update-ca
+        install -m 0644 '${SWUPD_PINNED_PUBKEY}' ${IMAGE_ROOTFS}${datadir}/clear/update-ca/
+        echo "${datadir}/clear/update-ca/$(basename '${SWUPD_PINNED_PUBKEY}')" > ${IMAGE_ROOTFS}/usr/share/defaults/swupd/pinnedpubkey
+    fi
+    chown -R root:root ${IMAGE_ROOTFS}/usr/share/defaults/swupd
+    chmod 0644 ${IMAGE_ROOTFS}/usr/share/defaults/swupd/*
+}
+ROOTFS_POSTPROCESS_COMMAND_append = " configure_swupd_client;"

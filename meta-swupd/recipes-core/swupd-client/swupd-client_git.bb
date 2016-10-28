@@ -20,6 +20,17 @@ RDEPENDS_${PN}_append_class-target = " oe-swupd-helpers bsdtar"
 # We check /etc/os-release for the current OS version number
 RRECOMMENDS_${PN}_class-target = "os-release"
 
+# The current format is determined by the source code of the
+# swupd-client that is in the image.
+#
+# Watch the release notes and/or source code of the client carefully
+# and bump the number by one for each update of the recipe where we
+# switch to a source that has a format change.
+#
+# To switch to a client with a new format also update SWUPD_FORMAT in
+# swupd-image.bbclass.
+RPROVIDES_${PN} = "swupd-client-format3"
+
 # TODO: we inherit autotools-brokensep because the Makefile calls a perl script
 # in ${S} during one of its steps.
 inherit pkgconfig autotools-brokensep systemd
@@ -32,22 +43,6 @@ EXTRA_OECONF = "\
 
 PACKAGECONFIG ??= "stateless"
 PACKAGECONFIG[stateless] = ",--disable-stateless"
-
-SWUPD_VERSION_URL ??= "example.com"
-SWUPD_CONTENT_URL ??= "example.com"
-SWUPD_FORMAT ??= "3"
-SWUPD_PINNED_PUBKEY ??= ""
-do_install_append () {
-    # TODO: This should be a less os-specific directory and not hard-code datadir
-    install -d ${D}$/usr/share/clear/bundles
-
-    # Write default values to the configuration hierarchy (since 3.4.0)
-    install -d ${D}/usr/share/defaults/swupd
-    echo "${SWUPD_VERSION_URL}" >> ${D}/usr/share/defaults/swupd/versionurl
-    echo "${SWUPD_CONTENT_URL}" >> ${D}/usr/share/defaults/swupd/contenturl
-    echo "${SWUPD_FORMAT}" >> ${D}/usr/share/defaults/swupd/format
-    test -n "${SWUPD_PINNED_PUBKEY}" && echo "${SWUPD_PINNED_PUBKEY}" > ${D}/usr/share/defaults/swupd/pinnedpubkey || true
-}
 
 FILES_${PN} += "\
     /usr/share \
