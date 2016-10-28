@@ -164,6 +164,24 @@ python () {
         mega_name = (' bundle-%s-mega:do_image_complete' % pn)
         d.appendVarFlag('do_image', 'depends', mega_name)
         d.appendVarFlag('do_stage_swupd_inputs', 'depends', mega_name)
+
+    # do_*swupd_* tasks need to re-run when ${DEPLOY_DIR_SWUPD}
+    # got removed. We achieve that by creating the directory if needed
+    # and adding a variable with the creation time stamp as value to
+    # the do_stage_swupd_inputs vardeps. If that time stamp changes,
+    # do_stage_swupd_inputs will be re-run.
+    #
+    # Uses a stamp file because this code runs several time during a build,
+    # changing the value during a build causes hash mismatch errors, and the
+    # directory ctime changes as content gets created in the directory.
+    stampfile = os.path.join(deploy_dir, '.stamp')
+    bb.utils.mkdirhier(deploy_dir)
+    with open(stampfile, 'a+') as f:
+        ctime = os.fstat(f.fileno()).st_ctime
+    bb.parse.mark_dependency(d, stampfile)
+    d.setVar('REDO_SWUPD', ctime)
+    d.appendVarFlag('do_stage_swupd_inputs', 'vardeps', ' REDO_SWUPD')
+    d.appendVarFlag('do_swupd_update', 'vardeps', ' REDO_SWUPD')
 }
 
 # swupd-client expects a bundle subscription to exist for each
@@ -410,6 +428,25 @@ do_swupd_update () {
         bbwarn 'swupd image directory exists for OS_VERSION=${OS_VERSION}, not generating updates.'
         bbwarn 'Ensure OS_VERSION is incremented if you want to generate updates.'
         exit
+    fi
+
+    # do_stage_swupd_inputs creates image/${OS_VERSION} for us, but
+    # only if there has been some change in the input data that causes
+    # the tasks to be rerun. In production that is unlikely, but it
+    # happens when experimenting with swupd update creation. In that case
+    # we can safely re-use the most recent version.
+    #
+    # However, we must unpack full.tar again to get the additional file
+    # attributes right under our pseudo instance, so wipe it out in this case.
+    if ! [ -e ${DEPLOY_DIR_SWUPD}/image/${OS_VERSION} ]; then
+        latest=$(ls image | grep '^[0-9]*$' | sort -n | tail -1)
+        if [ "$latest" ]; then
+           ln -s $latest ${DEPLOY_DIR_SWUPD}/image/${OS_VERSION}
+           rm -rf image/$latest/full
+        else
+           bbfatal '${DEPLOY_DIR_SWUPD}/image/${OS_VERSION} does not exist and no previous version was found either.'
+           exit 1
+        fi
     fi
 
     # Generate swupd-server configuration
