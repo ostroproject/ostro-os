@@ -35,9 +35,7 @@ DEPLOY_DIR_SWUPD = "${DEPLOY_DIR}/swupd/${MACHINE}/${SWUPD_IMAGE_PN}"
 # User configurable variables to disable all swupd processing or deltapack
 # generation.
 SWUPD_GENERATE ??= "1"
-SWUPD_DELTAPACKS ??= "1"
-# Create delta packs for N versions back — default 2
-SWUPD_N_DELTAPACK ??= "2"
+SWUPD_DELTAPACK_VERSIONS ??= ""
 
 SWUPD_LOG_FN ??= "bbdebug 1"
 
@@ -78,12 +76,6 @@ python () {
     if havebundles:
         megarootfs = megarootfs.replace('/' + pn +'/', '/bundle-%s-mega/' % (pn_base or pn))
         d.setVar('MEGA_IMAGE_ROOTFS', megarootfs)
-
-    # We need to use a custom manifest filename for stage_swupd_inputs so that
-    # the generated sstate can be used to fetch inputs for multiple "releases"
-    manfileprefix = d.getVar('SSTATE_MANFILEPREFIX', True)
-    manfileprefix = manfileprefix + '-' + ver
-    d.setVar('SSTATE_MANFILEPREFIX', manfileprefix)
 
     # do_stage_swupd_inputs in the main image recipe and do_image in the
     # swupd images will copy files from the mega bundle and thus those
@@ -230,16 +222,9 @@ do_image_append () {
 #"
 SWUPD_FILE_BLACKLIST ??= ""
 
-# When set to a non-empty string, the "swupd/image" content for the
-# current build gets archived in the sstate-cache. This is
-# experimental and disabled by default. Using it to create deltas
-# between builds also implies doing some extra work to preserve the
-# SWUPD_SSTATE_MAP map file across builds.
-SWUPD_SSTATE ??= ""
-
-SWUPDIMAGEDIR = "${@ '${WORKDIR}/swupd-image' if '${SWUPD_SSTATE}' else '${DEPLOY_DIR_SWUPD}/image'}"
+SWUPDIMAGEDIR = "${DEPLOY_DIR_SWUPD}/image"
 SWUPDMANIFESTDIR = "${WORKDIR}/swupd-manifests"
-SWUPD_SSTATE_MAP = "${DEPLOY_DIR_SWUPD}/${PN}-map.inc"
+
 fakeroot python do_stage_swupd_inputs () {
     import swupd.bundles
 
@@ -249,148 +234,11 @@ fakeroot python do_stage_swupd_inputs () {
 
     swupd.bundles.copy_core_contents(d)
     swupd.bundles.copy_bundle_contents(d)
-
-    # Write information about all known OSV->sstate obj mappings
-    mapfile = d.getVar('SWUPD_SSTATE_MAP', True)
-    pn = d.getVar('PN', True)
-    sstatepkg = d.getVar('SSTATE_PKGNAME', True) + '_stage_swupd_inputs.tgz'
-    osv = d.getVar('OS_VERSION', True)
-    verdict = {}
-    versions = (d.getVar('OS_VERSION_SSTATE_MAP_%s' % pn, True) or '').split()
-    for version in versions:
-        ver, pkg = version.split('=')
-        verdict[ver] = pkg
-    verdict[osv] = sstatepkg
-
-    with open(mapfile, 'w') as f:
-        f.write('OS_VERSION_SSTATE_MAP_%s = "\\\n' % pn)
-        for ver, pkg in verdict.items():
-            f.write('    %s=%s \\\n' % (ver, pkg))
-        f.write('    "\n')
-
-    bb.debug(3, 'Writing mapfile to %s' % mapfile)
+    swupd.bundles.copy_old_versions(d)
 }
 addtask stage_swupd_inputs after do_image before do_swupd_update
 do_stage_swupd_inputs[dirs] = "${SWUPDIMAGEDIR} ${SWUPDMANIFESTDIR} ${DEPLOY_DIR_SWUPD}/maps/"
 do_stage_swupd_inputs[depends] += "virtual/fakeroot-native:do_populate_sysroot"
-
-SSTATETASKS += "${@ 'do_stage_swupd_inputs' if '${SWUPD_SSTATE}' else ''}"
-do_stage_swupd_inputs[sstate-inputdirs] = "${SWUPDIMAGEDIR}/${OS_VERSION} ${SWUPDMANIFESTDIR}"
-do_stage_swupd_inputs[sstate-outputdirs] = "${DEPLOY_DIR_SWUPD}/image/${OS_VERSION} ${DEPLOY_DIR_IMAGE}"
-
-python swupd_fix_manifest_link() {
-    """
-    Ensure the manifest symlink points to the latest version of the manifest,
-    not the most recently staged.
-    """
-    import glob
-
-    sourcedir = d.getVar('SWUPDMANIFESTDIR', True)
-    destdir = d.getVar('DEPLOY_DIR_IMAGE', True)
-    links = []
-    # Find symlinks in SWUPDMANIFESTDIR
-    for f in os.listdir(sourcedir):
-        if os.path.islink(os.path.join(sourcedir, f)):
-            links.append(f)
-
-    for link in links:
-        target = None
-        latest = None
-        # Extract a pattern for glob:
-        #   core-image-minimal-qemux86.manifest ->
-        #       core-image-minimal-qemux86-20160602082427.rootfs.manifest
-        components = link.split('.')
-        prefix = components[0]
-        suffix = components[1]
-        pattern = prefix + '-*.' + suffix
-        # Find files matching the pattern in DEPLOY_DIR_IMAGE
-        for f in glob.glob(destdir+'/'+pattern):
-            # Find the most recent file matching that pattern
-            fname = os.path.basename(f)
-            date = f.split('-')[-1].split('.')[0]
-            if not latest or latest < date:
-                target = f
-        # Update the symlink
-        lnk = os.path.join(destdir, link)
-        os.remove(lnk)
-        bb.debug(3, 'Updating link %s to %s' % (lnk, target))
-        os.symlink(target, lnk)
-}
-
-python do_stage_swupd_inputs_setscene () {
-    if d.getVar('PN_BASE', True):
-        bb.debug(2, 'Skipping update input staging from sstate for non-base image %s' % d.getVar('PN', True))
-        return
-
-    sstate_setscene(d)
-}
-addtask do_stage_swupd_inputs_setscene
-do_stage_swupd_inputs_setscene[dirs] = "${SWUPDIMAGEDIR} ${DEPLOY_DIR_SWUPD}/image/ ${SWUPDMANIFESTDIR} ${DEPLOY_DIR_IMAGE}"
-do_stage_swupd_inputs_setscene[postfuncs] += "swupd_fix_manifest_link "
-
-fakeroot python do_fetch_swupd_inputs () {
-    import subprocess
-    import swupd.path
-
-    if d.getVar('PN_BASE', True):
-        bb.debug(2, 'Skipping update input fetching for non-base image %s' % d.getVar('PN', True))
-        return
-
-    fetchlist = {}
-    pn = d.getVar('PN', True)
-    currv = d.getVar('OS_VERSION', True)
-    maplist = (d.getVar('OS_VERSION_SSTATE_MAP_%s' % pn, True) or '').split()
-    for map in maplist:
-        osv, pkg = map.split('=')
-        if osv == currv:
-            continue
-        fetchlist[osv] = pkg
-
-    workdir = d.expand('${WORKDIR}/fetched-inputs')
-    bb.utils.mkdirhier(workdir)
-
-    deploydirswupd = d.getVar('DEPLOY_DIR_SWUPD', True)
-    deploydirimage = d.getVar('DEPLOY_DIR_IMAGE', True)
-    sstatedir = d.getVar('SSTATE_DIR', True)
-    # For each identified input sstate object, try and ensure we have the
-    # object file available
-    for osv, pkg in fetchlist.items():
-        # Don't try and fetch & unpack the sstate for a version directory
-        # which already exists
-        imgdst = os.path.join(deploydirswupd, 'image', osv)
-        if os.path.exists(imgdst):
-            continue
-
-        sstatefetch = pkg
-        sstatepkg = '%s/%s' % (sstatedir, pkg)
-
-        bb.debug(1, 'Preparing sstate package %s' % sstatepkg)
-
-        if not os.path.exists(sstatepkg):
-            bb.debug(2, 'Fetching object %s from mirror' % sstatepkg)
-            pstaging_fetch(sstatefetch, sstatepkg, d)
-
-        if not os.path.isfile(sstatepkg):
-            bb.debug(2, "Shared state package %s is not available" % sstatepkg)
-            continue
-
-        # We now have a copy of the sstate  for a do_stage_swupd_inputs
-        # version let's "install" it. We have two directories:
-        # $osv: should be extracted to ${DEPLOY_DIR_SWUPD}/image/$osv
-        # swupd-manifests: should be extracted to ${DEPLOY_DIR_IMAGE}
-        src = os.path.join(workdir, osv)
-        bb.utils.mkdirhier(src)
-
-        bb.debug(2, 'Unpacking sstate object %s in %s' % (sstatepkg, src))
-        cmd = 'cd %s && tar -xvzf %s' % (src, sstatepkg)
-        subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
-        bb.utils.mkdirhier(imgdst)
-        swupd.path.copyxattrtree('%s/%s/' % (src, osv), imgdst)
-        swupd.path.copyxattrtree('%s/swupd-manifests/' % src, deploydirimage)
-}
-addtask fetch_swupd_inputs before do_swupd_update
-do_fetch_swupd_inputs[dirs] = "${DEPLOY_DIR_SWUPD}/maps ${DEPLOY_DIR_SWUPD}/image"
-do_fetch_swupd_inputs[depends] += "virtual/fakeroot-native:do_populate_sysroot"
 
 SWUPD_FORMAT ??= "3"
 # do_swupd_update uses its own pseudo database, for several reasons:
@@ -464,6 +312,12 @@ END
     if [ -e ${DEPLOY_DIR_SWUPD}/image/latest.version ]; then
         PREVREL=`cat ${DEPLOY_DIR_SWUPD}/image/latest.version`
     else
+        # TODO: locate information about latest version from online www update repo
+        # and download the relevant files. That makes swupd_create_fullfiles
+        # a lot faster because it allows reusing existing, unmodified files.
+        # Saves a lot of space, too, because the new Manifest files then merely
+        # point to the older version (no entry in ${DEPLOY_DIR_SWUPD}/www/${OS_VERSION}/files,
+        # not even a link).
         bbdebug 2 "Stubbing out empty latest.version file"
         touch ${DEPLOY_DIR_SWUPD}/image/latest.version
         PREVREL="0"
@@ -517,20 +371,15 @@ END
         invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl
     done
 
-    # Generate delta-packs going back SWUPD_N_DELTAPACK versions
+    # Generate delta-packs against previous versions chosen by our caller.
     # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-delta-pack.tar.gz -C ${DEPLOY_DIR} swupd
-    if [ ${SWUPD_DELTAPACKS} -eq 1 -a ${SWUPD_N_DELTAPACK} -gt 0 -a $PREVREL -gt 0 ]; then
+    for prevver in ${SWUPD_DELTAPACK_VERSIONS}; do
         for bndl in ${ALL_BUNDLES}; do
             bndlcnt=0
-            # Build list of previous versions and pick the last n ones to build
-            # deltas against. Ignore the latest one, which is the one we build
-            # right now.
-            ls -d -1 ${DEPLOY_DIR_SWUPD}/image/*/$bndl | sed -e 's;${DEPLOY_DIR_SWUPD}/image/\([^/]*\)/.*;\1;' | grep -e '^[0-9]*$' | sort -n | head -n -1 | tail -n ${SWUPD_N_DELTAPACK} | while read prevver; do
-                ${SWUPD_LOG_FN} "Generating delta pack from $prevver to ${OS_VERSION} for $bndl"
-                invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl
-            done
+            ${SWUPD_LOG_FN} "Generating delta pack from $prevver to ${OS_VERSION} for $bndl"
+            invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl
         done
-    fi
+    done
 
     # Write version to www/version/format${SWUPD_FORMAT}/latest and image/latest.version
     bbdebug 2 "Writing latest file"
@@ -538,6 +387,11 @@ END
     echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/www/version/format${SWUPD_FORMAT}/latest
     echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/image/latest.version
     # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-done.tar.gz -C ${DEPLOY_DIR} swupd
+
+    # Archive the files of the current build which will be needed in the future
+    # for a <current version> -> <future version> delta computation. We exclude
+    # the expanded "full" rootfs, because we already have "full.tar".
+    (cd ${DEPLOY_DIR_SWUPD}; tar -zcf ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}-${OS_VERSION}-swupd.tar --exclude=full --exclude=Manifest.*.tar image/${OS_VERSION} www/${OS_VERSION}/Manifest.*)
 }
 
 SWUPDDEPENDS = "\
