@@ -46,6 +46,11 @@ IMAGE_INSTALL_append = " swupd-client-format${SWUPD_FORMAT}"
 # The version URL determines what the client picks as the version that it updates to.
 # The content URL must have all builds ever produced and is expected to also
 # have the corresponding version information.
+#
+# To build the very first version of an image, set these to empty.
+# Errors while accessing the server (as the non-existent download.example.com)
+# or not having any previous build on that server are fatal. The latter
+# is necessary to detect misconfiguration.
 SWUPD_VERSION_URL ??= "http://download.example.com/updates/my-distro/milestone/${MACHINE}/${SWUPD_IMAGE_PN}"
 SWUPD_CONTENT_URL ??= "http://download.example.com/updates/my-distro/builds/${MACHINE}/${SWUPD_IMAGE_PN}"
 
@@ -192,6 +197,7 @@ python () {
         ctime = os.fstat(f.fileno()).st_ctime
     bb.parse.mark_dependency(d, stampfile)
     d.setVar('REDO_SWUPD', ctime)
+    d.appendVarFlag('do_fetch_swupd_inputs', 'vardeps', ' REDO_SWUPD')
     d.appendVarFlag('do_stage_swupd_inputs', 'vardeps', ' REDO_SWUPD')
     d.appendVarFlag('do_swupd_update', 'vardeps', ' REDO_SWUPD')
 }
@@ -254,11 +260,27 @@ fakeroot python do_stage_swupd_inputs () {
 
     swupd.bundles.copy_core_contents(d)
     swupd.bundles.copy_bundle_contents(d)
-    swupd.bundles.copy_old_versions(d)
 }
 addtask stage_swupd_inputs after do_image before do_swupd_update
 do_stage_swupd_inputs[dirs] = "${SWUPDIMAGEDIR} ${SWUPDMANIFESTDIR} ${DEPLOY_DIR_SWUPD}/maps/"
 do_stage_swupd_inputs[depends] += "virtual/fakeroot-native:do_populate_sysroot"
+
+python do_fetch_swupd_inputs () {
+    import swupd.bundles
+
+    if d.getVar('PN_BASE', True):
+        bb.debug(2, 'Skipping update input staging for non-base image %s' % d.getVar('PN', True))
+        return
+
+    # Get information from remote update repo.
+    swupd.bundles.download_old_versions(d)
+    # Stage locally cached information about previous builds
+    # (corresponds to the "archive the files of the current build"
+    # step in do_swupd_update).
+    swupd.bundles.copy_old_versions(d)
+}
+do_fetch_swupd_inputs[dirs] = "${SWUPDIMAGEDIR}"
+addtask do_fetch_swupd_inputs before do_swupd_update
 
 # do_swupd_update uses its own pseudo database, for several reasons:
 # - Performance is better when the pseudo instance is not shared
@@ -328,15 +350,12 @@ outputdir=${DEPLOY_DIR_SWUPD}/www/
 emptydir=${DEPLOY_DIR_SWUPD}/empty/
 END
 
+    # do_fetch_swupd_inputs() creates this file when a content
+    # URL was set, so creating an empty file shouldn't be necessary
+    # in most cases.
     if [ -e ${DEPLOY_DIR_SWUPD}/image/latest.version ]; then
         PREVREL=`cat ${DEPLOY_DIR_SWUPD}/image/latest.version`
     else
-        # TODO: locate information about latest version from online www update repo
-        # and download the relevant files. That makes swupd_create_fullfiles
-        # a lot faster because it allows reusing existing, unmodified files.
-        # Saves a lot of space, too, because the new Manifest files then merely
-        # point to the older version (no entry in ${DEPLOY_DIR_SWUPD}/www/${OS_VERSION}/files,
-        # not even a link).
         bbdebug 2 "Stubbing out empty latest.version file"
         touch ${DEPLOY_DIR_SWUPD}/image/latest.version
         PREVREL="0"
@@ -383,11 +402,23 @@ END
     # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-fullfiles.tar.gz -C ${DEPLOY_DIR} swupd
     invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_fullfiles --log-stdout -S ${DEPLOY_DIR_SWUPD} ${OS_VERSION}
 
+    if [ "${SWUPD_CONTENT_URL}" ]; then
+        content_url_parameter="--content-url ${SWUPD_CONTENT_URL}"
+    else
+        content_url_parameter=""
+    fi
+
     ${SWUPD_LOG_FN} "Generating zero packs, this can take some time."
     # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-zero-pack.tar.gz -C ${DEPLOY_DIR} swupd
     for bndl in ${ALL_BUNDLES}; do
         ${SWUPD_LOG_FN} "Generating zero pack for $bndl"
         invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl
+        # The zero packs are used by the swupd client when adding bundles.
+        # The zero pack for os-core is not needed by the swupd client itself;
+        # in Clear Linux OS it is used by the installer. We could use some
+        # space by skipping the os-core zero bundle, but for now it gets
+        # generated, just in case that it has some future use.
+        invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout $content_url_parameter -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl | sed -u -e "s/^/$bndl: /"
     done
 
     # Generate delta-packs against previous versions chosen by our caller.
