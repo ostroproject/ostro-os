@@ -15,7 +15,6 @@
 #
 # See docs/Guide.md for more information.
 
-DEPLOY_DIR_SWUPDBASE = "${DEPLOY_DIR}/swupd/${MACHINE}"
 # Created for each bundle (including os-core) and the "full" directory,
 # describing files and directories that swupd-server needs to include in the update
 # mechanism (i.e. without SWUPD_FILE_BLACKLIST entries). Used by swupd-server.
@@ -24,6 +23,14 @@ SWUPD_ROOTFS_MANIFEST_SUFFIX = ".content.txt"
 # that are excluded from the update mechanism. Ignored by swupd-server,
 # used by swupdimage.bbclass.
 SWUPD_IMAGE_MANIFEST_SUFFIX = ".extra-content.txt"
+
+# Name of the base image. Always set, constant (unlike PN, which is
+# different in the different virtual images).
+SWUPD_IMAGE_PN = "${@ d.getVar('PN_BASE', True) or d.getVar('PN', True)}"
+
+# Main directory in which swupd is invoked. The actual output which needs
+# to be published will be in the "www" sub-directory.
+DEPLOY_DIR_SWUPD = "${DEPLOY_DIR}/swupd/${MACHINE}/${SWUPD_IMAGE_PN}"
 
 # User configurable variables to disable all swupd processing or deltapack
 # generation.
@@ -56,6 +63,7 @@ python () {
         bb.fatal("Invalid value for OS_VERSION (%s), must be a non-negative integer value." % ver)
 
     havebundles = (d.getVar('SWUPD_BUNDLES', True) or '') != ''
+    deploy_dir = d.getVar('DEPLOY_DIR_SWUPD', True)
 
     # Always set, value differs among virtual image recipes.
     pn = d.getVar('PN', True)
@@ -95,12 +103,6 @@ python () {
         d.setVar('PSEUDO_LOCALSTATEDIR', pseudo_state)
 
     if pn_base is not None:
-        # We want all virtual images from this recipe to deploy to the same
-        # directory
-        deploy_dir = d.getVar('DEPLOY_DIR_SWUPDBASE', True)
-        deploy_dir = os.path.join(deploy_dir, pn_base)
-        d.setVar('DEPLOY_DIR_SWUPD', deploy_dir)
-
         # Swupd images must depend on the mega image having been
         # built, as they will copy contents from there. For bundle
         # images that is irrelevant.
@@ -110,8 +112,6 @@ python () {
 
         return
 
-    deploy_dir = d.expand('${DEPLOY_DIR_SWUPDBASE}/${IMAGE_BASENAME}')
-    d.setVar('DEPLOY_DIR_SWUPD', deploy_dir)
     # do_swupd_update requires the full swupd directory hierarchy
     varflags = '%s/image %s/empty %s/www %s' % (deploy_dir, deploy_dir, deploy_dir, deploy_dir)
     d.setVarFlag('do_swupd_update', 'dirs', varflags)
