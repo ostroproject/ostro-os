@@ -1,0 +1,181 @@
+From c16e1e7fc16933669ed4be63858edd4082509183 Mon Sep 17 00:00:00 2001
+From: Patrick Ohly <patrick.ohly@intel.com>
+Date: Thu, 3 Nov 2016 11:47:53 +0100
+Subject: [PATCH] ignore xattrs when verifying Manifest files
+
+When IMA or Smack are active on the client, the downloaded Manifest
+files will be assigned certain xattrs (security.ima
+resp. security.SMACK64). Those xattrs did not exist on the server side
+(because it is most likely not having those kernel features enabled)
+and besides, the swupd-server code wouldn't include them in the
+Manifest hashes even if they existed (see write_manifest_plain() in
+src/manifest.c).
+
+Therefore the client must ignore xattrs when verifying Manifest files.
+This is the only place where verification gets relaxed. All other locations
+still use xattrs, just as before.
+
+Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
+---
+ include/swupd.h | 2 +-
+ src/delta.c     | 2 +-
+ src/download.c  | 6 +++---
+ src/hash.c      | 6 +++---
+ src/helpers.c   | 2 +-
+ src/manifest.c  | 2 +-
+ src/scripts.c   | 2 +-
+ src/verify.c    | 4 ++--
+ 8 files changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/include/swupd.h b/include/swupd.h
+index e1e1f3d..14e65ab 100644
+--- a/include/swupd.h
++++ b/include/swupd.h
+@@ -225,7 +225,7 @@ extern struct list *recurse_manifest(struct manifest *manifest, const char *comp
+ extern struct list *consolidate_files(struct list *files);
+ extern void debug_write_manifest(struct manifest *manifest, char *filename);
+ extern void populate_file_struct(struct file *file, char *filename);
+-extern bool verify_file(struct file *file, char *filename);
++extern bool verify_file(struct file *file, char *filename, bool use_xattrs);
+ extern int verify_bundle_hash(struct manifest *manifest, struct file *bundle);
+ extern void unlink_all_staged_content(struct file *file);
+ extern void link_renames(struct list *newfiles, struct manifest *from_manifest);
+diff --git a/src/delta.c b/src/delta.c
+index 8172b67..317adde 100644
+--- a/src/delta.c
++++ b/src/delta.c
+@@ -109,7 +109,7 @@ static void do_delta(struct file *file)
+ 	}
+ 	xattrs_copy(origin, filename);
+ 
+-	if (!verify_file(file, filename)) {
++	if (!verify_file(file, filename, true)) {
+ 		unlink_all_staged_content(file);
+ 		goto out;
+ 	}
+diff --git a/src/download.c b/src/download.c
+index 9ea957d..6d81d81 100644
+--- a/src/download.c
++++ b/src/download.c
+@@ -98,7 +98,7 @@ static int swupd_curl_hashmap_insert(struct file *file)
+ 	string_or_die(&targetfile, "%s/staged/%s", state_dir, file->hash);
+ 
+ 	if (lstat(targetfile, &stat) == 0) {
+-		if (verify_file(file, targetfile)) {
++		if (verify_file(file, targetfile, true)) {
+ 			free(targetfile);
+ 			pthread_mutex_unlock(&bucket->mutex);
+ 			return 1;
+@@ -260,7 +260,7 @@ int untar_full_download(void *data)
+ 	 * NOTE: this should NEVER happen given the checking that happens
+ 	 *       ahead of queueing a download.  But... */
+ 	if (lstat(targetfile, &stat) == 0) {
+-		if (verify_file(file, targetfile)) {
++		if (verify_file(file, targetfile, true)) {
+ 			unlink(tar_dotfile);
+ 			unlink(tarfile);
+ 			free(tar_dotfile);
+@@ -316,7 +316,7 @@ int untar_full_download(void *data)
+ 	}
+ 
+ 	err = lstat(targetfile, &stat);
+-	if (!err && !verify_file(file, targetfile)) {
++	if (!err && !verify_file(file, targetfile, true)) {
+ 		/* Download was successful but the hash was bad. This is fatal*/
+ 		printf("Error: File content hash mismatch for %s (bad server data?)\n", targetfile);
+ 		exit(EXIT_FAILURE);
+diff --git a/src/hash.c b/src/hash.c
+index 34da6eb..00a6802 100644
+--- a/src/hash.c
++++ b/src/hash.c
+@@ -226,7 +226,7 @@ int compute_hash(struct file *file, char *filename)
+ 	return 0;
+ }
+ 
+-bool verify_file(struct file *file, char *filename)
++bool verify_file(struct file *file, char *filename, bool use_xattrs)
+ {
+ 	struct file *local = calloc(1, sizeof(struct file));
+ 
+@@ -235,7 +235,7 @@ bool verify_file(struct file *file, char *filename)
+ 	}
+ 
+ 	local->filename = file->filename;
+-	local->use_xattrs = true;
++	local->use_xattrs = use_xattrs;
+ 
+ 	populate_file_struct(local, filename);
+ 	if (compute_hash(local, filename) != 0) {
+@@ -275,7 +275,7 @@ int verify_bundle_hash(struct manifest *manifest, struct file *bundle)
+ 		string_or_die(&local, "%s/%i/Manifest.%s", state_dir,
+ 			      current->last_change, current->filename);
+ 
+-		if (!verify_file(bundle, local)) {
++		if (!verify_file(bundle, local, false)) {
+ 			printf("Warning: hash check failed for Manifest.%s\n",
+ 			       current->filename);
+ 			ret = 0;
+diff --git a/src/helpers.c b/src/helpers.c
+index e71688c..01fd4a3 100644
+--- a/src/helpers.c
++++ b/src/helpers.c
+@@ -787,7 +787,7 @@ int verify_fix_path(char *targetpath, struct manifest *target_MoM)
+ 
+ 		ret = stat(target, &sb);
+ 		if (ret == 0) {
+-			if (verify_file(file, target)) {
++			if (verify_file(file, target, true)) {
+ 				continue;
+ 			}
+ 			printf("Hash did not match for path : %s\n", path);
+diff --git a/src/manifest.c b/src/manifest.c
+index 2b57d3d..ee6d29a 100644
+--- a/src/manifest.c
++++ b/src/manifest.c
+@@ -674,7 +674,7 @@ struct list *create_update_list(struct manifest *current, struct manifest *serve
+ 			if (fullname == NULL) {
+ 				abort();
+ 			}
+-			if (verify_file(file, fullname)) {
++			if (verify_file(file, fullname, true)) {
+ 				free(fullname);
+ 				continue;
+ 			}
+diff --git a/src/scripts.c b/src/scripts.c
+index 59417af..c2157f7 100644
+--- a/src/scripts.c
++++ b/src/scripts.c
+@@ -127,7 +127,7 @@ void run_preupdate_scripts(struct manifest *manifest)
+ 		}
+ 
+ 		/* Check that system file matches file in manifest */
+-		if (verify_file(file, script)) {
++		if (verify_file(file, script, true)) {
+ 			system(script);
+ 			break;
+ 		}
+diff --git a/src/verify.c b/src/verify.c
+index 1514988..eaf9dd8 100644
+--- a/src/verify.c
++++ b/src/verify.c
+@@ -462,7 +462,7 @@ static void deal_with_hash_mismatches(struct manifest *official_manifest, bool r
+ 		if (fullname == NULL) {
+ 			abort();
+ 		}
+-		if (verify_file(file, fullname)) {
++		if (verify_file(file, fullname, true)) {
+ 			free(fullname);
+ 			continue;
+ 		} else {
+@@ -483,7 +483,7 @@ static void deal_with_hash_mismatches(struct manifest *official_manifest, bool r
+ 		}
+ 
+ 		/* at the end of all this, verify the hash again to judge success */
+-		if (verify_file(file, fullname)) {
++		if (verify_file(file, fullname, true)) {
+ 			file_fixed_count++;
+ 			printf("\tfixed\n");
+ 		} else {
+-- 
+2.1.4
+

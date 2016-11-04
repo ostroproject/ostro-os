@@ -11,6 +11,7 @@ SRC_URI = "\
     file://Change-systemctl-path-to-OE-systemctl-path.patch \
     file://0001-Add-configure-option-to-re-enable-updating-of-config.patch \
     file://Make-pinned-pubkey-configurable.patch \
+    file://ignore-xattrs-when-verifying-Manifest-files.patch \
 "
 SRCREV = "f4000c5b22be47ec1af2f8748fd71a36148b5dc4"
 
