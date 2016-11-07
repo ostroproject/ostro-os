@@ -363,8 +363,11 @@ END
         echo "" >> ${GROUPS_INI}
     done
 
-    # Activate pseudo for all following commands explicitly.
-    PSEUDO="${FAKEROOTENV} PSEUDO_LOCALSTATEDIR=${DEPLOY_DIR_SWUPD}/pseudo ${FAKEROOTCMD}"
+    # Activate pseudo explicitly for all following commands which need it.
+    # We use a database that is specific to the OS_VERSION, because that
+    # avoids (potential?) performance degradation that might occur when
+    # the same database is used for a growing number of files.
+    PSEUDO="${FAKEROOTENV} PSEUDO_LOCALSTATEDIR=${PSEUDO_LOCALSTATEDIR}/meta-swupd-${OS_VERSION} ${FAKEROOTCMD}"
 
     # Unpack the input rootfs dir(s) for use with the swupd tools. Might have happened
     # already in a previous run of this task.
