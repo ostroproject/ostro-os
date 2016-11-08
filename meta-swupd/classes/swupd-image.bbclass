@@ -366,8 +366,12 @@ END
     # Activate pseudo explicitly for all following commands which need it.
     # We use a database that is specific to the OS_VERSION, because that
     # avoids (potential?) performance degradation that might occur when
-    # the same database is used for a growing number of files.
-    PSEUDO="${FAKEROOTENV} PSEUDO_LOCALSTATEDIR=${PSEUDO_LOCALSTATEDIR}/meta-swupd-${OS_VERSION} ${FAKEROOTCMD}"
+    # the same database is used for a growing number of files. Placing
+    # it inside the swupd deploy dir ensures that it gets wiped out
+    # together with that.
+    PSEUDO_LOCALSTATEDIR=${DEPLOY_DIR_SWUPD}/image/${OS_VERSION}.pseudo
+    rm -rf $PSEUDO_LOCALSTATEDIR
+    PSEUDO="${FAKEROOTENV} PSEUDO_LOCALSTATEDIR=$PSEUDO_LOCALSTATEDIR ${FAKEROOTCMD}"
 
     # Unpack the input rootfs dir(s) for use with the swupd tools. Might have happened
     # already in a previous run of this task.
