@@ -20,6 +20,8 @@ S = "${WORKDIR}/git"
 
 DEPENDS_class-target = "gnu-efi"
 
+COMPATIBLE_HOST = "(x86_64.*|i.86.*)-linux*"
+
 EXTRA_OEMAKE='RMC_CFLAGS="-Wl,--hash-style=both"'
 
 # from gnu-efi, we should align arch-mapping with it.
