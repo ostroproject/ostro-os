@@ -152,19 +152,6 @@ def copy_bundle_contents(d):
     for bndl in bundles:
         stage_empty_bundle(d, bndl)
 
-def copy_old_versions(d):
-    for prevver in d.getVar('SWUPD_DELTAPACK_VERSIONS', True).split():
-        if not os.path.exists(os.path.join(d.expand('${DEPLOY_DIR_SWUPD}/image'), prevver)):
-            pattern = d.expand('${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}*-%s-swupd.tar' % prevver)
-            prevver_tar = glob.glob(pattern)
-            if not prevver_tar or len(prevver_tar) > 1 or not os.path.exists(prevver_tar[0]):
-                bb.fatal("Creating swupd delta packs against %s is not possible because %s is not available." %
-                         (prevver, pattern))
-            cmd = ['tar', '-C', d.getVar('DEPLOY_DIR_SWUPD', True), '-xf', prevver_tar[0]]
-            output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            if output:
-                bb.fatal('Unexpected output from the following command:\n%s\n%s' % (cmd, output))
-
 def download_manifests(content_url, version, component, to_dir):
     """
     Download one manifest file and recursively all manifests referenced by it.

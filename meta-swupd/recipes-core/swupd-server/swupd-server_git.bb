@@ -18,6 +18,10 @@ SRC_URI = "git://github.com/clearlinux/swupd-server.git;protocol=https \
            file://swupd_create_fullfiles-avoid-segfault-when-nothing-c.patch \
            file://0001-delta.c-fix-xattr-test-after-patching.patch \
            file://0002-pack.c-do-not-clean-packstage.patch \
+           file://0003-swupd_create_pack-download-original-files-on-demand-.patch \
+           file://0001-create_pack-rely-less-on-previous-builds.patch \
+           file://0002-create_pack-download-fullfile-on-demand-for-packs.patch \
+           file://0003-create_pack-abort-delta-handling-early-when-impossib.patch \
            "
 SRCREV = "ddca171dad32229ceeff8b8527a179610b88ce55"
 

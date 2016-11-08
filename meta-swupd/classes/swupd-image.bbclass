@@ -265,10 +265,6 @@ python do_fetch_swupd_inputs () {
 
     # Get information from remote update repo.
     swupd.bundles.download_old_versions(d)
-    # Stage locally cached information about previous builds
-    # (corresponds to the "archive the files of the current build"
-    # step in do_swupd_update).
-    swupd.bundles.copy_old_versions(d)
 }
 do_fetch_swupd_inputs[dirs] = "${SWUPDIMAGEDIR}"
 addtask do_fetch_swupd_inputs before do_swupd_update
@@ -427,7 +423,12 @@ END
         for bndl in ${ALL_BUNDLES}; do
             bndlcnt=0
             ${SWUPD_LOG_FN} "Generating delta pack from $prevver to ${OS_VERSION} for $bndl"
-            invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl
+            if [ "${SWUPD_CONTENT_URL}" ]; then
+                content_url_parameter="--content-url ${SWUPD_CONTENT_URL}"
+            else
+                content_url_parameter=""
+            fi
+            invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout $content_url_parameter -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl
         done
     done
 
@@ -437,11 +438,6 @@ END
     echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/www/version/format${SWUPD_FORMAT}/latest
     echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/image/latest.version
     # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-done.tar.gz -C ${DEPLOY_DIR} swupd
-
-    # Archive the files of the current build which will be needed in the future
-    # for a <current version> -> <future version> delta computation. We exclude
-    # the expanded "full" rootfs, because we already have "full.tar".
-    (cd ${DEPLOY_DIR_SWUPD}; tar -zcf ${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}-${OS_VERSION}-swupd.tar --exclude=full --exclude=Manifest.*.tar image/${OS_VERSION} www/${OS_VERSION}/Manifest.*)
 }
 
 SWUPDDEPENDS = "\
