@@ -380,6 +380,11 @@ END
         fi
     done
 
+    # Remove any remaining intermediate artifacts from a previous run.
+    # Necessary because the corresponding cleanup in swupd-server is
+    # disabled because of https://bugzilla.yoctoproject.org/show_bug.cgi?id=10623.
+    rm -rf ${DEPLOY_DIR_SWUPD}/packstage
+
     invoke_swupd () {
         echo $PSEUDO "$@"
         time env $PSEUDO "$@"
