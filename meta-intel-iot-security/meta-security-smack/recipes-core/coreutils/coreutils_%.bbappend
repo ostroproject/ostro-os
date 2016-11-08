@@ -3,5 +3,5 @@
 # explicitly otherwise.
 EXTRA_OECONF_SMACK = "--disable-libsmack"
 EXTRA_OECONF_SMACK_smack = "--enable-libsmack"
-EXTRA_OECONF_append = " ${EXTRA_OECONF_SMACK}"
-DEPENDS_append_smack = " smack"
+EXTRA_OECONF_append_class-target = " ${EXTRA_OECONF_SMACK}"
+DEPENDS_append_smack_class-target = " smack"
