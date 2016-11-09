@@ -44,40 +44,34 @@ QB_OPT_APPEND ?= "-show-cursor"
 # Create qemuboot.conf
 ROOTFS_POSTPROCESS_COMMAND += "write_qemuboot_conf; "
 
+def qemuboot_vars(d):
+    build_vars = ['MACHINE', 'TUNE_ARCH', 'DEPLOY_DIR_IMAGE',
+                'KERNEL_IMAGETYPE', 'IMAGE_NAME', 'IMAGE_LINK_NAME',
+                'STAGING_DIR_NATIVE', 'STAGING_BINDIR_NATIVE',
+                'STAGING_DIR_HOST']
+    return build_vars + [k for k in d.keys() if k.startswith('QB_')]
+
+write_qemuboot_conf[vardeps] += "${@' '.join(qemuboot_vars(d))}"
 python write_qemuboot_conf() {
     import configparser
-
-    build_vars = ['MACHINE', 'TUNE_ARCH', 'DEPLOY_DIR_IMAGE', \
-                'KERNEL_IMAGETYPE', 'IMAGE_NAME', 'IMAGE_LINK_NAME', \
-                'STAGING_DIR_NATIVE', 'STAGING_BINDIR_NATIVE', \
-                'STAGING_DIR_HOST']
-
-    # Vars from bsp
-    qb_vars = []
-    for k in d.keys():
-        if k.startswith('QB_'):
-            qb_vars.append(k)
 
     qemuboot = "%s/%s.qemuboot.conf" % (d.getVar('DEPLOY_DIR_IMAGE', True), d.getVar('IMAGE_NAME', True))
     qemuboot_link = "%s/%s.qemuboot.conf" % (d.getVar('DEPLOY_DIR_IMAGE', True), d.getVar('IMAGE_LINK_NAME', True))
     cf = configparser.ConfigParser()
     cf.add_section('config_bsp')
-    for k in build_vars + qb_vars:
+    for k in qemuboot_vars(d):
         cf.set('config_bsp', k, '%s' % d.getVar(k, True))
 
     # QB_DEFAULT_KERNEL's value of KERNEL_IMAGETYPE is the name of a symlink
     # to the kernel file, which hinders relocatability of the qb conf.
     # Read the link and replace it with the full filename of the target.
     kernel_link = os.path.join(d.getVar('DEPLOY_DIR_IMAGE', True), d.getVar('QB_DEFAULT_KERNEL', True))
-    kernel = os.readlink(kernel_link)
+    kernel = os.path.realpath(kernel_link)
     cf.set('config_bsp', 'QB_DEFAULT_KERNEL', kernel)
 
     bb.utils.mkdirhier(os.path.dirname(qemuboot))
     with open(qemuboot, 'w') as f:
         cf.write(f)
-
-    if d.getVar('RM_OLD_IMAGE', True) == "1" and os.path.exists(qemuboot_link):
-       os.remove(os.path.realpath(qemuboot_link))
 
     if os.path.lexists(qemuboot_link):
        os.remove(qemuboot_link)

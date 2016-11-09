@@ -982,6 +982,31 @@ class BuildInfoHelper(object):
             pass
         return task_information
 
+    def _get_layer_version_for_dependency(self, pathRE):
+        """ Returns the layer in the toaster db that has a full regex match to the pathRE.
+        pathRE - the layer path passed as a regex in the event. It is created in
+          cooker.py as a collection for the layer priorities.
+        """
+        self._ensure_build()
+
+        def _sort_longest_path(layer_version):
+            assert isinstance(layer_version, Layer_Version)
+            return len(layer_version.local_path)
+
+        # we don't care if we match the trailing slashes
+        p = re.compile(re.sub("/[^/]*?$","",pathRE))
+        # Heuristics: we always match recipe to the deepest layer path in the discovered layers
+        for lvo in sorted(self.orm_wrapper.layer_version_objects, reverse=True, key=_sort_longest_path):
+            if p.fullmatch(lvo.local_path):
+                return lvo
+            if lvo.layer.local_source_dir:
+                if p.fullmatch(lvo.layer.local_source_dir):
+                    return lvo
+        #if we get here, we didn't read layers correctly; dump whatever information we have on the error log
+        logger.warning("Could not match layer dependency for path %s : %s", path, self.orm_wrapper.layer_version_objects)
+
+
+
     def _get_layer_version_for_path(self, path):
         self._ensure_build()
 
@@ -1372,7 +1397,7 @@ class BuildInfoHelper(object):
         if 'layer-priorities' in event._depgraph.keys():
             for lv in event._depgraph['layer-priorities']:
                 (_, path, _, priority) = lv
-                layer_version_obj = self._get_layer_version_for_path(path[1:]) # paths start with a ^
+                layer_version_obj = self._get_layer_version_for_dependency(path)
                 assert layer_version_obj is not None
                 layer_version_obj.priority = priority
                 layer_version_obj.save()
@@ -1565,15 +1590,11 @@ class BuildInfoHelper(object):
         mockevent.lineno = -1
         self.store_log_event(mockevent)
 
-
     def store_log_event(self, event):
         self._ensure_build()
 
         if event.levelno < formatter.WARNING:
             return
-
-        if 'args' in vars(event):
-            event.msg = event.msg % event.args
 
         # early return for CLI builds
         if self.brbe is None:
@@ -1586,7 +1607,8 @@ class BuildInfoHelper(object):
             # if we have a backlog of events, do our best to save them here
             if len(self.internal_state['backlog']):
                 tempevent = self.internal_state['backlog'].pop()
-                logger.debug(1, "buildinfohelper: Saving stored event %s " % tempevent)
+                logger.debug(1, "buildinfohelper: Saving stored event %s "
+                             % tempevent)
                 self.store_log_event(tempevent)
             else:
                 logger.info("buildinfohelper: All events saved")
@@ -1605,7 +1627,7 @@ class BuildInfoHelper(object):
         else:
             log_information['level'] = LogMessage.INFO
 
-        log_information['message'] = event.msg
+        log_information['message'] = event.getMessage()
         log_information['pathname'] = event.pathname
         log_information['lineno'] = event.lineno
         logger.info("Logging error 2: %s", log_information)
@@ -1758,6 +1780,9 @@ class BuildInfoHelper(object):
 
                 for basename in basenames:
                     artifact_path = os.path.join(deploy_dir_image, basename)
+                    if not os.path.exists(artifact_path):
+                        logger.warning("artifact %s doesn't exist, skipping" % artifact_path)
+                        continue
                     artifact_size = os.stat(artifact_path).st_size
 
                     # note that the artifact will only be saved against this

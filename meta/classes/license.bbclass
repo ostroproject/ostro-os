@@ -351,6 +351,8 @@ def copy_license_files(lic_files_paths, destdir):
             dst = os.path.join(destdir, basename)
             if os.path.exists(dst):
                 os.remove(dst)
+            if os.path.islink(src):
+                src = os.path.realpath(src)
             canlink = os.access(src, os.W_OK) and (os.stat(src).st_dev == os.stat(destdir).st_dev)
             if canlink:
                 try:
@@ -388,7 +390,7 @@ def find_license_files(d):
     from collections import defaultdict, OrderedDict
 
     # All the license files for the package
-    lic_files = d.getVar('LIC_FILES_CHKSUM', True)
+    lic_files = d.getVar('LIC_FILES_CHKSUM', True) or ""
     pn = d.getVar('PN', True)
     # The license files are located in S/LIC_FILE_CHECKSUM.
     srcdir = d.getVar('S', True)
@@ -465,19 +467,13 @@ def find_license_files(d):
             pass
 
     if not generic_directory:
-        raise bb.build.FuncFailed("COMMON_LICENSE_DIR is unset. Please set this in your distro config")
-
-    if not lic_files:
-        # No recipe should have an invalid license file. This is checked else
-        # where, but let's be pedantic
-        bb.note(pn + ": Recipe file does not have license file information.")
-        return lic_files_paths
+        bb.fatal("COMMON_LICENSE_DIR is unset. Please set this in your distro config")
 
     for url in lic_files.split():
         try:
             (type, host, path, user, pswd, parm) = bb.fetch.decodeurl(url)
         except bb.fetch.MalformedUrl:
-            raise bb.build.FuncFailed("%s: LIC_FILES_CHKSUM contains an invalid URL:  %s" % (d.getVar('PF', True), url))
+            bb.fatal("%s: LIC_FILES_CHKSUM contains an invalid URL:  %s" % (d.getVar('PF', True), url))
         # We want the license filename and path
         chksum = parm['md5'] if 'md5' in parm else parm['sha256']
         lic_chksums[path] = chksum

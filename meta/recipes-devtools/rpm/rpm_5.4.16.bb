@@ -154,6 +154,7 @@ SRC_URI += " \
 	   file://rpm-rpmdb-grammar.patch \
 	   file://rpm-disable-blaketest.patch \
 	   file://rpm-autogen-force.patch \
+	   file://rpmdb-prevent-race-in-tmpdir-creation.patch \
 	   file://rpmdb-more-verbose-error-logging-in-rpmTempFile.patch \
 "
 
@@ -383,10 +384,10 @@ FILES_${PN} =  "${bindir}/rpm \
 		${localstatedir}/lib/wdj \
 		${bindir}/rpm.real \
 		${bindir}/rpmconstant.real \
-		${bindir}/rpm2cpio.real \
 		"
 
 FILES_${PN}-common = "${bindir}/rpm2cpio \
+		${bindir}/rpm2cpio.real \
 		${bindir}/gendiff \
 		${sysconfdir}/rpm \
 		${localstatedir}/spool/repackage \

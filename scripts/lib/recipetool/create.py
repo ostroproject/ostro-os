@@ -32,6 +32,18 @@ logger = logging.getLogger('recipetool')
 tinfoil = None
 plugins = None
 
+def log_error_cond(message, debugonly):
+    if debugonly:
+        logger.debug(message)
+    else:
+        logger.error(message)
+
+def log_info_cond(message, debugonly):
+    if debugonly:
+        logger.debug(message)
+    else:
+        logger.info(message)
+
 def plugin_init(pluginlist):
     # Take a reference to the list so we can use it later
     global plugins
@@ -406,10 +418,7 @@ def create_recipe(args):
         srctree = tempsrc
         if fetchuri.startswith('npm://'):
             # Check if npm is available
-            npm = bb.utils.which(tinfoil.config_data.getVar('PATH', True), 'npm')
-            if not npm:
-                logger.error('npm:// URL requested but npm is not available - you need to either build nodejs-native or install npm using your package manager')
-                sys.exit(1)
+            check_npm(tinfoil.config_data, args.devtool)
         logger.info('Fetching %s...' % srcuri)
         try:
             checksums = scriptutils.fetch_uri(tinfoil.config_data, fetchuri, srctree, srcrev)
@@ -643,7 +652,7 @@ def create_recipe(args):
 
     if not outfile:
         if not pn:
-            logger.error('Unable to determine short program name from source tree - please specify name with -N/--name or output file name with -o/--outfile')
+            log_error_cond('Unable to determine short program name from source tree - please specify name with -N/--name or output file name with -o/--outfile', args.devtool)
             # devtool looks for this specific exit code, so don't change it
             sys.exit(15)
         else:
@@ -739,7 +748,7 @@ def create_recipe(args):
         shutil.move(srctree, args.extract_to)
         if tempsrc == srctree:
             tempsrc = None
-        logger.info('Source extracted to %s' % args.extract_to)
+        log_info_cond('Source extracted to %s' % args.extract_to, args.devtool)
 
     if outfile == '-':
         sys.stdout.write('\n'.join(outlines) + '\n')
@@ -752,7 +761,7 @@ def create_recipe(args):
                     continue
                 f.write('%s\n' % line)
                 lastline = line
-        logger.info('Recipe %s has been created; further editing may be required to make it fully functional' % outfile)
+        log_info_cond('Recipe %s has been created; further editing may be required to make it fully functional' % outfile, args.devtool)
 
     if tempsrc:
         if args.keep_temp:
@@ -778,10 +787,12 @@ def handle_license_vars(srctree, lines_before, handled, extravalues, d):
         lines_before.append('# your responsibility to verify that the values are complete and correct.')
         if len(licvalues) > 1:
             lines_before.append('#')
-            lines_before.append('# NOTE: multiple licenses have been detected; if that is correct you should separate')
-            lines_before.append('# these in the LICENSE value using & if the multiple licenses all apply, or | if there')
-            lines_before.append('# is a choice between the multiple licenses. If in doubt, check the accompanying')
-            lines_before.append('# documentation to determine which situation is applicable.')
+            lines_before.append('# NOTE: multiple licenses have been detected; they have been separated with &')
+            lines_before.append('# in the LICENSE value for now since it is a reasonable assumption that all')
+            lines_before.append('# of the licenses apply. If instead there is a choice between the multiple')
+            lines_before.append('# licenses then you should change the value to separate the licenses with |')
+            lines_before.append('# instead of &. If there is any doubt, check the accompanying documentation')
+            lines_before.append('# to determine which situation is applicable.')
         if lic_unknown:
             lines_before.append('#')
             lines_before.append('# The following license files were not able to be identified and are')
@@ -805,7 +816,7 @@ def handle_license_vars(srctree, lines_before, handled, extravalues, d):
             licenses = [pkg_license]
         else:
             lines_before.append('# NOTE: Original package metadata indicates license is: %s' % pkg_license)
-    lines_before.append('LICENSE = "%s"' % ' '.join(licenses))
+    lines_before.append('LICENSE = "%s"' % ' & '.join(licenses))
     lines_before.append('LIC_FILES_CHKSUM = "%s"' % ' \\\n                    '.join(lic_files_chksum))
     lines_before.append('')
     handled.append(('license', licvalues))
@@ -1076,6 +1087,11 @@ def convert_rpm_xml(xmlfile):
     return values
 
 
+def check_npm(d, debugonly=False):
+    if not os.path.exists(os.path.join(d.getVar('STAGING_BINDIR_NATIVE', True), 'npm')):
+        log_error_cond('npm required to process specified source, but npm is not available - you need to build nodejs-native first', debugonly)
+        sys.exit(14)
+
 def register_commands(subparsers):
     parser_create = subparsers.add_parser('create',
                                           help='Create a new recipe',
@@ -1091,5 +1107,6 @@ def register_commands(subparsers):
     parser_create.add_argument('--src-subdir', help='Specify subdirectory within source tree to use', metavar='SUBDIR')
     parser_create.add_argument('-a', '--autorev', help='When fetching from a git repository, set SRCREV in the recipe to a floating revision instead of fixed', action="store_true")
     parser_create.add_argument('--keep-temp', action="store_true", help='Keep temporary directory (for debugging)')
+    parser_create.add_argument('--devtool', action="store_true", help=argparse.SUPPRESS)
     parser_create.set_defaults(func=create_recipe)
 

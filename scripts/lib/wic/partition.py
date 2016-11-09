@@ -26,7 +26,6 @@
 
 import os
 import tempfile
-import uuid
 
 from wic.utils.oe.misc import msger, parse_sourceparams
 from wic.utils.oe.misc import exec_cmd, exec_native_cmd
@@ -60,8 +59,6 @@ class Partition():
         self.system_id = args.system_id
         self.use_uuid = args.use_uuid
         self.uuid = args.uuid
-        if args.use_uuid and not self.uuid:
-            self.uuid = str(uuid.uuid4())
 
         self.lineno = lineno
         self.source_file = ""
@@ -220,7 +217,8 @@ class Partition():
         msger.debug("Added %d extra blocks to %s to get to %d total blocks" % \
                     (extra_blocks, self.mountpoint, rootfs_size))
 
-        exec_cmd("truncate %s -s %d" % (rootfs, rootfs_size * 1024))
+        with open(rootfs, 'w') as sparse:
+            os.ftruncate(sparse.fileno(), rootfs_size * 1024)
 
         extra_imagecmd = "-i 8192"
 
@@ -253,7 +251,8 @@ class Partition():
         msger.debug("Added %d extra blocks to %s to get to %d total blocks" % \
                     (extra_blocks, self.mountpoint, rootfs_size))
 
-        exec_cmd("truncate %s -s %d" % (rootfs, rootfs_size * 1024))
+        with open(rootfs, 'w') as sparse:
+            os.ftruncate(sparse.fileno(), rootfs_size * 1024)
 
         label_str = ""
         if self.label:
@@ -308,7 +307,8 @@ class Partition():
         """
         Prepare an empty ext2/3/4 partition.
         """
-        exec_cmd("truncate %s -s %d" % (rootfs, self.size * 1024))
+        with open(rootfs, 'w') as sparse:
+            os.ftruncate(sparse.fileno(), rootfs_size * 1024)
 
         extra_imagecmd = "-i 8192"
 
@@ -325,7 +325,8 @@ class Partition():
         """
         Prepare an empty btrfs partition.
         """
-        exec_cmd("truncate %s -s %d" % (rootfs, self.size * 1024))
+        with open(rootfs, 'w') as sparse:
+            os.ftruncate(sparse.fileno(), rootfs_size * 1024)
 
         label_str = ""
         if self.label:
@@ -386,7 +387,8 @@ class Partition():
         """
         path = "%s/fs.%s" % (cr_workdir, self.fstype)
 
-        exec_cmd("truncate %s -s %d" % (path, self.size * 1024))
+        with open(path, 'w') as sparse:
+            os.ftruncate(sparse.fileno(), self.size * 1024)
 
         import uuid
         label_str = ""

@@ -33,6 +33,10 @@ SRC_URI = "\
      file://0011-Change-default-emulation-for-mips64-linux.patch \
      file://0012-Add-support-for-Netlogic-XLP.patch \
      file://0013-fix-the-incorrect-assembling-for-ppc-wait-mnemonic.patch \
+     file://0014-libtool-remove-rpath.patch \
+     file://0015-binutils-mips-gas-pic-relax-linkonce.diff \
+     file://0015-Refine-.cfi_sections-check-to-only-consider-compact-.patch \
+     file://0016-Fix-seg-fault-in-ARM-linker-when-trying-to-parse-a-b.patch \
 "
 S  = "${WORKDIR}/git"
 

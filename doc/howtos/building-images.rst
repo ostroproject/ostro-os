@@ -187,7 +187,7 @@ compressed formats:
     server disk space, we only provide compressed images
     from http://download.ostroproject.org.)
 
-    All compression methods listed for ``COMPRESSIONTYPES`` in
+    All compression methods listed for ``CONVERSIONTYPES`` in
     ``meta/classes/image_types.bbclass`` are supported. In addition,
     Ostro OS adds support for compressing with :command:`zip`. ``xz``
     is recommended, while ``zip`` may be useful in cases where images

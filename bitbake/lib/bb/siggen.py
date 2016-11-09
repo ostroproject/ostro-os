@@ -30,6 +30,7 @@ class SignatureGenerator(object):
     name = "noop"
 
     def __init__(self, data):
+        self.basehash = {}
         self.taskhash = {}
         self.runtaskdeps = {}
         self.file_checksum_values = {}
@@ -61,11 +62,10 @@ class SignatureGenerator(object):
         return
 
     def get_taskdata(self):
-       return (self.runtaskdeps, self.taskhash, self.file_checksum_values, self.taints)
+        return (self.runtaskdeps, self.taskhash, self.file_checksum_values, self.taints, self.basehash)
 
     def set_taskdata(self, data):
-        self.runtaskdeps, self.taskhash, self.file_checksum_values, self.taints = data
-
+        self.runtaskdeps, self.taskhash, self.file_checksum_values, self.taints, self.basehash = data
 
 class SignatureGeneratorBasic(SignatureGenerator):
     """
@@ -133,7 +133,11 @@ class SignatureGeneratorBasic(SignatureGenerator):
                 var = lookupcache[dep]
                 if var is not None:
                     data = data + str(var)
-            self.basehash[fn + "." + task] = hashlib.md5(data.encode("utf-8")).hexdigest()
+            datahash = hashlib.md5(data.encode("utf-8")).hexdigest()
+            k = fn + "." + task
+            if k in self.basehash and self.basehash[k] != datahash:
+                bb.error("When reparsing %s, the basehash value changed from %s to %s. The metadata is not deterministic and this needs to be fixed." % (k, self.basehash[k], datahash))
+            self.basehash[k] = datahash
             taskdeps[task] = alldeps
 
         self.taskdeps[fn] = taskdeps
@@ -182,6 +186,7 @@ class SignatureGeneratorBasic(SignatureGenerator):
     def get_taskhash(self, fn, task, deps, dataCache):
         k = fn + "." + task
         data = dataCache.basetaskhash[k]
+        self.basehash[k] = data
         self.runtaskdeps[k] = []
         self.file_checksum_values[k] = []
         recipename = dataCache.pkg_fn[fn]
@@ -278,6 +283,15 @@ class SignatureGeneratorBasic(SignatureGenerator):
             if 'nostamp:' in self.taints[k]:
                 data['taint'] = self.taints[k]
 
+        computed_basehash = calc_basehash(data)
+        if computed_basehash != self.basehash[k]:
+            bb.error("Basehash mismatch %s versus %s for %s" % (computed_basehash, self.basehash[k], k))
+        if runtime and k in self.taskhash:
+            computed_taskhash = calc_taskhash(data)
+            if computed_taskhash != self.taskhash[k]:
+                bb.error("Taskhash mismatch %s versus %s for %s" % (computed_taskhash, self.taskhash[k], k))
+                sigfile = sigfile.replace(self.taskhash[k], computed_taskhash)
+
         fd, tmpfile = tempfile.mkstemp(dir=os.path.dirname(sigfile), prefix="sigtask.")
         try:
             with os.fdopen(fd, "wb") as stream:
@@ -291,15 +305,6 @@ class SignatureGeneratorBasic(SignatureGenerator):
             except OSError:
                 pass
             raise err
-
-        computed_basehash = calc_basehash(data)
-        if computed_basehash != self.basehash[k]:
-            bb.error("Basehash mismatch %s versus %s for %s" % (computed_basehash, self.basehash[k], k))
-        if runtime and k in self.taskhash:
-            computed_taskhash = calc_taskhash(data)
-            if computed_taskhash != self.taskhash[k]:
-                bb.error("Taskhash mismatch %s versus %s for %s" % (computed_taskhash, self.taskhash[k], k))
-
 
     def dump_sigs(self, dataCaches, options):
         for fn in self.taskdeps:

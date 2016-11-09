@@ -224,9 +224,6 @@ FEATURE_PACKAGES_tools-debug_append = " valgrind"
 
 FEATURE_PACKAGES_qatests = "packagegroup-qa-tests"
 
-# Use gummiboot as the EFI bootloader.
-EFI_PROVIDER = "gummiboot"
-
 IMAGE_LINGUAS = " "
 
 LICENSE = "MIT"
@@ -245,19 +242,19 @@ NOISO = "1"
 
 # Add support for compressing images with zip. Works for arbitrary image
 # types. Example: OSTRO_VM_IMAGE_TYPES = "dsk.zip"
-COMPRESSIONTYPES_append = " zip"
+CONVERSIONTYPES_append = " zip"
 ZIP_COMPRESSION_LEVEL ?= "-9"
-COMPRESS_CMD_zip = "zip ${ZIP_COMPRESSION_LEVEL} ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}.zip ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}"
-COMPRESS_DEPENDS_zip = "zip-native"
+CONVERSION_CMD_zip = "zip ${ZIP_COMPRESSION_LEVEL} ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}.zip ${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}"
+CONVERSION_DEPENDS_zip = "zip-native"
 
 # Replace the default "live" (aka HDDIMG) images with whole-disk images
 # XXX Drop the VM hack after taking care also of the non UEFI devices (those using U-Boot: edison and beaglebone)
 OSTRO_VM_IMAGE_TYPES ?= "dsk dsk.bmap dsk.ova"
-IMAGE_FSTYPES_remove_intel-core2-32 = "live"
+IMAGE_FSTYPES_remove_intel-core2-32 = "live wic"
 IMAGE_FSTYPES_append_intel-core2-32 = " ${OSTRO_VM_IMAGE_TYPES}"
-IMAGE_FSTYPES_remove_intel-corei7-64 = "live"
+IMAGE_FSTYPES_remove_intel-corei7-64 = "live wic"
 IMAGE_FSTYPES_append_intel-corei7-64 = " ${OSTRO_VM_IMAGE_TYPES}"
-IMAGE_FSTYPES_remove_intel-quark = "live"
+IMAGE_FSTYPES_remove_intel-quark = "live wic"
 IMAGE_FSTYPES_append_intel-quark = " ${OSTRO_VM_IMAGE_TYPES}"
 
 # Activate "dsk" image type.
