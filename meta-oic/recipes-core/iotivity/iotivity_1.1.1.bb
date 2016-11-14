@@ -8,10 +8,9 @@ SECTION = "libs"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://resource/include/OCApi.h;beginline=1;endline=19;md5=fc5a615cf1dc3880967127bc853b3e0c"
 
-url_iotivity = "git://github.com/iotivity/iotivity.git"
 branch_iotivity = "1.1-rel"
 SRCREV = "8078b450c9a75b7aecaf6259fd0a8710318fce0f"
-SRC_URI = "${url_iotivity};destsuffix=${S};branch=${branch_iotivity};protocol=http;"
+SRC_URI = "git://github.com/iotivity/iotivity.git;destsuffix=${S};branch=${branch_iotivity};protocol=http;"
 
 url_tinycbor = "git://github.com/01org/tinycbor.git"
 SRCREV_tinycbor = "358a7e42ab1ed421a68e699d8d8359340bcfacbd"
