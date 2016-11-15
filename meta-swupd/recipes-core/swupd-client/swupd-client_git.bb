@@ -12,6 +12,8 @@ SRC_URI = "\
     file://0001-Add-configure-option-to-re-enable-updating-of-config.patch \
     file://Make-pinned-pubkey-configurable.patch \
     file://ignore-xattrs-when-verifying-Manifest-files.patch \
+    file://0001-downloads-minimize-syscalls-to-improve-performance.patch \
+    file://0002-downloads-open-FILE-in-advance-and-use-default-write.patch \
 "
 SRCREV = "f4000c5b22be47ec1af2f8748fd71a36148b5dc4"
 
