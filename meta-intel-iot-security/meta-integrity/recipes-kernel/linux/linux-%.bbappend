@@ -19,16 +19,29 @@ FILESEXTRAPATHS_prepend := "${IMA_FILESEXTRAPATHS_${IMA_ENABLED_HERE}}"
 # to an empty string (to avoid patching) or some other patch files
 # suitable for that kernel.
 def ima_evm_setattr_patch(d):
+    result = []
     linux_version = d.getVar('LINUX_VERSION', True) or ''
-    if bb.utils.vercmp_string_op(linux_version, '4.7', '>='):
-        # setattr patches already included.
-        return ''
-    patches = d.getVar('IMA_EVM_SETATTR_PATCH_' + linux_version, True)
-    if patches != None:
-        # Patches explicitly chosen, may be empty.
-        return patches
-    # Enabled by default.
-    return 'file://0001-ima-fix-ima_inode_post_setattr.patch file://0002-ima-add-support-for-creating-files-using-the-mknodat.patch'
+    # These two patches are known to be included upstream.
+    if bb.utils.vercmp_string_op(linux_version, '4.7', '<'):
+        patches = d.getVar('IMA_EVM_SETATTR_PATCH_' + linux_version, True)
+        if patches != None:
+            # Patches explicitly chosen, may be empty.
+            result.append(patches)
+        else:
+            # Enabled by default.
+            result.append('file://0001-ima-fix-ima_inode_post_setattr.patch file://0002-ima-add-support-for-creating-files-using-the-mknodat.patch')
+    # This one addresses a problem added in 4.2. The upstream revert will land
+    # in some future kernel. We need to extend version check once we know
+    # which kernels have the patch.
+    if bb.utils.vercmp_string_op(linux_version, '4.2', '>='):
+        patches = d.getVar('IMA_EVM_SETATTR_REVERT_PATCH_' + linux_version, True)
+        if patches != None:
+            # Patches explicitly chosen, may be empty.
+            result.append(patches)
+        else:
+            # Enabled by default.
+            result.append('file://Revert-ima-limit-file-hash-setting-by-user-to-fix-an.patch')
+    return ' '.join(result)
 
 # Edison kernel too old, patch not applicable -> swupd is broken in Ostro OS for Edison.
 IMA_EVM_SETATTR_PATCH_3.10.98 = ""
