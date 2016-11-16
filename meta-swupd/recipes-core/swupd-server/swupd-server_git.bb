@@ -4,7 +4,9 @@ LICENSE = "GPL-2.0"
 LIC_FILES_CHKSUM = "file://COPYING;md5=f8d90fb802930e30e49c39c8126a959e"
 
 DEPENDS = "file glib-2.0 rsync openssl libarchive bsdiff bzip2"
-DEPENDS_append_class-native = " bzip2-replacement-native"
+# Need the special "-replacement" variant because bzip2 and file
+# are assumed to be provided and would not get built.
+DEPENDS_append_class-native = " file-replacement-native bzip2-replacement-native"
 
 PV = "3.2.5+git${SRCPV}"
 SRC_URI = "git://github.com/clearlinux/swupd-server.git;protocol=https \
