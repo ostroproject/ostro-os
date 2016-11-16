@@ -390,6 +390,14 @@ END
         time env $PSEUDO "$@"
     }
 
+    waitall () {
+        while [ $# -gt 0 ]; do
+            pid=$1
+            shift
+            wait $pid
+        done
+    }
+
     ${SWUPD_LOG_FN} "Generating update from $PREVREL to ${OS_VERSION}"
     # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-create-update.tar.gz -C ${DEPLOY_DIR} swupd
     invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_create_update --log-stdout -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION} --format ${SWUPD_FORMAT}
@@ -406,15 +414,19 @@ END
 
     ${SWUPD_LOG_FN} "Generating zero packs, this can take some time."
     # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-zero-pack.tar.gz -C ${DEPLOY_DIR} swupd
+    # Generating zero packs isn't parallelized internally. Mostly it just
+    # spends its time compressing a single tar archive. Therefore we parallelize
+    # by forking each command and then waiting for all of them to complete.
+    jobs=""
     for bndl in ${ALL_BUNDLES}; do
         ${SWUPD_LOG_FN} "Generating zero pack for $bndl"
-        invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl
         # The zero packs are used by the swupd client when adding bundles.
         # The zero pack for os-core is not needed by the swupd client itself;
         # in Clear Linux OS it is used by the installer. We could use some
         # space by skipping the os-core zero bundle, but for now it gets
         # generated, just in case that it has some future use.
-        invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout $content_url_parameter -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl | sed -u -e "s/^/$bndl: /"
+        invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout $content_url_parameter -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl &
+        jobs="$jobs $!"
     done
 
     # Generate delta-packs against previous versions chosen by our caller.
@@ -423,14 +435,12 @@ END
         for bndl in ${ALL_BUNDLES}; do
             bndlcnt=0
             ${SWUPD_LOG_FN} "Generating delta pack from $prevver to ${OS_VERSION} for $bndl"
-            if [ "${SWUPD_CONTENT_URL}" ]; then
-                content_url_parameter="--content-url ${SWUPD_CONTENT_URL}"
-            else
-                content_url_parameter=""
-            fi
-            invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout $content_url_parameter -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl
+            invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout $content_url_parameter -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl | sed -u -e "s/^/$prevver $bndl: /" &
+            jobs="$jobs $!"
         done
     done
+
+    waitall $jobs
 
     # Write version to www/version/format${SWUPD_FORMAT}/latest and image/latest.version
     bbdebug 2 "Writing latest file"
