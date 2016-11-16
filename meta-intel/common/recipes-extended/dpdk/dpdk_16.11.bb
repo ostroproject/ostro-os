@@ -5,8 +5,8 @@ SRC_URI += "\
             file://dpdk-16.04-dpdk-enable-ip_fragmentation-in-common_base-config.patch \
             "
 
-SRC_URI[dpdk.md5sum] = "4afdc7951e21ff878a85ecade7f6f488"
-SRC_URI[dpdk.sha256sum] = "cc982455a74357e465112bede5c29451b6eeb35f8c1c0dcea280dd3e7829f0e9"
+SRC_URI[dpdk.md5sum] = "f51ffc862a4f57b0030ca5d7ff07fef0"
+SRC_URI[dpdk.sha256sum] = "8098b3542b4c78d28bde5f4eba57d4ee929fffaaa941b7afd2b881eae0b45c00"
 
 export EXAMPLES_BUILD_DIR = "${RTE_TARGET}"
 export ARCHDIR = "generic"
