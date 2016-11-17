@@ -84,9 +84,11 @@ REQUIRED_DISTRO_FEATURES = "systemd"
 python () {
     ver = d.getVar('OS_VERSION', True) or 'invalid'
     try:
-        int(ver)
+        ver = int(ver)
     except ValueError:
         bb.fatal("Invalid value for OS_VERSION (%s), must be a non-negative integer value." % ver)
+    if ver <= 0 or ver > 2147483647:
+        bb.fatal('OS_VERSION outside of valid range (> 0, <= 2147483647): %d' % ver)
 
     havebundles = (d.getVar('SWUPD_BUNDLES', True) or '') != ''
     deploy_dir = d.getVar('DEPLOY_DIR_SWUPD', True)
