@@ -17,10 +17,10 @@ DEPENDS_append_class-native = " file-replacement-native bzip2-replacement-native
 # The rest of the recipe ensures that different swupd-server
 # versions can be build and installed in parallel (format
 # number embedded in PN and the resulting files).
-SWUPD_SERVER_FORMAT = "4"
+SWUPD_SERVER_FORMAT = "3"
 PN = "swupd-server-format${SWUPD_SERVER_FORMAT}"
-FILESEXTRAPATHS_prepend = "${THISDIR}/swupd-server:"
-PV = "3.3.0+git${SRCPV}"
+FILESEXTRAPATHS_prepend = "${THISDIR}/swupd-server-3.2.5:"
+PV = "3.2.5+git${SRCPV}"
 SRC_URI = "git://github.com/clearlinux/swupd-server.git;protocol=https \
            file://0025-swupd_make_pack-fix-extracting-files-with-bsdtar.patch \
            file://0026-fullfiles.c-fix-invalid-LOG-call.patch \
@@ -29,13 +29,15 @@ SRC_URI = "git://github.com/clearlinux/swupd-server.git;protocol=https \
            file://0029-fullfiles-use-libarchive-directly.patch \
            file://0001-swupd-create-update-alternative-input-layout.patch \
            file://0002-add-logging-to-stdout.patch \
+           file://swupd_create_fullfiles-avoid-segfault-when-nothing-c.patch \
+           file://0001-delta.c-fix-xattr-test-after-patching.patch \
            file://0002-pack.c-do-not-clean-packstage.patch \
            file://0003-swupd_create_pack-download-original-files-on-demand-.patch \
            file://0001-create_pack-rely-less-on-previous-builds.patch \
            file://0002-create_pack-download-fullfile-on-demand-for-packs.patch \
            file://0003-create_pack-abort-delta-handling-early-when-impossib.patch \
            "
-SRCREV = "9148ea8a8ecd73720d450d30acc4bceec310ab3b"
+SRCREV = "ddca171dad32229ceeff8b8527a179610b88ce55"
 
 S = "${WORKDIR}/git"
 

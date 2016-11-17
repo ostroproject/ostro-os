@@ -1,7 +1,7 @@
-From f35a8484f100ac0da0fbe173fcd5e8843321b000 Mon Sep 17 00:00:00 2001
+From e1f0d54a940eb7d04e2fbd59bd995a819331425f Mon Sep 17 00:00:00 2001
 From: Patrick Ohly <patrick.ohly@intel.com>
 Date: Fri, 30 Sep 2016 08:42:08 +0200
-Subject: [PATCH 07/13] swupd-create-update: alternative input layout
+Subject: [PATCH 1/2] swupd-create-update: alternative input layout
 
 In Ostro OS, we already have a "full" directory with all files.
 Splitting it up into bundles just so that swupd-create-update can
@@ -27,15 +27,15 @@ that useful.
 Upstream-Status: Submitted [https://github.com/clearlinux/swupd-server/pull/55]
 
 Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
-
 ---
- src/analyze_fs.c    | 176 +++++++++++++++++++++++++++++++++++++++-------------
- src/chroot.c        |  24 ++++---
+ src/analyze_fs.c    | 171 ++++++++++++++++++++++++++++++++++++++--------------
+ src/chroot.c        |  24 +++++---
  src/create_update.c |   6 +-
- 3 files changed, 153 insertions(+), 53 deletions(-)
+ src/fullfiles.c     |   2 +
+ 4 files changed, 150 insertions(+), 53 deletions(-)
 
 diff --git a/src/analyze_fs.c b/src/analyze_fs.c
-index ce30393..ac3731c 100644
+index 0f16343..d534587 100644
 --- a/src/analyze_fs.c
 +++ b/src/analyze_fs.c
 @@ -275,7 +275,7 @@ static void get_hash(gpointer data, gpointer user_data)
@@ -47,15 +47,15 @@ index ce30393..ac3731c 100644
  {
  	char c;
  	int i;
-@@ -301,27 +301,151 @@ static bool illegal_characters(char *filename)
+@@ -301,25 +301,145 @@ static bool illegal_characters(char *filename)
  	return false;
  }
  
-+static struct file *add_file(struct manifest *manifest,
-+                             const char *entry_name,
-+                             char *sub_filename,
-+                             char *fullname,
-+                             bool do_hash)
++static void add_file(struct manifest *manifest,
++		     const char *entry_name,
++		     char *sub_filename,
++		     char *fullname,
++		     bool do_hash)
 +{
 +	GError *err = NULL;
 +	struct file *file;
@@ -64,7 +64,7 @@ index ce30393..ac3731c 100644
 +		printf("WARNING: Filename %s includes illegal character(s) ...skipping.\n", sub_filename);
 +		free(sub_filename);
 +		free(fullname);
-+		return NULL;
++		return;
 +	}
 +
 +	file = calloc(1, sizeof(struct file));
@@ -106,7 +106,6 @@ index ce30393..ac3731c 100644
 +	}
 +	manifest->files = g_list_prepend(manifest->files, file);
 +	manifest->count++;
-+        return file;
 +}
 +
 +
@@ -123,11 +122,10 @@ index ce30393..ac3731c 100644
  
  	dir = opendir(fullpath);
  	if (!dir) {
-+		bool fatal_error = errno != ENOENT;
 +		FILE *content;
-+
- 		free(fullpath);
-+		if (fatal_error) {
++		int len;
++		free(fullpath);
++		if (errno != ENOENT) {
 +			return;
 +		}
 +		/*
@@ -138,15 +136,14 @@ index ce30393..ac3731c 100644
 +		 * corresponding file system entry is then
 +		 * expected to be in a pre-populated "full"
 +		 * directory.
-+		 *
-+		 * Only supported at top level (i.e. empty
-+		 * subpath) to keep the code and testing
-+		 * simpler.
 +		 */
-+		assert(!subpath[0]);
-+		string_or_die(&fullpath, "%s.content.txt", pathprefix);
++		if (subpath[0]) {
++			string_or_die(&fullpath, "%s/%s.content.txt", pathprefix, len, subpath);
++		} else {
++			string_or_die(&fullpath, "%s.content.txt", pathprefix);
++		}
 +		content = fopen(fullpath, "r");
-+		free(fullpath);
+ 		free(fullpath);
 +		fullpath = NULL;
 +		if (content) {
 +			char *line = NULL;
@@ -198,11 +195,8 @@ index ce30393..ac3731c 100644
 -		struct file *file;
  		char *sub_filename;
  		char *fullname;
-+                struct file *file;
  
- 		entry = readdir(dir);
- 		if (!entry) {
-@@ -334,50 +458,14 @@ static void iterate_directory(struct manifest *manifest, char *pathprefix,
+@@ -334,50 +454,13 @@ static void iterate_directory(struct manifest *manifest, char *pathprefix,
  		}
  
  		string_or_die(&sub_filename, "%s/%s", subpath, entry->d_name);
@@ -224,12 +218,13 @@ index ce30393..ac3731c 100644
  		string_or_die(&fullname, "%s/%s", fullpath, entry->d_name);
 -		populate_file_struct(file, fullname);
 -		free(fullname);
- 
--		if (file->is_dir) {
+-
+ 		if (entry->d_type == DT_DIR) {
 -			iterate_directory(manifest, pathprefix, file->filename, do_hash);
--		}
-+		/* takes ownership of the strings, so we don't need to free it */
-+		file = add_file(manifest, entry->d_name, sub_filename, fullname, do_hash);
++			iterate_directory(manifest, pathprefix, sub_filename, do_hash);
+ 		}
++		/* takes ownership of the strings */
++		add_file(manifest, entry->d_name, sub_filename, fullname, do_hash);
  
 -		/* if for some reason there is a file in the official build
 -		 * which should not be included in the Manifest, then open a bug
@@ -249,9 +244,7 @@ index ce30393..ac3731c 100644
 -				closedir(dir);
 -				return;
 -			}
-+                if (file && file->is_dir) {
-+                    iterate_directory(manifest, pathprefix, file->filename, do_hash);
- 		}
+-		}
 -		manifest->files = g_list_prepend(manifest->files, file);
 -		manifest->count++;
  	}
@@ -306,7 +299,7 @@ index 32ed997..f3832e1 100644
  		free(param);
  	}
 diff --git a/src/create_update.c b/src/create_update.c
-index 4a8156b..4a00a25 100644
+index 766609b..74d5376 100644
 --- a/src/create_update.c
 +++ b/src/create_update.c
 @@ -141,6 +141,7 @@ static bool parse_options(int argc, char **argv)
@@ -338,6 +331,19 @@ index 4a8156b..4a00a25 100644
  }
  
  static int check_build_env(void)
+diff --git a/src/fullfiles.c b/src/fullfiles.c
+index 9fdfc2f..214b7b4 100644
+--- a/src/fullfiles.c
++++ b/src/fullfiles.c
+@@ -136,6 +136,8 @@ static void create_fullfile(struct file *file)
+ 			}
+ 			done += curr;
+ 		}
++		close(fd);
++		fd = -1;
+ 	}
+ 
+ 	for (int i = 0; compression_filters[i]; i++) {
 -- 
 2.1.4
 

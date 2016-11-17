@@ -32,11 +32,47 @@ SWUPD_IMAGE_PN = "${@ d.getVar('PN_BASE', True) or d.getVar('PN', True)}"
 # to be published will be in the "www" sub-directory.
 DEPLOY_DIR_SWUPD = "${DEPLOY_DIR}/swupd/${MACHINE}/${SWUPD_IMAGE_PN}"
 
-# The current format has to match the the source code of the
-# swupd-client that is in the image. This recipe picks a suitable
-# swupd-client via the client's RPROVIDES.
-SWUPD_FORMAT ??= "3"
-IMAGE_INSTALL_append = " swupd-client-format${SWUPD_FORMAT}"
+# The "format" needs to be bumped for different reasons:
+# - the output of the swupd-server changes in a way that
+#   a swupd-client currently installed on devices  will not
+#   understand it (example: changing file names or using
+#   a new compression method for archives)
+# - the content of the distro changes such that a device
+#   cannot update directly to the latest build (example:
+#   the distro changes the boot loader and some swupd postinst
+#   helper which knows about that change must be installed on
+#   the device first before actually switching)
+#
+# meta-swupd handles the first case with SWUPD_TOOLS_FORMAT.
+# The default value matches the default versions of the swupd-server
+# and swupd-client. Distros can override this if they need to pick
+# non-default versions of the tools, but that is not tested.
+#
+# Distros need to handle the second case by preparing and releasing
+# a build that devices can update to (i.e. the version URL the devices
+# check must have that update), then make the incompatible change and
+# in the next build bump the SWUPD_DISTRO_FORMAT.
+#
+# In both cases, SWUPD_FORMAT gets bumped. meta-swupd notices that
+# and then prepares a special transitional update:
+# - the rootfs is configured to use the new SWUUPD_FORMAT and
+#   OS_VERSION
+# - a fake OS_VERSION-1 release is built using a swupd-server that is
+#   compatible with the swupd-client before the bump
+# - the OS_VERSION release then is the first one using the new format
+#
+# This way, devices are forced to update to OS_VERSION-1 because that
+# will forever be the "latest" version for their current format.
+# Once they have updated, the device really is on OS_VERSION, configured
+# to use the new format, and the next update check will see future
+# releases again.
+#
+# For this to work, "swupd-client" should always be invoked without
+# explicit format parameter.
+SWUPD_TOOLS_FORMAT ?= "4"
+SWUPD_DISTRO_FORMAT ?= "0"
+SWUPD_FORMAT = "${@ str(int('${SWUPD_TOOLS_FORMAT}') + int('${SWUPD_DISTRO_FORMAT}')) }"
+IMAGE_INSTALL_append = " swupd-client-format${SWUPD_TOOLS_FORMAT}"
 
 # The information about where to find version information and actual
 # content is needed in several places:
@@ -69,6 +105,11 @@ SWUPD_LOG_FN ??= "bbdebug 1"
 # This version number *must* map to VERSION_ID in /etc/os-release and *must* be
 # a non-negative integer that fits in an int.
 OS_VERSION ??= "${DISTRO_VERSION}"
+
+# When doing format changes, this version number is used for the intermediate
+# release. Default is OS_VERSION - 1. There's a separate sanity check for
+# OS_VERSION below, so this code should always work.
+OS_VERSION_INTERIM ?= "${@ ${OS_VERSION} - 1 }"
 
 # We need to preserve xattrs, which works with bsdtar out of the box.
 # It also has saner file handling (less syscalls per file) than GNU tar.
@@ -325,6 +366,65 @@ do_swupd_update () {
         fi
     fi
 
+    swupd_format_of_version () {
+        if [ ! -f ${DEPLOY_DIR_SWUPD}/www/$1/Manifest.MoM ]; then
+            bbfatal "Cannot determine swupd format of $1, ${DEPLOY_DIR_SWUPD}/www/$1/Manifest.MoM not found."
+            exit 1
+        fi
+        format=`head -1 ${DEPLOY_DIR_SWUPD}/www/$1/Manifest.MoM | perl -n -e '/^MANIFEST\s(\d+)$/ && print $1'`
+        if [ ! "$format" ]; then
+            bbfatal "Cannot determine swupd format of $1, ${DEPLOY_DIR_SWUPD}/www/$1/Manifest.MoM does not have MANIFEST with format number in first line."
+            exit 1
+        fi
+        echo $format
+    }
+
+    # do_fetch_swupd_inputs() creates this file when a content
+    # URL was set, so creating an empty file shouldn't be necessary
+    # in most cases. Also determine whether we are switching
+    # formats.
+    #
+    # When the new format is different compared to what was used by
+    # latest.version, then swupd-server will automatically ignore
+    # the old content. That includes the case where tool format
+    # hasn't changed and only the distro format was bumped. In that
+    # case, reusing old content would be possible, but swupd-server
+    # would have to be improved to know that.
+    if [ -e ${DEPLOY_DIR_SWUPD}/image/latest.version ]; then
+        PREVREL=`cat ${DEPLOY_DIR_SWUPD}/image/latest.version`
+        if [ ! -e ${DEPLOY_DIR_SWUPD}/www/$PREVREL/Manifest.MoM ]; then
+            bbfatal "${DEPLOY_DIR_SWUPD}/image/latest.version specifies $PREVREL as last version, but there is no corresponding ${DEPLOY_DIR_SWUPD}/www/$PREVREL/Manifest.MoM."
+            exit 1
+        fi
+        PREVFORMAT=`swupd_format_of_version $PREVREL`
+        if [ ! "$PREVFORMAT" ]; then
+            bbfatal "Format number not found in first line of ${DEPLOY_DIR_SWUPD}/www/$PREVREL/Manifest.MoM"
+            exit 1
+        fi
+        # For now assume that SWUPD_DISTRO_FORMAT is always 0 and that thus
+        # $PREVFORMAT also is the format of the previous tools.
+        PREVTOOLSFORMAT=$PREVFORMAT
+
+        if [ $PREVFORMAT -ne ${SWUPD_FORMAT} ] && [ $PREVREL -ge ${OS_VERSION_INTERIM} ]; then
+            bbfatal "Building two releases because of a format change, so OS_VERSION - 1 = ${OS_VERSION_INTERIM} must be higher than last version $PREVREL."
+        elif [ $PREVREL -ge ${OS_VERSION} ]; then
+            bbfatal "OS_VERSION = ${OS_VERSION} must be higher than last version $PREVREL."
+            exit 1
+        fi
+    else
+        bbdebug 2 "Stubbing out empty latest.version file"
+        touch ${DEPLOY_DIR_SWUPD}/image/latest.version
+        PREVREL="0"
+        PREVFORMAT=${SWUPD_FORMAT}
+        PREVTOOLSFORMAT=${SWUPD_FORMAT}
+    fi
+
+    # swupd-server >= 3.2.8 uses a different name. Support old and new names
+    # via symlinking.
+    ln -sf latest.version ${DEPLOY_DIR_SWUPD}/image/LAST_VER
+
+    ${SWUPD_LOG_FN} "Generating update from $PREVREL (format $PREVFORMAT) to ${OS_VERSION} (format ${SWUPD_FORMAT})"
+
     # Generate swupd-server configuration
     bbdebug 2 "Writing ${DEPLOY_DIR_SWUPD}/server.ini"
     if [ -e "${DEPLOY_DIR_SWUPD}/server.ini" ]; then
@@ -336,17 +436,6 @@ imagebase=${DEPLOY_DIR_SWUPD}/image/
 outputdir=${DEPLOY_DIR_SWUPD}/www/
 emptydir=${DEPLOY_DIR_SWUPD}/empty/
 END
-
-    # do_fetch_swupd_inputs() creates this file when a content
-    # URL was set, so creating an empty file shouldn't be necessary
-    # in most cases.
-    if [ -e ${DEPLOY_DIR_SWUPD}/image/latest.version ]; then
-        PREVREL=`cat ${DEPLOY_DIR_SWUPD}/image/latest.version`
-    else
-        bbdebug 2 "Stubbing out empty latest.version file"
-        touch ${DEPLOY_DIR_SWUPD}/image/latest.version
-        PREVREL="0"
-    fi
 
     GROUPS_INI="${DEPLOY_DIR_SWUPD}/groups.ini"
     bbdebug 2 "Writing ${GROUPS_INI}"
@@ -400,64 +489,91 @@ END
         done
     }
 
-    ${SWUPD_LOG_FN} "Generating update from $PREVREL to ${OS_VERSION}"
-    # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-create-update.tar.gz -C ${DEPLOY_DIR} swupd
-    invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_create_update --log-stdout -S ${DEPLOY_DIR_SWUPD} --osversion ${OS_VERSION} --format ${SWUPD_FORMAT}
-
-    ${SWUPD_LOG_FN} "Generating fullfiles for ${OS_VERSION}"
-    # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-fullfiles.tar.gz -C ${DEPLOY_DIR} swupd
-    invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_fullfiles --log-stdout -S ${DEPLOY_DIR_SWUPD} ${OS_VERSION}
-
     if [ "${SWUPD_CONTENT_URL}" ]; then
         content_url_parameter="--content-url ${SWUPD_CONTENT_URL}"
     else
         content_url_parameter=""
     fi
 
-    ${SWUPD_LOG_FN} "Generating zero packs, this can take some time."
-    # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-zero-pack.tar.gz -C ${DEPLOY_DIR} swupd
-    # Generating zero packs isn't parallelized internally. Mostly it just
-    # spends its time compressing a single tar archive. Therefore we parallelize
-    # by forking each command and then waiting for all of them to complete.
-    jobs=""
-    for bndl in ${ALL_BUNDLES}; do
-        ${SWUPD_LOG_FN} "Generating zero pack for $bndl"
-        # The zero packs are used by the swupd client when adding bundles.
-        # The zero pack for os-core is not needed by the swupd client itself;
-        # in Clear Linux OS it is used by the installer. We could use some
-        # space by skipping the os-core zero bundle, but for now it gets
-        # generated, just in case that it has some future use.
-        invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout $content_url_parameter -S ${DEPLOY_DIR_SWUPD} 0 ${OS_VERSION} $bndl &
-        jobs="$jobs $!"
-    done
+    create_version () {
+        swupd_format=$1
+        tool_format=$2
+        os_version=$3
 
-    # Generate delta-packs against previous versions chosen by our caller.
-    # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-delta-pack.tar.gz -C ${DEPLOY_DIR} swupd
-    for prevver in ${SWUPD_DELTAPACK_VERSIONS}; do
+        # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-create-update.tar.gz -C ${DEPLOY_DIR} swupd
+        invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_create_update_$tool_format --log-stdout -S ${DEPLOY_DIR_SWUPD} --osversion $os_version --format $swupd_format
+
+        ${SWUPD_LOG_FN} "Generating fullfiles for $os_version"
+        # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-fullfiles.tar.gz -C ${DEPLOY_DIR} swupd
+        invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_fullfiles_$tool_format --log-stdout -S ${DEPLOY_DIR_SWUPD} $os_version
+
+        ${SWUPD_LOG_FN} "Generating zero packs, this can take some time."
+        # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-zero-pack.tar.gz -C ${DEPLOY_DIR} swupd
+        # Generating zero packs isn't parallelized internally. Mostly it just
+        # spends its time compressing a single tar archive. Therefore we parallelize
+        # by forking each command and then waiting for all of them to complete.
+        jobs=""
         for bndl in ${ALL_BUNDLES}; do
-            bndlcnt=0
-            ${SWUPD_LOG_FN} "Generating delta pack from $prevver to ${OS_VERSION} for $bndl"
-            invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack --log-stdout $content_url_parameter -S ${DEPLOY_DIR_SWUPD} $prevver ${OS_VERSION} $bndl | sed -u -e "s/^/$prevver $bndl: /" &
+            # The zero packs are used by the swupd client when adding bundles.
+            # The zero pack for os-core is not needed by the swupd client itself;
+            # in Clear Linux OS it is used by the installer. We could use some
+            # space by skipping the os-core zero bundle, but for now it gets
+            # generated, just in case that it has some future use.
+            invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack_$tool_format --log-stdout $content_url_parameter -S ${DEPLOY_DIR_SWUPD} 0 $os_version $bndl | sed -u -e "s/^/$bndl: /" &
             jobs="$jobs $!"
         done
-    done
 
-    waitall $jobs
+        # Generate delta-packs against previous versions chosen by our caller,
+        # if possible. Different formats make this useless because the previous
+        # version won't be able to update to the new version directly.
+        # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-before-make-delta-pack.tar.gz -C ${DEPLOY_DIR} swupd
+        for prevver in ${SWUPD_DELTAPACK_VERSIONS}; do
+            old_swupd_format=`swupd_format_of_version $prevver`
+            if [ $old_swupd_format -eq $swupd_format ]; then
+                for bndl in ${ALL_BUNDLES}; do
+                    ${SWUPD_LOG_FN} "Generating delta pack from $prevver to $os_version for $bndl"
+                    invoke_swupd ${STAGING_BINDIR_NATIVE}/swupd_make_pack_$tool_format --log-stdout $content_url_parameter -S ${DEPLOY_DIR_SWUPD} $prevver $os_version $bndl | sed -u -e "s/^/$prevver $bndl: /" &
+                    jobs="$jobs $!"
+                done
+            fi
+        done
 
-    # Write version to www/version/format${SWUPD_FORMAT}/latest and image/latest.version
-    bbdebug 2 "Writing latest file"
-    mkdir -p ${DEPLOY_DIR_SWUPD}/www/version/format${SWUPD_FORMAT}
-    echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/www/version/format${SWUPD_FORMAT}/latest
+        waitall $jobs
+
+        # Write version to www/version/format$swupd_format/latest.
+        bbdebug 2 "Writing latest file"
+        mkdir -p ${DEPLOY_DIR_SWUPD}/www/version/format$swupd_format
+        echo $os_version > ${DEPLOY_DIR_SWUPD}/www/version/format$swupd_format/latest
+        # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-done.tar.gz -C ${DEPLOY_DIR} swupd
+    }
+
+    if [ $PREVFORMAT -ne ${SWUPD_FORMAT} ]; then
+        # Exact same content (including the OS_VERSION in the os-release file),
+        # just different tool and/or format in the manifests.
+        ln -sf ${OS_VERSION} ${DEPLOY_DIR_SWUPD}/image/${OS_VERSION_INTERIM}
+        echo $PREVREL > ${DEPLOY_DIR_SWUPD}/image/latest.version
+        create_version $PREVFORMAT $PREVTOOLSFORMAT ${OS_VERSION_INTERIM}
+    fi
+    echo $PREVREL > ${DEPLOY_DIR_SWUPD}/image/latest.version
+    create_version ${SWUPD_FORMAT} ${SWUPD_TOOLS_FORMAT} ${OS_VERSION}
     echo ${OS_VERSION} > ${DEPLOY_DIR_SWUPD}/image/latest.version
-    # env $PSEUDO bsdtar -acf ${DEPLOY_DIR}/swupd-done.tar.gz -C ${DEPLOY_DIR} swupd
 }
 
 SWUPDDEPENDS = "\
     virtual/fakeroot-native:do_populate_sysroot \
     rsync-native:do_populate_sysroot \
     bsdiff-native:do_populate_sysroot \
-    swupd-server-native:do_populate_sysroot \
 "
+
+# We don't know exactly which formats will be in use during
+# do_swupd_update. It depends on the content of the update
+# repo, which is unavailable when dependencies are evaluated
+# in preparation of the build.
+#
+# For now we simply build all supported server versions.
+SWUPD_SERVER_FORMATS = "3 4"
+SWUPDDEPENDS += "${@ ' '.join(['swupd-server-format%s-native:do_populate_sysroot' % x for x in '${SWUPD_SERVER_FORMATS}'.split()])}"
+
 addtask swupd_update after do_image_complete before do_build
 do_swupd_update[depends] = "${SWUPDDEPENDS}"
 

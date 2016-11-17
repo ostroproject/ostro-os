@@ -1,8 +1,8 @@
-From d05c819ff83f04145dac355e183b426b5802d6b4 Mon Sep 17 00:00:00 2001
+From ee076ebeb041b725e40041e77d8f368f866f3216 Mon Sep 17 00:00:00 2001
 From: Patrick Ohly <patrick.ohly@intel.com>
 Date: Tue, 8 Nov 2016 18:39:49 +0100
-Subject: [PATCH 09/12] swupd_create_pack: download original files on demand
- for diffing
+Subject: [PATCH 3/3] swupd_create_pack: download original files on demand for
+ diffing
 
 The new, optional mode gets enabled via the --content-url parameter.
 When specified, swupd_create_pack will download the <original
@@ -31,19 +31,18 @@ becomes impossible and falls back to staging the full files.
 Upstream-Status: Submitted [https://github.com/clearlinux/swupd-server/pull/47]
 
 Signed-off-by: Patrick Ohly <patrick.ohly@intel.com>
-
 ---
  include/swupd.h  |  2 ++
- src/delta.c      | 88 +++++++++++++++++++++++++++++++++++++++++++++++++++++++-
- src/globals.c    | 13 +++++++++
- src/make_packs.c |  8 ++++++
- 4 files changed, 110 insertions(+), 1 deletion(-)
+ src/delta.c      | 90 ++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ src/globals.c    | 13 ++++++++
+ src/make_packs.c |  8 +++++
+ 4 files changed, 111 insertions(+), 2 deletions(-)
 
 diff --git a/include/swupd.h b/include/swupd.h
-index f9c0583..e1fa6ff 100644
+index 31c7191..c1c0e96 100644
 --- a/include/swupd.h
 +++ b/include/swupd.h
-@@ -149,12 +149,14 @@ extern char *state_dir;
+@@ -147,12 +147,14 @@ extern char *state_dir;
  extern char *packstage_dir;
  extern char *image_dir;
  extern char *staging_dir;
@@ -59,25 +58,27 @@ index f9c0583..e1fa6ff 100644
  extern void free_state_globals(void);
  
 diff --git a/src/delta.c b/src/delta.c
-index ad40820..563abb9 100644
+index 67e7df7..7e978b1 100644
 --- a/src/delta.c
 +++ b/src/delta.c
-@@ -37,7 +37,13 @@
+@@ -37,8 +37,14 @@
  
- void __create_delta(struct file *file, int from_version, char *from_hash)
+ void __create_delta(struct file *file, int from_version)
  {
--	char *original, *newfile, *outfile, *dotfile, *testnewfile, *conf;
-+	char *original = NULL, *newfile = NULL, *outfile = NULL, *dotfile = NULL, *testnewfile = NULL, *conf = NULL;
+-	char *original, *newfile, *outfile, *dotfile, *testnewfile;
+-	char *conf, *param1, *param2;
++	char *original = NULL, *newfile = NULL, *outfile = NULL, *dotfile = NULL, *testnewfile = NULL;
 +	char *tmpdir = NULL;
 +	char *url = NULL;
 +	char *cmd = NULL;
++	char *conf = NULL, *param1 = NULL, *param2 = NULL;
 +	bool delete_original = false;
 +	struct manifest *manifest = NULL;
 +	GError *gerror = NULL;
  	int ret;
  
  	if (file->is_link) {
-@@ -57,6 +63,74 @@ void __create_delta(struct file *file, int from_version, char *from_hash)
+@@ -58,6 +64,74 @@ void __create_delta(struct file *file, int from_version)
  
  	string_or_die(&original, "%s/%i/full/%s", conf, from_version, file->peer->filename);
  
@@ -152,7 +153,7 @@ index ad40820..563abb9 100644
  	free(conf);
  
  	conf = config_output_dir();
-@@ -136,6 +210,18 @@ void __create_delta(struct file *file, int from_version, char *from_hash)
+@@ -141,6 +215,18 @@ void __create_delta(struct file *file, int from_version)
  		LOG(NULL, "Failed to rename", "");
  	}
  out:
