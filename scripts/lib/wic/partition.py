@@ -146,6 +146,12 @@ class Partition():
                                                      oe_builddir,
                                                      bootimg_dir, kernel_dir, rootfs_dir,
                                                      native_sysroot)
+        # further processing required Partition.size to be an integer, make
+        # sure that it is one
+        if type(self.size) is not int:
+            msger.error("Partition %s internal size is not an integer. " \
+                          "This a bug in source plugin %s and needs to be fixed." \
+                          % (self.mountpoint, self.source))
 
     def prepare_rootfs_from_fs_image(self, cr_workdir, oe_builddir,
                                      rootfs_dir):
@@ -157,7 +163,7 @@ class Partition():
         out = exec_cmd(du_cmd)
         rootfs_size = out.split()[0]
 
-        self.size = rootfs_size
+        self.size = int(rootfs_size)
         self.source_file = rootfs
 
     def prepare_rootfs(self, cr_workdir, oe_builddir, rootfs_dir,
@@ -184,6 +190,10 @@ class Partition():
         if os.path.isfile(rootfs):
             os.remove(rootfs)
 
+        if not self.fstype:
+            msger.error("File system for partition %s not specified in kickstart, " \
+                        "use --fstype option" % (self.mountpoint))
+
         for prefix in ("ext", "btrfs", "vfat", "squashfs"):
             if self.fstype.startswith(prefix):
                 method = getattr(self, "prepare_rootfs_" + prefix)
@@ -194,7 +204,7 @@ class Partition():
                 # get the rootfs size in the right units for kickstart (kB)
                 du_cmd = "du -Lbks %s" % rootfs
                 out = exec_cmd(du_cmd)
-                self.size = out.split()[0]
+                self.size = int(out.split()[0])
 
                 break
 
@@ -308,7 +318,7 @@ class Partition():
         Prepare an empty ext2/3/4 partition.
         """
         with open(rootfs, 'w') as sparse:
-            os.ftruncate(sparse.fileno(), rootfs_size * 1024)
+            os.ftruncate(sparse.fileno(), self.size * 1024)
 
         extra_imagecmd = "-i 8192"
 
@@ -326,7 +336,7 @@ class Partition():
         Prepare an empty btrfs partition.
         """
         with open(rootfs, 'w') as sparse:
-            os.ftruncate(sparse.fileno(), rootfs_size * 1024)
+            os.ftruncate(sparse.fileno(), self.size * 1024)
 
         label_str = ""
         if self.label:
@@ -379,7 +389,7 @@ class Partition():
         out = exec_cmd(du_cmd)
         fs_size = out.split()[0]
 
-        self.size = fs_size
+        self.size = int(fs_size)
 
     def prepare_swap_partition(self, cr_workdir, oe_builddir, native_sysroot):
         """

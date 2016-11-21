@@ -18,7 +18,6 @@ SRC_URI = "http://www.webkitgtk.org/releases/${BPN}-${PV}.tar.xz \
            file://ppc-musl-fix.patch \
            file://0001-Fix-racy-parallel-build-of-WebKit2-4.0.gir.patch \
            file://0001-Tweak-gtkdoc-settings-so-that-gtkdoc-generation-work.patch \
-           file://0001-WebKitMacros-Append-to-I-and-not-to-isystem.patch \
            "
 
 SRC_URI[md5sum] = "8d6c60dc41604d3bbd43165a674c07e5"
@@ -82,8 +81,7 @@ EXTRA_OECMAKE_append_mips64 = " -DUSE_LD_GOLD=OFF "
 EXTRA_OECMAKE_append_toolchain-clang = " -DUSE_LD_GOLD=OFF "
 
 # JIT not supported on MIPS either
-EXTRA_OECMAKE_append_mips = " -DENABLE_JIT=OFF "
-EXTRA_OECMAKE_append_mips64 = " -DENABLE_JIT=OFF "
+EXTRA_OECMAKE_append_mipsarch = " -DENABLE_JIT=OFF "
 
 SECURITY_CFLAGS_remove_aarch64 = "-fpie"
 SECURITY_CFLAGS_append_aarch64 = " -fPIE"
