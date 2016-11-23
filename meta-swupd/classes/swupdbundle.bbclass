@@ -24,7 +24,7 @@ fakeroot do_mega_archive () {
     # do not have a leading ./. Some versions of GNU tar had problems finding
     # those files when we stored them with that prefix, so although we now use bsdtar,
     # let's keep it consistent (and shorter) and store without the prefix.
-    bsdtar -zcf ${MEGA_IMAGE_ARCHIVE} -C ${MEGA_IMAGE_ROOTFS} \
+    bsdtar -cf ${MEGA_IMAGE_ARCHIVE} -C ${MEGA_IMAGE_ROOTFS} \
         $(ls -1 -a ${MEGA_IMAGE_ROOTFS} | grep -v -e '^\.$' -e '^\.\.$')
 }
 
