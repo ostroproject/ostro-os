@@ -14,33 +14,23 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=838c366f69b72c5df05c96dff79b35f2"
 
 SRC_URI = "git://git.yoctoproject.org/rmc"
 
-SRCREV = "2e38d056f86c0457f3a5ca7ef848545bbb190e47"
+SRCREV = "4799cb89b543712390d863a6fc50a58881590fa2"
 
 S = "${WORKDIR}/git"
 
-DEPENDS_class-target = "gnu-efi"
-
 COMPATIBLE_HOST = "(x86_64.*|i.86.*)-linux*"
 
-EXTRA_OEMAKE='RMC_CFLAGS="-Wl,--hash-style=both"'
-
-# from gnu-efi, we should align arch-mapping with it.
-def rmc_efi_arch(d):
-    import re
-    arch = d.getVar("TARGET_ARCH", True)
-    if re.match("i[3456789]86", arch):
-        return "ia32"
-    return arch
+TARGET_CFLAGS +="-Wl,--hash-style=both"
 
 SECURITY_CFLAGS_remove_class-target = "-fstack-protector-strong"
 do_compile_class-target() {
 	oe_runmake
-	oe_runmake RMC_EFI_HEADER_PREFIX=${STAGING_INCDIR}/efi RMC_EFI_ARCH="${@rmc_efi_arch(d)}" -f Makefile.efi
+	oe_runmake -f Makefile.efi
 }
 
 do_install() {
-	oe_runmake RMC_EFI_ARCH="${@rmc_efi_arch(d)}" RMC_INSTALL_PREFIX=${D}/usr install
-	oe_runmake RMC_EFI_ARCH="${@rmc_efi_arch(d)}" RMC_INSTALL_PREFIX=${D}/usr -f Makefile.efi install
+	oe_runmake RMC_INSTALL_PREFIX=${D}/usr install
+	oe_runmake RMC_INSTALL_PREFIX=${D}/usr -f Makefile.efi install
 }
 
 do_install_class-native() {

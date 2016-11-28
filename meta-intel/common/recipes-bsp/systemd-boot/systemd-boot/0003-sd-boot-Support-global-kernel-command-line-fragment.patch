@@ -1,4 +1,4 @@
-From a38be4fe8ffed142abbba92f7ad91a8f7b8f1ace Mon Sep 17 00:00:00 2001
+From 1e33f99e13a70c19c1f63f6ef1c5522a09adece6 Mon Sep 17 00:00:00 2001
 From: Jianxun Zhang <jianxun.zhang@linux.intel.com>
 Date: Mon, 20 Jun 2016 13:08:20 -0700
 Subject: [PATCH 3/3] sd-boot: Support global kernel command line fragment
@@ -17,10 +17,10 @@ Signed-off-by: Jianxun Zhang <jianxun.zhang@linux.intel.com>
  1 file changed, 34 insertions(+)
 
 diff --git a/src/boot/efi/boot.c b/src/boot/efi/boot.c
-index 43b0793..3dcd9a5 100644
+index d1b029b..8dffc48 100644
 --- a/src/boot/efi/boot.c
 +++ b/src/boot/efi/boot.c
-@@ -847,6 +847,40 @@ static VOID config_add_entry(Config *config, ConfigEntry *entry) {
+@@ -846,6 +846,40 @@ static VOID config_add_entry(Config *config, ConfigEntry *entry) {
                          config->entries = ReallocatePool(config->entries,
                                                           sizeof(VOID *) * config->entry_count, sizeof(VOID *) * i);
          }
@@ -29,9 +29,9 @@ index 43b0793..3dcd9a5 100644
 +         * we put appending global command line here to cover both of two cases.
 +         */
 +        if (entry->type == LOADER_LINUX && rmc_db && rmc_fp) {
-+                rmc_policy_file_t rmc_kp;
++                rmc_file_t rmc_kp;
 +
-+                if (!query_policy_from_db(rmc_fp, rmc_db, RMC_POLICY_BLOB, "KBOOTPARAM", &rmc_kp)) {
++                if (!rmc_query_file_by_fp(rmc_fp, rmc_db, "KBOOTPARAM", &rmc_kp)) {
 +                        CHAR8 *cmdline;
 +                        CHAR16 *s;
 +                        CHAR16 *t;

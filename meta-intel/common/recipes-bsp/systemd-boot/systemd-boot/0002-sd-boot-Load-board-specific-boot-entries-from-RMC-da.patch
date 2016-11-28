@@ -1,4 +1,4 @@
-From f714cdc84b791d84099f7461c4f223677456720f Mon Sep 17 00:00:00 2001
+From a3c4fc8c2847fe289a617bcba1d905f580f0e18d Mon Sep 17 00:00:00 2001
 From: Jianxun Zhang <jianxun.zhang@linux.intel.com>
 Date: Wed, 1 Jun 2016 16:32:22 -0700
 Subject: [PATCH 2/3] sd-boot: Load board-specific boot entries from RMC
@@ -39,23 +39,22 @@ Upstream-Status: Pending
 
 Signed-off-by: Jianxun Zhang <jianxun.zhang@linux.intel.com>
 ---
- src/boot/efi/boot.c | 160 +++++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 158 insertions(+), 2 deletions(-)
+ src/boot/efi/boot.c | 147 +++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 145 insertions(+), 2 deletions(-)
 
 diff --git a/src/boot/efi/boot.c b/src/boot/efi/boot.c
-index 30c1ead..43b0793 100644
+index 30c1ead..d1b029b 100644
 --- a/src/boot/efi/boot.c
 +++ b/src/boot/efi/boot.c
-@@ -15,6 +15,8 @@
+@@ -15,6 +15,7 @@
  
  #include <efi.h>
  #include <efilib.h>
-+#include <rmcl.h>
-+#include <rsmp.h>
++#include <rmc_api.h>
  
  #include "console.h"
  #include "disk.h"
-@@ -33,6 +35,9 @@ static const char __attribute__((used)) magic[] = "#### LoaderInfo: systemd-boot
+@@ -33,6 +34,9 @@ static const char __attribute__((used)) magic[] = "#### LoaderInfo: systemd-boot
  
  static const EFI_GUID global_guid = EFI_GLOBAL_VARIABLE;
  
@@ -65,7 +64,7 @@ index 30c1ead..43b0793 100644
  enum loader_type {
          LOADER_UNDEFINED,
          LOADER_EFI,
-@@ -1702,6 +1707,148 @@ static VOID config_free(Config *config) {
+@@ -1702,6 +1706,136 @@ static VOID config_free(Config *config) {
          FreePool(config->entry_oneshot);
  }
  
@@ -123,13 +122,8 @@ index 30c1ead..43b0793 100644
 + * this function returns 0.
 + */
 +
-+static UINTN rmc_initialize(EFI_FILE *root_dir, CHAR8 **db, rmc_fingerprint_t **fp) {
++static UINTN rmc_initialize(EFI_FILE *root_dir, EFI_SYSTEM_TABLE *sys_table, CHAR8 **db, rmc_fingerprint_t **fp) {
 +        UINTN len;
-+        EFI_GUID smbios_guid = SMBIOS_TABLE_GUID;
-+        EFI_GUID smbios3_guid = SMBIOS3_TABLE_GUID;
-+        VOID *smbios_entry = NULL;
-+        UINT64 smbios_struct_addr = 0;
-+        UINT16 smbios_struct_len = 0;
 +        UINTN ret = 1;
 +
 +        if (!db || !fp)
@@ -144,18 +138,11 @@ index 30c1ead..43b0793 100644
 +        if (len <= 0)
 +                goto done;
 +
-+        /* locate smbios entry table, try both 32 and 64 bit */
-+        if (LibGetSystemConfigurationTable(&smbios3_guid, &smbios_entry) != EFI_SUCCESS
-+                        && LibGetSystemConfigurationTable(&smbios_guid, &smbios_entry) != EFI_SUCCESS)
-+                goto done;
-+
-+        /* call rsmp to get fp */
-+        if (rsmp_get_smbios_strcut(smbios_entry, &smbios_struct_addr, &smbios_struct_len))
-+                goto done;
-+
 +        *fp = AllocateZeroPool(sizeof(rmc_fingerprint_t));
-+
-+        if (rsmp_get_fingerprint_from_smbios_struct((BYTE *) smbios_struct_addr, *fp))
++        /* call rmc to get fingerprint. We will use single-action rmc APIs to query multiple files.
++         * This should bring a better performance than calling double-action rmc API every time.
++         */
++        if (rmc_get_fingerprint(sys_table, *fp))
 +                goto done;
 +
 +        ret = 0;
@@ -174,7 +161,7 @@ index 30c1ead..43b0793 100644
 +static BOOLEAN config_load_rmc_entries(Config *config, EFI_HANDLE *device, CHAR16 *loaded_image_path, CHAR8 *db, rmc_fingerprint_t *fp) {
 +        CHAR8 *boot_entry = NULL;
 +        CHAR8 *boot_config = NULL;
-+        rmc_policy_file_t rp;
++        rmc_file_t rp;
 +        CHAR8 *line;
 +        UINT64 pos = 0;
 +        BOOLEAN ret = FALSE;
@@ -183,7 +170,7 @@ index 30c1ead..43b0793 100644
 +                return ret;
 +
 +        /* query boot entry config file */
-+        if (query_policy_from_db(fp, db, RMC_POLICY_BLOB, "BOOTENTRY.CONFIG", &rp))
++        if (rmc_query_file_by_fp(fp, db, "BOOTENTRY.CONFIG", &rp))
 +                return ret;
 +
 +        /* file blob read from rmc db is not necessarily null-terminated, and we
@@ -194,7 +181,7 @@ index 30c1ead..43b0793 100644
 +        boot_config[rp.blob_len] = '\0';
 +        /* parse boot entry config */
 +        while ((line = get_line(boot_config, &pos))) {
-+                if (query_policy_from_db(fp, db, RMC_POLICY_BLOB, (char *)line, &rp))
++                if (rmc_query_file_by_fp(fp, db, (char *)line, &rp))
 +                        continue;
 +                if (rp.blob_len > 0) {
 +                        boot_entry = AllocatePool(rp.blob_len * sizeof(CHAR8) + 1);
@@ -214,7 +201,7 @@ index 30c1ead..43b0793 100644
  EFI_STATUS efi_main(EFI_HANDLE image, EFI_SYSTEM_TABLE *sys_table) {
          CHAR16 *s;
          CHAR8 *b;
-@@ -1714,6 +1861,7 @@ EFI_STATUS efi_main(EFI_HANDLE image, EFI_SYSTEM_TABLE *sys_table) {
+@@ -1714,6 +1848,7 @@ EFI_STATUS efi_main(EFI_HANDLE image, EFI_SYSTEM_TABLE *sys_table) {
          UINT64 init_usec;
          BOOLEAN menu = FALSE;
          CHAR16 uuid[37];
@@ -222,16 +209,16 @@ index 30c1ead..43b0793 100644
  
          InitializeLib(image, sys_table);
          init_usec = time_usec();
-@@ -1745,6 +1893,8 @@ EFI_STATUS efi_main(EFI_HANDLE image, EFI_SYSTEM_TABLE *sys_table) {
+@@ -1745,6 +1880,8 @@ EFI_STATUS efi_main(EFI_HANDLE image, EFI_SYSTEM_TABLE *sys_table) {
                  return EFI_LOAD_ERROR;
          }
  
 +        /* Initialize rmc before loading any config */
-+        rmc_initialize(root_dir, &rmc_db, &rmc_fp);
++        rmc_initialize(root_dir, sys_table, &rmc_db, &rmc_fp);
  
          /* the filesystem path to this image, to prevent adding ourselves to the menu */
          loaded_image_path = DevicePathToStr(loaded_image->FilePath);
-@@ -1753,11 +1903,15 @@ EFI_STATUS efi_main(EFI_HANDLE image, EFI_SYSTEM_TABLE *sys_table) {
+@@ -1753,11 +1890,15 @@ EFI_STATUS efi_main(EFI_HANDLE image, EFI_SYSTEM_TABLE *sys_table) {
          ZeroMem(&config, sizeof(Config));
          config_load_defaults(&config, root_dir);
  
@@ -249,7 +236,7 @@ index 30c1ead..43b0793 100644
  
          /* sort entries after version number */
          config_sort_entries(&config);
-@@ -1851,6 +2005,8 @@ EFI_STATUS efi_main(EFI_HANDLE image, EFI_SYSTEM_TABLE *sys_table) {
+@@ -1851,6 +1992,8 @@ EFI_STATUS efi_main(EFI_HANDLE image, EFI_SYSTEM_TABLE *sys_table) {
  out:
          FreePool(loaded_image_path);
          config_free(&config);
