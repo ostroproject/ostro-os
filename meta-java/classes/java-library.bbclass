@@ -23,8 +23,8 @@ def java_package_name(d):
   pre=""
   post=""
 
-  bpn = bb.data.getVar('BPN', d, 1)
-  ml = bb.data.getVar('MLPREFIX', d, 1)
+  bpn = d.getVar('BPN', True)
+  ml = d.getVar('MLPREFIX', True)
   if not bpn.startswith("lib"):
     pre='lib'
 

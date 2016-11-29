@@ -211,7 +211,7 @@ do_compile() {
 def jdk_arch(d):
         import bb
 
-        target_arch = bb.data.getVar('TRANSLATED_TARGET_ARCH', d, 1)
+        target_arch = d.getVar('TRANSLATED_TARGET_ARCH', True)
 
         if target_arch in ['i386', 'i486', 'i586', 'i686']:
             return "x86"

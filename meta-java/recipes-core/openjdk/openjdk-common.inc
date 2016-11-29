@@ -25,7 +25,7 @@ B = "${S}/build"
 def get_jdk_arch(d):
     import bb
 
-    jdk_arch = bb.data.getVar('TRANSLATED_TARGET_ARCH', d, 1)
+    jdk_arch = d.getVar('TRANSLATED_TARGET_ARCH', True)
     if jdk_arch == "x86-64":
         jdk_arch = "amd64"
     elif jdk_arch == "powerpc":
@@ -45,7 +45,7 @@ JDK_FAKE = "${WORKDIR}/fake-jdk"
 def get_llvm_configure_arch(d):
     import bb;
 
-    arch = bb.data.getVar('TRANSLATED_TARGET_ARCH', d, 1)
+    arch = d.getVar('TRANSLATED_TARGET_ARCH', True)
     if arch == "x86-64" or arch == "i486" or arch == "i586" or arch == "i686":
         arch = "x86"
     elif arch == "arm":
@@ -55,7 +55,7 @@ def get_llvm_configure_arch(d):
     elif arch == "powerpc" or arch == "powerpc64":
         arch = "powerpc"
     else:
-        bb.warn("%s does not support %s yet" % (bb.data.getVar('PN', d, 1), arch) );
+        bb.warn("%s does not support %s yet" % (d.getVar('PN', True), arch) );
 
     return arch
 
