@@ -34,6 +34,7 @@ SRC_URI = "git://github.com/clearlinux/swupd-server.git;protocol=https \
            file://0001-create_pack-rely-less-on-previous-builds.patch \
            file://0002-create_pack-download-fullfile-on-demand-for-packs.patch \
            file://0003-create_pack-abort-delta-handling-early-when-impossib.patch \
+           file://0001-type_change.c-allow-transition-dir-symlink.patch \
            "
 SRCREV = "9148ea8a8ecd73720d450d30acc4bceec310ab3b"
 
