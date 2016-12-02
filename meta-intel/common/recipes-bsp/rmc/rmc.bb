@@ -32,6 +32,7 @@ def rmc_efi_arch(d):
         return "ia32"
     return arch
 
+SECURITY_CFLAGS_remove_class-target = "-fstack-protector-strong"
 do_compile_class-target() {
 	oe_runmake
 	oe_runmake RMC_EFI_HEADER_PREFIX=${STAGING_INCDIR}/efi RMC_EFI_ARCH="${@rmc_efi_arch(d)}" -f Makefile.efi
