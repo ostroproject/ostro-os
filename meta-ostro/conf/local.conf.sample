@@ -188,7 +188,7 @@ PACKAGE_CLASSES ?= "package_ipk"
 #   - 'image-swab' to perform host system intrusion detection
 # NOTE: if listing mklibs & prelink both, then make sure mklibs is before prelink
 # NOTE: mklibs also needs to be explicitly enabled for a given image, see local.conf.extended
-USER_CLASSES ?= "buildstats image-mklibs image-prelink"
+USER_CLASSES ?= "buildstats image-mklibs"
 
 # Interactive shell configuration
 #
@@ -249,7 +249,7 @@ SSTATE_MIRRORS ?= "file://.* http://download.ostroproject.org/sstate/ostro-os/PA
 # CONF_VERSION is increased each time build/conf/ changes incompatibly and is used to
 # track the version of this file when it was generated. This can safely be ignored if
 # this doesn't mean anything to you.
-CONF_VERSION = "4"
+CONF_VERSION = "5"
 
 #
 # ISAFW: https://github.com/01org/isafw
