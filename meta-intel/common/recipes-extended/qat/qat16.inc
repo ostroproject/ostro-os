@@ -118,3 +118,5 @@ FILES_${PN} += "\
 FILES_${PN}-dbg += "${sysconfdir}/init.d/.debug"
 
 FILES_${PN}-app += "${bindir}/*"
+
+EXCLUDE_FROM_WORLD_core2-32-intel-common = "1"

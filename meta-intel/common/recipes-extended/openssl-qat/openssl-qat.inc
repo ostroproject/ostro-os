@@ -121,3 +121,5 @@ FILES_${PN} =+ "\
 		${OPENSSL_PREFIX}${base_libdir}/ssl \
 		${OPENSSL_PREFIX}${base_libdir}/ssl/openssl.cnf \
 		"
+
+EXCLUDE_FROM_WORLD_core2-32-intel-common = "1"

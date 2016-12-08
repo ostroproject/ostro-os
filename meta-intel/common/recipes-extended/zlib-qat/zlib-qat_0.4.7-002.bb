@@ -125,3 +125,5 @@ FILES_${PN}-app += " \
 FILES_${PN}-dbg += " \
 		${bindir}/.debug \
 		"
+
+EXCLUDE_FROM_WORLD_core2-32-intel-common = "1"
