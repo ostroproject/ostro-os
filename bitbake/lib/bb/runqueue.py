@@ -262,8 +262,8 @@ class RunQueueData:
         self.rq = rq
         self.warn_multi_bb = False
 
-        self.stampwhitelist = cfgData.getVar("BB_STAMP_WHITELIST", True) or ""
-        self.multi_provider_whitelist = (cfgData.getVar("MULTI_PROVIDER_WHITELIST", True) or "").split()
+        self.stampwhitelist = cfgData.getVar("BB_STAMP_WHITELIST") or ""
+        self.multi_provider_whitelist = (cfgData.getVar("MULTI_PROVIDER_WHITELIST") or "").split()
         self.setscenewhitelist = get_setscene_enforce_whitelist(cfgData)
         self.setscenewhitelist_checked = False
         self.init_progress_reporter = bb.progress.DummyMultiStageProcessProgressReporter()
@@ -976,16 +976,22 @@ class RunQueue:
         self.cfgData = cfgData
         self.rqdata = RunQueueData(self, cooker, cfgData, dataCaches, taskData, targets)
 
-        self.stamppolicy = cfgData.getVar("BB_STAMP_POLICY", True) or "perfile"
-        self.hashvalidate = cfgData.getVar("BB_HASHCHECK_FUNCTION", True) or None
-        self.setsceneverify = cfgData.getVar("BB_SETSCENE_VERIFY_FUNCTION2", True) or None
-        self.depvalidate = cfgData.getVar("BB_SETSCENE_DEPVALID", True) or None
+        self.stamppolicy = cfgData.getVar("BB_STAMP_POLICY") or "perfile"
+        self.hashvalidate = cfgData.getVar("BB_HASHCHECK_FUNCTION") or None
+        self.setsceneverify = cfgData.getVar("BB_SETSCENE_VERIFY_FUNCTION2") or None
+        self.depvalidate = cfgData.getVar("BB_SETSCENE_DEPVALID") or None
 
         self.state = runQueuePrepare
 
         # For disk space monitor
+        # Invoked at regular time intervals via the bitbake heartbeat event
+        # while the build is running. We generate a unique name for the handler
+        # here, just in case that there ever is more than one RunQueue instance,
+        # start the handler when reaching runQueueSceneRun, and stop it when
+        # done with the build.
         self.dm = monitordisk.diskMonitor(cfgData)
-
+        self.dm_event_handler_name = '_bb_diskmonitor_' + str(id(self))
+        self.dm_event_handler_registered = False
         self.rqexe = None
         self.worker = {}
         self.fakeworker = {}
@@ -997,8 +1003,8 @@ class RunQueue:
             magic = "decafbadbad"
         if fakeroot:
             magic = magic + "beef"
-            fakerootcmd = self.cfgData.getVar("FAKEROOTCMD", True)
-            fakerootenv = (self.cfgData.getVar("FAKEROOTBASEENV", True) or "").split()
+            fakerootcmd = self.cfgData.getVar("FAKEROOTCMD")
+            fakerootenv = (self.cfgData.getVar("FAKEROOTBASEENV") or "").split()
             env = os.environ.copy()
             for key, value in (var.split('=') for var in fakerootenv):
                 env[key] = value
@@ -1024,9 +1030,9 @@ class RunQueue:
             "logdefaultverboselogs" : bb.msg.loggerVerboseLogs,
             "logdefaultdomain" : bb.msg.loggerDefaultDomains,
             "prhost" : self.cooker.prhost,
-            "buildname" : self.cfgData.getVar("BUILDNAME", True),
-            "date" : self.cfgData.getVar("DATE", True),
-            "time" : self.cfgData.getVar("TIME", True),
+            "buildname" : self.cfgData.getVar("BUILDNAME"),
+            "date" : self.cfgData.getVar("DATE"),
+            "time" : self.cfgData.getVar("TIME"),
         }
 
         worker.stdin.write(b"<cookerconfig>" + pickle.dumps(self.cooker.configuration) + b"</cookerconfig>")
@@ -1208,10 +1214,12 @@ class RunQueue:
                 self.rqdata.init_progress_reporter.next_stage()
                 self.rqexe = RunQueueExecuteScenequeue(self)
 
-        if self.state in [runQueueSceneRun, runQueueRunning, runQueueCleanUp]:
-            self.dm.check(self)
-
         if self.state is runQueueSceneRun:
+            if not self.dm_event_handler_registered:
+                 res = bb.event.register(self.dm_event_handler_name,
+                                         lambda x: self.dm.check(self) if self.state in [runQueueSceneRun, runQueueRunning, runQueueCleanUp] else False,
+                                         ('bb.event.HeartbeatEvent',))
+                 self.dm_event_handler_registered = True
             retval = self.rqexe.execute()
 
         if self.state is runQueueRunInit:
@@ -1230,7 +1238,13 @@ class RunQueue:
         if self.state is runQueueCleanUp:
             retval = self.rqexe.finish()
 
-        if (self.state is runQueueComplete or self.state is runQueueFailed) and self.rqexe:
+        build_done = self.state is runQueueComplete or self.state is runQueueFailed
+
+        if build_done and self.dm_event_handler_registered:
+            bb.event.remove(self.dm_event_handler_name, None)
+            self.dm_event_handler_registered = False
+
+        if build_done and self.rqexe:
             self.teardown_workers()
             if self.rqexe.stats.failed:
                 logger.info("Tasks Summary: Attempted %d tasks of which %d didn't need to be rerun and %d failed.", self.rqexe.stats.completed + self.rqexe.stats.failed, self.rqexe.stats.skipped, self.rqexe.stats.failed)
@@ -1427,8 +1441,8 @@ class RunQueueExecute:
         self.cfgData = rq.cfgData
         self.rqdata = rq.rqdata
 
-        self.number_tasks = int(self.cfgData.getVar("BB_NUMBER_THREADS", True) or 1)
-        self.scheduler = self.cfgData.getVar("BB_SCHEDULER", True) or "speed"
+        self.number_tasks = int(self.cfgData.getVar("BB_NUMBER_THREADS") or 1)
+        self.scheduler = self.cfgData.getVar("BB_SCHEDULER") or "speed"
 
         self.runq_buildable = set()
         self.runq_running = set()
@@ -1630,7 +1644,7 @@ class RunQueueExecuteTasks(RunQueueExecute):
                              if type(obj) is type and
                                 issubclass(obj, RunQueueScheduler))
 
-        user_schedulers = self.cfgData.getVar("BB_SCHEDULERS", True)
+        user_schedulers = self.cfgData.getVar("BB_SCHEDULERS")
         if user_schedulers:
             for sched in user_schedulers.split():
                 if not "." in sched:
@@ -2402,9 +2416,9 @@ class runQueuePipe():
         self.input.close()
 
 def get_setscene_enforce_whitelist(d):
-    if d.getVar('BB_SETSCENE_ENFORCE', True) != '1':
+    if d.getVar('BB_SETSCENE_ENFORCE') != '1':
         return None
-    whitelist = (d.getVar("BB_SETSCENE_ENFORCE_WHITELIST", True) or "").split()
+    whitelist = (d.getVar("BB_SETSCENE_ENFORCE_WHITELIST") or "").split()
     outlist = []
     for item in whitelist[:]:
         if item.startswith('%:'):

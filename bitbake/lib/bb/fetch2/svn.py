@@ -50,7 +50,7 @@ class Svn(FetchMethod):
         if not "module" in ud.parm:
             raise MissingParameterError('module', ud.url)
 
-        ud.basecmd = d.getVar('FETCHCMD_svn', True)
+        ud.basecmd = d.getVar('FETCHCMD_svn')
 
         ud.module = ud.parm["module"]
 
@@ -173,7 +173,7 @@ class Svn(FetchMethod):
         """
         Return the latest upstream revision number
         """
-        bb.fetch2.check_network_access(d, self._buildsvncommand(ud, d, "log1"))
+        bb.fetch2.check_network_access(d, self._buildsvncommand(ud, d, "log1"), ud.url)
 
         output = runfetchcmd("LANG=C LC_ALL=C " + self._buildsvncommand(ud, d, "log1"), d, True)
 

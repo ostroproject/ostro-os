@@ -113,3 +113,7 @@ export DISTRIBUTION_PATCHES = " \
 	patches/icedtea-jdk-unzip.patch \
 	${CLEAN_X11_DISTRIBUTION_PATCH} \
         "
+
+# readdir_r was deprecated in glibc-2.24. Ignore the error for now
+# NOTE: When updating the recipe, please check if this is still needed
+CFLAGS_append = " -Wno-error=deprecated-declarations"

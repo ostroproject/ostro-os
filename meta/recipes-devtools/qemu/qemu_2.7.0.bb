@@ -12,13 +12,15 @@ SRC_URI += "file://configure-fix-Darwin-target-detection.patch \
             file://0001-virtio-zero-vq-inuse-in-virtio_reset.patch \
             file://0002-fix-CVE-2016-7423.patch \
             file://0003-fix-CVE-2016-7908.patch \
+            file://0004-fix-CVE-2016-7909.patch \
 "
 
 SRC_URI_prepend = "http://wiki.qemu-project.org/download/${BP}.tar.bz2"
 SRC_URI[md5sum] = "08d4d06d1cb598efecd796137f4844ab"
 SRC_URI[sha256sum] = "326e739506ba690daf69fc17bd3913a6c313d9928d743bd8eddb82f403f81e53"
 
-COMPATIBLE_HOST_class-target_mips64 = "null"
+COMPATIBLE_HOST_mipsarchn32 = "null"
+COMPATIBLE_HOST_mipsarchn64 = "null"
 
 do_install_append() {
     # Prevent QA warnings about installed ${localstatedir}/run

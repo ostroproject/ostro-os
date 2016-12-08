@@ -38,6 +38,7 @@ import re
 import itertools
 from signal import SIGUSR1
 
+
 import logging
 logger = logging.getLogger("toaster")
 
@@ -178,24 +179,27 @@ class ProjectManager(models.Manager):
         else:
             return projects[0]
 
+
 class Project(models.Model):
-    search_allowed_fields = ['name', 'short_description', 'release__name', 'release__branch_name']
+    search_allowed_fields = ['name', 'short_description', 'release__name',
+                             'release__branch_name']
     name = models.CharField(max_length=100)
     short_description = models.CharField(max_length=50, blank=True)
     bitbake_version = models.ForeignKey('BitbakeVersion', null=True)
-    release     = models.ForeignKey("Release", null=True)
-    created     = models.DateTimeField(auto_now_add = True)
-    updated     = models.DateTimeField(auto_now = True)
+    release = models.ForeignKey("Release", null=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
     # This is a horrible hack; since Toaster has no "User" model available when
     # running in interactive mode, we can't reference the field here directly
-    # Instead, we keep a possible null reference to the User id, as not to force
+    # Instead, we keep a possible null reference to the User id,
+    # as not to force
     # hard links to possibly missing models
-    user_id     = models.IntegerField(null = True)
-    objects     = ProjectManager()
+    user_id = models.IntegerField(null=True)
+    objects = ProjectManager()
 
     # set to True for the project which is the default container
     # for builds initiated by the command line etc.
-    is_default  = models.BooleanField(default = False)
+    is_default= models.BooleanField(default=False)
 
     def __unicode__(self):
         return "%s (Release %s, BBV %s)" % (self.name, self.release, self.bitbake_version)
@@ -333,20 +337,45 @@ class Project(models.Model):
 
         return queryset
 
-
     def schedule_build(self):
-        from bldcontrol.models import BuildRequest, BRTarget, BRLayer, BRVariable, BRBitbake
-        br = BuildRequest.objects.create(project = self)
-        try:
 
-            BRBitbake.objects.create(req = br,
-                giturl = self.bitbake_version.giturl,
-                commit = self.bitbake_version.branch,
-                dirpath = self.bitbake_version.dirpath)
+        from bldcontrol.models import BuildRequest, BRTarget, BRLayer
+        from bldcontrol.models import BRBitbake, BRVariable
+
+        try:
+            now = timezone.now()
+            build = Build.objects.create(project=self,
+                                         completed_on=now,
+                                         started_on=now)
+
+            br = BuildRequest.objects.create(project=self,
+                                             state=BuildRequest.REQ_QUEUED,
+                                             build=build)
+            BRBitbake.objects.create(req=br,
+                                     giturl=self.bitbake_version.giturl,
+                                     commit=self.bitbake_version.branch,
+                                     dirpath=self.bitbake_version.dirpath)
+
+            for t in self.projecttarget_set.all():
+                BRTarget.objects.create(req=br, target=t.target, task=t.task)
+                Target.objects.create(build=br.build, target=t.target,
+                                      task=t.task)
+                # If we're about to build a custom image recipe make sure
+                # that layer is currently in the project before we create the
+                # BRLayer objects
+                customrecipe = CustomImageRecipe.objects.filter(
+                    name=t.target,
+                    project=self).first()
+                if customrecipe:
+                    ProjectLayer.objects.get_or_create(
+                        project=self,
+                        layercommit=customrecipe.layer_version,
+                        optional=False)
 
             for l in self.projectlayer_set.all().order_by("pk"):
                 commit = l.layercommit.get_vcs_reference()
-                print("ii Building layer ", l.layercommit.layer.name, " at vcs point ", commit)
+                logger.debug("Adding layer to build %s" %
+                             l.layercommit.layer.name)
                 BRLayer.objects.create(
                     req=br,
                     name=l.layercommit.layer.name,
@@ -357,25 +386,16 @@ class Project(models.Model):
                     local_source_dir=l.layercommit.layer.local_source_dir
                 )
 
-            br.state = BuildRequest.REQ_QUEUED
-            now = timezone.now()
-            br.build = Build.objects.create(project = self,
-                                completed_on=now,
-                                started_on=now,
-                                )
-            for t in self.projecttarget_set.all():
-                BRTarget.objects.create(req = br, target = t.target, task = t.task)
-                Target.objects.create(build = br.build, target = t.target, task = t.task)
-
             for v in self.projectvariable_set.all():
-                BRVariable.objects.create(req = br, name = v.name, value = v.value)
-
+                BRVariable.objects.create(req=br, name=v.name, value=v.value)
 
             try:
-                br.build.machine = self.projectvariable_set.get(name = 'MACHINE').value
+                br.build.machine = self.projectvariable_set.get(
+                    name='MACHINE').value
                 br.build.save()
             except ProjectVariable.DoesNotExist:
                 pass
+
             br.save()
             signal_runbuilds()
 
@@ -1478,17 +1498,22 @@ class Layer_Version(models.Model):
 
     def get_alldeps(self, project_id):
         """Get full list of unique layer dependencies."""
-        def gen_layerdeps(lver, project):
+        def gen_layerdeps(lver, project, depth):
+            if depth == 0:
+                return
             for ldep in lver.dependencies.all():
                 yield ldep.depends_on
                 # get next level of deps recursively calling gen_layerdeps
-                for subdep in gen_layerdeps(ldep.depends_on, project):
+                for subdep in gen_layerdeps(ldep.depends_on, project, depth-1):
                     yield subdep
 
         project = Project.objects.get(pk=project_id)
         result = []
-        projectlvers = [player.layercommit for player in project.projectlayer_set.all()]
-        for dep in gen_layerdeps(self, project):
+        projectlvers = [player.layercommit for player in
+                        project.projectlayer_set.all()]
+        # protect against infinite layer dependency loops
+        maxdepth = 20
+        for dep in gen_layerdeps(self, project, maxdepth):
             # filter out duplicates and layers already belonging to the project
             if dep not in result + projectlvers:
                 result.append(dep)
@@ -1631,7 +1656,8 @@ class CustomImageRecipe(Recipe):
         if base_recipe_path:
             base_recipe = open(base_recipe_path, 'r').read()
         else:
-            raise IOError("Based on recipe file not found")
+            raise IOError("Based on recipe file not found: %s" %
+                          base_recipe_path)
 
         # Add a special case for when the recipe we have based a custom image
         # recipe on requires another recipe.

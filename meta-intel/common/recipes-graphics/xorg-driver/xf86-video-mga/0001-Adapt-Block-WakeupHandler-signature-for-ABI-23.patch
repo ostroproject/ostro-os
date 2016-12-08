@@ -1,0 +1,36 @@
+From 99b316e80a883372aaa61ee610d98fb53e6a52d4 Mon Sep 17 00:00:00 2001
+From: Jussi Kukkonen <jussi.kukkonen@intel.com>
+Date: Wed, 16 Nov 2016 12:03:03 +0200
+Subject: [PATCH] Adapt Block/WakeupHandler signature for ABI 23
+
+Add backport to fix build with new xserver-xorg.
+
+Upstream-Status: Backport [df094bfffe]
+Signed-off-by: Jussi Kukkonen <jussi.kukkonen@intel.com>
+
+Original author: Adam Jackson <ajax@redhat.com>
+---
+ src/compat-api.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/compat-api.h b/src/compat-api.h
+index 6bc946f..89976e4 100644
+--- a/src/compat-api.h
++++ b/src/compat-api.h
+@@ -75,8 +75,13 @@
+ 
+ #define SCREEN_INIT_ARGS_DECL ScreenPtr pScreen, int argc, char **argv
+ 
++#if ABI_VIDEODRV_VERSION >= SET_ABI_VERSION(23, 0)
++#define BLOCKHANDLER_ARGS_DECL ScreenPtr arg, pointer pTimeout
++#define BLOCKHANDLER_ARGS arg, pTimeout
++#else
+ #define BLOCKHANDLER_ARGS_DECL ScreenPtr arg, pointer pTimeout, pointer pReadmask
+ #define BLOCKHANDLER_ARGS arg, pTimeout, pReadmask
++#endif
+ 
+ #define CLOSE_SCREEN_ARGS_DECL ScreenPtr pScreen
+ #define CLOSE_SCREEN_ARGS pScreen
+-- 
+2.1.4
+

@@ -48,6 +48,16 @@ class Event(object):
     def __init__(self):
         self.pid = worker_pid
 
+
+class HeartbeatEvent(Event):
+    """Triggered at regular time intervals of 10 seconds. Other events can fire much more often
+       (runQueueTaskStarted when there are many short tasks) or not at all for long periods
+       of time (again runQueueTaskStarted, when there is just one long-running task), so this
+       event is more suitable for doing some task-independent work occassionally."""
+    def __init__(self, time):
+        Event.__init__(self)
+        self.time = time
+
 Registered        = 10
 AlreadyRegistered = 14
 
@@ -440,6 +450,23 @@ class DiskFull(Event):
         self._type = type
         self._free = freespace
         self._mountpoint = mountpoint
+
+class DiskUsageSample:
+    def __init__(self, available_bytes, free_bytes, total_bytes):
+        # Number of bytes available to non-root processes.
+        self.available_bytes = available_bytes
+        # Number of bytes available to root processes.
+        self.free_bytes = free_bytes
+        # Total capacity of the volume.
+        self.total_bytes = total_bytes
+
+class MonitorDiskEvent(Event):
+    """If BB_DISKMON_DIRS is set, then this event gets triggered each time disk space is checked.
+       Provides information about devices that are getting monitored."""
+    def __init__(self, disk_usage):
+        Event.__init__(self)
+        # hash of device root path -> DiskUsageSample
+        self.disk_usage = disk_usage
 
 class NoProvider(Event):
     """No Provider for an Event"""

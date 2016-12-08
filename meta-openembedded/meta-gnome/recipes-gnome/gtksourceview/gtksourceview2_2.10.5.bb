@@ -4,13 +4,15 @@ HOMEPAGE = "http://projects.gnome.org/gtksourceview/"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=94d55d512a9ba36caa9b7df079bae19f"
 
-DEPENDS = "gtk+ libxml2 intltool-native"
+DEPENDS = "gtk+ libxml2 intltool-native gnome-common-native"
 
 PNAME = "gtksourceview"
 
 S = "${WORKDIR}/${PNAME}-${PV}"
 
-inherit gnomebase lib_package gettext
+inherit gnomebase lib_package gettext distro_features_check
+
+REQUIRED_DISTRO_FEATURES = "x11"
 
 # overrule SRC_URI from gnome.conf
 SRC_URI = "${GNOME_MIRROR}/${PNAME}/${@gnome_verdir("${PV}")}/${PNAME}-${PV}.tar.bz2;name=archive \
@@ -27,4 +29,3 @@ do_configure_prepend() {
 }
 
 FILES_${PN} += " ${datadir}/gtksourceview-2.0"
-

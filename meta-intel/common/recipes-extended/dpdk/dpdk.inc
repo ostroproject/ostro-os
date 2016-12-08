@@ -3,17 +3,14 @@ HOMEPAGE = "http://dpdk.org"
 LICENSE = "BSD & LGPLv2 & GPLv2"
 LIC_FILES_CHKSUM = "file://LICENSE.GPL;md5=751419260aa954499f7abaabaa882bbe"
 
-SRC_URI = "http://dpdk.org/browse/dpdk/snapshot/dpdk-${PV}.tar.gz;name=dpdk \
+SRC_URI = "http://fast.dpdk.org/rel/${BP}.tar.gz;name=dpdk \
 	   file://dpdk-16.04-add-RTE_KERNELDIR_OUT-to-split-kernel-bu.patch \
 	   file://dpdk-16.07-add-sysroot-option-within-app-makefile.patch \
 	   file://dpdk-16.04-point-to-the-right-include-and-lib-path.patch \
 	   file://dpdk-16.04-Fix-for-misleading-indentation-error.patch \
-	   file://dpdk-16.07-dpdk-fix-installation-warning-and-issue.patch \
+	   file://dpdk-16.11-dpdk-fix-installation-warning-and-issue.patch \
 	   file://dpdk-16.04-dpdk-fix-compilation-with-dynamic-libs.patch \
 	   file://dpdk-16.07-dpdk-fix-for-parellel-make-issue.patch \
-	   file://dpdk-16.07-net-ixgbe-move-PCI-device-IDs-from-EAL.patch \
-	   file://dpdk-16.07-net-igb-move-PCI-device-IDs-from-EAL.patch \
-	   file://dpdk-16.07-kni-fix-build-with-kernel-4.8.patch \
 	  "
 
 COMPATIBLE_MACHINE = "crystalforest|intel-corei7-64"
@@ -40,7 +37,7 @@ inherit module
 
 export MODULE_DIR="/lib/modules/${KERNEL_VERSION}/kernel/drivers/net"
 export RTE_SDK = "${S}"
-export RTE_TARGET="${@bb.utils.contains("TUNE_FEATURES", "corei7", "x86_64-ivshmem-linuxapp-gcc", "i686-native-linuxapp-gcc", d)}"
+export RTE_TARGET="${@bb.utils.contains("TUNE_FEATURES", "corei7", "x86_64-native-linuxapp-gcc", "i686-native-linuxapp-gcc", d)}"
 
 export ICP_ROOT = "${PKG_CONFIG_SYSROOT_DIR}/usr/include"
 export ICP_LIB_ROOT= "${PKG_CONFIG_SYSROOT_DIR}/usr/lib"

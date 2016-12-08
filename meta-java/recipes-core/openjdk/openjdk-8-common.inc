@@ -171,7 +171,7 @@ do_configure_prepend() {
 def get_llvm_configure_arch(d):
     import bb;
 
-    arch = bb.data.getVar('TRANSLATED_TARGET_ARCH', d, 1)
+    arch = d.getVar('TRANSLATED_TARGET_ARCH', True)
     if arch == "x86-64" or arch == "i486" or arch == "i586" or arch == "i686":
         arch = "x86"
     elif arch == "arm":
@@ -181,7 +181,7 @@ def get_llvm_configure_arch(d):
     elif arch == "powerpc" or arch == "powerpc64":
         arch = "powerpc"
     else:
-        bb.warn("%s does not support %s yet" % (bb.data.getVar('PN', d, 1), arch) );
+        bb.warn("%s does not support %s yet" % (d.getVar('PN', True), arch) );
 
     return arch
 
@@ -193,7 +193,7 @@ export LLVM_CONFIGURE_ARCH="${@get_llvm_configure_arch(d)}"
 def get_jdk_arch(d):
     import bb
 
-    jdk_arch = bb.data.getVar('TRANSLATED_TARGET_ARCH', d, 1)
+    jdk_arch = d.getVar('TRANSLATED_TARGET_ARCH', True)
     if jdk_arch == "x86-64":
         jdk_arch = "amd64"
     elif jdk_arch == "powerpc":
@@ -211,8 +211,8 @@ export DEBUG_BINARIES = "true"
 
 ALTERNATIVE_PRIORITY = "50"
 
-OPENJDK_UPDATE_VERSION = "${@bb.data.getVar('PV', d, 1).split('b')[0]}"
-OPENJDK_BUILD_NUMBER = "b${@bb.data.getVar('PV', d, 1).split('b')[1]}"
+OPENJDK_UPDATE_VERSION = "${@d.getVar('PV', True).split('b')[0]}"
+OPENJDK_BUILD_NUMBER = "b${@d.getVar('PV', True).split('b')[1]}"
 EXTRA_OECONF_append = "\
         --with-build-number=${OPENJDK_BUILD_NUMBER} \
         --with-update-version=${OPENJDK_UPDATE_VERSION} \

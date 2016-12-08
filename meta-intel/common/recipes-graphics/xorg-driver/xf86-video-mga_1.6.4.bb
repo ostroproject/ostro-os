@@ -6,7 +6,9 @@ DESCRIPTION = "mga is an Xorg driver for Matrox video cards"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=bc1395d2cd32dfc5d6c57d2d8f83d3fc"
 
-SRC_URI += "file://checkfile.patch"
+SRC_URI += "file://checkfile.patch \
+            file://0001-Adapt-Block-WakeupHandler-signature-for-ABI-23.patch \
+            "
 
 DEPENDS += "virtual/libx11 libpciaccess"
 

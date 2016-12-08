@@ -42,6 +42,7 @@ SRC_URI = " \
   file://allow-headless-build.patch;striplevel=0 \
   file://jaxws_fix_NullPointerException.patch;apply=no \
   file://timezoneszip.patch \
+  file://sigsegv.patch;apply=no \
   "
 
 S = "${WORKDIR}/${ICEDTEA}"
@@ -152,6 +153,7 @@ do_configure_append() {
 	oe_runmake patch-boot
 
 	patch -p1 < ${WORKDIR}/jaxws_fix_NullPointerException.patch
+	patch -p1 < ${WORKDIR}/sigsegv.patch
 }
 
 EXTRA_OEMAKE = ' \
@@ -211,7 +213,7 @@ do_compile() {
 def jdk_arch(d):
         import bb
 
-        target_arch = bb.data.getVar('TRANSLATED_TARGET_ARCH', d, 1)
+        target_arch = d.getVar('TRANSLATED_TARGET_ARCH', True)
 
         if target_arch in ['i386', 'i486', 'i586', 'i686']:
             return "x86"

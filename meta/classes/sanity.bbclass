@@ -363,15 +363,19 @@ def check_connectivity(d):
     test_uris = (d.getVar('CONNECTIVITY_CHECK_URIS', True) or "").split()
     retval = ""
 
+    bbn = d.getVar('BB_NO_NETWORK', True)
+    if bbn not in (None, '0', '1'):
+        return 'BB_NO_NETWORK should be "0" or "1", but it is "%s"' % bbn
+
     # Only check connectivity if network enabled and the
     # CONNECTIVITY_CHECK_URIS are set
-    network_enabled = not d.getVar('BB_NO_NETWORK', True)
+    network_enabled = not (bbn == '1')
     check_enabled = len(test_uris)
-    # Take a copy of the data store and unset MIRRORS and PREMIRRORS
-    data = bb.data.createCopy(d)
-    data.delVar('PREMIRRORS')
-    data.delVar('MIRRORS')
     if check_enabled and network_enabled:
+        # Take a copy of the data store and unset MIRRORS and PREMIRRORS
+        data = bb.data.createCopy(d)
+        data.delVar('PREMIRRORS')
+        data.delVar('MIRRORS')
         try:
             fetcher = bb.fetch2.Fetch(test_uris, data)
             fetcher.checkstatus()
@@ -380,7 +384,10 @@ def check_connectivity(d):
             # pointed to a support mechanism.
             msg = data.getVar('CONNECTIVITY_CHECK_MSG', True) or ""
             if len(msg) == 0:
-                msg = "%s. Please ensure your network is configured correctly.\n" % err
+                msg = "%s.\n" % err
+                msg += "    Please ensure your host's network is configured correctly,\n"
+                msg += "    or set BB_NO_NETWORK = \"1\" to disable network access if\n"
+                msg += "    all required sources are on local disk.\n"
             retval = msg
 
     return retval

@@ -8,7 +8,6 @@ SRC_URI = "http://www.python.org/ftp/python/${PV}/Python-${PV}.tar.xz \
 file://12-distutils-prefix-is-inside-staging-area.patch \
 file://python-config.patch \
 file://000-cross-compile.patch \
-file://020-dont-compile-python-files.patch \
 file://030-fixup-include-dirs.patch \
 file://070-dont-clean-ipkg-install.patch \
 file://080-distutils-dont_adjust_files.patch \
@@ -46,12 +45,16 @@ RPROVIDES += " \
     python3-compression-native \
     python3-core-native \
     python3-distutils-native \
+    python3-datetime-native \
+    python3-enum-native \
+    python3-terminal-native \
     python3-email-native \
     python3-importlib-native \
     python3-io-native \
     python3-json-native \
     python3-lang-native \
     python3-misc-native \
+    python3-modules-native \
     python3-netclient-native \
     python3-netserver-native \
     python3-numbers-native \

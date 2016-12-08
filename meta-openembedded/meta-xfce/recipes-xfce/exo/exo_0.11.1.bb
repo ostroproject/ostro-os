@@ -5,12 +5,16 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 DEPENDS = "gtk+ libxfce4util libxfce4ui virtual/libx11 liburi-perl-native cairo"
 DEPENDS_class-native = "glib-2.0-native xfce4-dev-tools-native intltool-native"
 
-inherit xfce pythonnative perlnative gtk-doc
+inherit xfce pythonnative perlnative gtk-doc distro_features_check
+
+REQUIRED_DISTRO_FEATURES = "x11"
+REQUIRED_DISTRO_FEATURES_class-native = ""
 
 # SRC_URI must follow inherited one
 SRC_URI += " \
     file://exo-no-tests-0.8.patch \
     file://configure.patch \
+    file://0001-Probable-fix-for-Thunar-detailed-view-Xfce-12916.patch \
 "
 
 SRC_URI_append_class-native = " \
