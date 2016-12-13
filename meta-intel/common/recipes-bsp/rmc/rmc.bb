@@ -22,6 +22,11 @@ COMPATIBLE_HOST = "(x86_64.*|i.86.*)-linux*"
 
 TARGET_CFLAGS +="-Wl,--hash-style=both"
 
+EXTRA_OEMAKE = "RMC_INSTALL_PREFIX=${D}/${prefix} \
+                RMC_INSTALL_BIN_PATH=${D}${bindir} \
+                RMC_INSTALL_LIB_PATH=${D}${libdir} \
+                RMC_INSTALL_HEADER_PATH=${D}${includedir}/rmc"
+
 SECURITY_CFLAGS_remove_class-target = "-fstack-protector-strong"
 do_compile_class-target() {
 	oe_runmake
@@ -29,8 +34,8 @@ do_compile_class-target() {
 }
 
 do_install() {
-	oe_runmake RMC_INSTALL_PREFIX=${D}/usr install
-	oe_runmake RMC_INSTALL_PREFIX=${D}/usr -f Makefile.efi install
+	oe_runmake install
+	oe_runmake -f Makefile.efi install
 }
 
 do_install_class-native() {
