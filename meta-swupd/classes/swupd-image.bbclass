@@ -123,6 +123,8 @@ inherit distro_features_check
 REQUIRED_DISTRO_FEATURES = "systemd"
 
 python () {
+    import os
+
     ver = d.getVar('OS_VERSION', True) or 'invalid'
     try:
         ver = int(ver)
@@ -151,7 +153,15 @@ python () {
         mega_rootfs = d.getVar('IMAGE_ROOTFS', True)
         mega_rootfs = mega_rootfs.replace('/' + pn +'/', '/bundle-%s-mega/' % (pn_base or pn))
         d.setVar('MEGA_IMAGE_ROOTFS', mega_rootfs)
-        d.setVar('MEGA_IMAGE_ARCHIVE', mega_rootfs + '.tar')
+        mega_archive = mega_rootfs + '.tar'
+        workdir = d.getVar('WORKDIR')
+        d.setVar('MEGA_IMAGE_ARCHIVE', mega_archive)
+        mega_archive_rel = os.path.relpath(mega_archive, workdir)
+        if os.path.sep not in mega_archive_rel:
+           # The mega archive is in our work directory and must be
+           # preserved for other virtual images even when rm_work.bbclass
+           # is active.
+           d.appendVar('RM_WORK_EXCLUDE_ITEMS', ' ' + mega_archive_rel)
 
     if pn_base is not None:
         # Swupd images must depend on the mega image having been
@@ -271,6 +281,19 @@ do_image_append () {
     swupd.rootfs.create_rootfs(d)
 }
 
+# The content lists of each rootfs get stored separately and
+# need to be preserved when rm_work.bbclass is active.
+# That information is used by do_stage_swupd_inputs in the
+# base recipe.
+RM_WORK_EXCLUDE_ITEMS += "swupd${SWUPD_ROOTFS_MANIFEST_SUFFIX} swupd${SWUPD_IMAGE_MANIFEST_SUFFIX}"
+python do_swupd_list_bundle () {
+    import swupd.bundles
+
+    swupd.bundles.list_bundle_contents(d)
+}
+do_swupd_list_bundle[depends] = "${@ '${SWUPD_IMAGE_PN}:do_swupd_list_bundle' if '${SWUPD_IMAGE_PN}' != '${PN}' else '' }"
+addtask do_swupd_list_bundle after do_image before do_build
+
 # Some files should not be included in swupd manifests and therefore never be
 # updated on the target (i.e. certain per-device or machine-generated files in
 # /etc when building for a statefule OS). Add the target paths to this list to
@@ -295,9 +318,12 @@ fakeroot python do_stage_swupd_inputs () {
     swupd.bundles.copy_core_contents(d)
     swupd.bundles.copy_bundle_contents(d)
 }
-addtask stage_swupd_inputs after do_image before do_swupd_update
+addtask stage_swupd_inputs after do_swupd_list_bundle before do_swupd_update
 do_stage_swupd_inputs[dirs] = "${SWUPDIMAGEDIR} ${SWUPDMANIFESTDIR} ${DEPLOY_DIR_SWUPD}/maps/"
-do_stage_swupd_inputs[depends] += "virtual/fakeroot-native:do_populate_sysroot"
+do_stage_swupd_inputs[depends] += " \
+    virtual/fakeroot-native:do_populate_sysroot \
+    ${@ ' '.join(['bundle-${SWUPD_IMAGE_PN}-%s:do_swupd_list_bundle' % x for x in '${SWUPD_BUNDLES}'.split()]) } \
+"
 
 python do_fetch_swupd_inputs () {
     import swupd.bundles
