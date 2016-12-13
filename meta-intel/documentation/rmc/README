@@ -165,14 +165,24 @@ steps still can override results from this hook for boot entries and KBOOTPARAM.
 
 Enable RMC Feature
 --------------------------------------------------------------------------------
-To Enable RMC feature in build, add the below lines in a conf file:
+To enable the RMC feature please add the following variables to your local.conf.
+
 DISTRO_FEATURES_append = " rmc"
-EFI_PROVIDER = "rmc-systemd-boot"
+EFI_PROVIDER = "rmc-boot"
+
+The default EFI bootloader used with RMC is systemd-boot. To change the default
+bootloader please overwrite the RMC_BOOTLOADER variable in your local.conf
 
 Note:
 Image could be still bootable if you only have either of two lines, but RMC
 feature won't be fully functional.
 
+To install only the RMC client with the systemd-boot bootloader without
+including a default RMC database file, add the following lines to your
+local.conf:
+
+EFI_PROVIDER = "systemd-boot"
+IMAGE_INSTALL_append = " rmc"
 
 
 Examples
@@ -190,7 +200,7 @@ EXAMPLE 1: Support a new board type:
 (1) enable the feature and do a build to get a live-boot image by adding these
     lines in conf/local.conf:
     DISTRO_FEATURES_append = " rmc"
-    EFI_PROVIDER = "rmc-systemd-boot"
+    EFI_PROVIDER = "rmc-boot"
 
 (2) flash the image to a USB stick and boot it on your board
 
