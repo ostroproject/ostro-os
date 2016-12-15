@@ -19,6 +19,8 @@
 # either in local.conf or in the environment like this:
 #   BB_ENV_EXTRAWHITE="$BB_ENV_EXTRAWHITE OS_VERSION" OS_VERSION=110 bitbake ...
 
+OS_VERSION_FORK_OFFSET = "1000000000"
+
 def ostro_get_os_version(d):
     import re
 
@@ -42,7 +44,20 @@ def ostro_get_os_version(d):
         # still needs to be determined.
         match = re.match("\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-build-(\d+)", build_id_str)
         if match is not None:
-            return str(int(match.group(1)) * 10)
+            version = int(match.group(1)) * 10
+            # swupd now always builds on top of some previous master build.
+            # Currently that's the latest milestone. ostro-os master builds
+            # always have a higher build number, but component master builds
+            # and pull request builds might have a lower number. To avoid
+            # OS_VERSION going backwards (which is detected by meta-swupd
+            # and will abort the build), we add an arbitrary large offset
+            # here. If the default happens to be too low at some point,
+            # the CI can override the default value (although that's
+            # very unlikely).
+            build_type = d.getVar('CI_BUILD_TYPE', True)
+            if build_type is not None and build_type != 'product':
+                version = version + int(d.getVar('OS_VERSION_FORK_OFFSET', True))
+            return str(version)
 
     # String operations are used here to remove the last two digits and add back
     # a zero instead of / 100 * 10 because the / operator has different semantic
