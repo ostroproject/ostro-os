@@ -77,10 +77,12 @@ def copy_core_contents(d):
     # directly with the rootfs of the main image recipe.
     havebundles = (d.getVar('SWUPD_BUNDLES', True) or '') != ''
     if not havebundles:
+        manifest_files = []
         for suffix in (contentsuffix, imagesuffix):
             shutil.copy2(corefile + suffix, fullfile + suffix)
-        bb.debug(1, "Copying from image rootfs (%s) to full bundle (%s)" % (imgrootfs, bundle))
-        swupd.path.copyxattrfiles(d, manifest_files, imgrootfs, bundle, True)
+            manifest_files.extend(swupd.utils.manifest_to_file_list(fullfile + suffix))
+        bb.debug(1, "Copying from image rootfs (%s) to full bundle (%s)" % (rootfs, bundle))
+        swupd.path.copyxattrfiles(d, manifest_files, rootfs, bundle, True)
     else:
         mega_rootfs = d.getVar('MEGA_IMAGE_ROOTFS', True)
         mega_archive = d.getVar('MEGA_IMAGE_ARCHIVE', True)
