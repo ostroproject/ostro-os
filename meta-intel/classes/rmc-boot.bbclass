@@ -9,5 +9,9 @@ inherit ${RMC_BOOTLOADER}
 do_bootimg[depends] += "${MLPREFIX}rmc-db:do_deploy"
 
 efi_populate_append() {
-        install -m 0400 ${DEPLOY_DIR_IMAGE}/rmc.db ${DEST}/rmc.db
+	if [ -f ${DEPLOY_DIR_IMAGE}/rmc.db ]; then
+		install -m 0400 ${DEPLOY_DIR_IMAGE}/rmc.db ${DEST}/rmc.db
+	else
+		rm -f ${DEST}/rmc.db
+	fi
 }
