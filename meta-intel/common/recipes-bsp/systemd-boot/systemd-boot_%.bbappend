@@ -11,8 +11,8 @@ EXTRA_OEMAKE_append_intel-x86-common = ' EFI_LDFLAGS="-L${STAGING_DIR_HOST}/usr/
 # should do explicit update with validation to prevent regression even
 # resolving conflicts for a new tip could be done in a short time.
 
-# Revision: systemd 230 in OE
-SRCREV_intel-x86-common = "3a74d4fc90cb322a4784a3515bef7118c8f8c5ba"
+# Revision: systemd v232 in OE
+SRCREV_intel-x86-common = "a1e2ef7ec912902d8142e7cb5830cbfb47dba86c"
 
 SRC_URI_append_intel-x86-common = " \
             file://0001-sd-boot-Link-RMC-library-into-bootloader.patch \
