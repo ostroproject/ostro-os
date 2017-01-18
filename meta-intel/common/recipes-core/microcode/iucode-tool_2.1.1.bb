@@ -14,13 +14,11 @@ BUGTRACKER = "https://bugs.debian.org/cgi-bin/pkgreport.cgi?ordering=normal;arch
 
 LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe \
-                    file://iucode_tool.c;beginline=1;endline=15;md5=f65c2be08bfd462331cadff25869588e"
+                    file://iucode_tool.c;beginline=1;endline=15;md5=5d8e3639c3b6a80e7d5e0e073933da16"
 
 SRC_URI = "https://gitlab.com/iucode-tool/releases/raw/master/iucode-tool_${PV}.tar.xz"
-SRC_URI[md5sum] = "5bc0e08276bc49efe6a949bb7611763e"
-SRC_URI[sha256sum] = "33271652032f20f866a212bc98ea01a8db65c4ac839fa820aa23da974fd6ff62"
-
-S = "${WORKDIR}/iucode_tool-${PV}"
+SRC_URI[md5sum] = "306d20b43da847812af4bf973f46045d"
+SRC_URI[sha256sum] = "8f94ec73f5d4d1a6801aaa894fa1c6544d9b27aec16e1a00e18e8241c7e0f6ba"
 
 inherit autotools
 
