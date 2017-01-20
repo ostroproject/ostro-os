@@ -36,3 +36,10 @@ EFI_PROVIDER ?= "rmc-boot"
 
 # Add general MACHINEOVERRIDE for meta-intel
 MACHINEOVERRIDES =. "intel-x86-common:"
+
+# Definition of (more or less) suitable virtual machines.
+require conf/machine/include/qemuboot-intel.inc
+
+# Ensure that the extra tools needed by qemu are built when building images
+# and tweak machine definition to make the result more usable under qemu.
+require conf/machine/include/qemu-intel.inc
