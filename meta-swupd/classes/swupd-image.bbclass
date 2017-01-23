@@ -338,6 +338,12 @@ python do_fetch_swupd_inputs () {
 do_fetch_swupd_inputs[dirs] = "${SWUPDIMAGEDIR}"
 addtask do_fetch_swupd_inputs before do_swupd_update
 
+# Change this to SWUPD_TIMING_CMD = "time" in local.conf
+# to enable timing the individual swupd server command invocations.
+# Relies on a build host which has "time" as a shell or system
+# command.
+SWUPD_TIMING_CMD ?= ""
+
 # do_swupd_update uses its own pseudo database, for several reasons:
 # - Performance is better when the pseudo instance is not shared
 #   with other tasks that run in parallel (for example, meta-isafw's do_analyse_image).
@@ -504,7 +510,7 @@ END
 
     invoke_swupd () {
         echo $PSEUDO "$@"
-        time env $PSEUDO "$@"
+        ${SWUPD_TIMING_CMD} env $PSEUDO "$@"
     }
 
     waitall () {
