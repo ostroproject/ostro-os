@@ -6,7 +6,7 @@ compensation using available cooling methods."
 
 HOMEPAGE = "https://github.com/01org/thermal_daemon"
 
-DEPENDS = "dbus dbus-glib libxml2 glib-2.0"
+DEPENDS = "dbus dbus-glib libxml2 glib-2.0 glib-2.0-native"
 DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES','systemd','systemd','',d)}"
 
 LICENSE = "GPL-2.0"
