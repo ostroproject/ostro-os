@@ -13,8 +13,8 @@ LICENSE = "GPL-2.0"
 LIC_FILES_CHKSUM = "file://COPYING;md5=ea8831610e926e2e469075b52bf08848"
 
 SRC_URI = "https://github.com/01org/thermal_daemon/archive/v${PV}.tar.gz"
-SRC_URI[md5sum] = "66402236ed3c86a798029cb4d5313817"
-SRC_URI[sha256sum] = "e20b450ef27a5b5e45474c831663c8f5ecd14c82ace5a4b1e06c442e0a23b53e"
+SRC_URI[md5sum] = "f7b63e691fb941c92e14ccfcb667b593"
+SRC_URI[sha256sum] = "42f72fc32c84adcbb2ee6667645c2e1653cdc4f85963e6f72efd83517f7c29f0"
 
 S = "${WORKDIR}/thermal_daemon-${PV}"
 
