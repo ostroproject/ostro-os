@@ -18,7 +18,7 @@ LINUX_VERSION_corei7-64-intel-common = "${LINUX_VERSION_INTEL_COMMON}"
 COMPATIBLE_MACHINE_corei7-64-intel-common = "${MACHINE}"
 KMACHINE_corei7-64-intel-common = "intel-corei7-64"
 SRCREV_meta_corei7-64-intel-common ?= "${SRCREV_META_INTEL_COMMON}"
-SRCREV_machine_corei7-64-intel-common ?= "${@bb.utils.contains('INTEL_MACHINE_SUBTYPE', 'broxton-m', 'b7ddcae5f0f374ab7ffd49b0f8636328f5e3386f', '${SRCREV_MACHINE_INTEL_COMMON}', d)}"
+SRCREV_machine_corei7-64-intel-common ?= "${@bb.utils.contains('INTEL_MACHINE_SUBTYPE', 'broxton-m', 'a249f6388ace2a4035220c2333649b42c300faa9', '${SRCREV_MACHINE_INTEL_COMMON}', d)}"
 KBRANCH_corei7-64-intel-common = "${@bb.utils.contains('INTEL_MACHINE_SUBTYPE', 'broxton-m', 'standard/intel/bxt-rebase;rebaseable=1', '${KBRANCH_INTEL_COMMON}', d)}"
 KERNEL_FEATURES_append_corei7-64-intel-common = "${KERNEL_FEATURES_INTEL_COMMON}"
 
