@@ -8,6 +8,7 @@ HOMEPAGE = "https://github.com/01org/thermal_daemon"
 
 DEPENDS = "dbus dbus-glib dbus-glib-native libxml2 glib-2.0 glib-2.0-native"
 DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES','systemd','systemd','',d)}"
+DEPENDS_append_libc-musl = " argp-standalone"
 
 LICENSE = "GPL-2.0"
 LIC_FILES_CHKSUM = "file://COPYING;md5=ea8831610e926e2e469075b52bf08848"
