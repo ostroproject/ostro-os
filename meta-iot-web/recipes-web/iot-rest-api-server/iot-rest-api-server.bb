@@ -27,8 +27,7 @@ SYSTEMD_AUTO_ENABLE_${PN} = "disable"
 USERADD_PACKAGES = "${PN}"
 GROUPADD_PARAM_${PN} = "-r restful"
 USERADD_PARAM_${PN} = "\
---system --home ${localstatedir}/lib/empty \
---no-create-home --shell /bin/false \
+--system --create-home --shell /bin/false \
 --gid restful restful \
 "
 
