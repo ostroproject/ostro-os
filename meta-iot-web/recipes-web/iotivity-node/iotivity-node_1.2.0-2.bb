@@ -8,7 +8,7 @@ DEPENDS = "nodejs-native glib-2.0 iotivity"
 RDEPENDS_${PN} += "bash iotivity-resource"
 
 SRC_URI = "git://github.com/otcshare/iotivity-node.git;protocol=https"
-SRCREV = "bcf521213b7fd3ecafe695a9cf8749c764c6a719"
+SRCREV = "13cdbaa48c8ef938976e02b32fbfd51206110179"
 
 S = "${WORKDIR}/git"
 INSANE_SKIP_${PN} += "ldflags staticdev"
@@ -81,9 +81,6 @@ do_install () {
 
     install -d ${D}${libdir}/node_modules/iotivity-node/build/Release/
     install -m 0755 ${S}/build/Release/iotivity.node ${D}${libdir}/node_modules/iotivity-node/build/Release/
-
-    # Remove nan module as it is not needed.
-    rm -rf ${D}${libdir}/node_modules/iotivity-node/node_modules/nan
 }
 
 FILES_${PN} = "${libdir}/node_modules/iotivity-node/ \
