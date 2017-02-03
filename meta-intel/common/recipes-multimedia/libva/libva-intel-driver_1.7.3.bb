@@ -13,10 +13,11 @@ COMPATIBLE_HOST = '(i.86|x86_64).*-linux'
 
 DEPENDS = "libva libdrm"
 
-SRC_URI = "http://www.freedesktop.org/software/vaapi/releases/${BPN}/${BPN}-${PV}.tar.bz2"
+SRC_URI = "git://github.com/01org/intel-vaapi-driver.git;protocol=https"
+# 1.7.3 release tag
+SRCREV = "c747c3428cd862869b75e96b737fa61532d6f27f"
 
-SRC_URI[md5sum] = "f28ac265f836f7ce881305bd3a282c90"
-SRC_URI[sha256sum] = "099e7bf6aa826971ec2caff235babf4da995f754e2ca16a73b258671130e67bc"
+S = "${WORKDIR}/git"
 
 inherit autotools pkgconfig
 
