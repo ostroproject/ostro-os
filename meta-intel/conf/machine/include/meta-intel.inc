@@ -9,8 +9,8 @@
 #
 
 # Soft set linux-yocto as preferred kernel like x86-base.inc
-PREFERRED_PROVIDER_virtual/kernel ??= "linux-yocto"
-PREFERRED_VERSION_linux-yocto ?= "4.8%"
+PREFERRED_PROVIDER_virtual/kernel ?= "linux-intel"
+PREFERRED_VERSION_linux-intel ?= "4.9%"
 
 # for Xserver older than 1.13.0
 OLD_XSERVER_X86_EXT = "xserver-xorg-extension-dri \
