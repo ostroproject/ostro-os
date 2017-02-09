@@ -14,3 +14,5 @@ export ARCHDIR = "generic"
 do_configure_prepend () {
 	sed -e "s#CONFIG_RTE_LIBRTE_POWER=y#CONFIG_RTE_LIBRTE_POWER=${CONFIG_EXAMPLE_VM_POWER_MANAGER}#" -i ${S}/config/common_linuxapp
 }
+
+COMPATIBLE_HOST_libc-musl_class-target = "null"
