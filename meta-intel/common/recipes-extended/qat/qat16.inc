@@ -19,6 +19,7 @@ SRC_URI="file://qat16_2.3.0-34-qat-fix-for-cross-compilation-issue.patch \
          "
 
 COMPATIBLE_MACHINE = "crystalforest|intel-corei7-64"
+COMPATIBLE_HOST_linux-gnux32 = "null"
 
 S = "${WORKDIR}/${ICP_DRIVER_TYPE}"
 ICP_TOOLS = "accelcomp"
