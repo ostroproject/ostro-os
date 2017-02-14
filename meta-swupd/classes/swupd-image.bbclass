@@ -154,7 +154,7 @@ python () {
         mega_rootfs = mega_rootfs.replace('/' + pn +'/', '/bundle-%s-mega/' % (pn_base or pn))
         d.setVar('MEGA_IMAGE_ROOTFS', mega_rootfs)
         mega_archive = mega_rootfs + '.tar'
-        workdir = d.getVar('WORKDIR')
+        workdir = d.getVar('WORKDIR', True)
         d.setVar('MEGA_IMAGE_ARCHIVE', mega_archive)
         mega_archive_rel = os.path.relpath(mega_archive, workdir)
         if os.path.sep not in mega_archive_rel:
