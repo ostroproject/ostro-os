@@ -23,8 +23,8 @@ ISAFW_LA_PLUGIN_IMAGE_BLACKLIST ?= ""
 
 # First, code to handle scanning each recipe that goes into the build
 
-do_analysesource[depends] += "cve-check-tool-native:do_populate_sysroot ca-certificates-native:do_populate_sysroot"
 do_analysesource[depends] += "rpm-native:do_populate_sysroot"
+do_analysesource[depends] += "cve-check-tool-native:do_populate_sysroot ca-certificates-native:do_populate_sysroot"
 do_analysesource[depends] += "python-lxml-native:do_populate_sysroot"
 do_analysesource[nostamp] = "1"
 do_analysesource[cleandirs] = "${ISAFW_WORKDIR}"
@@ -92,17 +92,23 @@ process_reports_handler[eventmask] = "bb.event.BuildCompleted"
 python process_reports_handler() {
     from isafw import isafw
 
+    dd = d.createCopy()
+    target_sysroot = dd.expand("${STAGING_DIR}/${MACHINE}")
+    native_sysroot = dd.expand("${STAGING_DIR}/${BUILD_ARCH}")
+    staging_populate_sysroot_dir(target_sysroot, native_sysroot, True, dd)
+ 
+    dd.setVar("STAGING_DIR_NATIVE", native_sysroot)
     savedenv = os.environ.copy()
-    os.environ["PATH"] = d.getVar("PATH", True)
+    os.environ["PATH"] = dd.getVar("PATH", True)
 
-    imageSecurityAnalyser = isafw_init(isafw, d)
-
+    imageSecurityAnalyser = isafw_init(isafw, dd)
     bb.debug(1, 'isafw: process reports')
     imageSecurityAnalyser.process_report()
 
     os.environ["PATH"] = savedenv["PATH"]
 }
 
+do_build[depends] += "cve-check-tool-native:do_populate_sysroot ca-certificates-native:do_populate_sysroot"
 
 # These tasks are intended to be called directly by the user (e.g. bitbake -c)
 
