@@ -23,9 +23,6 @@ ISAFW_LA_PLUGIN_IMAGE_BLACKLIST ?= ""
 
 # First, code to handle scanning each recipe that goes into the build
 
-do_analysesource[depends] += "rpm-native:do_populate_sysroot"
-do_analysesource[depends] += "cve-check-tool-native:do_populate_sysroot ca-certificates-native:do_populate_sysroot"
-do_analysesource[depends] += "python-lxml-native:do_populate_sysroot"
 do_analysesource[nostamp] = "1"
 do_analysesource[cleandirs] = "${ISAFW_WORKDIR}"
 
@@ -109,6 +106,7 @@ python process_reports_handler() {
 }
 
 do_build[depends] += "cve-check-tool-native:do_populate_sysroot ca-certificates-native:do_populate_sysroot"
+do_build[depends] += "python-lxml-native:do_populate_sysroot"
 
 # These tasks are intended to be called directly by the user (e.g. bitbake -c)
 
