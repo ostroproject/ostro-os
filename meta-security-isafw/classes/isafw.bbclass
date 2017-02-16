@@ -160,14 +160,15 @@ fakeroot python do_analyse_image() {
         bb.debug(1, 'Kernel configuration file is missing. Not performing analysis on %s' % kernelconf)
 
     pkglist = manifest2pkglist(d)
+
     imagebasename = d.getVar('IMAGE_BASENAME', True)
 
-    pkg_list = isafw.ISA_pkg_list()
-    pkg_list.img_name = imagebasename
-    pkg_list.path_to_list = pkglist
-
-    bb.debug(1, 'do pkg list analysis on %s' % pkglist)
-    imageSecurityAnalyser.process_pkg_list(pkg_list)
+    if (pkglist):
+        pkg_list = isafw.ISA_pkg_list()
+        pkg_list.img_name = imagebasename
+        pkg_list.path_to_list = pkglist
+        bb.debug(1, 'do pkg list analysis on %s' % pkglist)
+        imageSecurityAnalyser.process_pkg_list(pkg_list)
 
     fs = isafw.ISA_filesystem()
     fs.img_name = imagebasename
@@ -263,17 +264,22 @@ def manifest2pkglist(d):
 
     with open(pkglist, 'a') as foutput:
         foutput.write("Packages for image " + imagebasename + "\n")
-        with open(manifest_file, 'r') as finput:
-            for line in finput:
-                items = line.split()
-                if items and (len(items) >= 3):
-                    pkgnames = map(os.path.basename, glob.glob(os.path.join(rr_dir, items[0])))
-                    for pkgname in pkgnames:
-                        originPkg = binary2source(rr_dir, pkgname)
-                        version = items[2]
-                        if not version:
-                            version = "undetermined"
-                        foutput.write(pkgname + " " + version + " " + originPkg + "\n")
+        try:
+            with open(manifest_file, 'r') as finput:
+                for line in finput:
+                    items = line.split()
+                    if items and (len(items) >= 3):
+                        pkgnames = map(os.path.basename, glob.glob(os.path.join(rr_dir, items[0])))
+                        for pkgname in pkgnames:
+                            originPkg = binary2source(rr_dir, pkgname)
+                            version = items[2]
+                            if not version:
+                                version = "undetermined"
+                            foutput.write(pkgname + " " + version + " " + originPkg + "\n")
+        except IOError:
+            bb.debug(1, 'isafw: manifest file not found. Skip pkg list analysis')
+            return "";
+
 
     return pkglist
 
