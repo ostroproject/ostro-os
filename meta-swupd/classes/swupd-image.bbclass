@@ -249,7 +249,7 @@ addtask stage_swupd_inputs after do_swupd_list_bundle before do_swupd_update
 do_stage_swupd_inputs[dirs] = "${SWUPDIMAGEDIR} ${SWUPDMANIFESTDIR} ${DEPLOY_DIR_SWUPD}/maps/"
 do_stage_swupd_inputs[depends] += " \
     virtual/fakeroot-native:do_populate_sysroot \
-    ${@ ' '.join(['bundle-${SWUPD_IMAGE_PN}-%s:do_swupd_list_bundle' % x for x in '${SWUPD_BUNDLES}'.split()]) } \
+    ${@ ' '.join(['bundle-${SWUPD_IMAGE_PN}-%s:do_swupd_list_bundle' % x for x in (d.getVar('SWUPD_BUNDLES') or '').split()]) } \
 "
 
 python do_fetch_swupd_inputs () {
