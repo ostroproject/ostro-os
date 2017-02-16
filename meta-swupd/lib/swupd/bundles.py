@@ -72,8 +72,9 @@ def copy_core_contents(d):
     if not havebundles:
         rootfs = d.getVar('IMAGE_ROOTFS', True)
         workdir = d.getVar('WORKDIR', True)
-        bb.debug(1, "Copying from image rootfs (%s) to full bundle (%s)" % (rootfs, bundle))
-        swupd.path.copyxattrfiles(d, source + contentsuffix, rootfs, fulltar, True)
+        bb.debug(1, "Copying from image rootfs (%s) to full bundle (%s)" % (rootfs, fulltar))
+        swupd.path.copyxattrfiles(d, swupd.utils.manifest_to_file_list(source + contentsuffix),
+                                  rootfs, fulltar, True)
     else:
         mega_archive = d.getVar('MEGA_IMAGE_ARCHIVE', True)
         if os.path.exists(fulltar):
