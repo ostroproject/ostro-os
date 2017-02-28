@@ -20,6 +20,7 @@ SRC_URI_append_intel-x86-common = " \
             file://0003-sd-boot-Support-global-kernel-command-line-fragment.patch \
             file://0004-sd-boot-Support-global-kernel-command-line-fragment-in-EFI-stub.patch \
             file://0001-efi-boot.c-workaround-for-Joule-BIOS-hang.patch \
+            file://0001-sd-boot-stub-check-LoadOptions-contains-data.patch \
             "
 
 PACKAGE_ARCH_intel-x86-common = "${INTEL_COMMON_PACKAGE_ARCH}"
