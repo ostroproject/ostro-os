@@ -9,8 +9,8 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 
 SRC_URI = "https://github.com/01org/libyami-utils/archive/${PV}.tar.gz"
 
-SRC_URI[md5sum] = "51420c8ddcecac1e24a238c43e2e18ca"
-SRC_URI[sha256sum] = "a5826a5ade885dc33e1a7d23f5f261522f88661ee486d3b8bbff6bdfaacf2495"
+SRC_URI[md5sum] = "7473e643e09296c20ed1286743906004"
+SRC_URI[sha256sum] = "66865408b63d09a80f1305828898c9cb5e7d57585b944b08148c92d774ba8dcd"
 
 S = "${WORKDIR}/libyami-utils-${PV}"
 
