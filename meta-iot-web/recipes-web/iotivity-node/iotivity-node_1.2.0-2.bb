@@ -55,6 +55,8 @@ do_compile () {
             ;;
         arm) targetArch="arm"
             ;;
+        aarch64) targetArch="arm64"
+            ;;
         mips) targetArch="mips"
             ;;
         sparc) targetArch="sparc"
