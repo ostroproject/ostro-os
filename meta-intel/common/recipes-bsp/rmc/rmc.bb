@@ -14,7 +14,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=838c366f69b72c5df05c96dff79b35f2"
 
 SRC_URI = "git://git.yoctoproject.org/rmc"
 
-SRCREV = "4799cb89b543712390d863a6fc50a58881590fa2"
+SRCREV = "d28eaec425f05511f0d9cd82b3623e95980ff2f6"
 
 S = "${WORKDIR}/git"
 
