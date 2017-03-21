@@ -2,16 +2,13 @@
 require recipes-kernel/linux/linux-yocto.inc
 
 KBRANCH = "base"
-SRCREV_machine ?= "21df0f902c89e4ec40742b4cc8d1b65382db19d8"
+SRCREV_machine ?= "6f425e57c6afaed5d61cd9b8abe898bae97f9374"
 SRCREV_meta ?= "b65e9b6153237e3ee898a01bc418c12f7404a681"
 
 SRC_URI = "git://github.com/01org/linux-intel-4.9.git;protocol=https;name=machine;branch=${KBRANCH}; \
            git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=yocto-4.9;destsuffix=${KMETA}"
 
-LINUX_VERSION ?= "4.9.12"
-
-# Temporary fix until DRM is properly backported
-SRC_URI += "file://fix.cfg"
+LINUX_VERSION ?= "4.9.15"
 
 PV = "${LINUX_VERSION}+git${SRCPV}"
 
