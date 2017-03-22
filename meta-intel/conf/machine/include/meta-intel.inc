@@ -11,6 +11,7 @@
 # Soft set linux-yocto as preferred kernel like x86-base.inc
 PREFERRED_PROVIDER_virtual/kernel ?= "linux-intel"
 PREFERRED_PROVIDER_virtual/kernel_poky-tiny ?= "linux-intel"
+PREFERRED_PROVIDER_virtual/kernel_linuxstdbase ?= "linux-yocto"
 PREFERRED_VERSION_linux-intel ?= "4.9%"
 
 # for Xserver older than 1.13.0
