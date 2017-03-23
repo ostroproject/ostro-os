@@ -2,17 +2,17 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 EXTRA_OEMAKE = "LD=${STAGING_BINDIR_NATIVE}/${HOST_SYS}/${TARGET_PREFIX}ld AR=${STAGING_BINDIR_NATIVE}/${HOST_SYS}/${TARGET_PREFIX}gcc-ar"
 
-LINUX_VERSION_i586-nlp-32-intel-common = "4.4.41"
-LINUX_VERSION_core2-32-intel-common = "4.4.41"
-LINUX_VERSION_corei7-64-intel-common = "4.4.41"
+LINUX_VERSION_i586-nlp-32-intel-common = "4.4.53"
+LINUX_VERSION_core2-32-intel-common = "4.4.53"
+LINUX_VERSION_corei7-64-intel-common = "4.4.53"
 
-SRCREV_meta_i586-nlp-32-intel-common = "f4a781388fae67caec79a5a571c8aadef0185044"
-SRCREV_meta_core2-32-intel-common = "f4a781388fae67caec79a5a571c8aadef0185044"
-SRCREV_meta_corei7-64-intel-common = "f4a781388fae67caec79a5a571c8aadef0185044"
+SRCREV_meta_i586-nlp-32-intel-common = "864bc5736aa58c510713e7b76d205d5341377972"
+SRCREV_meta_core2-32-intel-common = "864bc5736aa58c510713e7b76d205d5341377972"
+SRCREV_meta_corei7-64-intel-common = "864bc5736aa58c510713e7b76d205d5341377972"
 
-SRCREV_machine_i586-nlp-32-intel-common = "6b94736dbcacbecd1d0c05fb5d8aacbed1a4b8fc"
-SRCREV_machine_core2-32-intel-common = "6b94736dbcacbecd1d0c05fb5d8aacbed1a4b8fc"
-SRCREV_machine_corei7-64-intel-common = "6b94736dbcacbecd1d0c05fb5d8aacbed1a4b8fc"
+SRCREV_machine_i586-nlp-32-intel-common = "b9170d814fdb1fb969333962f76efd4f2671c068"
+SRCREV_machine_core2-32-intel-common = "b9170d814fdb1fb969333962f76efd4f2671c068"
+SRCREV_machine_corei7-64-intel-common = "b9170d814fdb1fb969333962f76efd4f2671c068"
 
 COMPATIBLE_MACHINE_i586-nlp-32-intel-common = "${MACHINE}"
 COMPATIBLE_MACHINE_core2-32-intel-common = "${MACHINE}"
