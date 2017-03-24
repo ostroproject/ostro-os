@@ -4,6 +4,9 @@
 # Ensure that qemu gets built when building images.
 EXTRA_IMAGEDEPENDS += "qemu-native qemu-helper-native"
 
+# Build ovmf firmware for uefi support in qemu.
+EXTRA_IMAGEDEPENDS += "ovmf"
+
 # runqemu uses virtio, so we have to enable the corresponding
 # kernel drivers.
 KERNEL_FEATURES += "cfg/virtio.scc"
