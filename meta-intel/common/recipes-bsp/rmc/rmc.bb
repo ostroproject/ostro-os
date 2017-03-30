@@ -10,7 +10,7 @@ require any quirks or customizations at a board or product level. \
 
 LICENSE = "MIT"
 
-LIC_FILES_CHKSUM = "file://COPYING;md5=838c366f69b72c5df05c96dff79b35f2"
+LIC_FILES_CHKSUM = "file://COPYING;md5=ade413c694d3aaefc9554b24a8814ee8"
 
 SRC_URI = "git://git.yoctoproject.org/rmc"
 
