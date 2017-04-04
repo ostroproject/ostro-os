@@ -18,4 +18,6 @@ DEPENDS = "libva libyami"
 
 EXTRA_OECONF = " --enable-tests-gles --disable-md5"
 
-inherit autotools pkgconfig
+inherit autotools pkgconfig distro_features_check
+
+REQUIRED_DISTRO_FEATURES = "opengl"

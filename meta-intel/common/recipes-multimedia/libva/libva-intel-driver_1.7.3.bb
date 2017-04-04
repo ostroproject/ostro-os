@@ -19,7 +19,9 @@ SRCREV = "c747c3428cd862869b75e96b737fa61532d6f27f"
 
 S = "${WORKDIR}/git"
 
-inherit autotools pkgconfig
+inherit autotools pkgconfig distro_features_check
+
+REQUIRED_DISTRO_FEATURES = "opengl"
 
 PACKAGECONFIG ??= "${@bb.utils.contains("DISTRO_FEATURES", "x11", "x11", "", d)} \
                    ${@bb.utils.contains("DISTRO_FEATURES", "opengl wayland", "wayland", "", d)}"

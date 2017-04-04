@@ -26,3 +26,7 @@ RDEPENDS_va-intel = " \
     "
 
 COMPATIBLE_HOST = '(i.86|x86_64).*-linux*'
+
+inherit distro_features_check
+
+REQUIRED_DISTRO_FEATURES = "opengl"
